@@ -1,0 +1,16 @@
+{
+  "name": "KidEDU",
+  "short_name": "KidEDU",
+  "description": "Công cụ hỗ trợ phụ huynh luyện giao tiếp tại nhà cho trẻ.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
