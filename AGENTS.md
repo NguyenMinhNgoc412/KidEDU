@@ -1,252 +1,472 @@
-# AGENTS.md
+# AGENTS.md - Quy tắc làm việc cho Codex trong dự án KidEDU
 
-Hướng dẫn cho Codex/agent khi làm việc trong repo KidEDU.
+> File này là hướng dẫn bắt buộc cho Codex/AI coding agent khi đọc tài liệu, sửa code, tạo file, cập nhật tài liệu hoặc đề xuất thay đổi trong dự án KidEDU.
 
-## Ngôn ngữ làm việc
+---
 
-- Luôn trả lời người dùng bằng tiếng Việt.
-- Tài liệu, ghi chú, mô tả thay đổi và giải thích kỹ thuật nên viết bằng tiếng Việt rõ ràng, có dấu.
-- Chỉ dùng tiếng Anh cho tên biến, tên hàm, tên file, API endpoint, câu lệnh terminal, log kỹ thuật hoặc thuật ngữ bắt buộc.
+## 1. Ngôn ngữ giao tiếp
 
-## Quy tắc xin phép trước khi mở rộng
+- Luôn trả lời chủ dự án bằng **tiếng Việt đầy đủ**.
+- Không trả lời lẫn tiếng Anh, trừ các phần bắt buộc như tên thư viện, tên file, tên biến, tên API, command, log, enum hoặc code identifier.
+- Khi tóm tắt thay đổi, nêu rõ bằng tiếng Việt:
+  - Đã sửa gì.
+  - Sửa ở file nào.
+  - Đã chạy kiểm tra gì.
+  - Còn gì chưa làm hoặc cần chủ dự án duyệt.
+- Không dùng câu trả lời mơ hồ như “đã tối ưu” nếu không nói rõ tối ưu ở đâu và bằng cách nào.
 
-Khi muốn thêm bất kỳ thứ gì mới ngoài phạm vi người dùng yêu cầu trực tiếp, agent phải hỏi người dùng trước.
+---
 
-Các trường hợp bắt buộc phải hỏi trước:
+## 2. Quy tắc thêm ý tưởng mới
 
-- Thêm tính năng mới.
-- Thêm màn hình mới.
-- Thêm role người dùng mới.
-- Thêm API mới.
-- Thêm bảng database mới.
-- Thêm dependency/package mới.
-- Đổi stack công nghệ.
-- Đổi cấu trúc thư mục lớn.
-- Thay đổi luồng sản phẩm chính.
-- Thêm AI, cloud sync, payment, subscription hoặc cơ chế xử lý dữ liệu nhạy cảm.
+Codex **không được tự ý thêm ý tưởng mới** vào sản phẩm, UI/UX, backend, database, business model hoặc roadmap nếu ý tưởng đó chưa có trong tài liệu hiện tại hoặc chưa được chủ dự án duyệt.
 
-Khi hỏi, agent phải giải thích ngắn gọn:
+Trước khi thêm bất kỳ ý tưởng mới nào, bắt buộc đi theo quy trình:
 
-- Muốn thêm gì.
-- Vì sao cần thêm.
-- Lợi ích cho dự án.
-- Rủi ro hoặc chi phí đi kèm nếu có.
-
-Chỉ được thực hiện sau khi người dùng đồng ý rõ ràng.
-
-Nếu thay đổi chỉ là sửa lỗi nhỏ, chỉnh chính tả, làm rõ tài liệu, format code, hoặc hoàn thiện đúng phần người dùng đã yêu cầu thì có thể làm ngay.
-
-## Quy tắc đọc và cập nhật tài liệu
-
-Trước khi thay đổi hoặc sửa bất kỳ phần nào của dự án, agent luôn phải đọc tài liệu theo thứ tự:
-
-1. Đọc `docs/README_Index.md` trước để nắm thứ tự module, sprint, dependency map và file workflow chi tiết cần mở.
-2. Đọc cả 2 tài liệu workflow tổng:
-   - `docs/KidEDU_Frontend_Workflow.md`
-   - `docs/KidEDU_Backend_Workflow.md`
-3. Nếu chuẩn bị code backend theo module, đọc tiếp file module tương ứng được liệt kê trong `docs/README_Index.md`.
-4. Với backend module, đọc `docs/00_Common_Conventions.md` trước file module nếu file đó tồn tại.
-5. Nếu cần kiểm tra thứ tự sprint/API/dependency backend, đọc `docs/99_Roadmap_API_Checklist.md` nếu file đó tồn tại.
-
-Mục đích là để mọi thay đổi đều bám sát thứ tự triển khai, định hướng sản phẩm, kiến trúc frontend, kiến trúc backend, nguyên tắc local-first, Child Mode, Parent Mode, privacy và roadmap MVP.
-
-Sau khi sửa xong, agent phải cập nhật lại tài liệu tương ứng để người dùng có thể đọc lại sau này:
-
-- Nếu sửa frontend, cập nhật `docs/KidEDU_Frontend_Workflow.md`.
-- Nếu sửa backend, cập nhật `docs/KidEDU_Backend_Workflow.md`.
-- Nếu thay đổi ảnh hưởng cả frontend và backend, cập nhật cả 2 file.
-- Nếu thay đổi là quy tắc làm việc chung cho agent, cập nhật `AGENTS.md`.
-- Nếu thay đổi nhỏ không làm thay đổi workflow, kiến trúc, API, UI, dữ liệu hoặc cách chạy dự án, agent vẫn phải nói rõ trong câu trả lời cuối rằng không cần cập nhật thêm tài liệu workflow nào.
-
-## Tổng quan dự án
-
-KidEDU là ứng dụng hỗ trợ phụ huynh luyện giao tiếp và ngôn ngữ tại nhà cho trẻ chậm nói. Sản phẩm không được trình bày như công cụ chẩn đoán hoặc thay thế chuyên gia âm ngữ trị liệu.
-
-Nguyên tắc sản phẩm:
-
-- MVP tập trung vào `Parent / Caregiver` và `Child Profile`.
-- Trẻ không có tài khoản đăng nhập riêng.
-- Chuyên gia trị liệu không phải app role trong MVP; phụ huynh có thể mở dashboard hoặc xuất báo cáo để chuyên gia xem.
-- Video của phụ huynh phải theo hướng local-first; cloud sync chỉ bật khi phụ huynh đồng ý.
-- AI nếu có chỉ là tính năng hỗ trợ luyện tập, không phải kết luận y khoa.
-
-## Trạng thái repo hiện tại
-
-Repo hiện tại có tài liệu lập kế hoạch và bản Web/PWA demo đầu tiên:
-
-- `docs/README_Index.md`
-- `docs/KidEDU_Frontend_Workflow.md`
-- `docs/KidEDU_Backend_Workflow.md`
-- `src/`
-- `public/`
-- `package.json`
-
-Chưa có backend server hoặc mobile project. Bản hiện tại là Web/PWA demo chạy bằng React, TypeScript và Vite.
-
-## Lệnh chạy dự án
-
-Lệnh chạy bản Web/PWA hiện tại:
-
-```bash
-npm install --cache .npm-cache
-npm run dev
-npm run build
-npm run preview
+```text
+Ý tưởng → Hỏi → Giải thích → Chờ duyệt → Mới được thêm vào
 ```
 
-Trong bản hiện tại, `npm run dev` sẽ build rồi serve thư mục `dist` bằng `scripts/serve-dist.mjs`.
+Cụ thể:
 
-Trên Windows PowerShell nếu `npm` bị chặn bởi execution policy, dùng `npm.cmd`:
+1. **Ý tưởng**: nêu ngắn gọn ý tưởng muốn thêm.
+2. **Hỏi**: hỏi chủ dự án có muốn thêm không.
+3. **Giải thích**: giải thích vì sao ý tưởng đó hữu ích, ảnh hưởng tới scope, chi phí, kỹ thuật hoặc UX.
+4. **Chờ duyệt**: chỉ tiếp tục sau khi chủ dự án đồng ý rõ ràng.
+5. **Thêm vào**: sau khi được duyệt mới sửa code/tài liệu.
 
-```bash
-npm.cmd install --cache .npm-cache
-npm.cmd run dev
-npm.cmd run build
+Ví dụ phải hỏi trước:
+
+- Thêm game, sticker, reward, streak, nhiệm vụ hằng ngày.
+- Thêm paywall, subscription, IAP, khóa nội dung.
+- Thêm cloud backup video phụ huynh.
+- Thêm ghi âm trẻ hoặc AI chấm phát âm.
+- Thêm login bắt buộc.
+- Thêm analytics nâng cao theo từng trẻ.
+- Thêm therapist/B2B.
+- Thêm package/dependency lớn.
+- Đổi kiến trúc từ local-first sang cloud-first.
+- Đổi roadmap phase hoặc đưa tính năng tương lai vào phase hiện tại.
+
+Nếu phát hiện một ý tưởng có vẻ tốt nhưng chưa được duyệt, chỉ được ghi dưới dạng:
+
+```text
+Đề xuất cần duyệt: ...
+Lý do: ...
+Ảnh hưởng: ...
+Bạn có muốn thêm không?
 ```
 
-Hiện chưa có script test tự động.
+Không tự implement trước.
 
-Khi scaffold Expo/mobile sau này, cập nhật phần này bằng lệnh thật sự của mobile project.
-Không thêm lệnh giả định vào README/AGENTS nếu package scripts chưa tồn tại.
+---
 
-Ví dụ nếu sau này chọn Expo:
+## 3. Quy tắc đọc tài liệu theo phase
 
-```bash
-npm install
-npm run start
-npm run lint
-npm run test
+Khi làm phase nào, Codex chỉ đọc tài liệu của phase đó và các tài liệu tổng quát bắt buộc.
+
+### 3.1. Tài liệu tổng quát luôn cần đọc
+
+Luôn đọc file tổng quát trước khi bắt đầu task lớn:
+
+```text
+docs/Tong_quat_he_thong_Kidedu.md
 ```
 
-## Hướng stack ưu tiên
+Nếu repo dùng tên khác, tìm file tổng quát có tên gần giống:
 
-Frontend MVP nên ưu tiên một trong hai hướng:
-
-- Mobile-first: React Native / Expo, TypeScript, Expo Router hoặc React Navigation.
-- Demo nhanh Web/PWA: React/Next.js, TypeScript, Tailwind CSS.
-
-Backend MVP có thể đi theo:
-
-- Node.js NestJS hoặc Python FastAPI.
-- PostgreSQL cho database server.
-- Object storage cho video mẫu hệ thống.
-- Local storage/local DB trên client cho video phụ huynh và cache offline.
-
-Nếu chưa có quyết định mới từ người dùng, ưu tiên mobile-first với Expo vì sản phẩm dành cho trẻ và phụ huynh dùng hằng ngày.
-
-## Nguyên tắc frontend
-
-Child Mode:
-
-- Mỗi màn hình chỉ nên có một mục tiêu chính.
-- Nút lớn, ảnh lớn, ít chữ, không có menu phức tạp.
-- Không hiện settings, upload, dashboard, mua gói, đăng xuất trong Child Mode.
-- Các hành động của phụ huynh phải nằm sau Parent Gate.
-- Không hiện lỗi kỹ thuật cho trẻ; fallback sang nội dung local/cache nếu có.
-
-Parent Mode:
-
-- Quản lý hồ sơ trẻ.
-- Quản lý video phụ huynh.
-- Xem dashboard tiến độ.
-- Cài đặt bài học và quyền riêng tư.
-- Có chế độ xem tư vấn gọn để phụ huynh đưa cho chuyên gia xem trực tiếp.
-
-Lesson Player:
-
-- Ưu tiên video theo thứ tự: local parent video, cloud parent video, cached system video, online system video.
-- Mặc định lặp 1 lần tốc độ thường, các lần sau chậm hơn nếu phù hợp.
-- Không auto-repeat quá nhiều làm trẻ quá tải.
-- Ghi learning events local trước, sync backend sau.
-
-## Nguyên tắc backend
-
-MVP backend nên bắt đầu từ các module:
-
-- Auth cho phụ huynh.
-- Child profile.
-- Categories và word items.
-- Learning sessions và learning events.
-- Basic progress summary.
-- Optional cloud sync cho video phụ huynh.
-
-Backend không nên:
-
-- Lưu đường dẫn local tuyệt đối của thiết bị như dữ liệu server dùng được.
-- Bắt buộc upload video phụ huynh lên cloud.
-- Tạo role chuyên gia trong MVP nếu người dùng chưa yêu cầu rõ.
-- Dùng video/recording của trẻ để train AI khi chưa có consent rõ ràng.
-
-API demo nên ưu tiên:
-
-```http
-POST /auth/login
-POST /children
-GET  /categories
-GET  /categories/:categoryId/words?childId=:childId
-POST /learning-sessions
-POST /learning-sessions/:sessionId/events
+```text
+Tong_quat_he_thong_Kidedu.md
+tong_quat_he_thong_kidedu.md
+thiet-ke-tong-quat-he-thong-kidedu.md
 ```
 
-## Riêng tư và an toàn dữ liệu trẻ em
+### 3.2. Khi làm Phase 0
 
-- Dữ liệu trẻ và media riêng phải private mặc định.
-- URL media cloud nên là signed URL có thời hạn.
-- Phụ huynh phải có quyền xóa dữ liệu cloud và local.
-- Xin quyền camera/microphone/photo library bằng ngôn ngữ dễ hiểu.
-- Không public/chia sẻ công khai dữ liệu trẻ.
-- Không ghi nội dung UI làm phụ huynh hiểu app là công cụ chẩn đoán y khoa.
+Đọc folder:
 
-## Quy tắc code
-
-- Luôn đọc `docs/README_Index.md` trước khi code để biết thứ tự từng phần cần làm.
-- Sau đó đọc `docs/KidEDU_Frontend_Workflow.md` và `docs/KidEDU_Backend_Workflow.md` trước khi sửa hoặc thêm bất kỳ phần nào của dự án.
-- Khi code backend theo module, đọc đúng file module được chỉ trong `docs/README_Index.md`, kèm `docs/00_Common_Conventions.md` nếu file này tồn tại.
-- Giữ thay đổi nhỏ, đúng phạm vi người dùng yêu cầu.
-- Ưu tiên TypeScript cho frontend.
-- Tách Child Mode và Parent Mode rõ ràng trong routing/state.
-- Tách data mẫu, service media, tracking event và UI component.
-- Local-first/offline-first là yêu cầu sản phẩm, không phải nice-to-have.
-- Khi thêm dependency, phải hỏi người dùng trước, giải thích lý do và chỉ thêm sau khi được đồng ý.
-- Sau khi thay đổi code hoặc tài liệu, cập nhật lại workflow tương ứng trong `docs/` nếu nội dung thay đổi ảnh hưởng tới cách hiểu hoặc cách chạy dự án.
-
-## Kiểm tra trước khi kết thúc task
-
-Nếu repo đã có scripts, chạy các lệnh phù hợp:
-
-```bash
-npm run lint
-npm run test
-npm run build
+```text
+docs/phase0/
 ```
 
-Nếu chưa có scripts, nói rõ trong final response rằng repo chưa scaffold nên chưa có lệnh test/build để chạy.
+Bộ tài liệu Phase 0 gồm:
 
-Với UI, kiểm tra tối thiểu:
+```text
+docs/phase0/00-phase0-overview.md
+docs/phase0/01-learning-screen-playback.md
+docs/phase0/02-parent-video-local.md
+docs/phase0/03-navigation-parent-gate.md
+```
 
-- Text không bị tràn trên mobile.
-- Nút Child Mode đủ lớn để bấm.
-- Không có settings/upload/dashboard lộ ra trong Child Mode.
-- Video/audio có fallback khi thiếu network.
-- Parent Gate bảo vệ thao tác của phụ huynh.
+Nếu task đơn giản, đọc tối thiểu:
 
-## Khi tạo cấu trúc dự án mới
+```text
+docs/phase0/00-phase0-overview.md
+```
 
-Đề xuất thứ tự:
+Nếu task liên quan màn học/playback, đọc thêm:
 
-1. Hỏi người dùng chọn hướng mobile-first hay web/PWA nếu chưa có quyết định.
-2. Scaffold frontend theo quyết định của người dùng.
-3. Đưa prototype hiện tại vào route/component demo.
-4. Sửa lỗi encoding tiếng Việt.
-5. Tách mock data thành file riêng.
-6. Thêm Child Mode và Parent Mode.
-7. Thêm local storage cho progress và video phụ huynh.
-8. Sau đó mới kết nối backend.
+```text
+docs/phase0/01-learning-screen-playback.md
+```
 
-Nếu muốn làm khác thứ tự trên, agent phải giải thích lý do và chờ người dùng đồng ý.
+Nếu task liên quan video phụ huynh local, đọc thêm:
 
-## Tài liệu nên tham chiếu
+```text
+docs/phase0/02-parent-video-local.md
+```
 
-- `docs/README_Index.md`: thứ tự module backend, sprint, dependency map và cách dùng bộ workflow chi tiết.
-- `docs/KidEDU_Frontend_Workflow.md`: quy tắc UX, Child Mode, Parent Mode, offline-first.
-- `docs/KidEDU_Backend_Workflow.md`: role, API, media local-first, progress, báo cáo.
+Nếu task liên quan hidden navigation, parent gate hoặc tab Học/Phụ huynh/Cài đặt, đọc thêm:
+
+```text
+docs/phase0/03-navigation-parent-gate.md
+```
+
+### 3.3. Không đọc/lôi scope phase tương lai nếu không cần
+
+- Không đọc tài liệu Phase 4 khi đang làm Phase 0, trừ khi chủ dự án yêu cầu rõ.
+- Không tự đưa game/paywall/subscription vào Phase 0.
+- Không tự tạo backend/CMS đầy đủ trong Phase 0 nếu tài liệu Phase 0 chỉ yêu cầu mock/local prototype.
+
+---
+
+## 4. Quy tắc cập nhật tài liệu sau khi sửa code
+
+Sau khi sửa hoặc thêm bất kỳ chức năng nào, Codex phải cập nhật tài liệu tương ứng.
+
+### 4.1. Nếu đang làm một phase cụ thể
+
+Cập nhật cả hai nơi:
+
+1. File module trong folder phase hiện tại.
+2. File tổng quát hệ thống.
+
+Ví dụ đang làm Phase 0:
+
+```text
+Sửa playback → cập nhật:
+- docs/phase0/01-learning-screen-playback.md
+- docs/Tong_quat_he_thong_Kidedu.md
+
+Sửa video phụ huynh local → cập nhật:
+- docs/phase0/02-parent-video-local.md
+- docs/Tong_quat_he_thong_Kidedu.md
+
+Sửa hidden navigation/parent gate → cập nhật:
+- docs/phase0/03-navigation-parent-gate.md
+- docs/Tong_quat_he_thong_Kidedu.md
+
+Sửa scope/acceptance/seed data Phase 0 → cập nhật:
+- docs/phase0/00-phase0-overview.md
+- docs/Tong_quat_he_thong_Kidedu.md
+```
+
+### 4.2. Cách cập nhật tài liệu
+
+- Không chỉ sửa code rồi bỏ qua tài liệu.
+- Không viết tài liệu lệch với code vừa sửa.
+- Không cập nhật tài liệu theo ý tưởng chưa được duyệt.
+- Nếu thay đổi nhỏ, cập nhật đúng mục liên quan, không rewrite toàn bộ file.
+- Nếu tài liệu và code đang mâu thuẫn, ghi rõ trong phản hồi:
+
+```text
+Phát hiện mâu thuẫn: ...
+Tôi đã sửa theo nguồn ưu tiên: ...
+```
+
+### 4.3. Không sửa file backup
+
+Không sửa các file backup như:
+
+```text
+*.backup*.md
+*.bak
+*.old
+```
+
+trừ khi chủ dự án yêu cầu rõ.
+
+---
+
+## 5. Thứ tự ưu tiên khi có mâu thuẫn
+
+Khi có mâu thuẫn giữa nhiều nguồn, dùng thứ tự ưu tiên sau:
+
+1. Yêu cầu mới nhất của chủ dự án trong cuộc trò chuyện hoặc issue/task hiện tại.
+2. `AGENTS.md`.
+3. Tài liệu phase hiện tại, ví dụ `docs/phase0/*`.
+4. File tổng quát hệ thống.
+5. Code hiện tại trong repo.
+
+Nếu vẫn không chắc, phải hỏi lại chủ dự án trước khi quyết định.
+
+---
+
+## 6. Scope Phase 0 bắt buộc tuân thủ
+
+Phase 0 là prototype để chứng minh concept học bằng khẩu hình.
+
+### 6.1. Được làm trong Phase 0
+
+- 1 chủ đề mẫu.
+- 7-10 từ đầu tiên.
+- Ít nhất 5 video khẩu hình thật cho phần demo lõi.
+- Child Mode learning screen.
+- Video/avatar khẩu hình lớn.
+- Ảnh minh họa và chữ lớn.
+- Play/Replay/Next.
+- Playback sequence: lần 1 thường, lần 2 chậm, lần 3 chậm.
+- Hidden Navigation Bar.
+- Vuốt lên để hiện navigation.
+- Tabs: Học, Phụ huynh, Cài đặt.
+- Parent/Settings mở bằng giữ 1 giây.
+- Video phụ huynh local override cho 1-2 từ.
+- Copy video phụ huynh vào app private storage.
+- Progress/session summary đơn giản.
+- Local state, local JSON hoặc mock data.
+
+### 6.2. Không làm trong Phase 0
+
+- Game.
+- Sticker/reward.
+- Paywall.
+- Subscription/IAP.
+- Freemium content locking.
+- Backend/CMS production đầy đủ.
+- Cloud backup video phụ huynh.
+- AI chấm phát âm.
+- Ghi âm trẻ.
+- Therapist/B2B.
+- Avatar realtime.
+- Analytics nâng cao.
+- Login bắt buộc nếu prototype chưa cần.
+
+Nếu task yêu cầu thứ nằm ngoài Phase 0, phải hỏi lại chủ dự án để xác nhận có muốn đổi scope hay không.
+
+---
+
+## 7. Quy tắc UI/UX cốt lõi
+
+### 7.1. Child Mode
+
+Child Mode là trang chính. Màn trẻ chỉ có các thành phần phục vụ trực tiếp việc học:
+
+- Video/avatar khẩu hình.
+- Ảnh minh họa.
+- Chữ lớn của từ.
+- Play/Replay.
+- Next.
+- Badge trạng thái nhỏ như `Lần 1/3 · thường`, `Lần 2/3 · chậm`.
+
+Không đặt trực tiếp trong Child Mode:
+
+- Upload/thay video.
+- Xóa video.
+- Cài đặt tốc độ/số lần phát.
+- Báo cáo tiến trình.
+- Paywall.
+- Game config.
+- Đánh dấu chi tiết gây gián đoạn.
+
+### 7.2. Hidden Navigation Bar
+
+- Navigation ẩn mặc định.
+- Phụ huynh vuốt lên từ handle nhỏ trong app để hiện navigation.
+- Navigation MVP gồm: `Học`, `Phụ huynh`, `Cài đặt`.
+- Bấm `Học` quay về Child Mode ngay.
+- Bấm `Phụ huynh` hoặc `Cài đặt` phải giữ 1 giây mới mở.
+- Khi video đang phát, navigation tự ẩn.
+- Không dùng gesture sát mép dưới gây xung đột với iOS/Android system gesture.
+
+### 7.3. Sensory-friendly
+
+- Không nhạc nền trong màn học.
+- Không animation nhanh hoặc nhấp nháy.
+- Không popup/toast che miệng avatar khi video đang phát.
+- Không âm thanh báo sai mạnh.
+- Không chấm điểm gây áp lực cho trẻ.
+- Ưu tiên giao diện tĩnh, rõ, ít nhiễu.
+
+---
+
+## 8. Quy tắc video phụ huynh local
+
+Với Phase 0 và các phase đầu, video phụ huynh mặc định là **local-only**.
+
+Bắt buộc:
+
+- Không upload video phụ huynh lên cloud mặc định.
+- Không chỉ lưu URI/path từ thư viện ảnh.
+- Phải copy video vào app private storage.
+- Local DB chỉ lưu metadata và `local_file_path`.
+- Khi phụ huynh xóa video gốc trong thư viện, video đã lưu trong app vẫn phát được.
+- Khi phụ huynh gỡ app hoặc clear app data, video local có thể mất; cần cảnh báo rõ trong UX.
+- Khi có custom video local active cho `child_profile_id + word_id`, màn học ưu tiên video local thay vì video mặc định.
+
+Không được thêm cloud backup, signed URL hoặc sync nhiều thiết bị nếu chưa được duyệt.
+
+---
+
+## 9. Quy tắc naming và event
+
+### 9.1. Naming dữ liệu
+
+Dùng thống nhất:
+
+```text
+child_profile_id
+```
+
+Không dùng lẫn `child_id` cho entity hồ sơ trẻ.
+
+Quy ước:
+
+- Database table: plural snake_case.
+- Database column: snake_case.
+- TypeScript type/model: PascalCase.
+- Event field: snake_case.
+
+Ví dụ:
+
+```text
+users
+child_profiles
+categories
+words
+learning_events
+learning_progress
+custom_videos
+```
+
+### 9.2. Event Phase 0
+
+Chỉ dùng canonical event names:
+
+```text
+word_opened
+play_sequence_started
+play_sequence_completed
+custom_video_saved_local
+custom_video_deleted_local
+word_status_marked
+lesson_started
+lesson_completed
+review_queue_opened
+```
+
+Không tạo event mới nếu chưa được duyệt.
+Không dùng tên cũ như:
+
+```text
+open_word
+play_sequence
+finish_sequence
+mark_status
+```
+
+---
+
+## 10. Quy tắc kỹ thuật khi sửa code
+
+Trước khi sửa:
+
+1. Đọc đúng tài liệu phase/module liên quan.
+2. Xác định scope hiện tại.
+3. Kiểm tra code hiện tại trước khi chỉnh.
+4. Không đổi kiến trúc lớn nếu task không yêu cầu.
+
+Khi sửa:
+
+- Giữ thay đổi nhỏ, đúng task.
+- Không refactor lớn ngoài phạm vi nếu không cần.
+- Không thêm dependency mới nếu chưa hỏi và được duyệt.
+- Không xóa code/tài liệu quan trọng nếu chưa chắc.
+- Không hard-code dữ liệu nhạy cảm.
+- Không log raw video/audio hoặc dữ liệu trẻ em.
+- Không lưu video vào database.
+- Không để parent controls lọt vào Child Mode.
+
+Sau khi sửa:
+
+1. Chạy test/lint/typecheck nếu repo có script tương ứng.
+2. Nếu không thể chạy test, ghi rõ lý do.
+3. Cập nhật tài liệu phase và file tổng quát.
+4. Trả lời bằng tiếng Việt, gồm:
+   - Tóm tắt thay đổi.
+   - Danh sách file đã sửa.
+   - Kiểm tra đã chạy.
+   - Rủi ro hoặc việc còn lại.
+
+---
+
+## 11. Quy tắc bảo mật và dữ liệu trẻ em
+
+KidEDU xử lý dữ liệu liên quan đến trẻ nhỏ, nên Codex phải ưu tiên an toàn dữ liệu.
+
+Không được tự ý thêm:
+
+- Upload video trẻ/phụ huynh lên cloud.
+- Ghi âm trẻ.
+- Phân tích giọng nói trẻ.
+- Chia sẻ dữ liệu trẻ cho therapist/admin.
+- Analytics chi tiết theo trẻ.
+- AI/ML dùng dữ liệu video/audio của trẻ.
+
+Nếu cần làm các phần trên, phải hỏi chủ dự án và yêu cầu có:
+
+- Parental consent.
+- Retention policy.
+- Deletion/export flow.
+- Audit log.
+- Privacy copy rõ ràng.
+
+---
+
+## 12. Quy tắc phản hồi cuối sau mỗi task
+
+Mọi phản hồi cuối của Codex phải bằng tiếng Việt và theo mẫu:
+
+```text
+Đã làm:
+- ...
+
+File đã sửa:
+- ...
+
+Kiểm tra đã chạy:
+- ...
+
+Tài liệu đã cập nhật:
+- ...
+
+Lưu ý / cần duyệt thêm:
+- ...
+```
+
+Nếu có ý tưởng mới chưa được duyệt, đặt ở phần cuối:
+
+```text
+Đề xuất cần duyệt:
+- Ý tưởng: ...
+- Lý do: ...
+- Ảnh hưởng: ...
+- Bạn có muốn tôi thêm vào không?
+```
+
+Không implement đề xuất đó cho tới khi được duyệt.
+
+---
+
+## 13. Nhắc lại các quyết định đã chốt
+
+- Giao tiếp bằng tiếng Việt đầy đủ.
+- Phase nào thì đọc folder phase đó.
+- Làm/sửa xong phải cập nhật tài liệu trong folder phase và file tổng quát.
+- Child Mode là trang chính.
+- Navigation ẩn, vuốt lên để hiện.
+- Parent Mode và Settings mở bằng giữ 1 giây.
+- Parent controls không nằm trực tiếp trên màn trẻ.
+- Phase 0 không có game/paywall/subscription.
+- Video phụ huynh lưu local trong app private storage, không upload cloud mặc định.
+- Dùng `child_profile_id` thống nhất.
+- Không thêm ý tưởng mới nếu chưa hỏi và được duyệt.
