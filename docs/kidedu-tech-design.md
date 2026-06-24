@@ -51,6 +51,14 @@ Tài liệu dùng một mô hình roadmap thống nhất: **Phase 0 → Phase 5*
 
 Phase 0 dùng để chứng minh: trẻ có thể nhìn video/avatar khẩu hình, nghe phát âm và bắt chước theo một luồng học ngắn.
 
+Trạng thái triển khai hiện tại: repo đã có prototype web tĩnh Phase 0 tại `index.html`, `src/styles.css`, `src/app.js`. Prototype dùng localStorage cho progress/settings/events và IndexedDB để lưu Blob video phụ huynh local-only. Đây là bước chứng minh luồng trước khi chuyển sang mobile app thật.
+
+Playback prototype phát video học khẩu hình với audio bật khi phụ huynh bấm Play/Replay; không render video học ở trạng thái `muted` mặc định.
+
+Parent Mode prototype dùng combo box để đánh dấu từ đã học và custom file picker cho video phụ huynh; Settings hiển thị thời gian nghỉ theo giây, còn giá trị nội bộ vẫn lưu bằng millisecond.
+
+Lưu ý kỹ thuật: repo chưa có 5 asset video khẩu hình thật. Các đường dẫn media mặc định đang là slot local dự kiến; cần bổ sung file video thật để hoàn tất acceptance P00-02.
+
 | Mã | Chức năng | Mô tả |
 |---|---|---|
 | P00-01 | Bộ từ mẫu nhỏ | 1 chủ đề, 7-10 từ đầu tiên, ưu tiên âm môi/nguyên âm dễ quan sát |

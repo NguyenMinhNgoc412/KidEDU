@@ -70,15 +70,15 @@ Khi làm phase nào, Codex chỉ đọc tài liệu của phase đó và các t�
 Luôn đọc file tổng quát trước khi bắt đầu task lớn:
 
 ```text
-docs/Tong_quat_he_thong_Kidedu.md
+docs/kidedu-tech-design.md
+docs/kidedu-uiux-design.md
 ```
 
 Nếu repo dùng tên khác, tìm file tổng quát có tên gần giống:
 
 ```text
-Tong_quat_he_thong_Kidedu.md
-tong_quat_he_thong_kidedu.md
-thiet-ke-tong-quat-he-thong-kidedu.md
+kidedu-uiux-design.md
+kidedu-tech-design.md
 ```
 
 ### 3.2. Khi làm Phase 0
@@ -139,26 +139,30 @@ Sau khi sửa hoặc thêm bất kỳ chức năng nào, Codex phải cập nh�
 Cập nhật cả hai nơi:
 
 1. File module trong folder phase hiện tại.
-2. File tổng quát hệ thống.
+2. File tổng quát bên ngoài.
 
 Ví dụ đang làm Phase 0:
 
 ```text
 Sửa playback → cập nhật:
 - docs/phase0/01-learning-screen-playback.md
-- docs/Tong_quat_he_thong_Kidedu.md
+- docs/kidedu-tech-design.md
+- docs/kidedu-uiux-design.md
 
 Sửa video phụ huynh local → cập nhật:
 - docs/phase0/02-parent-video-local.md
-- docs/Tong_quat_he_thong_Kidedu.md
+- docs/kidedu-tech-design.md
+- docs/kidedu-uiux-design.md
 
 Sửa hidden navigation/parent gate → cập nhật:
 - docs/phase0/03-navigation-parent-gate.md
-- docs/Tong_quat_he_thong_Kidedu.md
+- docs/kidedu-tech-design.md
+- docs/kidedu-uiux-design.md
 
 Sửa scope/acceptance/seed data Phase 0 → cập nhật:
 - docs/phase0/00-phase0-overview.md
-- docs/Tong_quat_he_thong_Kidedu.md
+- docs/kidedu-tech-design.md
+- docs/kidedu-uiux-design.md
 ```
 
 ### 4.2. Cách cập nhật tài liệu

@@ -19,6 +19,19 @@ Kết quả cần chứng minh:
 - Không có UI gây nhiễu hoặc che miệng avatar.
 - Progress/event được ghi local.
 
+### 1.1. Trạng thái triển khai hiện tại
+
+Prototype web tĩnh đã triển khai màn học trong:
+
+```text
+src/app.js
+src/styles.css
+```
+
+Hiện có video stage lớn, badge lượt phát, ảnh minh họa, chữ lớn, Play/Replay, Next, event local `word_opened`, `play_sequence_started`, `play_sequence_completed` và logic tự lưu `viewed` ngay khi bấm Play nếu từ đang `Chưa học`. UI hiển thị `viewed` là `Đã học`. Khi có video phụ huynh local trong IndexedDB, màn học ưu tiên phát video đó. Nếu chưa có file video thật, màn học dùng fallback trực quan để kiểm thử luồng nhưng chưa thay thế yêu cầu media khẩu hình thật.
+
+Lưu ý audio: video trong màn học không được render mặc định ở trạng thái `muted`. Khi phụ huynh bấm Play/Replay, player phải phát cả hình và tiếng để trẻ nghe phát âm.
+
 ---
 
 ## 2. Phase 0 scope
@@ -33,7 +46,7 @@ Làm trong Phase 0:
 - Play/Replay/Next.
 - Resolve video source: ưu tiên custom video local nếu có.
 - Ghi event local: `word_opened`, `play_sequence_started`, `play_sequence_completed`.
-- Khi hoàn thành mà phụ huynh không đánh dấu, lưu `viewed`.
+- Khi bấm Play mà phụ huynh chưa đánh dấu, lưu tối thiểu `viewed` và hiển thị `Đã học`.
 
 Không làm trong file này:
 
@@ -370,7 +383,7 @@ Sau khi `play_sequence_completed`:
 
 - Tăng `practiceCount`.
 - Tăng hoặc giữ `viewCount` tùy logic đã ghi khi `word_opened`.
-- Nếu từ chưa có status trong phiên này, set `latestStatus = viewed`.
+- Nếu từ chưa có status trong phiên này, set `latestStatus = viewed` khi bắt đầu Play; UI hiển thị `Đã học`.
 - Không bắt phụ huynh đánh dấu ngay.
 
 ```ts
@@ -414,6 +427,7 @@ Nên làm:
 | Người dùng bấm Next khi đang phát | Dừng playback trước khi chuyển từ |
 | Component unmount | Cleanup timers/listeners |
 | Speed không được player hỗ trợ | Fallback 1.0x và log warning local |
+| Video có audio nhưng không nghe tiếng | Kiểm tra player không bị `muted`, đặt volume về mức nghe được trước khi phát |
 
 ---
 
@@ -428,13 +442,15 @@ Module đạt nếu:
 5. Có nghỉ giữa lượt khoảng `pauseDurationMs`.
 6. Badge lượt phát đúng trạng thái.
 7. Hoàn thành sequence ghi `play_sequence_completed`.
-8. Sau khi hoàn thành, nếu không đánh dấu thì status tối thiểu là `viewed`.
+8. Khi bấm Play, nếu không đánh dấu thì status tối thiểu là `viewed` và UI hiển thị `Đã học`.
 9. Replay phát lại đủ sequence.
 10. Next dừng video và chuyển từ.
 11. Có custom video local thì ưu tiên phát custom video.
 12. Custom video missing thì fallback video mặc định.
 13. Không có popup che miệng avatar khi đang phát.
 14. Không có game/paywall/parent controls trực tiếp trong Child Learning Screen.
+
+Trạng thái hiện tại: các tiêu chí logic/UI đã có trong prototype web tĩnh, nhưng tiêu chí phát video khẩu hình thật phụ thuộc việc bổ sung file media thật hoặc video phụ huynh local qua Parent Mode.
 
 ---
 

@@ -69,6 +69,10 @@ Tài liệu dùng một mô hình roadmap thống nhất: **Phase 0 → Phase 5*
 
 Phase 0 dùng để chứng minh: trẻ có thể nhìn video/avatar khẩu hình, nghe phát âm và bắt chước theo một luồng học ngắn.
 
+Trạng thái triển khai hiện tại: prototype web tĩnh tại `index.html`, `src/styles.css`, `src/app.js` đã có Child Mode, Hidden Navigation Bar, parent gate giữ 1 giây, Parent Mode, Settings, Learning Screen, playback sequence và Session Summary. Parent Mode dùng combo box để chọn từ đã học + đánh giá, file picker video được render thành nút rõ ràng, Settings hiển thị nghỉ giữa lượt theo giây. Màn học có fallback trực quan khi chưa có video khẩu hình thật; cần bổ sung media thật để hoàn tất demo lõi.
+
+Video học trong prototype phải phát cả hình và tiếng sau khi phụ huynh bấm Play/Replay; không tắt tiếng mặc định cho video khẩu hình.
+
 | Mã | Chức năng | Mô tả |
 |---|---|---|
 | P00-01 | Bộ từ mẫu nhỏ | 1 chủ đề, 7-10 từ đầu tiên, ưu tiên âm môi/nguyên âm dễ quan sát |

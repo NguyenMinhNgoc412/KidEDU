@@ -18,6 +18,19 @@ Cho phụ huynh thay video/avatar mặc định bằng video tự chọn/quay ch
 - App phát lại video local trong màn học.
 - Xóa video gốc trong thư viện điện thoại không làm mất video đã lưu trong app.
 
+### 1.1. Trạng thái triển khai hiện tại
+
+Prototype web tĩnh đã triển khai parent video local override trong `src/app.js` bằng IndexedDB:
+
+- Phụ huynh chọn video bằng file picker trong Parent Mode.
+- File picker được render bằng nút rõ ràng, ví dụ `📁 Chọn video`, không dùng input file mặc định khó nhìn.
+- App validate cơ bản loại file và dung lượng.
+- App lưu Blob video vào IndexedDB, metadata vào local state/localStorage.
+- Màn học ưu tiên video local cho `childProfileId + wordId`.
+- Xóa video thay thế có confirm và fallback về video mặc định/fallback visual.
+
+Trong browser prototype, IndexedDB đóng vai trò tương đương app private storage. Khi chuyển sang mobile app, cần thay bằng FileSystem/app private storage thật theo cùng contract.
+
 ---
 
 ## 2. Phase 0 scope
@@ -228,6 +241,8 @@ Phase 0 chỉ cần validate cơ bản.
 | Độ phân giải | 480p hoặc 720p là đủ |
 | Âm thanh | Nên có tiếng rõ; Phase 0 chưa cần tự kiểm tra chất lượng |
 
+Video phụ huynh local phải được phát lại cả hình và tiếng trong Learning Screen. Không render player ở trạng thái `muted` mặc định cho video học khẩu hình.
+
 Nếu video quá dài/quá nặng:
 
 ```text
@@ -402,6 +417,8 @@ Module đạt nếu:
 12. File missing không làm app crash.
 13. Không có cloud upload hoặc signed URL trong Phase 0.
 14. Event `custom_video_saved_local` và `custom_video_deleted_local` dùng đúng canonical name.
+
+Trạng thái hiện tại: prototype web đã đáp ứng luồng local-only ở mức browser/IndexedDB. Cần kiểm thử thêm trên mobile app thật khi chuyển sang React Native/Expo hoặc stack mobile được chọn.
 
 ---
 

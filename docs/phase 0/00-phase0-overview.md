@@ -19,6 +19,20 @@ Phase 0 dùng để chứng minh concept cốt lõi của KidEDU:
 
 Phase 0 là **prototype**, không phải production app. Ưu tiên chất lượng luồng học hơn số lượng tính năng.
 
+### 1.1. Trạng thái triển khai hiện tại
+
+Prototype Phase 0 hiện được triển khai dạng web tĩnh để có thể mở trực tiếp bằng browser:
+
+```text
+index.html
+src/styles.css
+src/app.js
+```
+
+Prototype hiện có Child Mode, danh sách chủ đề/từ, màn học chi tiết, playback sequence thường → chậm → chậm, Hidden Navigation Bar, parent gate giữ 1 giây, Parent Mode, Settings, Session Summary/đánh dấu nhanh dạng combo box và video phụ huynh local lưu bằng IndexedDB.
+
+Lưu ý: repo hiện chưa có 5 file video khẩu hình thật. Màn học có fallback trực quan để kiểm thử luồng, nhưng acceptance `P0-02` chỉ đạt hoàn toàn sau khi bổ sung media thật cho ít nhất 5 từ demo lõi.
+
 ---
 
 ## 2. Must build trong Phase 0
@@ -67,7 +81,7 @@ Nếu cần placeholder, chỉ tạo stub/TODO. Không implement logic thật ch
 2. **Màn trẻ không chứa parent controls trực tiếp.** Không upload, không xóa video, không chỉnh tốc độ, không paywall.
 3. **Parent Mode và Settings phải qua parent gate.** Vuốt lên hiện nav, bấm/giữ Parent hoặc Settings trong 1 giây mới mở.
 4. **Video/miệng là trung tâm.** Video/avatar phải là vùng lớn nhất trong Learning Screen.
-5. **Không đánh dấu bắt buộc sau từng từ.** Nếu phụ huynh không chọn gì, tự lưu `viewed`.
+5. **Không đánh dấu bắt buộc sau từng từ.** Khi bấm Play, từ `Chưa học` được tự lưu tối thiểu là `viewed` và UI hiển thị `Đã học`.
 6. **Video phụ huynh mặc định local-only.** Không upload cloud trong Phase 0.
 7. **Không chỉ lưu URI thư viện ảnh.** Video phụ huynh phải được copy vào app private storage.
 8. **Không có game/paywall trong Phase 0.** Không tạo UI khóa nội dung hoặc tab game.
@@ -180,7 +194,7 @@ Yêu cầu UI:
 - Card từ lớn.
 - Ảnh minh họa rõ.
 - Chữ lớn.
-- Badge trạng thái nhỏ: `Chưa học`, `Đã xem`, `Cần ôn`.
+- Badge trạng thái nhỏ: `Chưa học`, `Đã học`, `Cần ôn`.
 - Không có icon khóa/premium.
 
 ### 7.4. Learning Detail
@@ -201,8 +215,8 @@ Tóm tắt:
 Phase 0 chỉ cần tối thiểu:
 
 - Từ vừa học.
-- Đánh dấu nhanh: `Bé nhìn`, `Bắt chước`, `Cần ôn`.
-- Nút vào quản lý video local cho từ mẫu.
+- Đánh dấu nhanh bằng combo box: chọn bất kỳ từ nào, kể cả `Chưa học`, rồi chọn đánh giá `Bé nhìn`, `Bắt chước`, `Cần ôn`.
+- Nút chọn/lưu/xóa video local rõ ràng, không dùng input file mặc định khó nhìn.
 - Hướng dẫn ngắn cho phụ huynh.
 
 ### 7.6. Settings placeholder
@@ -211,7 +225,7 @@ Phase 0 chỉ cần:
 
 - Số lần phát: mặc định 3.
 - Tốc độ chậm: mặc định 0.6x.
-- Nghỉ giữa lượt: mặc định 1500ms.
+- Nghỉ giữa lượt: mặc định 1.5s, UI hiển thị theo giây thay vì ms.
 - Chế độ ít kích thích: mặc định bật.
 
 ### 7.7. Session Summary
@@ -229,7 +243,7 @@ Quy tắc:
 
 - Không bắt buộc sau từng từ.
 - Không phải màn trẻ.
-- Nếu chưa đánh dấu, trạng thái mặc định là `viewed`.
+- Nếu chưa đánh dấu, trạng thái mặc định là `viewed`; UI hiển thị là `Đã học`.
 
 ---
 
@@ -321,6 +335,20 @@ Không dùng event cũ như:
 | 8 | Progress + Session Summary | `00-phase0-overview.md`, `01-learning-screen-playback.md` |
 | 9 | QA states/sensory/error handling | Tất cả 4 file nếu cần |
 
+Trạng thái prototype web tĩnh hiện tại:
+
+| Task | Trạng thái |
+|---|---|
+| Seed data và mock media path | Đã có 1 chủ đề, 10 từ, đường dẫn media local dự kiến |
+| App Shell + Child Mode | Đã có trong `index.html` + `src/app.js` |
+| Hidden Navigation + parent gate | Đã có vuốt/bấm handle, nav ẩn, giữ 1 giây |
+| Category List + Word List | Đã có card lớn, ít chữ |
+| Learning Screen UI | Đã có video stage lớn, ảnh, chữ, Play/Replay/Next |
+| Playback sequence | Đã có sequence 3 lượt, tốc độ 1.0x rồi 0.6x |
+| Parent video local override | Đã có chọn file video, lưu Blob vào IndexedDB, ưu tiên phát local |
+| Progress + Session Summary | Đã có local progress, đánh dấu nhanh dạng combo box trong Parent Mode; combobox cho phép đổi cả từ `Chưa học` sang trạng thái đã học |
+| Video khẩu hình thật | Chưa có asset thật trong repo; cần bổ sung để hoàn tất acceptance |
+
 ---
 
 ## 11. Acceptance criteria Phase 0
@@ -338,7 +366,7 @@ Phase 0 đạt nếu:
 9. Có thao tác thay video phụ huynh cho ít nhất 1-2 từ mẫu.
 10. Video phụ huynh được copy vào app private storage, không chỉ lưu URI gallery.
 11. Xóa video gốc trong thư viện không làm mất video đã copy trong app.
-12. Không đánh dấu sau từng từ vẫn tự lưu `viewed`.
+12. Không đánh dấu sau từng từ vẫn tự lưu `viewed` khi bấm Play và UI hiển thị `Đã học`.
 13. Có Session Summary cuối phiên.
 14. Không có game, paywall, subscription, cloud backup, therapist access, AI scoring.
 

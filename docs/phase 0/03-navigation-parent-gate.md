@@ -18,6 +18,19 @@ Tạo navigation child-first cho Phase 0:
 
 Mục tiêu: trẻ không dễ bấm nhầm vào phần phụ huynh, nhưng phụ huynh vẫn thao tác nhanh.
 
+### 1.1. Trạng thái triển khai hiện tại
+
+Prototype web tĩnh đã triển khai App Shell và hidden navigation trong `src/app.js`:
+
+- Child Mode là màn mặc định.
+- Handle nhỏ nằm trong app để mở navigation.
+- Navigation có 3 tab: `Học`, `Phụ huynh`, `Cài đặt`.
+- `Phụ huynh` và `Cài đặt` dùng hold gate 1 giây.
+- Khi bắt đầu playback, navigation tự ẩn.
+- Không có Game tab, paywall hoặc subscription.
+
+Hành động xóa video thay thế trong Parent Mode vẫn có confirm riêng; parent gate 1 giây chỉ dùng để vào khu vực phụ huynh.
+
 ---
 
 ## 2. Phase 0 scope
@@ -185,11 +198,12 @@ Phase 0 Parent Mode không cần báo cáo đầy đủ. Chỉ cần những th�
 │ 1 từ cần ôn                  │
 ├─────────────────────────────┤
 │ Đánh dấu nhanh               │
-│ Ba: [Nhìn] [Bắt chước] [Ôn]  │
-│ Mẹ: [Nhìn] [Bắt chước] [Ôn]  │
+│ Từ đã học: [Mẹ ▾]             │
+│ Đánh giá: [Bắt chước ▾]       │
+│ [ Lưu đánh giá ]              │
 ├─────────────────────────────┤
 │ Video cá nhân hóa            │
-│ [ Quản lý video theo từ ]    │
+│ [ Chọn video ] [ Lưu video ] │
 ├─────────────────────────────┤
 │ Gợi ý                        │
 │ Cho bé nhìn miệng trước,     │
@@ -200,8 +214,8 @@ Phase 0 Parent Mode không cần báo cáo đầy đủ. Chỉ cần những th�
 Parent Mode Phase 0 có thể chứa:
 
 - Session Summary.
-- Đánh dấu nhanh cho các từ đã học.
-- Link sang quản lý video local.
+- Đánh dấu nhanh cho các từ đã học bằng combo box chọn từ + combo box chọn đánh giá.
+- Link hoặc cụm nút rõ ràng để chọn/lưu/xóa video local.
 - Hướng dẫn phụ huynh ngắn.
 
 Không chứa:
@@ -222,7 +236,7 @@ Không chứa:
 ├─────────────────────────────┤
 │ Số lần phát: 3               │
 │ Tốc độ chậm: 0.6x            │
-│ Nghỉ giữa lượt: 1.5s         │
+│ Nghỉ giữa lượt: 1.5s          │
 ├─────────────────────────────┤
 │ Chế độ ít kích thích: Bật    │
 │ Âm thanh UI: Tắt             │
@@ -237,7 +251,7 @@ Settings Phase 0 cần:
 - `pauseDurationMs`: default 1500.
 - `sensoryFriendlyMode`: default true.
 
-Có thể cho chỉnh thật hoặc hard-code + UI disabled tùy tốc độ prototype.
+UI Settings hiển thị nghỉ giữa lượt theo giây, ví dụ `0.8s`, `1.5s`, `2.5s`, dù giá trị nội bộ vẫn lưu bằng millisecond. Có thể cho chỉnh thật hoặc hard-code + UI disabled tùy tốc độ prototype.
 
 ---
 
