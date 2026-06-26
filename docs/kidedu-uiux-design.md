@@ -69,7 +69,7 @@ Tài liệu dùng một mô hình roadmap thống nhất: **Phase 0 → Phase 5*
 
 Phase 0 dùng để chứng minh: trẻ có thể nhìn video/avatar khẩu hình, nghe phát âm và bắt chước theo một luồng học ngắn.
 
-Trạng thái triển khai hiện tại: prototype web tĩnh tại `index.html`, `src/styles.css`, `src/app.js` đã có Child Mode, Hidden Navigation Bar, parent gate giữ 1 giây, Parent Mode, Settings, Learning Screen, playback sequence và Session Summary. Parent Mode dùng combo box để chọn từ đã học + đánh giá, file picker video được render thành nút rõ ràng, Settings hiển thị nghỉ giữa lượt theo giây. Màn học có fallback trực quan khi chưa có video khẩu hình thật; cần bổ sung media thật để hoàn tất demo lõi.
+Trạng thái triển khai hiện tại: prototype web tĩnh tại `index.html`, `src/styles.css`, `src/app.js` đã có Child Mode, Hidden Navigation Bar, parent gate giữ 1 giây, Parent Mode, Settings, Learning Screen, playback sequence và Session Summary. UI 4 màn chính đã được làm lại theo `docs/kidedu-ui-spec.md` và reference `screenshots/home.JPG`, `screenshots/childmode.JPG`, `screenshots/parentmode.JPG`, `screenshots/setting.JPG`: nền cream, topic grid, vùng khẩu hình lớn, dashboard phụ huynh, settings card/list và bottom tab bar cố định khi phù hợp. Màn vocabulary topic dùng data-driven pattern theo `screenshots/vocab.JPG`: title, card, hình minh họa và learned star lấy từ topic/progress, không hardcode riêng cho `Gia đình`; các từ gia đình bổ sung hiện chỉ là seed demo local cho pattern này. Màn học có asset minh họa local `assets/images/mouth-focus.svg` khi chưa có video khẩu hình thật; cần bổ sung media thật để hoàn tất demo lõi.
 
 Video học trong prototype phải phát cả hình và tiếng sau khi phụ huynh bấm Play/Replay; không tắt tiếng mặc định cho video khẩu hình.
 
@@ -222,7 +222,7 @@ flowchart LR
 | Hidden Navigation Bar | Học, Phụ huynh, Cài đặt; Game chỉ ở Phase 4 | Ẩn mặc định, vuốt lên để hiện |
 | Parent Gate | Giữ 1 giây tại tab Parent/Settings hoặc handle parent | Tránh trẻ vào nhầm, nhưng không làm phụ huynh khó chịu |
 | Danh sách chủ đề | Từ đơn, từ kép, số đếm, gia đình, động vật... | Card lớn, ảnh rõ, ít chữ |
-| Danh sách từ | Ảnh, từ, mức độ đã học, nút bắt đầu | Không hiện paywall ở Phase 0/1/2/3 |
+| Danh sách từ | Vocabulary grid theo topic: title lấy từ topic, card lấy từ danh sách từ, learned star lấy từ progress | Không hardcode riêng một topic; không hiện paywall ở Phase 0/1/2/3 |
 | Màn học chi tiết | Avatar/video khẩu hình, ảnh minh họa, chữ lớn, Play/Replay, Next | Không hiển thị parent controls trực tiếp |
 | Parent Mode | Đánh dấu nhanh, tiến trình, video phụ huynh, hướng dẫn | Có thể nhiều thông tin hơn nhưng chia nhóm rõ |
 | Session Summary | Danh sách từ đã học, chỉnh lại đánh dấu, từ cần ôn | Hiện cuối phiên, không bắt buộc sau từng từ |
@@ -376,6 +376,8 @@ flowchart TD
 #### 5.4.7. Parent Mode
 
 Parent Mode là tab riêng, mở qua hidden navigation và parent gate giữ 1 giây.
+
+Trong prototype hiện tại, Parent Mode dùng layout dashboard mobile theo `screenshots/parentmode.JPG`: header compact, progress card xanh, section kết quả nhanh, card đánh dấu nhanh, card video bố mẹ quay, tip card, stats card và bottom tab bar cố định. Giao diện dùng nền cream, card bo mềm, ít shadow và tonal layering theo `docs/kidedu-ui-spec.md`.
 
 ```text
 ┌─────────────────────────────┐
@@ -1398,7 +1400,13 @@ Production MVP được xem là đạt nếu:
 20. Ở Phase 4B, paywall chỉ nói với phụ huynh, không gây thất vọng hoặc gián đoạn trải nghiệm của trẻ.
 21. Game/paywall không được chen vào Child Mode khi video đang phát.
 
-## 16. Kết luận UI/UX
+## 16. Responsive layout cho prototype
+
+Các reference Stitch dùng width 390px làm mốc thị giác, nhưng UI KidEDU không được khóa cứng ở 390px. Prototype web cần dùng app shell fluid: `width: 100%`, `max-width: 430px`, `min-height: 100dvh`, padding theo `clamp()`, card `width: 100%`, media responsive và bottom navigation có safe-area.
+
+Khi review UI/UX, cần test Home, Child Mode, Parent Mode và Settings ở 320px, 360px, 390px, 430px, 768px và 1024px preview. Mục tiêu là không có horizontal overflow, không cắt chữ tiếng Việt, bottom navigation không che nội dung cuối, card co giãn tự nhiên và vùng video/khẩu hình giữ tỉ lệ hợp lý theo viewport height.
+
+## 17. Kết luận UI/UX
 
 Thiết kế UI/UX KidEDU cần giữ nguyên hướng **child-first**: Child Mode là trang chính, video/khẩu hình là trung tâm, parent controls không nằm trực tiếp trên màn trẻ, Parent Mode/Settings mở bằng hidden navigation và thao tác giữ 1 giây.
 

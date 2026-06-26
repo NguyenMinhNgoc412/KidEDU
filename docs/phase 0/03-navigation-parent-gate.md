@@ -26,8 +26,10 @@ Prototype web tĩnh đã triển khai App Shell và hidden navigation trong `src
 - Handle nhỏ nằm trong app để mở navigation.
 - Navigation có 3 tab: `Học`, `Phụ huynh`, `Cài đặt`.
 - `Phụ huynh` và `Cài đặt` dùng hold gate 1 giây.
+- Hold gate dùng timer 1000ms ổn định; thả trước 1 giây thì hủy, giữ đủ 1 giây thì mở Parent Mode/Settings kể cả khi ngón tay hơi lệch khỏi tab.
 - Khi bắt đầu playback, navigation tự ẩn.
 - Không có Game tab, paywall hoặc subscription.
+- Home, Parent Mode và Settings đã được cập nhật theo `docs/kidedu-ui-spec.md` và reference `screenshots/home.JPG`, `screenshots/parentmode.JPG`, `screenshots/setting.JPG`: nền cream, card bo mềm, bottom tab bar cố định khi phù hợp. Child learning vẫn giữ navigation ẩn/handle nhỏ để ưu tiên tập trung.
 
 Hành động xóa video thay thế trong Parent Mode vẫn có confirm riêng; parent gate 1 giây chỉ dùng để vào khu vực phụ huynh.
 
@@ -401,3 +403,11 @@ Constraints:
 - Do not add Game tab, paywall, subscription, backend auth, therapist access.
 - Auto-hide nav when video starts playing.
 ```
+
+---
+
+## 16. Ghi chú responsive layout cho App Shell và navigation
+
+App Shell dùng mốc 390px để so visual nhưng layout thật phải fluid: `width: 100%`, `max-width: 430px`, `min-height: 100dvh`, `margin-inline: auto` trên màn rộng. Hidden nav, bottom tab bar và handle dùng `width: 100%` trong shell, không dùng width cố định từ screenshot.
+
+CSS cần ưu tiên `clamp()`, grid/flex fluid, `min-height: 100dvh`, `overflow-x: hidden` và `env(safe-area-inset-bottom)`. Nội dung cuộn vẫn cần padding đáy đủ lớn để nav không che card cuối.

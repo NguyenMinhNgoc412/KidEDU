@@ -28,7 +28,7 @@ src/app.js
 src/styles.css
 ```
 
-Hiện có video stage lớn, badge lượt phát, ảnh minh họa, chữ lớn, Play/Replay, Next, event local `word_opened`, `play_sequence_started`, `play_sequence_completed` và logic tự lưu `viewed` ngay khi bấm Play nếu từ đang `Chưa học`. UI hiển thị `viewed` là `Đã học`. Khi có video phụ huynh local trong IndexedDB, màn học ưu tiên phát video đó. Nếu chưa có file video thật, màn học dùng fallback trực quan để kiểm thử luồng nhưng chưa thay thế yêu cầu media khẩu hình thật.
+Hiện có màn học theo reference `screenshots/childmode.JPG`: vùng khẩu hình/video là một card lớn bo góc trên nền cream, chip lượt phát nằm ở header, bên dưới là avatar nhỏ, chữ từ lớn, nút `PHÁT` và `TỪ TIẾP THEO`. Event local vẫn là `word_opened`, `play_sequence_started`, `play_sequence_completed` và logic tự lưu `viewed` ngay khi bấm Play nếu từ đang `Chưa học`. UI hiển thị `viewed` là `Đã học`. Khi có video phụ huynh local trong IndexedDB, màn học ưu tiên phát video đó và render `object-fit: cover` trong card khẩu hình. Nếu chưa có file video thật, màn học dùng asset minh họa local `assets/images/mouth-focus.svg` để kiểm thử visual nhưng chưa thay thế yêu cầu media khẩu hình thật.
 
 Lưu ý audio: video trong màn học không được render mặc định ở trạng thái `muted`. Khi phụ huynh bấm Play/Replay, player phải phát cả hình và tiếng để trẻ nghe phát âm.
 
@@ -471,3 +471,11 @@ Constraints:
 - Use canonical events: word_opened, play_sequence_started, play_sequence_completed.
 - Sequence: 1.0x -> 0.6x -> 0.6x with pause between rounds.
 ```
+
+---
+
+## 13. Ghi chú responsive layout cho màn học
+
+Child Learning Screen dùng mốc 390px để so visual, nhưng layout thật phải fluid. Vùng khẩu hình/video dùng `width: 100%`, chiều cao `clamp()` theo `dvh`, ảnh/video `object-fit: cover`; chip lượt phát, cụm từ đang học và hai nút chính nằm trong luồng layout một cột.
+
+Chiều cao màn học dùng `min-height: 100dvh` và cho phép cuộn khi viewport thấp, thay vì để video phủ toàn bộ màn hình hoặc hardcode chiều cao export. Layout phải giữ nền cream, card bo góc và không bị cắt nút Play/Next.

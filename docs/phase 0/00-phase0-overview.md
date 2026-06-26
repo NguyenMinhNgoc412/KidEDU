@@ -29,9 +29,9 @@ src/styles.css
 src/app.js
 ```
 
-Prototype hiện có Child Mode, danh sách chủ đề/từ, màn học chi tiết, playback sequence thường → chậm → chậm, Hidden Navigation Bar, parent gate giữ 1 giây, Parent Mode, Settings, Session Summary/đánh dấu nhanh dạng combo box và video phụ huynh local lưu bằng IndexedDB.
+Prototype hiện có Child Mode, Home/topic grid, danh sách từ theo từng topic, màn học chi tiết, playback sequence thường → chậm → chậm, Hidden Navigation Bar, parent gate giữ 1 giây, Parent Mode, Settings, Session Summary/đánh dấu nhanh và video phụ huynh local lưu bằng IndexedDB. UI 4 màn chính đã được cập nhật theo `docs/kidedu-ui-spec.md` và reference `screenshots/home.JPG`, `screenshots/childmode.JPG`, `screenshots/parentmode.JPG`, `screenshots/setting.JPG`; màn vocabulary topic dùng pattern từ `screenshots/vocab.JPG`.
 
-Lưu ý: repo hiện chưa có 5 file video khẩu hình thật. Màn học có fallback trực quan để kiểm thử luồng, nhưng acceptance `P0-02` chỉ đạt hoàn toàn sau khi bổ sung media thật cho ít nhất 5 từ demo lõi.
+Lưu ý: repo hiện chưa có 5 file video khẩu hình thật. Màn học có asset minh họa local `assets/images/mouth-focus.svg` để kiểm thử visual, nhưng acceptance `P0-02` chỉ đạt hoàn toàn sau khi bổ sung media thật cho ít nhất 5 từ demo lõi. Một số từ gia đình như `Ông`, `Bà`, `Anh`, `Chị` đang là seed demo để kiểm thử vocabulary grid data-driven, chưa thay thế yêu cầu media thật. Khi thêm seed word mới, prototype cần merge progress mặc định với localStorage cũ để tránh trắng màn do thiếu record progress.
 
 ---
 
@@ -342,7 +342,7 @@ Trạng thái prototype web tĩnh hiện tại:
 | Seed data và mock media path | Đã có 1 chủ đề, 10 từ, đường dẫn media local dự kiến |
 | App Shell + Child Mode | Đã có trong `index.html` + `src/app.js` |
 | Hidden Navigation + parent gate | Đã có vuốt/bấm handle, nav ẩn, giữ 1 giây |
-| Category List + Word List | Đã có card lớn, ít chữ |
+| Category List + Word List | Đã có Home topic grid và vocabulary grid data-driven theo `topicId`; title, danh sách từ và learned star lấy từ topic/progress |
 | Learning Screen UI | Đã có video stage lớn, ảnh, chữ, Play/Replay/Next |
 | Playback sequence | Đã có sequence 3 lượt, tốc độ 1.0x rồi 0.6x |
 | Parent video local override | Đã có chọn file video, lưu Blob vào IndexedDB, ưu tiên phát local |
@@ -389,3 +389,11 @@ Constraints:
 - Use childProfileId in TypeScript and child_profile_id in DB/schema.
 - Use canonical Phase 0 event names only.
 ```
+
+---
+
+## 13. Ghi chú responsive layout
+
+Prototype web tĩnh dùng viewport 390px làm mốc thiết kế cho các reference Stitch, nhưng không khóa app ở 390px. App shell cần dùng `width: 100%`, `max-width: 430px`, `min-height: 100dvh`, padding fluid và safe-area cho bottom navigation để tránh tràn ngang, tránh bottom nav che nội dung.
+
+Khi test Phase 0, cần kiểm tra tối thiểu ở 320px, 360px, 390px, 430px và 768px. Các màn Home, Child Learning, Parent Mode và Settings phải tự co giãn bằng grid/flex, `clamp()`, `min-height` và `width: 100%`; không dùng `zoom` hoặc kích thước export của Stitch làm layout thật.

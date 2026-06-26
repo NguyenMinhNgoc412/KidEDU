@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" role="img" aria-label="Minh họa khẩu hình đang phát âm">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="42%" r="70%">
+      <stop offset="0%" stop-color="#ffd5bd"/>
+      <stop offset="58%" stop-color="#f2ad91"/>
+      <stop offset="100%" stop-color="#d98a73"/>
+    </radialGradient>
+    <linearGradient id="lip" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#e87576"/>
+      <stop offset="48%" stop-color="#c94e5c"/>
+      <stop offset="100%" stop-color="#9d2f40"/>
+    </linearGradient>
+    <linearGradient id="mouth" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#5a1726"/>
+      <stop offset="100%" stop-color="#20070e"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#7b3a33" flood-opacity=".16"/>
+    </filter>
+  </defs>
+  <rect width="720" height="720" rx="44" fill="url(#skin)"/>
+  <ellipse cx="360" cy="184" rx="72" ry="46" fill="#e39b85" opacity=".55"/>
+  <ellipse cx="316" cy="198" rx="22" ry="12" fill="#8b4f45" opacity=".5"/>
+  <ellipse cx="404" cy="198" rx="22" ry="12" fill="#8b4f45" opacity=".5"/>
+  <path d="M256 370c34-48 78-76 104-76s70 28 104 76c-40-15-72-20-104-20s-64 5-104 20z" fill="url(#lip)" filter="url(#soft)"/>
+  <path d="M246 386c42-42 76-54 114-54s72 12 114 54c-30 94-68 142-114 142s-84-48-114-142z" fill="url(#lip)" filter="url(#soft)"/>
+  <ellipse cx="360" cy="408" rx="106" ry="93" fill="url(#mouth)"/>
+  <path d="M273 358c52 20 123 20 174 0 8 18 4 34-9 48-46-20-110-20-156 0-13-14-17-30-9-48z" fill="#fff8ef"/>
+  <path d="M294 472c38 28 94 28 132 0-8 44-32 72-66 72s-58-28-66-72z" fill="#f7a6a2" opacity=".9"/>
+  <path d="M238 380c44-76 92-96 122-96s78 20 122 96" fill="none" stroke="#f18c8c" stroke-width="24" stroke-linecap="round" opacity=".55"/>
+  <path d="M252 453c34 58 68 86 108 86s74-28 108-86" fill="none" stroke="#b8384e" stroke-width="18" stroke-linecap="round" opacity=".45"/>
+</svg>
