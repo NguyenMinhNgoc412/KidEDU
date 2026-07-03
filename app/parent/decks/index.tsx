@@ -16,7 +16,7 @@ import {
 } from "@/data/queries";
 import type { Deck } from "@/data/types";
 import { DeckItemChooser } from "@/features/deck/DeckItemChooser";
-import { colors } from "@/theme";
+import { colors, radii } from "@/theme";
 
 export default function ParentDecksScreen() {
   const router = useRouter();
@@ -141,10 +141,10 @@ const styles = StyleSheet.create({
   form: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.xl,
     borderWidth: 1,
     gap: 12,
-    padding: 14
+    padding: 18
   },
   formTitle: {
     color: colors.text,
@@ -152,19 +152,19 @@ const styles = StyleSheet.create({
     fontWeight: "900"
   },
   input: {
-    backgroundColor: colors.background,
-    borderColor: colors.border,
-    borderRadius: 8,
-    borderWidth: 1,
+    backgroundColor: "#FFFDF2",
+    borderColor: colors.sage,
+    borderRadius: radii.lg,
+    borderWidth: 2,
     color: colors.text,
-    fontSize: 17,
-    minHeight: 52,
-    paddingHorizontal: 12
+    fontSize: 16,
+    minHeight: 56,
+    paddingHorizontal: 16
   },
   row: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.lg,
     borderWidth: 1,
     gap: 12,
     marginBottom: 10,

@@ -15,7 +15,7 @@ import {
 } from "@/data/queries";
 import type { EntityStatus, LearningStatus } from "@/data/types";
 import { PersonalizedMediaSection } from "@/features/media/PersonalizedMediaSection";
-import { colors } from "@/theme";
+import { colors, radii } from "@/theme";
 
 export default function ParentItemDetailScreen() {
   const router = useRouter();
@@ -95,6 +95,7 @@ export default function ParentItemDetailScreen() {
     <Screen>
       <SectionHeader title="Sửa thẻ" action={<KidButton label="Quay lại" onPress={() => router.back()} variant="plain" />} />
       <View style={styles.form}>
+        <Text style={styles.label}>Từ vựng</Text>
         <TextInput
           onChangeText={setTitle}
           placeholder="Từ hoặc cụm từ"
@@ -102,6 +103,7 @@ export default function ParentItemDetailScreen() {
           style={styles.input}
           value={title}
         />
+        <Text style={styles.label}>Ghi chú</Text>
         <TextInput
           multiline
           onChangeText={setNote}
@@ -159,20 +161,20 @@ const styles = StyleSheet.create({
   form: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.xl,
     borderWidth: 1,
     gap: 12,
-    padding: 14
+    padding: 18
   },
   input: {
-    backgroundColor: colors.background,
-    borderColor: colors.border,
-    borderRadius: 8,
-    borderWidth: 1,
+    backgroundColor: "#FFFDF2",
+    borderColor: colors.sage,
+    borderRadius: radii.lg,
+    borderWidth: 2,
     color: colors.text,
-    fontSize: 17,
-    minHeight: 52,
-    paddingHorizontal: 12
+    fontSize: 16,
+    minHeight: 56,
+    paddingHorizontal: 16
   },
   note: {
     minHeight: 92,
@@ -191,6 +193,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10
   }
 });

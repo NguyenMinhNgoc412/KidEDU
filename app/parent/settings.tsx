@@ -9,13 +9,14 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { StateMessage } from "@/components/StateMessage";
 import { useLearningSettingsQuery, useUpdateLearningSettingsMutation } from "@/data/queries";
 import type { LearningSettings, LoopMode, SpeedPreset } from "@/data/types";
-import { colors } from "@/theme";
+import { colors, radii } from "@/theme";
 
 export default function ParentSettingsScreen() {
   const router = useRouter();
   const settingsQuery = useLearningSettingsQuery();
   const updateMutation = useUpdateLearningSettingsMutation();
   const [draft, setDraft] = useState<LearningSettings | null>(null);
+  const isDirty = draft && settingsQuery.data ? !areSettingsEqual(draft, settingsQuery.data) : false;
 
   useEffect(() => {
     if (settingsQuery.data) {
@@ -32,9 +33,10 @@ export default function ParentSettingsScreen() {
       return;
     }
 
-    updateMutation.mutate(draft, {
-      onSuccess: () => router.back()
-    });
+    void updateMutation
+      .mutateAsync(draft)
+      .then(() => router.back())
+      .catch(() => undefined);
   }
 
   if (settingsQuery.isLoading || !draft) {
@@ -47,7 +49,17 @@ export default function ParentSettingsScreen() {
 
   return (
     <Screen>
-      <SectionHeader title="Cài đặt học" action={<KidButton label="Xong" onPress={() => router.back()} variant="plain" />} />
+      <SectionHeader
+        title="Cài đặt học"
+        action={
+          <KidButton
+            disabled={updateMutation.isPending}
+            label={isDirty ? "Lưu" : "Xong"}
+            onPress={isDirty ? save : () => router.back()}
+            variant={isDirty ? "primary" : "plain"}
+          />
+        }
+      />
       <View style={styles.panel}>
         <Text style={styles.label}>Tốc độ học</Text>
         <View style={styles.choiceWrap}>
@@ -87,9 +99,25 @@ export default function ParentSettingsScreen() {
           />
         </View>
 
-        <KidButton disabled={updateMutation.isPending} icon={<Save color="#FFFFFF" size={22} />} label="Lưu cài đặt" onPress={save} />
+        {updateMutation.isError ? <Text style={styles.error}>Chưa lưu được cài đặt. Thử lại giúp mình nhé.</Text> : null}
+
+        <KidButton
+          disabled={updateMutation.isPending || !isDirty}
+          icon={<Save color="#FFFFFF" size={22} />}
+          label={updateMutation.isPending ? "Đang lưu" : isDirty ? "Lưu cài đặt" : "Đã lưu"}
+          onPress={save}
+        />
       </View>
     </Screen>
+  );
+}
+
+function areSettingsEqual(left: LearningSettings, right: LearningSettings): boolean {
+  return (
+    left.speedPreset === right.speedPreset &&
+    left.loopMode === right.loopMode &&
+    left.reinforcementEnabled === right.reinforcementEnabled &&
+    left.sfxEnabled === right.sfxEnabled
   );
 }
 
@@ -109,10 +137,10 @@ const styles = StyleSheet.create({
   panel: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.xl,
     borderWidth: 1,
     gap: 14,
-    padding: 14
+    padding: 18
   },
   label: {
     color: colors.text,
@@ -123,5 +151,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8
+  },
+  error: {
+    color: colors.danger,
+    fontSize: 13,
+    fontWeight: "800"
   }
 });

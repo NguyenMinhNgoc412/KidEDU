@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { KidButton } from "@/components/KidButton";
 import type { LearningItem } from "@/data/types";
-import { colors } from "@/theme";
+import { colors, radii } from "@/theme";
 
 export function DeckItemChooser({
   items,
@@ -66,9 +66,9 @@ export function DeckItemChooser({
 const styles = StyleSheet.create({
   row: {
     alignItems: "center",
-    backgroundColor: colors.surface,
+    backgroundColor: "#FFFDF2",
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.lg,
     borderWidth: 1,
     flexDirection: "row",
     gap: 10,
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     padding: 10
   },
   selected: {
-    backgroundColor: "#E5F3EF",
+    backgroundColor: colors.primarySoft,
     borderColor: colors.primary
   },
   textWrap: {

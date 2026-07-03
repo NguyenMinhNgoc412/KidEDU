@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colors } from "@/theme";
+import { colors, radii } from "@/theme";
 
 export type KidButtonVariant = "primary" | "secondary" | "plain" | "danger";
 
@@ -46,11 +46,15 @@ export function KidButton({
 const styles = StyleSheet.create({
   button: {
     alignItems: "center",
-    borderRadius: 8,
-    minHeight: 52,
+    borderRadius: radii.full,
+    minHeight: 56,
     justifyContent: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 10
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    shadowColor: colors.sage,
+    shadowOffset: { height: 8, width: 0 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14
   },
   inner: {
     alignItems: "center",
@@ -69,6 +73,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     fontSize: 16,
     fontWeight: "800",
+    lineHeight: 20,
     textAlign: "center"
   },
   plainLabel: {
@@ -87,7 +92,7 @@ const variantStyles = StyleSheet.create({
     backgroundColor: colors.primary
   },
   secondary: {
-    backgroundColor: colors.blue
+    backgroundColor: colors.coral
   },
   plain: {
     backgroundColor: colors.surfaceAlt,

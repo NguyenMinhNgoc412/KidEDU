@@ -14,7 +14,7 @@ import { KidButton } from "@/components/KidButton";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import type { LearningItem, LearningItemMedia, MediaRole } from "@/data/types";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
-import { colors } from "@/theme";
+import { colors, radii } from "@/theme";
 
 import { cleanupTempMediaImports } from "./mediaImportService";
 import {
@@ -308,29 +308,26 @@ function getErrorMessage(error: unknown): string {
 
 const styles = StyleSheet.create({
   container: {
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
-    gap: 12,
-    paddingTop: 14
+    gap: 14,
+    paddingTop: 4
   },
   heading: {
     color: colors.text,
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: "900"
   },
   row: {
-    alignItems: "stretch",
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
-    flexDirection: "row",
+    backgroundColor: "#FFFDF2",
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    borderWidth: 1,
     gap: 12,
-    paddingTop: 12
+    padding: 12
   },
   preview: {
-    width: 128
+    width: "100%"
   },
   body: {
-    flex: 1,
     gap: 8,
     justifyContent: "center"
   },
@@ -342,7 +339,7 @@ const styles = StyleSheet.create({
   label: {
     color: colors.text,
     flexShrink: 1,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "900"
   },
   source: {

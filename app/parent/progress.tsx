@@ -9,7 +9,7 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { StateMessage } from "@/components/StateMessage";
 import { useProgressSummaryQuery, useUpdateProgressParentMarkMutation } from "@/data/queries";
 import type { LearningStatus, ProgressSummaryItem } from "@/data/types";
-import { colors } from "@/theme";
+import { colors, radii } from "@/theme";
 
 export default function ParentProgressScreen() {
   const router = useRouter();
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   row: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.lg,
     borderWidth: 1,
     gap: 12,
     marginBottom: 10,

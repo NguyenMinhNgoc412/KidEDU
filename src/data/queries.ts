@@ -73,7 +73,7 @@ export function useLearningSettingsQuery() {
   return useQuery({
     queryKey: queryKeys.settings,
     queryFn: () => repository.getLearningSettings(),
-    staleTime: 1000 * 60
+    staleTime: 0
   });
 }
 
@@ -180,9 +180,14 @@ export function useUpdateLearningSettingsMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (settings: LearningSettings) => repository.updateLearningSettings(settings),
-    onSuccess: async () => {
+    mutationFn: async (settings: LearningSettings) => {
+      await repository.updateLearningSettings(settings);
+      return settings;
+    },
+    onSuccess: async (settings) => {
+      queryClient.setQueryData(queryKeys.settings, settings);
       await queryClient.invalidateQueries({ queryKey: queryKeys.settings });
+      await queryClient.refetchQueries({ queryKey: queryKeys.settings, type: "active" });
     }
   });
 }

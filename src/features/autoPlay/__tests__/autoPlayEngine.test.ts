@@ -3,6 +3,7 @@ import type { LearningSettings } from "@/data/types";
 import {
   advanceAutoPlayState,
   createInitialAutoPlayState,
+  getPhaseDurationMs,
   getLoopLimit,
   pauseAutoPlayState,
   replayCurrentAutoPlayItem,
@@ -77,5 +78,14 @@ describe("autoPlayEngine", () => {
 
   it("uses null loop limit for continuous play", () => {
     expect(getLoopLimit("continuous")).toBeNull();
+  });
+
+  it("uses shorter phase durations for faster speed presets", () => {
+    const slowSpeakMs = getPhaseDurationMs("speak", "slow");
+    const normalSpeakMs = getPhaseDurationMs("speak", "normal");
+    const fastSpeakMs = getPhaseDurationMs("speak", "fast");
+
+    expect(slowSpeakMs).toBeGreaterThan(normalSpeakMs ?? 0);
+    expect(normalSpeakMs).toBeGreaterThan(fastSpeakMs ?? 0);
   });
 });

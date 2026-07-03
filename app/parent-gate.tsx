@@ -6,7 +6,7 @@ import { StyleSheet, Text, TextInput, View } from "react-native";
 import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
 import { createParentGateChallenge, isParentGateAnswerCorrect, useParentGateStore } from "@/features/parent/parentGate";
-import { colors } from "@/theme";
+import { colors, radii } from "@/theme";
 
 export default function ParentGateScreen() {
   const router = useRouter();
@@ -57,10 +57,10 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.xl,
     borderWidth: 1,
     gap: 16,
-    padding: 20
+    padding: 22
   },
   title: {
     color: colors.text,
@@ -75,10 +75,10 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   input: {
-    backgroundColor: colors.background,
-    borderColor: colors.border,
-    borderRadius: 8,
-    borderWidth: 1,
+    backgroundColor: "#FFFDF2",
+    borderColor: colors.sage,
+    borderRadius: radii.lg,
+    borderWidth: 2,
     color: colors.text,
     fontSize: 28,
     fontWeight: "900",

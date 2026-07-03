@@ -6,7 +6,7 @@ import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
 import { SectionHeader } from "@/components/SectionHeader";
 import { useParentGateStore } from "@/features/parent/parentGate";
-import { colors } from "@/theme";
+import { colors, radii } from "@/theme";
 
 export default function ParentHomeScreen() {
   const router = useRouter();
@@ -20,12 +20,16 @@ export default function ParentHomeScreen() {
   return (
     <Screen>
       <SectionHeader
-        title="Phụ huynh"
+        title="KidEDU"
         action={<KidButton icon={<Home color={colors.primary} size={22} />} label="Về học" onPress={exitParentArea} variant="plain" />}
       />
+      <View style={styles.titleBlock}>
+        <Text style={styles.screenTitle}>Khu phụ huynh</Text>
+        <Text style={styles.subtitle}>Quản lý nội dung học, bộ tự chạy và tiến độ của con.</Text>
+      </View>
       <View style={styles.grid}>
-        <KidButton icon={<BookOpen color="#FFFFFF" size={22} />} label="Thẻ học" onPress={() => router.push("/parent/items")} />
-        <KidButton icon={<Layers3 color="#FFFFFF" size={22} />} label="Bộ học" onPress={() => router.push("/parent/decks")} />
+        <KidButton icon={<BookOpen color="#FFFFFF" size={22} />} label="Quản lý từ vựng" onPress={() => router.push("/parent/items")} />
+        <KidButton icon={<Layers3 color="#FFFFFF" size={22} />} label="Quản lý bộ học" onPress={() => router.push("/parent/decks")} />
         <KidButton icon={<ChartNoAxesColumn color="#FFFFFF" size={22} />} label="Tiến độ" onPress={() => router.push("/parent/progress")} variant="secondary" />
         <KidButton icon={<Settings color="#FFFFFF" size={22} />} label="Cài đặt" onPress={() => router.push("/parent/settings")} variant="secondary" />
       </View>
@@ -38,16 +42,31 @@ export default function ParentHomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  titleBlock: {
+    gap: 5
+  },
+  screenTitle: {
+    color: colors.text,
+    fontSize: 26,
+    fontWeight: "900",
+    lineHeight: 32
+  },
+  subtitle: {
+    color: colors.muted,
+    fontSize: 14,
+    fontWeight: "700",
+    lineHeight: 20
+  },
   grid: {
     gap: 12
   },
   footer: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.lg,
     borderWidth: 1,
     gap: 12,
-    padding: 14
+    padding: 16
   },
   footerText: {
     color: colors.muted,

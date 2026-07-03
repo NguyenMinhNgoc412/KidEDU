@@ -37,10 +37,13 @@ const styles = StyleSheet.create({
     flexGrow: 1
   },
   content: {
+    alignSelf: "center",
     flex: 1,
-    gap: 16
+    gap: 16,
+    maxWidth: 560,
+    width: "100%"
   },
   padded: {
-    padding: 16
+    padding: 24
   }
 });

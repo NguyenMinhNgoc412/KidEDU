@@ -1,4 +1,5 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback } from "react";
 
 import { Screen } from "@/components/Screen";
 import { StateMessage } from "@/components/StateMessage";
@@ -11,6 +12,13 @@ export default function AutoPlayScreen() {
   const deckId = params.deckId;
   const deckQuery = useDeckDetailQuery(deckId);
   const settingsQuery = useLearningSettingsQuery();
+  const refetchSettings = settingsQuery.refetch;
+
+  useFocusEffect(
+    useCallback(() => {
+      void refetchSettings();
+    }, [refetchSettings])
+  );
 
   return (
     <Screen scroll={false}>

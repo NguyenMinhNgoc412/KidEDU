@@ -1,20 +1,21 @@
 import { Image } from "expo-image";
 import { Mic2, Play, Volume2 } from "lucide-react-native";
-import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import type { LearningItemMedia, MediaRole } from "@/data/types";
-import { getWebMediaObjectUrl, isWebMediaUri } from "@/features/media/webMediaStore";
-import { colors } from "@/theme";
+import { useDisplayMediaUri } from "@/features/media/useDisplayMediaUri";
+import { colors, radii } from "@/theme";
 
 export function MediaPlaceholder({
   role,
   media,
-  large = false
+  large = false,
+  compact = false
 }: {
   role: MediaRole;
   media?: LearningItemMedia;
   large?: boolean;
+  compact?: boolean;
 }) {
   const displayUri = useDisplayMediaUri(media?.asset.uri ?? null);
   const canRenderImage =
@@ -29,7 +30,7 @@ export function MediaPlaceholder({
         cachePolicy="memory-disk"
         contentFit="cover"
         source={{ uri: displayUri }}
-        style={[styles.frame, large ? styles.large : null]}
+        style={[styles.frame, large ? styles.large : null, compact ? styles.compact : null]}
       />
     );
   }
@@ -38,53 +39,14 @@ export function MediaPlaceholder({
   const label = roleLabel[role];
 
   return (
-    <View style={[styles.frame, large ? styles.large : null]}>
+    <View style={[styles.frame, large ? styles.large : null, compact ? styles.compact : null]}>
       {role === "mouth_video" ? <Play color={iconColor} size={large ? 42 : 28} /> : null}
       {role === "pronunciation_audio" ? <Volume2 color={iconColor} size={large ? 42 : 28} /> : null}
       {role === "illustration" ? <Mic2 color={iconColor} size={large ? 42 : 28} /> : null}
-      <Text style={styles.text}>{label}</Text>
-      {media ? <Text style={styles.source}>{media.asset.source === "custom" ? "Cá nhân hóa" : "Mặc định"}</Text> : null}
+      {compact ? null : <Text style={styles.text}>{label}</Text>}
+      {media && !compact ? <Text style={styles.source}>{media.asset.source === "custom" ? "Cá nhân hóa" : "Mặc định"}</Text> : null}
     </View>
   );
-}
-
-function useDisplayMediaUri(uri: string | null): string | null {
-  const [displayUri, setDisplayUri] = useState<string | null>(uri);
-
-  useEffect(() => {
-    let isMounted = true;
-    let objectUrl: string | null = null;
-
-    async function resolveUri() {
-      if (!uri || !isWebMediaUri(uri)) {
-        setDisplayUri(uri);
-        return;
-      }
-
-      const resolvedUri = await getWebMediaObjectUrl(uri);
-      objectUrl = resolvedUri;
-
-      if (!isMounted) {
-        if (resolvedUri) {
-          URL.revokeObjectURL(resolvedUri);
-        }
-        return;
-      }
-
-      setDisplayUri(resolvedUri);
-    }
-
-    void resolveUri();
-
-    return () => {
-      isMounted = false;
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
-  }, [uri]);
-
-  return displayUri;
 }
 
 const roleLabel: Record<MediaRole, string> = {
@@ -98,9 +60,9 @@ const styles = StyleSheet.create({
   frame: {
     alignItems: "center",
     aspectRatio: 1.3,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.surfaceContainer,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.lg,
     borderWidth: 1,
     gap: 6,
     justifyContent: "center",
@@ -111,6 +73,12 @@ const styles = StyleSheet.create({
   large: {
     aspectRatio: 1.15,
     minHeight: 230
+  },
+  compact: {
+    aspectRatio: 1,
+    borderRadius: 18,
+    minHeight: 0,
+    padding: 8
   },
   text: {
     color: colors.text,

@@ -32,6 +32,7 @@ export interface UseAutoPlaySessionResult {
 export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings): UseAutoPlaySessionResult {
   const repository = useKidEduRepository();
   const queryClient = useQueryClient();
+  const { loopMode, reinforcementEnabled, sfxEnabled, speedPreset } = settings;
   const playableItems = useMemo(
     () => deck.items.filter((item) => resolveLearningItemMedia(item).isPlayableInAutoPlay),
     [deck.items]
@@ -88,18 +89,30 @@ export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings)
   }, [deck.id, playableItems.length, repository]);
 
   useEffect(() => {
-    const duration = getPhaseDurationMs(state.phase, settings.speedPreset);
+    const duration = getPhaseDurationMs(state.phase, speedPreset);
 
     if (duration === null) {
       return;
     }
 
     const timeout = setTimeout(() => {
-      setState((current) => advanceAutoPlayState(current, settings, playableItems.length));
+      setState((current) =>
+        advanceAutoPlayState(current, { loopMode, reinforcementEnabled, sfxEnabled, speedPreset }, playableItems.length)
+      );
     }, duration);
 
     return () => clearTimeout(timeout);
-  }, [playableItems.length, settings, state.phase, state.itemIndex, state.loopIndex, state.replayNonce]);
+  }, [
+    loopMode,
+    playableItems.length,
+    reinforcementEnabled,
+    sfxEnabled,
+    speedPreset,
+    state.phase,
+    state.itemIndex,
+    state.loopIndex,
+    state.replayNonce
+  ]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextState) => {
