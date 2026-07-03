@@ -1,0 +1,444 @@
+# KidEDU SOT 01 — Business & Nghiệp Vụ Sản Phẩm
+
+**Trạng thái:** Source of Truth chính cho nghiệp vụ  
+**Dự án:** KidEDU  
+**Ngày cập nhật:** 2026-07-01  
+**Phạm vi:** MVP / Phase 0–1  
+**Ngôn ngữ:** Tiếng Việt  
+**Ghi chú:** File này chỉ mô tả sản phẩm theo ngôn ngữ business/nghiệp vụ. Không mô tả framework, database, thư viện hoặc cách implement.
+
+---
+
+## 1. Tầm nhìn sản phẩm
+
+KidEDU là ứng dụng hỗ trợ trẻ chậm nói luyện phát âm tại nhà thông qua trải nghiệm học trực quan, lặp lại và ít thao tác.
+
+Trẻ học bằng cách:
+
+1. Nhìn hình ảnh hoặc ảnh động minh họa.
+2. Xem khẩu hình miệng khi phát âm.
+3. Nghe âm thanh phát âm rõ ràng.
+4. Nói theo mẫu.
+5. Lặp lại theo từng thẻ hoặc theo một bộ thẻ tự chạy.
+
+KidEDU không thay thế chuyên gia âm ngữ trị liệu. Sản phẩm đóng vai trò công cụ luyện tập tại nhà, giúp phụ huynh duy trì việc luyện nói đều đặn, gần gũi và có cấu trúc.
+
+---
+
+## 2. Giá trị cốt lõi
+
+### 2.1. Với trẻ
+
+- Được học bằng hình ảnh, chuyển động, âm thanh và khẩu hình.
+- Không cần đọc nhiều chữ.
+- Không cần thao tác phức tạp.
+- Có thể học cùng nội dung từ người thân quen thuộc.
+- Có thể xem liên tục giống một playlist ngắn, thay vì phải bấm từng bài.
+
+### 2.2. Với phụ huynh
+
+- Tạo được bộ từ phù hợp với đời sống của trẻ.
+- Thay được video/ảnh/audio mặc định bằng nội dung gia đình tự chuẩn bị.
+- Cho trẻ luyện tập nhiều lần mà không cần thao tác liên tục.
+- Theo dõi được trẻ đã luyện những gì ở mức đơn giản.
+- Kiểm soát nội dung học và tốc độ học.
+
+---
+
+## 3. Người dùng chính
+
+### 3.1. Trẻ em
+
+Trẻ là người học chính.
+
+Trẻ cần:
+
+- Xem nội dung học.
+- Nghe mẫu phát âm.
+- Nói theo.
+- Có thể học tự động theo bộ.
+- Có thể phát lại khi cần.
+
+Giao diện cho trẻ phải:
+
+- ít chữ;
+- nút lớn;
+- ít lựa chọn;
+- không có quảng cáo;
+- không có thao tác xóa/sửa nội dung;
+- hạn chế trẻ thoát nhầm sang khu phụ huynh.
+
+### 3.2. Phụ huynh
+
+Phụ huynh là người quản lý nội dung và buổi học.
+
+Phụ huynh cần:
+
+- tạo thẻ học mới;
+- tạo bộ học mới;
+- sắp xếp thứ tự thẻ trong bộ học;
+- thêm hoặc thay ảnh minh họa;
+- thêm hoặc thay video người thân phát âm;
+- thêm hoặc thay âm thanh phát âm;
+- chọn tốc độ tự chạy;
+- xem tiến độ cơ bản;
+- xóa nội dung cá nhân hóa khi không còn muốn dùng.
+
+### 3.3. Chuyên gia/giáo viên
+
+Chuyên gia/giáo viên chưa thuộc MVP.
+
+Có thể mở rộng ở phase sau để:
+
+- tạo bộ học chuẩn;
+- giao bài cho phụ huynh;
+- theo dõi tiến độ từ xa;
+- tư vấn nội dung luyện tập.
+
+---
+
+## 4. Nguyên tắc nghiệp vụ bắt buộc
+
+1. **Trẻ ít thao tác nhất có thể.** Ứng dụng phải hỗ trợ chế độ tự chạy theo bộ thẻ.
+2. **Phụ huynh kiểm soát nội dung.** Trẻ không tự thêm, sửa hoặc xóa nội dung.
+3. **Nội dung cá nhân hóa là điểm khác biệt chính.** Phụ huynh có thể dùng video/ảnh/audio của người thân để tăng sự gần gũi.
+4. **Không chấm phát âm tự động ở MVP.** App không kết luận trẻ phát âm đúng/sai bằng AI trong giai đoạn đầu.
+5. **Không gây quá tải giác quan.** Ảnh động và âm thanh phải hỗ trợ tập trung, không được lấn át khẩu hình và âm phát âm.
+6. **Mỗi bài học phải ngắn.** Một thẻ học nên tập trung vào một từ hoặc một cụm từ ngắn.
+7. **Phải có cách quay về nội dung mặc định.** Nếu phụ huynh xóa nội dung cá nhân hóa, app dùng lại nội dung mặc định nếu có.
+8. **MVP ưu tiên sử dụng trong gia đình.** Không thiết kế luồng chuyên gia, lớp học, marketplace hoặc chia sẻ cộng đồng ở giai đoạn này.
+
+---
+
+## 5. Khái niệm nghiệp vụ
+
+### 5.1. Hồ sơ trẻ
+
+Hồ sơ trẻ đại diện cho một trẻ đang dùng app.
+
+MVP có thể bắt đầu với một hồ sơ trẻ mặc định. Sau này có thể hỗ trợ nhiều trẻ trong cùng gia đình.
+
+Thông tin ở mức nghiệp vụ:
+
+- tên trẻ;
+- ảnh đại diện nếu có;
+- độ tuổi hoặc ghi chú ngắn nếu phụ huynh muốn nhập;
+- tiến độ học gắn với trẻ đó.
+
+### 5.2. Thẻ học
+
+Thẻ học là đơn vị học nhỏ nhất.
+
+Ví dụ:
+
+- “mẹ”;
+- “ba”;
+- “ăn”;
+- “uống”;
+- “đau”;
+- “mẹ bế”.
+
+Một thẻ học gồm:
+
+| Thành phần | Ý nghĩa nghiệp vụ | Bắt buộc ở MVP |
+|---|---|---|
+| Từ/cụm từ | Nội dung trẻ cần luyện | Có |
+| Nhóm/chủ đề | Gia đình, nhu cầu, đồ vật, con vật, hành động... | Có |
+| Hình minh họa | Giúp trẻ hiểu nghĩa của từ | Nên có |
+| Ảnh động/chuyển động minh họa | Thu hút chú ý nếu dùng đúng mức | Nên có nếu phù hợp |
+| Khẩu hình phát âm | Giúp trẻ quan sát cách miệng phát âm | Nên có |
+| Âm thanh phát âm | Giúp trẻ nghe mẫu rõ ràng | Nên có |
+| Âm thanh minh họa | Ví dụ tiếng mèo, tiếng xe, tiếng nước | Không bắt buộc |
+| Nội dung cá nhân hóa | Nội dung do phụ huynh thêm/thay | Không bắt buộc |
+
+### 5.3. Bộ học
+
+Bộ học là danh sách nhiều thẻ học được gom theo một mục tiêu.
+
+Ví dụ:
+
+- Bộ “Gia đình”: ba, mẹ, ông, bà.
+- Bộ “Nhu cầu”: ăn, uống, ngủ, đau.
+- Bộ “Con vật”: chó, mèo, cá, gà.
+- Bộ “Hành động”: đi, ngồi, lấy, đưa.
+
+Bộ học dùng cho chế độ học tự chạy.
+
+### 5.4. Phiên học
+
+Phiên học là một lần trẻ học trong app.
+
+Có hai kiểu phiên học chính:
+
+1. **Học từng thẻ:** trẻ hoặc phụ huynh chọn một thẻ để xem và luyện.
+2. **Học theo bộ tự chạy:** app phát lần lượt nhiều thẻ trong một bộ.
+
+### 5.5. Nội dung cá nhân hóa
+
+Nội dung cá nhân hóa là nội dung phụ huynh tự thêm để thay thế hoặc bổ sung nội dung mặc định.
+
+Ví dụ:
+
+- video mẹ thật nói “mẹ”;
+- video ba thật nói “ba”;
+- ảnh đồ chơi thật của trẻ;
+- âm thanh người thân đọc từ;
+- ảnh động minh họa do phụ huynh chọn.
+
+Khi có nội dung cá nhân hóa, app ưu tiên dùng nội dung đó trong trải nghiệm học, miễn là nội dung đó còn hợp lệ.
+
+### 5.6. Khu phụ huynh
+
+Khu phụ huynh là nơi quản lý nội dung, bộ học, cài đặt và tiến độ.
+
+Trẻ không nên tự vào được khu này.
+
+MVP dùng Parent Gate đơn giản trước khi vào khu phụ huynh.
+
+### 5.7. Tiến độ học
+
+Tiến độ học trong MVP chỉ mang tính ghi nhận cơ bản, không đánh giá y khoa.
+
+Có thể ghi nhận:
+
+- thẻ nào đã xem;
+- số lần luyện;
+- lần học gần nhất;
+- trạng thái do phụ huynh đánh dấu: mới, đang luyện, đã quen;
+- nhận xét ngắn của phụ huynh nếu cần.
+
+---
+
+## 6. Feature list MVP
+
+| Mã | Feature | Mục tiêu nghiệp vụ | MVP |
+|---|---|---|---:|
+| BIZ-001 | Màn hình học từng thẻ | Trẻ học một từ/cụm từ bằng hình, khẩu hình và âm thanh | Có |
+| BIZ-002 | Bộ học tự chạy | Trẻ học liên tục nhiều thẻ mà không cần bấm nhiều | Có |
+| BIZ-003 | Quản lý thẻ học | Phụ huynh tạo/sửa/xóa thẻ phù hợp với trẻ | Có |
+| BIZ-004 | Quản lý bộ học | Phụ huynh gom thẻ thành bộ và sắp xếp thứ tự học | Có |
+| BIZ-005 | Cá nhân hóa video khẩu hình | Trẻ học bằng video người thân quen thuộc | Có |
+| BIZ-006 | Cá nhân hóa hình/ảnh động | Nội dung gần với đồ vật/người thật quanh trẻ | Có |
+| BIZ-007 | Cá nhân hóa âm thanh phát âm | Phụ huynh có thể dùng giọng người thân | Nên có |
+| BIZ-008 | Parent Gate | Bảo vệ khu phụ huynh khỏi thao tác nhầm của trẻ | Có |
+| BIZ-009 | Cài đặt tốc độ học | Phụ huynh điều chỉnh nhịp tự chạy theo khả năng của trẻ | Có |
+| BIZ-010 | Tiến độ cơ bản | Phụ huynh biết trẻ đã luyện gì | Có |
+| BIZ-011 | Bộ học mẫu ban đầu | Có nội dung để trẻ học ngay sau khi cài app | Có |
+| BIZ-012 | Backup/chia sẻ bộ học | Mang dữ liệu sang thiết bị khác hoặc cho người khác | Sau MVP |
+| BIZ-013 | Tài khoản online | Quản lý người dùng trên nhiều thiết bị | Sau MVP |
+| BIZ-014 | Chuyên gia giao bài | Chuyên gia tạo lộ trình từ xa | Sau MVP |
+| BIZ-015 | AI chấm phát âm | App tự phân tích phát âm của trẻ | Sau MVP |
+
+---
+
+## 7. Scope MVP đã chốt
+
+### 7.1. Bắt buộc có
+
+1. Màn hình học từng thẻ.
+2. Màn hình chọn bộ học.
+3. Chế độ tự chạy một bộ thẻ.
+4. Khoảng dừng để trẻ nói theo.
+5. Nút tạm dừng/phát lại/thoát trong phiên học.
+6. Khu phụ huynh.
+7. Parent Gate trước khu phụ huynh.
+8. Tạo/sửa/xóa thẻ học.
+9. Tạo/sửa/xóa/sắp xếp bộ học.
+10. Thay video khẩu hình bằng video người thân.
+11. Thay hình minh họa bằng ảnh/ảnh động của phụ huynh.
+12. Lưu tiến độ học cơ bản.
+13. Cài đặt tốc độ học và số vòng lặp.
+
+### 7.2. Nên có nếu không làm chậm MVP
+
+1. Âm thanh khen ngắn sau mỗi thẻ hoặc cuối bộ.
+2. Âm thanh minh họa nhẹ cho một số thẻ phù hợp.
+3. Chế độ ôn lại cuối bộ.
+4. Cho phép đảo thứ tự thẻ khi ôn tập.
+5. Cho phép phụ huynh ghi chú riêng cho từng thẻ.
+
+### 7.3. Chưa làm ở MVP
+
+1. Đăng nhập online.
+2. Đồng bộ nhiều thiết bị.
+3. Lưu trữ đám mây.
+4. Marketplace bộ học.
+5. Chia sẻ công khai bộ học.
+6. Luồng chuyên gia/giáo viên.
+7. AI nhận diện hoặc chấm phát âm.
+8. Chat/tư vấn trong app.
+9. Thanh toán/subscription.
+
+---
+
+## 8. Luồng nghiệp vụ chính
+
+### 8.1. Trẻ học từng thẻ
+
+1. Phụ huynh hoặc trẻ chọn một thẻ.
+2. App hiển thị hình minh họa.
+3. App phát khẩu hình và âm thanh mẫu.
+4. Trẻ nói theo.
+5. Phụ huynh có thể phát lại hoặc chuyển sang thẻ khác.
+6. App ghi nhận lượt luyện ở mức cơ bản.
+
+### 8.2. Trẻ học theo bộ tự chạy
+
+1. Phụ huynh chọn một bộ học.
+2. Phụ huynh bấm bắt đầu.
+3. App phát từng thẻ trong bộ theo thứ tự đã định.
+4. Sau mỗi mẫu phát âm, app có khoảng dừng để trẻ nói theo.
+5. App tự chuyển sang thẻ tiếp theo.
+6. Khi hết bộ, app kết thúc hoặc lặp lại theo cài đặt.
+7. App ghi nhận phiên học ở mức cơ bản.
+
+Chi tiết nghiệp vụ nằm trong `03-business-auto-play-deck-sot.md`.
+
+### 8.3. Phụ huynh tạo thẻ học
+
+1. Phụ huynh vào khu phụ huynh.
+2. Phụ huynh chọn tạo thẻ mới.
+3. Phụ huynh nhập từ/cụm từ.
+4. Phụ huynh chọn nhóm/chủ đề.
+5. Phụ huynh thêm hình minh họa nếu có.
+6. Phụ huynh thêm video hoặc âm thanh nếu có.
+7. Phụ huynh lưu thẻ.
+8. Thẻ mới xuất hiện trong danh sách học.
+
+### 8.4. Phụ huynh cá nhân hóa thẻ
+
+1. Phụ huynh chọn một thẻ có sẵn.
+2. Phụ huynh chọn thay video, thay hình hoặc thay âm thanh.
+3. Phụ huynh chọn nội dung từ thiết bị hoặc quay/ghi mới nếu app hỗ trợ.
+4. Phụ huynh xem trước.
+5. Phụ huynh lưu.
+6. Từ lần học sau, app ưu tiên dùng nội dung cá nhân hóa.
+
+Chi tiết nghiệp vụ nằm trong `04-business-parent-content-management-sot.md`.
+
+### 8.5. Phụ huynh xem tiến độ
+
+1. Phụ huynh vào khu phụ huynh.
+2. Phụ huynh mở phần tiến độ.
+3. App hiển thị các thẻ/bộ đã luyện gần đây.
+4. Phụ huynh có thể đánh dấu trạng thái của từng thẻ.
+5. Phụ huynh dùng thông tin này để chọn bộ học tiếp theo.
+
+---
+
+## 9. Quy tắc nội dung học
+
+### 9.1. Độ dài nội dung
+
+- Một thẻ nên tập trung vào một từ hoặc cụm từ ngắn.
+- Video mẫu nên ngắn, chỉ đủ để trẻ quan sát khẩu hình.
+- Âm thanh phát âm phải rõ, không lẫn nhiều tiếng nền.
+- Ảnh động nên ngắn, nhẹ và có liên quan trực tiếp đến từ.
+
+### 9.2. Mức kích thích
+
+Được dùng:
+
+- chuyển động nhẹ;
+- âm thanh minh họa ngắn;
+- âm thanh khen ngắn;
+- hiệu ứng chuyển bài đơn giản.
+
+Không nên dùng:
+
+- nhạc nền liên tục;
+- nhiều vật thể chuyển động cùng lúc;
+- hiệu ứng nhấp nháy mạnh;
+- âm thanh quá lớn hoặc chồng nhiều lớp;
+- animation khiến trẻ chú ý vào hiệu ứng thay vì khẩu hình.
+
+### 9.3. Ưu tiên hiển thị nội dung
+
+Khi học một thẻ, app ưu tiên nội dung theo thứ tự nghiệp vụ:
+
+1. Nội dung cá nhân hóa của phụ huynh.
+2. Nội dung mặc định của app.
+3. Nếu thiếu một loại nội dung, vẫn cho học với các nội dung còn lại nếu thẻ còn đủ ý nghĩa.
+4. Nếu thẻ thiếu quá nhiều nội dung, hiển thị trạng thái cần bổ sung trong khu phụ huynh.
+
+---
+
+## 10. Bộ học mẫu ban đầu
+
+MVP nên có bộ học mẫu để phụ huynh dùng ngay.
+
+### 10.1. Gia đình
+
+- ba
+- mẹ
+- ông
+- bà
+
+### 10.2. Nhu cầu cơ bản
+
+- ăn
+- uống
+- ngủ
+- đau
+- bế
+- nữa
+- không
+
+### 10.3. Đồ vật quen thuộc
+
+- bóng
+- xe
+- ly
+- sữa
+- bánh
+- gấu
+
+### 10.4. Con vật
+
+- mèo
+- chó
+- cá
+- gà
+- chim
+
+### 10.5. Hành động
+
+- đi
+- ngồi
+- đứng
+- lấy
+- đưa
+- mở
+- đóng
+
+---
+
+## 11. Tiêu chí thành công MVP
+
+MVP được coi là đạt nếu:
+
+1. Trẻ có thể học một thẻ bằng hình, khẩu hình và âm thanh.
+2. Trẻ có thể học một bộ thẻ tự chạy mà gần như không cần thao tác.
+3. Phụ huynh có thể tạo thẻ học mới.
+4. Phụ huynh có thể tạo bộ học mới.
+5. Phụ huynh có thể thay video của một thẻ bằng video người thân.
+6. Phụ huynh có thể quay về nội dung mặc định khi xóa nội dung cá nhân hóa.
+7. App ghi nhận được tiến độ cơ bản.
+8. Trải nghiệm học không có quảng cáo, không có thao tác gây nhiễu.
+9. Nội dung animation/âm thanh thu hút nhưng không làm trẻ mất tập trung vào phát âm.
+
+---
+
+## 12. Nguyên tắc mở rộng sau MVP
+
+Sau MVP chỉ mở rộng khi feature lõi đã ổn định.
+
+Thứ tự ưu tiên mở rộng đề xuất:
+
+1. Nâng cấp trải nghiệm bộ học tự chạy.
+2. Thêm export/backup local.
+3. Thêm nhiều hồ sơ trẻ.
+4. Thêm bộ học mẫu nâng cao.
+5. Thêm chia sẻ bộ học riêng tư.
+6. Sau đó mới cân nhắc backend, tài khoản online hoặc chuyên gia giao bài.
+7. AI chấm phát âm chỉ nên nghiên cứu khi có đủ dữ liệu và có tiêu chí đánh giá rõ ràng.

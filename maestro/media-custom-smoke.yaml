@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+---
+- launchApp
+- assertVisible: "KidEDU"
+- tapOn: "Phụ huynh"
+- assertVisible: "3 + 5 = ?"
+- tapOn: "Câu trả lời"
+- inputText: "8"
+- tapOn: "Mở"
+- tapOn: "Thẻ học"
+- assertVisible: "Tạo thẻ mới"
+- tapOn: "Sửa"
+- assertVisible: "Media cá nhân"
+- assertVisible: "Chọn ảnh"
+- assertVisible: "Chọn video"
+- assertVisible: "Quay"
+- assertVisible: "Thu âm"
+- tapOn: "Quay lại"
+- tapOn: "Xong"
+- tapOn: "Về học"
+- assertVisible: "KidEDU"
