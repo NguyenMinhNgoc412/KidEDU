@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Screen } from "@/components/Screen";
 import { StateMessage } from "@/components/StateMessage";
-import { useLearningItemQuery } from "@/data/queries";
+import { useLearningItemQuery, useLearningSettingsQuery } from "@/data/queries";
 import { LearningItemView } from "@/features/learning/LearningItemView";
 import { useSingleItemProgress } from "@/features/learning/useSingleItemProgress";
 import { colors, radii } from "@/theme";
@@ -14,6 +14,7 @@ export default function LearningItemScreen() {
   const params = useLocalSearchParams<{ itemId: string }>();
   const itemId = params.itemId;
   const itemQuery = useLearningItemQuery(itemId);
+  const settingsQuery = useLearningSettingsQuery();
   const progress = useSingleItemProgress(itemQuery.data?.id ?? null);
 
   return (
@@ -32,6 +33,7 @@ export default function LearningItemScreen() {
           onContinue={() => router.back()}
           onExit={() => router.replace("/")}
           onReplay={progress.recordReplay}
+          playbackSpeed={settingsQuery.data?.playbackSpeed}
         />
       ) : null}
     </Screen>

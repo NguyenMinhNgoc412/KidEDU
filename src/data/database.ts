@@ -1,9 +1,15 @@
 import * as SQLite from "expo-sqlite";
 
+import {
+  defaultLearningSettings,
+  loopCountsByMode,
+  normalizeLoopMode as normalizeStoredLoopMode,
+  normalizeSpeedPreset as normalizeStoredSpeedPreset,
+  playbackSpeedsByPreset
+} from "./learningSettings";
 import { createSchemaSql, schemaVersion } from "./schema";
 import {
   defaultChildId,
-  defaultLearningSettings,
   isLoopMode,
   isSpeedPreset,
   learningSettingKeys,
@@ -14,6 +20,10 @@ import {
 } from "./seedData";
 
 export type KidEduDatabase = SQLite.SQLiteDatabase;
+
+interface SettingValueRow {
+  value: string;
+}
 
 export async function openKidEduDatabase(): Promise<KidEduDatabase> {
   const db = await SQLite.openDatabaseAsync("kidedu.db");
@@ -32,6 +42,8 @@ async function migrateDatabase(db: KidEduDatabase): Promise<void> {
 
 async function seedDatabase(db: KidEduDatabase): Promise<void> {
   const now = new Date().toISOString();
+  const existingSpeedPreset = normalizeStoredSpeedPreset(await getSettingValue(db, learningSettingKeys.speedPreset));
+  const existingLoopMode = normalizeStoredLoopMode(await getSettingValue(db, learningSettingKeys.loopMode));
 
   await db.withTransactionAsync(async () => {
     await db.runAsync(
@@ -89,7 +101,9 @@ async function seedDatabase(db: KidEduDatabase): Promise<void> {
     }
 
     await seedSetting(db, learningSettingKeys.speedPreset, defaultLearningSettings.speedPreset, now);
+    await seedSetting(db, learningSettingKeys.playbackSpeed, String(playbackSpeedsByPreset[existingSpeedPreset]), now);
     await seedSetting(db, learningSettingKeys.loopMode, defaultLearningSettings.loopMode, now);
+    await seedSetting(db, learningSettingKeys.loopCount, String(loopCountsByMode[existingLoopMode]), now);
     await seedSetting(
       db,
       learningSettingKeys.reinforcementEnabled,
@@ -98,6 +112,13 @@ async function seedDatabase(db: KidEduDatabase): Promise<void> {
     );
     await seedSetting(db, learningSettingKeys.sfxEnabled, defaultLearningSettings.sfxEnabled ? "true" : "false", now);
   });
+}
+
+async function getSettingValue(db: KidEduDatabase, key: string): Promise<string | null> {
+  const row = await db.getFirstAsync<SettingValueRow>("SELECT value FROM settings WHERE key = ? ORDER BY updated_at DESC", [
+    key
+  ]);
+  return row?.value ?? null;
 }
 
 async function seedSetting(db: KidEduDatabase, key: string, value: string, updatedAt: string): Promise<void> {

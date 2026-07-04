@@ -2,7 +2,7 @@
 
 **Trạng thái:** SOT nghiệp vụ chi tiết  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-01  
+**Ngày cập nhật:** 2026-07-04  
 **Phạm vi:** Chế độ bộ thẻ tự chạy / luyện tự động  
 **Ghi chú:** File này mô tả hành vi nghiệp vụ, không mô tả framework hoặc code.
 
@@ -86,11 +86,11 @@ Timeline mặc định cho một thẻ:
 
 ```text
 1. Hiển thị hình/ảnh động minh họa
-2. Phát khẩu hình/video mẫu
-3. Phát âm thanh phát âm
+2. Phát hết khẩu hình/video mẫu
+3. Phát âm thanh phát âm nếu có audio riêng
 4. Hiển thị tín hiệu “con nói theo”
-5. Chờ trẻ nói theo
-6. Phản hồi nhẹ nếu bật
+5. Chờ trẻ nói theo 5 giây
+6. Phản hồi nhẹ trong khoảng chuyển thẻ nếu bật
 7. Tự chuyển sang thẻ tiếp theo
 ```
 
@@ -99,10 +99,10 @@ Thời lượng gợi ý:
 | Giai đoạn | Thời lượng gợi ý | Ghi chú |
 |---|---:|---|
 | Thu hút chú ý | 0.5–1 giây | Animation nhẹ, không gây nhiễu |
-| Phát mẫu | 1–3 giây | Theo độ dài video/audio |
-| Chờ trẻ nói theo | 2–5 giây | Phụ huynh chỉnh được |
-| Củng cố/phản hồi | 0.5–1 giây | Có thể tắt |
-| Chuyển thẻ | Ngắn | Tránh hiệu ứng quá mạnh |
+| Phát mẫu | Theo độ dài video/audio thực tế | Không tự chuyển trước khi media phát xong |
+| Chờ trẻ nói theo | 5 giây | Cố định trong MVP để trẻ có đủ thời gian bắt chước |
+| Củng cố/phản hồi | Tối đa 1 giây | Có thể tắt; nếu bật thì phản hồi là khoảng chuyển thẻ |
+| Chuyển thẻ | 1 giây | Tránh hiệu ứng quá mạnh |
 
 ---
 
@@ -112,11 +112,13 @@ MVP có 3 preset:
 
 | Preset | Dành cho | Đặc điểm |
 |---|---|---|
-| Chậm | Trẻ mới bắt đầu hoặc cần nhiều thời gian bắt chước | Chờ nói theo lâu hơn, chuyển bài chậm hơn |
+| Chậm | Trẻ mới bắt đầu hoặc cần nhịp mẫu chậm hơn | Phát media chậm hơn, nhịp chú ý/mẫu chậm hơn |
 | Bình thường | Mặc định | Nhịp vừa phải |
-| Nhanh | Ôn lại hoặc trẻ đã quen | Chờ ngắn hơn, ít kéo dài |
+| Nhanh | Ôn lại hoặc trẻ đã quen | Phát media nhanh hơn, nhịp chú ý/mẫu ngắn hơn |
 
 Phụ huynh có thể chọn preset trước khi bắt đầu hoặc trong phần cài đặt.
+
+Preset tốc độ không được rút ngắn giai đoạn trẻ nói theo trong MVP. Giai đoạn này cố định 5 giây sau khi video/audio mẫu đã phát xong.
 
 ---
 

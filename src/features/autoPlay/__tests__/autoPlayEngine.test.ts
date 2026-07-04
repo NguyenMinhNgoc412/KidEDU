@@ -1,4 +1,4 @@
-import type { LearningSettings } from "@/data/types";
+import type { LearningItem, LearningItemMedia, LearningSettings, MediaRole } from "@/data/types";
 
 import {
   advanceAutoPlayState,
@@ -9,10 +9,14 @@ import {
   replayCurrentAutoPlayItem,
   resumeAutoPlayState
 } from "../autoPlayEngine";
+import { getAutoPlayItems } from "../autoPlayItems";
+import { shouldWaitForSamplePlaybackEnd } from "../autoPlayTimeline";
 
 const baseSettings: LearningSettings = {
   speedPreset: "normal",
+  playbackSpeed: 1,
   loopMode: "once",
+  loopCount: 1,
   reinforcementEnabled: true,
   sfxEnabled: false
 };
@@ -38,15 +42,30 @@ describe("autoPlayEngine", () => {
     expect(state.phase).toBe("reinforce");
 
     state = advanceAutoPlayState(state, baseSettings, 2);
+    expect(state.itemIndex).toBe(1);
+    expect(state.phase).toBe("attention");
+  });
+
+  it("uses a one-second transition when reinforcement is disabled", () => {
+    const settings: LearningSettings = { ...baseSettings, reinforcementEnabled: false };
+    let state = createInitialAutoPlayState(2);
+
+    state = advanceAutoPlayState(state, settings, 2);
+    expect(state.phase).toBe("sample");
+
+    state = advanceAutoPlayState(state, settings, 2);
+    expect(state.phase).toBe("speak");
+
+    state = advanceAutoPlayState(state, settings, 2);
     expect(state.phase).toBe("transition");
 
-    state = advanceAutoPlayState(state, baseSettings, 2);
+    state = advanceAutoPlayState(state, settings, 2);
     expect(state.itemIndex).toBe(1);
     expect(state.phase).toBe("attention");
   });
 
   it("honors three loop mode before completing", () => {
-    const settings: LearningSettings = { ...baseSettings, loopMode: "three_times", reinforcementEnabled: false };
+    const settings: LearningSettings = { ...baseSettings, loopMode: "three_times", loopCount: 3, reinforcementEnabled: false };
     let state = createInitialAutoPlayState(1);
 
     for (let i = 0; i < 12; i += 1) {
@@ -56,6 +75,42 @@ describe("autoPlayEngine", () => {
     expect(state.phase).toBe("completed");
     expect(state.loopIndex).toBe(2);
     expect(state.completedReason).toBe("finished");
+  });
+
+  it("plays every item in every configured loop before completing", () => {
+    const settings: LearningSettings = { ...baseSettings, loopMode: "three_times", loopCount: 3, reinforcementEnabled: false };
+    let state = createInitialAutoPlayState(2);
+    const visits = [`${state.loopIndex}:${state.itemIndex}`];
+
+    for (let i = 0; state.phase !== "completed" && i < 100; i += 1) {
+      state = advanceAutoPlayState(state, settings, 2);
+      if (state.phase === "attention") {
+        visits.push(`${state.loopIndex}:${state.itemIndex}`);
+      }
+    }
+
+    expect(visits).toEqual(["0:0", "0:1", "1:0", "1:1", "2:0", "2:1"]);
+    expect(state.phase).toBe("completed");
+    expect(state.loopIndex).toBe(2);
+  });
+
+  it("uses canonical loop count even when legacy loop mode still has the default value", () => {
+    const settings: LearningSettings = { ...baseSettings, loopMode: "once", loopCount: 3, reinforcementEnabled: false };
+    let state = createInitialAutoPlayState(1);
+
+    for (let i = 0; i < 12; i += 1) {
+      state = advanceAutoPlayState(state, settings, 1);
+    }
+
+    expect(state.phase).toBe("completed");
+    expect(state.loopIndex).toBe(2);
+  });
+
+  it("keeps active text-only items in the Auto Play item list", () => {
+    const textOnlyItem = makeLearningItem({ id: "item-text-only", status: "active" });
+    const hiddenItem = makeLearningItem({ id: "item-hidden", status: "hidden" });
+
+    expect(getAutoPlayItems([hiddenItem, textOnlyItem])).toEqual([textOnlyItem]);
   });
 
   it("pauses, resumes, and replays without changing the item index", () => {
@@ -80,12 +135,101 @@ describe("autoPlayEngine", () => {
     expect(getLoopLimit("continuous")).toBeNull();
   });
 
-  it("uses shorter phase durations for faster speed presets", () => {
-    const slowSpeakMs = getPhaseDurationMs("speak", "slow");
-    const normalSpeakMs = getPhaseDurationMs("speak", "normal");
-    const fastSpeakMs = getPhaseDurationMs("speak", "fast");
+  it("keeps canonical null loop count as continuous play", () => {
+    const settings: LearningSettings = { ...baseSettings, loopMode: "once", loopCount: null, reinforcementEnabled: false };
+    let state = createInitialAutoPlayState(1);
 
-    expect(slowSpeakMs).toBeGreaterThan(normalSpeakMs ?? 0);
-    expect(normalSpeakMs).toBeGreaterThan(fastSpeakMs ?? 0);
+    for (let i = 0; i < 8; i += 1) {
+      state = advanceAutoPlayState(state, settings, 1);
+    }
+
+    expect(state.phase).not.toBe("completed");
+    expect(state.loopIndex).toBe(2);
   });
+
+  it("keeps child speaking and card handoff timings fixed across speed presets", () => {
+    expect(getPhaseDurationMs("speak", "slow")).toBe(5000);
+    expect(getPhaseDurationMs("speak", "normal")).toBe(5000);
+    expect(getPhaseDurationMs("speak", "fast")).toBe(5000);
+    expect(getPhaseDurationMs("reinforce", "slow")).toBe(1000);
+    expect(getPhaseDurationMs("transition", "normal")).toBe(1000);
+  });
+
+  it("uses shorter timer-driven sample durations for faster speed presets", () => {
+    const slowSampleMs = getPhaseDurationMs("sample", "slow");
+    const normalSampleMs = getPhaseDurationMs("sample", "normal");
+    const fastSampleMs = getPhaseDurationMs("sample", "fast");
+
+    expect(slowSampleMs).toBeGreaterThan(normalSampleMs ?? 0);
+    expect(normalSampleMs).toBeGreaterThan(fastSampleMs ?? 0);
+  });
+
+  it("marks real video samples as playback-driven instead of timer-driven", () => {
+    const item = makeLearningItem({
+      media: [makeMedia("mouth_video", { durationMs: null, uri: "file:///media/videos/custom/mouth.mp4" })]
+    });
+
+    expect(shouldWaitForSamplePlaybackEnd(item)).toBe(true);
+  });
+
+  it("marks real audio-only samples as playback-driven instead of timer-driven", () => {
+    const item = makeLearningItem({
+      media: [makeMedia("pronunciation_audio", { uri: "file:///media/audio/custom/voice.m4a" })]
+    });
+
+    expect(shouldWaitForSamplePlaybackEnd(item)).toBe(true);
+  });
+
+  it("keeps text-only or bundled placeholder samples timer-driven", () => {
+    const textOnlyItem = makeLearningItem({});
+    const bundledPlaceholderItem = makeLearningItem({
+      media: [makeMedia("mouth_video", { uri: "seed://item-test/mouth_video" })]
+    });
+
+    expect(shouldWaitForSamplePlaybackEnd(textOnlyItem)).toBe(false);
+    expect(shouldWaitForSamplePlaybackEnd(bundledPlaceholderItem)).toBe(false);
+  });
+
 });
+
+function makeLearningItem(overrides: Partial<LearningItem>): LearningItem {
+  return {
+    id: "item-test",
+    title: "me",
+    categoryId: "cat-family",
+    categoryName: "Gia dinh",
+    status: "active",
+    learningStatus: "new",
+    note: null,
+    media: [],
+    ...overrides
+  };
+}
+
+function makeMedia(
+  role: MediaRole,
+  overrides: Partial<LearningItemMedia["asset"]> = {}
+): LearningItemMedia {
+  const type = role === "mouth_video" ? "video" : role === "pronunciation_audio" ? "audio" : "image";
+
+  return {
+    id: `media-${role}`,
+    learningItemId: "item-test",
+    mediaAssetId: `asset-${role}`,
+    role,
+    priority: 100,
+    isActive: true,
+    asset: {
+      id: `asset-${role}`,
+      type,
+      source: "custom",
+      uri: `file:///media/${role}`,
+      thumbnailAssetId: null,
+      durationMs: null,
+      sizeBytes: null,
+      mimeType: null,
+      status: "active",
+      ...overrides
+    }
+  };
+}

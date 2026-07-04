@@ -1,4 +1,15 @@
 import type { KidEduDatabase } from "./database";
+import {
+  completeLearningSettings,
+  getLoopModeForCount,
+  getSpeedPresetForPlaybackSpeed,
+  loopCountsByMode,
+  normalizeLoopCount,
+  normalizeLoopMode,
+  normalizePlaybackSpeed,
+  normalizeSpeedPreset,
+  playbackSpeedsByPreset
+} from "./learningSettings";
 import { defaultChildId, learningSettingKeys } from "./seedData";
 import type {
   Category,
@@ -317,12 +328,28 @@ export class SQLiteKidEduRepository implements KidEduRepository {
   }
 
   async getLearningSettings(): Promise<LearningSettings> {
-    const rows = await this.db.getAllAsync<SettingRow>("SELECT key, value FROM settings");
+    const rows = await this.db.getAllAsync<SettingRow>("SELECT key, value FROM settings ORDER BY updated_at ASC");
     const values = new Map(rows.map((row) => [row.key, row.value]));
+    const legacySpeedPreset = normalizeSpeedPreset(values.get(learningSettingKeys.speedPreset));
+    const savedPlaybackSpeed = normalizePlaybackSpeed(values.get(learningSettingKeys.playbackSpeed), legacySpeedPreset);
+    const playbackSpeed =
+      savedPlaybackSpeed === playbackSpeedsByPreset.normal && legacySpeedPreset !== "normal"
+        ? playbackSpeedsByPreset[legacySpeedPreset]
+        : savedPlaybackSpeed;
+    const speedPreset = values.has(learningSettingKeys.playbackSpeed)
+      ? getSpeedPresetForPlaybackSpeed(playbackSpeed)
+      : legacySpeedPreset;
+    const legacyLoopMode = normalizeLoopMode(values.get(learningSettingKeys.loopMode));
+    const savedLoopCount = normalizeLoopCount(values.get(learningSettingKeys.loopCount), legacyLoopMode);
+    const loopCount =
+      savedLoopCount === loopCountsByMode.once && legacyLoopMode !== "once" ? loopCountsByMode[legacyLoopMode] : savedLoopCount;
+    const loopMode = values.has(learningSettingKeys.loopCount) ? getLoopModeForCount(loopCount) : legacyLoopMode;
 
     return {
-      speedPreset: readSpeedPreset(values.get(learningSettingKeys.speedPreset)),
-      loopMode: readLoopMode(values.get(learningSettingKeys.loopMode)),
+      speedPreset,
+      playbackSpeed,
+      loopMode,
+      loopCount,
       reinforcementEnabled: values.get(learningSettingKeys.reinforcementEnabled) !== "false",
       sfxEnabled: values.get(learningSettingKeys.sfxEnabled) === "true"
     };
@@ -330,18 +357,25 @@ export class SQLiteKidEduRepository implements KidEduRepository {
 
   async updateLearningSettings(settings: LearningSettings): Promise<void> {
     const now = new Date().toISOString();
+    const nextSettings = completeLearningSettings(settings);
     const entries = [
-      [learningSettingKeys.speedPreset, settings.speedPreset],
-      [learningSettingKeys.loopMode, settings.loopMode],
-      [learningSettingKeys.reinforcementEnabled, settings.reinforcementEnabled ? "true" : "false"],
-      [learningSettingKeys.sfxEnabled, settings.sfxEnabled ? "true" : "false"]
+      [learningSettingKeys.speedPreset, nextSettings.speedPreset],
+      [learningSettingKeys.playbackSpeed, String(nextSettings.playbackSpeed)],
+      [learningSettingKeys.loopMode, nextSettings.loopMode],
+      [learningSettingKeys.loopCount, String(nextSettings.loopCount)],
+      [learningSettingKeys.reinforcementEnabled, nextSettings.reinforcementEnabled ? "true" : "false"],
+      [learningSettingKeys.sfxEnabled, nextSettings.sfxEnabled ? "true" : "false"]
     ] as const;
 
     await this.db.withTransactionAsync(async () => {
       for (const [key, value] of entries) {
         await this.db.runAsync(
-          "INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
-          [key, value, now]
+          "UPDATE settings SET value = ?, updated_at = ? WHERE key = ?",
+          [value, now, key]
+        );
+        await this.db.runAsync(
+          "INSERT INTO settings (key, value, updated_at) SELECT ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM settings WHERE key = ?)",
+          [key, value, now, key]
         );
       }
     });
@@ -602,22 +636,6 @@ function mapLearningItemMediaRow(row: LearningItemMediaRow): LearningItemMedia {
     isActive: row.is_active === 1,
     asset
   };
-}
-
-function readSpeedPreset(value: string | undefined): LearningSettings["speedPreset"] {
-  if (value === "slow" || value === "fast") {
-    return value;
-  }
-
-  return "normal";
-}
-
-function readLoopMode(value: string | undefined): LearningSettings["loopMode"] {
-  if (value === "three_times" || value === "continuous") {
-    return value;
-  }
-
-  return "once";
 }
 
 function makeId(prefix: string): string {

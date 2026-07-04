@@ -26,22 +26,22 @@ export const speedPresetTimings: Record<SpeedPreset, AutoPlayTiming> = {
     attentionMs: 900,
     sampleMs: 2800,
     speakMs: 5000,
-    reinforceMs: 900,
-    transitionMs: 550
+    reinforceMs: 1000,
+    transitionMs: 1000
   },
   normal: {
     attentionMs: 700,
     sampleMs: 2200,
-    speakMs: 3500,
-    reinforceMs: 700,
-    transitionMs: 400
+    speakMs: 5000,
+    reinforceMs: 1000,
+    transitionMs: 1000
   },
   fast: {
     attentionMs: 500,
     sampleMs: 1600,
-    speakMs: 2200,
-    reinforceMs: 500,
-    transitionMs: 300
+    speakMs: 5000,
+    reinforceMs: 1000,
+    transitionMs: 1000
   }
 };
 
@@ -73,6 +73,18 @@ export function getLoopLimit(loopMode: LoopMode): number | null {
   }
 
   return loopMode === "three_times" ? 3 : 1;
+}
+
+export function getLoopLimitForSettings(settings: LearningSettings): number | null {
+  if (settings.loopCount === null) {
+    return null;
+  }
+
+  if (typeof settings.loopCount === "number") {
+    return settings.loopCount;
+  }
+
+  return getLoopLimit(settings.loopMode);
 }
 
 export function getPhaseDurationMs(phase: AutoPlayPhase, preset: SpeedPreset): number | null {
@@ -120,15 +132,23 @@ export function advanceAutoPlayState(
   }
 
   if (state.phase === "reinforce") {
-    return { ...state, phase: "transition" };
+    return advanceToNextAutoPlayItem(state, settings, itemCount);
   }
 
+  return advanceToNextAutoPlayItem(state, settings, itemCount);
+}
+
+function advanceToNextAutoPlayItem(
+  state: AutoPlayState,
+  settings: LearningSettings,
+  itemCount: number
+): AutoPlayState {
   const nextItemIndex = state.itemIndex + 1;
   if (nextItemIndex < itemCount) {
     return { ...state, itemIndex: nextItemIndex, phase: "attention" };
   }
 
-  const loopLimit = getLoopLimit(settings.loopMode);
+  const loopLimit = getLoopLimitForSettings(settings);
   const nextLoopIndex = state.loopIndex + 1;
 
   if (loopLimit === null || nextLoopIndex < loopLimit) {

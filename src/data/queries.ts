@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { completeLearningSettings } from "./learningSettings";
 import { useKidEduRepository } from "./KidEduDataProvider";
 import type {
   CreateDeckInput,
@@ -112,6 +113,7 @@ export function useUpdateLearningItemMutation(itemId: string) {
       await queryClient.invalidateQueries({ queryKey: queryKeys.childLearningItems });
       await queryClient.invalidateQueries({ queryKey: queryKeys.learningItem(itemId) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.decks });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.childDecks });
     }
   });
 }
@@ -141,8 +143,8 @@ export function useCreateDeckMutation() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.decks });
       await queryClient.invalidateQueries({ queryKey: queryKeys.childDecks });
-      await queryClient.refetchQueries({ queryKey: queryKeys.decks, type: "active" });
-      await queryClient.refetchQueries({ queryKey: queryKeys.childDecks, type: "active" });
+      await queryClient.refetchQueries({ queryKey: queryKeys.decks, type: "all" });
+      await queryClient.refetchQueries({ queryKey: queryKeys.childDecks, type: "all" });
     }
   });
 }
@@ -157,6 +159,8 @@ export function useUpdateDeckMutation(deckId: string) {
       await queryClient.invalidateQueries({ queryKey: queryKeys.decks });
       await queryClient.invalidateQueries({ queryKey: queryKeys.childDecks });
       await queryClient.invalidateQueries({ queryKey: queryKeys.deckDetail(deckId) });
+      await queryClient.refetchQueries({ queryKey: queryKeys.decks, type: "all" });
+      await queryClient.refetchQueries({ queryKey: queryKeys.childDecks, type: "all" });
     }
   });
 }
@@ -181,8 +185,9 @@ export function useUpdateLearningSettingsMutation() {
 
   return useMutation({
     mutationFn: async (settings: LearningSettings) => {
-      await repository.updateLearningSettings(settings);
-      return settings;
+      const nextSettings = completeLearningSettings(settings);
+      await repository.updateLearningSettings(nextSettings);
+      return nextSettings;
     },
     onSuccess: async (settings) => {
       queryClient.setQueryData(queryKeys.settings, settings);

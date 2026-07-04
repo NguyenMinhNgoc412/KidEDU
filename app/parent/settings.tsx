@@ -8,6 +8,7 @@ import { Screen } from "@/components/Screen";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StateMessage } from "@/components/StateMessage";
 import { useLearningSettingsQuery, useUpdateLearningSettingsMutation } from "@/data/queries";
+import { getLoopModeForCount, getSpeedPresetForPlaybackSpeed, loopCountsByMode, playbackSpeedsByPreset } from "@/data/learningSettings";
 import type { LearningSettings, LoopMode, SpeedPreset } from "@/data/types";
 import { colors, radii } from "@/theme";
 
@@ -16,16 +17,36 @@ export default function ParentSettingsScreen() {
   const settingsQuery = useLearningSettingsQuery();
   const updateMutation = useUpdateLearningSettingsMutation();
   const [draft, setDraft] = useState<LearningSettings | null>(null);
-  const isDirty = draft && settingsQuery.data ? !areSettingsEqual(draft, settingsQuery.data) : false;
+  const isDirty = Boolean(draft && settingsQuery.data && !areSettingsEqual(draft, settingsQuery.data));
 
   useEffect(() => {
     if (settingsQuery.data) {
-      setDraft(settingsQuery.data);
+      setDraft((current) => {
+        if (!current || areSettingsEqual(current, settingsQuery.data)) {
+          return settingsQuery.data;
+        }
+
+        return current;
+      });
     }
   }, [settingsQuery.data]);
 
   function updateDraft(partial: Partial<LearningSettings>) {
     setDraft((current) => (current ? { ...current, ...partial } : current));
+  }
+
+  function updateSpeedPreset(speedPreset: SpeedPreset) {
+    updateDraft({
+      speedPreset,
+      playbackSpeed: playbackSpeedsByPreset[speedPreset]
+    });
+  }
+
+  function updateLoopMode(loopMode: LoopMode) {
+    updateDraft({
+      loopMode,
+      loopCount: loopCountsByMode[loopMode]
+    });
   }
 
   function save() {
@@ -35,7 +56,10 @@ export default function ParentSettingsScreen() {
 
     void updateMutation
       .mutateAsync(draft)
-      .then(() => router.back())
+      .then((nextSettings) => {
+        setDraft(nextSettings);
+        router.back();
+      })
       .catch(() => undefined);
   }
 
@@ -67,8 +91,8 @@ export default function ParentSettingsScreen() {
             <KidButton
               key={choice.value}
               label={choice.label}
-              onPress={() => updateDraft({ speedPreset: choice.value })}
-              variant={draft.speedPreset === choice.value ? "primary" : "plain"}
+              onPress={() => updateSpeedPreset(choice.value)}
+              variant={getSpeedPresetForPlaybackSpeed(draft.playbackSpeed) === choice.value ? "primary" : "plain"}
             />
           ))}
         </View>
@@ -79,8 +103,8 @@ export default function ParentSettingsScreen() {
             <KidButton
               key={choice.value}
               label={choice.label}
-              onPress={() => updateDraft({ loopMode: choice.value })}
-              variant={draft.loopMode === choice.value ? "primary" : "plain"}
+              onPress={() => updateLoopMode(choice.value)}
+              variant={getLoopModeForCount(draft.loopCount) === choice.value ? "primary" : "plain"}
             />
           ))}
         </View>
@@ -115,7 +139,9 @@ export default function ParentSettingsScreen() {
 function areSettingsEqual(left: LearningSettings, right: LearningSettings): boolean {
   return (
     left.speedPreset === right.speedPreset &&
+    left.playbackSpeed === right.playbackSpeed &&
     left.loopMode === right.loopMode &&
+    left.loopCount === right.loopCount &&
     left.reinforcementEnabled === right.reinforcementEnabled &&
     left.sfxEnabled === right.sfxEnabled
   );

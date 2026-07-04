@@ -1,11 +1,11 @@
 import type {
   Category,
-  LearningSettings,
   LoopMode,
   MediaRole,
   MediaType,
   SpeedPreset
 } from "./types";
+import { normalizeLoopMode, normalizeSpeedPreset } from "./learningSettings";
 
 export interface SeedLearningItem {
   id: string;
@@ -98,16 +98,11 @@ export const seedDecks: SeedDeck[] = [
   }
 ];
 
-export const defaultLearningSettings: LearningSettings = {
-  speedPreset: "normal",
-  loopMode: "once",
-  reinforcementEnabled: true,
-  sfxEnabled: false
-};
-
 export const learningSettingKeys = {
   speedPreset: "learning.speedPreset",
+  playbackSpeed: "learning.playbackSpeed",
   loopMode: "learning.loopMode",
+  loopCount: "learning.loopCount",
   reinforcementEnabled: "learning.reinforcementEnabled",
   sfxEnabled: "learning.sfxEnabled"
 } as const;
@@ -125,9 +120,9 @@ export function mediaTypeForRole(role: MediaRole): MediaType {
 }
 
 export function isSpeedPreset(value: string | null): value is SpeedPreset {
-  return value === "slow" || value === "normal" || value === "fast";
+  return normalizeSpeedPreset(value) === value;
 }
 
 export function isLoopMode(value: string | null): value is LoopMode {
-  return value === "once" || value === "three_times" || value === "continuous";
+  return normalizeLoopMode(value) === value;
 }

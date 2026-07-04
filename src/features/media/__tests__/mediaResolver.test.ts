@@ -28,10 +28,13 @@ describe("mediaResolver", () => {
     expect(getContentStatusLabel(item)).toBe("Cần bổ sung");
   });
 
-  it("does not allow text-only item into Auto Play", () => {
+  it("allows text-only active items into Auto Play with missing-content labels", () => {
     const item = makeItem([]);
 
-    expect(resolveLearningItemMedia(item).isPlayableInAutoPlay).toBe(false);
+    const resolved = resolveLearningItemMedia(item);
+
+    expect(resolved.isPlayableInAutoPlay).toBe(true);
+    expect(resolved.needsContentLabel).toBe(true);
   });
 });
 

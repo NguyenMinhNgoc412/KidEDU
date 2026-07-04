@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import type { LearningItem } from "@/data/types";
+import type { LearningItem, PlaybackSpeed } from "@/data/types";
 import { LearningMediaPlayer } from "@/features/learning/LearningMediaPlayer";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
 import { colors, radii } from "@/theme";
@@ -12,12 +12,14 @@ export function LearningItemView({
   item,
   onReplay,
   onExit,
-  onContinue
+  onContinue,
+  playbackSpeed
 }: {
   item: LearningItem;
   onReplay?: () => void;
   onExit?: () => void;
   onContinue?: () => void;
+  playbackSpeed?: PlaybackSpeed;
 }) {
   const [replayCount, setReplayCount] = useState(0);
   const [sampleRequestCount, setSampleRequestCount] = useState(0);
@@ -33,9 +35,11 @@ export function LearningItemView({
       </View>
 
       <LearningMediaPlayer
+        key={`${item.id}:${sampleRequestCount}`}
         autoPlayKey={`${item.id}:${sampleRequestCount}`}
         illustration={resolved.byRole.illustration}
         mouthVideo={resolved.byRole.mouth_video}
+        playbackSpeed={playbackSpeed}
         pronunciationAudio={resolved.byRole.pronunciation_audio}
       />
 

@@ -29,8 +29,8 @@ export function AutoPlaySessionView({
     return (
       <View style={styles.completed}>
         <StateMessage
-          title={isEmpty ? "Chưa có thẻ phù hợp" : "Con đã học xong bộ này"}
-          message={isEmpty ? "Bộ học cần ít nhất một thẻ có nội dung để tự chạy." : `${session.playableItems.length} thẻ đã được phát.`}
+          title={isEmpty ? "Chưa có thẻ trong bộ" : "Con đã học xong bộ này"}
+          message={isEmpty ? "Phụ huynh hãy thêm ít nhất một thẻ trước khi bắt đầu." : `${session.playableItems.length} thẻ đã được phát.`}
         />
         <KidButton icon={<RotateCcw color="#FFFFFF" size={22} />} label="Học lại" onPress={session.restart} />
         <KidButton icon={<X color={colors.primary} size={22} />} label="Về danh sách" onPress={onExitToHome} variant="plain" />
@@ -45,12 +45,13 @@ export function AutoPlaySessionView({
   const resolved = resolveLearningItemMedia(currentItem);
   const progressLabel = `${session.state.itemIndex + 1}/${session.playableItems.length}`;
   const loopLabel =
-    settings.loopMode === "continuous" ? `Vòng ${session.state.loopIndex + 1}` : `Vòng ${session.state.loopIndex + 1}/${loopTotals[settings.loopMode]}`;
+    settings.loopCount === null ? `Vòng ${session.state.loopIndex + 1}` : `Vòng ${session.state.loopIndex + 1}/${settings.loopCount}`;
   const isPaused = session.state.phase === "paused";
   const sampleAutoPlayKey =
     session.state.phase === "sample"
       ? `${currentItem.id}:${session.state.itemIndex}:${session.state.loopIndex}:${session.state.replayNonce}:sample`
       : null;
+  const mediaPlaybackKey = `${currentItem.id}:${session.state.itemIndex}:${session.state.loopIndex}:${session.state.replayNonce}`;
 
   function exit() {
     session.exit();
@@ -84,10 +85,13 @@ export function AutoPlaySessionView({
       </View>
 
       <LearningMediaPlayer
+        key={mediaPlaybackKey}
         autoPlayKey={sampleAutoPlayKey}
         illustration={resolved.byRole.illustration}
         mouthVideo={resolved.byRole.mouth_video}
+        onAutoPlaySampleEnd={session.completeCurrentSample}
         paused={session.state.phase !== "sample"}
+        playbackSpeed={settings.playbackSpeed}
         pronunciationAudio={resolved.byRole.pronunciation_audio}
       />
 
@@ -252,8 +256,3 @@ const controlToneStyles = StyleSheet.create({
     backgroundColor: "#F1F8E8"
   }
 });
-
-const loopTotals: Record<Exclude<LearningSettings["loopMode"], "continuous">, number> = {
-  once: 1,
-  three_times: 3
-};

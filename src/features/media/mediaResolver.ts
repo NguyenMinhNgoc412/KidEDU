@@ -32,16 +32,13 @@ export function resolveLearningItemMedia(item: LearningItem): ResolvedLearningMe
   }
 
   const missingRoles = requiredLearningRoles.filter((role) => !byRole[role]);
-  const hasTextOnly = missingRoles.length === requiredLearningRoles.length;
-  const hasAudio = Boolean(byRole.pronunciation_audio);
-  const hasVisual = Boolean(byRole.illustration || byRole.mouth_video);
 
   return {
     byRole,
     missingRoles,
     fallbackRoles,
     hasCustomMedia,
-    isPlayableInAutoPlay: !hasTextOnly && (hasAudio || hasVisual),
+    isPlayableInAutoPlay: item.status === "active" && Boolean(item.title.trim()),
     needsContentLabel: missingRoles.length > 0
   };
 }

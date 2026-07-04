@@ -1,3 +1,4 @@
+import { useEventListener } from "expo";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { Play, Volume2 } from "lucide-react-native";
@@ -6,35 +7,50 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppState, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
-import type { LearningItemMedia, MediaRole } from "@/data/types";
+import type { LearningItemMedia, PlaybackSpeed } from "@/data/types";
+import {
+  resolveLearningMediaStageRole,
+  type ActiveLearningMediaRole
+} from "@/features/learning/learningMediaStage";
 import { useDisplayMediaUri } from "@/features/media/useDisplayMediaUri";
 import { colors, radii } from "@/theme";
-
-type ActiveMediaRole = Extract<MediaRole, "illustration" | "mouth_video" | "pronunciation_audio">;
 
 export function LearningMediaPlayer({
   illustration,
   mouthVideo,
   pronunciationAudio,
   autoPlayKey,
-  paused = false
+  onAutoPlaySampleEnd,
+  paused = false,
+  playbackSpeed = 1
 }: {
   illustration?: LearningItemMedia;
   mouthVideo?: LearningItemMedia;
   pronunciationAudio?: LearningItemMedia;
   autoPlayKey?: string | null;
+  onAutoPlaySampleEnd?: () => void;
   paused?: boolean;
+  playbackSpeed?: PlaybackSpeed;
 }) {
   const illustrationUri = useDisplayMediaUri(illustration?.asset.uri ?? null);
   const videoUri = useDisplayMediaUri(mouthVideo?.asset.uri ?? null);
   const audioUri = useDisplayMediaUri(pronunciationAudio?.asset.uri ?? null);
-  const [activeRole, setActiveRole] = useState<ActiveMediaRole>(illustration ? "illustration" : "mouth_video");
+  const [activeRole, setActiveRole] = useState<ActiveLearningMediaRole>(illustration ? "illustration" : "mouth_video");
   const [feedback, setFeedback] = useState<string | null>(null);
-  const audioTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isPlayOverlayVisible, setPlayOverlayVisible] = useState(Boolean(mouthVideo));
+  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastAutoPlayKeyRef = useRef<string | null>(null);
+  const completedAutoPlayKeyRef = useRef<string | null>(null);
+  const audioCompletionAutoPlayKeyRef = useRef<string | null>(null);
+  const shouldPlayFollowUpAudioRef = useRef(false);
+  const wasPausedRef = useRef(paused);
 
   const playableVideoUri = isPlayableMediaUri(videoUri) ? videoUri : null;
   const playableAudioUri = isPlayableMediaUri(audioUri) ? audioUri : null;
+  const mediaPlaybackIdentity = useMemo(
+    () => (autoPlayKey ? `${autoPlayKey}:${playableVideoUri ?? ""}:${playableAudioUri ?? ""}:${playbackSpeed}` : null),
+    [autoPlayKey, playableAudioUri, playableVideoUri, playbackSpeed]
+  );
   const audioSource = useMemo(() => (playableAudioUri ? { uri: playableAudioUri } : null), [playableAudioUri]);
   const videoSource = useMemo(() => (playableVideoUri ? { uri: playableVideoUri } : null), [playableVideoUri]);
 
@@ -46,75 +62,164 @@ export function LearningMediaPlayer({
   const audioPlayer = useAudioPlayer(audioSource, { updateInterval: 500 });
   const audioStatus = useAudioPlayerStatus(audioPlayer);
 
-  const clearAudioTimer = useCallback(() => {
-    if (audioTimerRef.current) {
-      clearTimeout(audioTimerRef.current);
-      audioTimerRef.current = null;
+  useEffect(() => {
+    videoPlayer.playbackRate = playbackSpeed;
+    audioPlayer.playbackRate = playbackSpeed;
+  }, [audioPlayer, playbackSpeed, videoPlayer]);
+
+  const clearOverlayTimer = useCallback(() => {
+    if (overlayTimerRef.current) {
+      clearTimeout(overlayTimerRef.current);
+      overlayTimerRef.current = null;
     }
   }, []);
 
+  const showPlayOverlay = useCallback(() => {
+    setPlayOverlayVisible(true);
+    clearOverlayTimer();
+    overlayTimerRef.current = setTimeout(() => {
+      setPlayOverlayVisible(false);
+      overlayTimerRef.current = null;
+    }, 1000);
+  }, [clearOverlayTimer]);
+
+  const completeAutoPlaySample = useCallback(() => {
+    if (!autoPlayKey || paused || completedAutoPlayKeyRef.current === autoPlayKey) {
+      return;
+    }
+
+    completedAutoPlayKeyRef.current = autoPlayKey;
+    audioCompletionAutoPlayKeyRef.current = null;
+    shouldPlayFollowUpAudioRef.current = false;
+    onAutoPlaySampleEnd?.();
+  }, [autoPlayKey, onAutoPlaySampleEnd, paused]);
+
   const pauseAll = useCallback(() => {
-    clearAudioTimer();
+    shouldPlayFollowUpAudioRef.current = false;
     videoPlayer.pause();
     audioPlayer.pause();
-  }, [audioPlayer, clearAudioTimer, videoPlayer]);
+  }, [audioPlayer, videoPlayer]);
 
-  const playAudio = useCallback(() => {
+  const restartVideo = useCallback(() => {
+    videoPlayer.pause();
+    try {
+      videoPlayer.currentTime = 0;
+      videoPlayer.play();
+    } catch {
+      videoPlayer.replay();
+      videoPlayer.play();
+    }
+  }, [videoPlayer]);
+
+  const playAudio = useCallback((options?: { completeAutoPlaySampleOnEnd?: boolean }) => {
+    shouldPlayFollowUpAudioRef.current = false;
     if (!playableAudioUri) {
       setActiveRole("pronunciation_audio");
       setFeedback("Chưa có âm phát âm để phát.");
       return;
     }
 
-    clearAudioTimer();
     videoPlayer.pause();
     setActiveRole("pronunciation_audio");
     setFeedback(null);
+    audioCompletionAutoPlayKeyRef.current =
+      options?.completeAutoPlaySampleOnEnd && autoPlayKey ? autoPlayKey : null;
     void audioPlayer.seekTo(0).finally(() => audioPlayer.play());
-  }, [audioPlayer, clearAudioTimer, playableAudioUri, videoPlayer]);
+  }, [audioPlayer, autoPlayKey, playableAudioUri, videoPlayer]);
 
   const playMouthVideo = useCallback(() => {
+    shouldPlayFollowUpAudioRef.current = false;
     if (!playableVideoUri) {
       setActiveRole("mouth_video");
       setFeedback("Chưa có video khẩu hình để phát.");
       return;
     }
 
-    clearAudioTimer();
     audioPlayer.pause();
     setActiveRole("mouth_video");
     setFeedback(null);
-    videoPlayer.replay();
-    videoPlayer.play();
-  }, [audioPlayer, clearAudioTimer, playableVideoUri, videoPlayer]);
+    showPlayOverlay();
+    restartVideo();
+  }, [audioPlayer, playableVideoUri, restartVideo, showPlayOverlay]);
+
+  const playQueuedFollowUpAudio = useCallback(() => {
+    if (!shouldPlayFollowUpAudioRef.current || !playableAudioUri || paused) {
+      return;
+    }
+
+    playAudio({ completeAutoPlaySampleOnEnd: true });
+  }, [paused, playableAudioUri, playAudio]);
+
+  useEventListener(videoPlayer, "playToEnd", () => {
+    if (shouldPlayFollowUpAudioRef.current && playableAudioUri) {
+      playQueuedFollowUpAudio();
+      return;
+    }
+
+    completeAutoPlaySample();
+  });
 
   const playSample = useCallback(() => {
-    clearAudioTimer();
-
     if (playableVideoUri) {
+      shouldPlayFollowUpAudioRef.current = Boolean(playableAudioUri);
       audioPlayer.pause();
       setActiveRole("mouth_video");
       setFeedback(null);
-      videoPlayer.replay();
-      videoPlayer.play();
-
-      if (playableAudioUri) {
-        audioTimerRef.current = setTimeout(() => {
-          videoPlayer.pause();
-          setActiveRole("pronunciation_audio");
-          void audioPlayer.seekTo(0).finally(() => audioPlayer.play());
-        }, 1100);
-      }
+      showPlayOverlay();
+      restartVideo();
       return;
     }
 
     if (playableAudioUri) {
-      playAudio();
+      playAudio({ completeAutoPlaySampleOnEnd: true });
       return;
     }
 
     setFeedback("Thẻ này chưa có video hoặc âm phát âm có thể phát.");
-  }, [audioPlayer, clearAudioTimer, playableAudioUri, playableVideoUri, playAudio, videoPlayer]);
+  }, [
+    audioPlayer,
+    playableAudioUri,
+    playableVideoUri,
+    playAudio,
+    restartVideo,
+    showPlayOverlay
+  ]);
+
+  useEffect(() => {
+    if (!audioStatus.didJustFinish || audioCompletionAutoPlayKeyRef.current !== autoPlayKey) {
+      return;
+    }
+
+    completeAutoPlaySample();
+  }, [audioStatus.didJustFinish, autoPlayKey, completeAutoPlaySample]);
+
+  useEffect(() => {
+    const wasPaused = wasPausedRef.current;
+    wasPausedRef.current = paused;
+
+    if (
+      !wasPaused ||
+      paused ||
+      !autoPlayKey ||
+      !mediaPlaybackIdentity ||
+      lastAutoPlayKeyRef.current !== mediaPlaybackIdentity ||
+      completedAutoPlayKeyRef.current === autoPlayKey
+    ) {
+      return;
+    }
+
+    playSample();
+  }, [autoPlayKey, mediaPlaybackIdentity, paused, playSample]);
+
+  useEffect(() => {
+    if (playableVideoUri) {
+      showPlayOverlay();
+      return;
+    }
+
+    setPlayOverlayVisible(false);
+    clearOverlayTimer();
+  }, [clearOverlayTimer, playableVideoUri, showPlayOverlay]);
 
   useEffect(() => {
     if (paused) {
@@ -133,31 +238,37 @@ export function LearningMediaPlayer({
   }, [pauseAll]);
 
   useEffect(() => {
-    return () => pauseAll();
-  }, [pauseAll]);
+    return () => {
+      pauseAll();
+      clearOverlayTimer();
+    };
+  }, [clearOverlayTimer, pauseAll]);
 
   useEffect(() => {
     if (!autoPlayKey || paused) {
       return;
     }
 
-    const mediaKey = `${autoPlayKey}:${playableVideoUri ?? ""}:${playableAudioUri ?? ""}`;
-    if (lastAutoPlayKeyRef.current === mediaKey) {
+    if (!mediaPlaybackIdentity || lastAutoPlayKeyRef.current === mediaPlaybackIdentity) {
       return;
     }
 
-    lastAutoPlayKeyRef.current = mediaKey;
+    lastAutoPlayKeyRef.current = mediaPlaybackIdentity;
     playSample();
-  }, [autoPlayKey, paused, playableAudioUri, playableVideoUri, playSample]);
+  }, [autoPlayKey, mediaPlaybackIdentity, paused, playSample]);
 
   const hasRenderableIllustration = Boolean(illustrationUri && !illustrationUri.startsWith("seed://"));
-  const mainRole = resolveMainRole(activeRole, hasRenderableIllustration, playableVideoUri, playableAudioUri);
+  const stageRole = resolveLearningMediaStageRole({
+    activeRole,
+    hasRenderableIllustration,
+    hasPlayableVideo: Boolean(playableVideoUri)
+  });
 
   return (
     <View style={styles.container}>
       <View style={styles.stage}>
-        {mainRole === "mouth_video" && playableVideoUri ? (
-          <Pressable accessibilityLabel="Phát khẩu hình" accessibilityRole="button" onPress={playMouthVideo} style={styles.videoPressable}>
+        {stageRole === "mouth_video" && playableVideoUri ? (
+          <View style={styles.videoPressable}>
             <VideoView
               contentFit="cover"
               nativeControls={false}
@@ -165,17 +276,33 @@ export function LearningMediaPlayer({
               playsInline
               style={styles.video}
             />
-            <View style={styles.playOverlay}>
-              <Play color="#FFFFFF" fill="rgba(255,255,255,0.9)" size={30} />
-            </View>
-          </Pressable>
-        ) : mainRole === "pronunciation_audio" ? (
-          <Pressable accessibilityLabel="Phát âm phát âm" accessibilityRole="button" onPress={playAudio} style={styles.audioStage}>
-            <Volume2 color={audioStatus.playing ? colors.coral : colors.blue} size={44} />
-            <Text style={styles.audioTitle}>{audioStatus.playing ? "Đang phát âm mẫu" : "Âm phát âm"}</Text>
-          </Pressable>
+            <Pressable
+              accessibilityLabel={isPlayOverlayVisible ? "Phát khẩu hình" : "Hiện nút phát khẩu hình"}
+              accessibilityRole="button"
+              onPress={isPlayOverlayVisible ? playMouthVideo : showPlayOverlay}
+              style={styles.videoTapLayer}
+            >
+              {isPlayOverlayVisible ? (
+                <View style={styles.playOverlay}>
+                  <Play color="#FFFFFF" fill="rgba(255,255,255,0.9)" size={30} />
+                </View>
+              ) : null}
+            </Pressable>
+          </View>
         ) : (
-          <MediaPlaceholder large media={mainRole === "mouth_video" ? mouthVideo : illustration} role={mainRole === "mouth_video" ? "mouth_video" : "illustration"} />
+          <View style={styles.illustrationStage}>
+            <MediaPlaceholder large media={illustration} role="illustration" />
+            {activeRole === "pronunciation_audio" && playableAudioUri ? (
+              <Pressable
+                accessibilityLabel={audioStatus.playing ? "Đang phát âm mẫu" : "Phát âm phát âm"}
+                accessibilityRole="button"
+                onPress={() => playAudio()}
+                style={({ pressed }) => [styles.audioOverlay, pressed ? styles.pressed : null]}
+              >
+                <Volume2 color="#FFFFFF" size={26} />
+              </Pressable>
+            ) : null}
+          </View>
         )}
       </View>
 
@@ -192,7 +319,7 @@ export function LearningMediaPlayer({
           available={Boolean(playableAudioUri)}
           icon={<Volume2 color={activeRole === "pronunciation_audio" ? "#FFFFFF" : colors.muted} size={17} />}
           label="Âm phát âm"
-          onPress={playAudio}
+          onPress={() => playAudio()}
         />
       </View>
       {feedback ? <Text style={styles.feedback}>{feedback}</Text> : null}
@@ -235,31 +362,6 @@ function isPlayableMediaUri(uri: string | null): uri is string {
   return Boolean(uri && !uri.startsWith("seed://") && !uri.startsWith("data:"));
 }
 
-function resolveMainRole(
-  activeRole: ActiveMediaRole,
-  hasRenderableIllustration: boolean,
-  playableVideoUri: string | null,
-  playableAudioUri: string | null
-): ActiveMediaRole {
-  if (activeRole === "mouth_video" && playableVideoUri) {
-    return "mouth_video";
-  }
-
-  if (activeRole === "pronunciation_audio" && playableAudioUri) {
-    return "pronunciation_audio";
-  }
-
-  if (hasRenderableIllustration) {
-    return "illustration";
-  }
-
-  if (playableVideoUri) {
-    return "mouth_video";
-  }
-
-  return activeRole;
-}
-
 const styles = StyleSheet.create({
   container: {
     gap: 12
@@ -280,36 +382,36 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%"
   },
+  illustrationStage: {
+    position: "relative"
+  },
+  videoTapLayer: {
+    alignItems: "center",
+    bottom: 0,
+    justifyContent: "center",
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0
+  },
   playOverlay: {
     alignItems: "center",
     backgroundColor: "rgba(125, 86, 45, 0.58)",
     borderRadius: radii.full,
     height: 64,
     justifyContent: "center",
-    left: "50%",
-    marginLeft: -32,
-    marginTop: -32,
-    position: "absolute",
-    top: "50%",
     width: 64
   },
-  audioStage: {
+  audioOverlay: {
     alignItems: "center",
-    aspectRatio: 1.15,
-    backgroundColor: colors.surfaceContainer,
-    borderColor: colors.border,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    gap: 10,
+    backgroundColor: "rgba(125, 86, 45, 0.74)",
+    borderRadius: radii.full,
+    bottom: 14,
+    height: 52,
     justifyContent: "center",
-    minHeight: 230,
-    padding: 20
-  },
-  audioTitle: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: "900",
-    textAlign: "center"
+    position: "absolute",
+    right: 14,
+    width: 52
   },
   mediaChips: {
     flexDirection: "row",

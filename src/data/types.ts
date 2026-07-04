@@ -20,6 +20,8 @@ export type SpeedPreset = "slow" | "normal" | "fast";
 
 export type LoopMode = "once" | "three_times" | "continuous";
 
+export type PlaybackSpeed = 0.85 | 1 | 1.15;
+
 export interface Category {
   id: string;
   name: string;
@@ -74,7 +76,9 @@ export interface DeckDetail extends Deck {
 
 export interface LearningSettings {
   speedPreset: SpeedPreset;
+  playbackSpeed: PlaybackSpeed;
   loopMode: LoopMode;
+  loopCount: number | null;
   reinforcementEnabled: boolean;
   sfxEnabled: boolean;
 }

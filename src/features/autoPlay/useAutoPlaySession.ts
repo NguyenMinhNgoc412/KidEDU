@@ -5,8 +5,9 @@ import { AppState } from "react-native";
 import { useKidEduRepository } from "@/data/KidEduDataProvider";
 import { queryKeys } from "@/data/queries";
 import type { DeckDetail, LearningItem, LearningSettings, PracticeSessionStatus } from "@/data/types";
-import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
 
+import { getAutoPlayItems } from "./autoPlayItems";
+import { shouldWaitForSamplePlaybackEnd } from "./autoPlayTimeline";
 import {
   advanceAutoPlayState,
   createInitialAutoPlayState,
@@ -27,17 +28,16 @@ export interface UseAutoPlaySessionResult {
   replay(): void;
   exit(): void;
   restart(): void;
+  completeCurrentSample(): void;
 }
 
 export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings): UseAutoPlaySessionResult {
   const repository = useKidEduRepository();
   const queryClient = useQueryClient();
-  const { loopMode, reinforcementEnabled, sfxEnabled, speedPreset } = settings;
-  const playableItems = useMemo(
-    () => deck.items.filter((item) => resolveLearningItemMedia(item).isPlayableInAutoPlay),
-    [deck.items]
-  );
+  const { loopCount, loopMode, playbackSpeed, reinforcementEnabled, sfxEnabled, speedPreset } = settings;
+  const playableItems = useMemo(() => getAutoPlayItems(deck.items), [deck.items]);
   const [state, setState] = useState(() => createInitialAutoPlayState(playableItems.length));
+  const shouldWaitForCurrentSamplePlaybackEnd = shouldWaitForSamplePlaybackEnd(playableItems[state.itemIndex]);
   const sessionIdRef = useRef<string | null>(null);
   const viewedKeyRef = useRef<string | null>(null);
   const completedKeyRef = useRef<string | null>(null);
@@ -89,23 +89,49 @@ export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings)
   }, [deck.id, playableItems.length, repository]);
 
   useEffect(() => {
-    const duration = getPhaseDurationMs(state.phase, speedPreset);
+    const duration =
+      state.phase === "sample" && shouldWaitForCurrentSamplePlaybackEnd
+        ? null
+        : getPhaseDurationMs(state.phase, speedPreset);
 
     if (duration === null) {
       return;
     }
 
+    const scheduledState = {
+      itemIndex: state.itemIndex,
+      loopIndex: state.loopIndex,
+      phase: state.phase,
+      replayNonce: state.replayNonce
+    };
+
     const timeout = setTimeout(() => {
-      setState((current) =>
-        advanceAutoPlayState(current, { loopMode, reinforcementEnabled, sfxEnabled, speedPreset }, playableItems.length)
-      );
+      setState((current) => {
+        if (
+          current.phase !== scheduledState.phase ||
+          current.itemIndex !== scheduledState.itemIndex ||
+          current.loopIndex !== scheduledState.loopIndex ||
+          current.replayNonce !== scheduledState.replayNonce
+        ) {
+          return current;
+        }
+
+        return advanceAutoPlayState(
+          current,
+          { loopCount, loopMode, playbackSpeed, reinforcementEnabled, sfxEnabled, speedPreset },
+          playableItems.length
+        );
+      });
     }, duration);
 
     return () => clearTimeout(timeout);
   }, [
     loopMode,
+    loopCount,
+    playbackSpeed,
     playableItems.length,
     reinforcementEnabled,
+    shouldWaitForCurrentSamplePlaybackEnd,
     sfxEnabled,
     speedPreset,
     state.phase,
@@ -145,7 +171,7 @@ export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings)
     const currentItem = playableItems[state.itemIndex];
     const sessionId = sessionIdRef.current;
 
-    if (!currentItem || !sessionId || state.phase !== "transition") {
+    if (!currentItem || !sessionId || (state.phase !== "transition" && state.phase !== "reinforce")) {
       return;
     }
 
@@ -198,6 +224,20 @@ export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings)
     finishedRef.current = false;
   }, [finishSession, playableItems.length]);
 
+  const completeCurrentSample = useCallback(() => {
+    setState((current) => {
+      if (current.phase !== "sample") {
+        return current;
+      }
+
+      return advanceAutoPlayState(
+        current,
+        { loopCount, loopMode, playbackSpeed, reinforcementEnabled, sfxEnabled, speedPreset },
+        playableItems.length
+      );
+    });
+  }, [loopCount, loopMode, playbackSpeed, playableItems.length, reinforcementEnabled, sfxEnabled, speedPreset]);
+
   return {
     state,
     playableItems,
@@ -206,6 +246,7 @@ export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings)
     resume,
     replay,
     exit,
-    restart
+    restart,
+    completeCurrentSample
   };
 }

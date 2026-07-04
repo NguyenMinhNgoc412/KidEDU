@@ -1,9 +1,10 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import { Screen } from "@/components/Screen";
 import { StateMessage } from "@/components/StateMessage";
 import { useDeckDetailQuery, useLearningSettingsQuery } from "@/data/queries";
+import type { LearningSettings } from "@/data/types";
 import { AutoPlaySessionView } from "@/features/autoPlay/AutoPlaySessionView";
 
 export default function AutoPlayScreen() {
@@ -13,19 +14,49 @@ export default function AutoPlayScreen() {
   const deckQuery = useDeckDetailQuery(deckId);
   const settingsQuery = useLearningSettingsQuery();
   const refetchSettings = settingsQuery.refetch;
+  const [freshSettings, setFreshSettings] = useState<LearningSettings | null>(null);
 
   useFocusEffect(
     useCallback(() => {
-      void refetchSettings();
+      let isActive = true;
+      setFreshSettings(null);
+
+      void refetchSettings()
+        .then((result) => {
+          if (isActive) {
+            setFreshSettings(result.data ?? null);
+          }
+        })
+        .catch(() => {
+          if (isActive) {
+            setFreshSettings(null);
+          }
+        });
+
+      return () => {
+        isActive = false;
+      };
     }, [refetchSettings])
   );
 
+  const settingsError = settingsQuery.isError && !freshSettings;
+  const isPreparing = deckQuery.isLoading || (!settingsError && !freshSettings);
+  const sessionKey = freshSettings
+    ? `${deckId}:${freshSettings.playbackSpeed}:${freshSettings.loopCount}:${freshSettings.reinforcementEnabled}:${freshSettings.sfxEnabled}`
+    : "preparing";
+
   return (
     <Screen scroll={false}>
-      {deckQuery.isLoading || settingsQuery.isLoading ? <StateMessage title="Đang chuẩn bị bộ học" /> : null}
-      {!deckQuery.isLoading && !deckQuery.data ? <StateMessage title="Không tìm thấy bộ học" /> : null}
-      {deckQuery.data && settingsQuery.data ? (
-        <AutoPlaySessionView deck={deckQuery.data} settings={settingsQuery.data} onExitToHome={() => router.replace("/")} />
+      {isPreparing ? <StateMessage title="Đang chuẩn bị bộ học" /> : null}
+      {settingsError ? <StateMessage title="Chưa tải được cài đặt" message="Quay lại và thử mở bộ học lần nữa." /> : null}
+      {!isPreparing && !settingsError && !deckQuery.data ? <StateMessage title="Không tìm thấy bộ học" /> : null}
+      {!isPreparing && !settingsError && deckQuery.data && freshSettings ? (
+        <AutoPlaySessionView
+          key={sessionKey}
+          deck={deckQuery.data}
+          settings={freshSettings}
+          onExitToHome={() => router.replace("/")}
+        />
       ) : null}
     </Screen>
   );

@@ -12,6 +12,25 @@ Format dùng theo hướng đơn giản:
 
 ---
 
+## [0.3.1] — 2026-07-04
+
+### Changed
+
+- Cập nhật timeline Auto Play: phát hết video/audio mẫu trước khi chuyển sang lượt trẻ nói.
+- Cố định giai đoạn trẻ nói theo là 5 giây trong MVP.
+- Cố định khoảng sau khi trẻ nói trước khi sang thẻ tiếp theo là 1 giây; nếu bật phản hồi thì phản hồi nằm trong khoảng này.
+- Làm rõ preset tốc độ không được rút ngắn thời gian trẻ nói theo.
+
+### Affected files
+
+- `03-business-auto-play-deck-sot.md`
+
+### Reason
+
+Đồng bộ SOT với yêu cầu vận hành Auto Play mới: không chuyển sang phần trẻ nói khi video mẫu chưa phát hết và đảm bảo trẻ luôn có đủ 5 giây để nói theo.
+
+---
+
 ## [0.3.0] — 2026-07-04
 
 ### Added
