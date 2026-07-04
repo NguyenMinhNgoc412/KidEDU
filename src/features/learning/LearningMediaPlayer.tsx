@@ -3,17 +3,22 @@ import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { Play, Volume2 } from "lucide-react-native";
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { AppState, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import type { LearningItemMedia, PlaybackSpeed } from "@/data/types";
 import {
+  getLearningVisualPlaceholderLabel,
   resolveLearningMediaStageRole,
   type ActiveLearningMediaRole
 } from "@/features/learning/learningMediaStage";
 import { useDisplayMediaUri } from "@/features/media/useDisplayMediaUri";
 import { colors, radii } from "@/theme";
+
+interface MouthVideoPlayerHandle {
+  pause(): void;
+}
 
 export function LearningMediaPlayer({
   illustration,
@@ -37,8 +42,8 @@ export function LearningMediaPlayer({
   const audioUri = useDisplayMediaUri(pronunciationAudio?.asset.uri ?? null);
   const [activeRole, setActiveRole] = useState<ActiveLearningMediaRole>(illustration ? "illustration" : "mouth_video");
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [isPlayOverlayVisible, setPlayOverlayVisible] = useState(Boolean(mouthVideo));
-  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [videoPlaySignal, setVideoPlaySignal] = useState(0);
+  const mouthVideoPlayerRef = useRef<MouthVideoPlayerHandle | null>(null);
   const lastAutoPlayKeyRef = useRef<string | null>(null);
   const completedAutoPlayKeyRef = useRef<string | null>(null);
   const audioCompletionAutoPlayKeyRef = useRef<string | null>(null);
@@ -52,36 +57,13 @@ export function LearningMediaPlayer({
     [autoPlayKey, playableAudioUri, playableVideoUri, playbackSpeed]
   );
   const audioSource = useMemo(() => (playableAudioUri ? { uri: playableAudioUri } : null), [playableAudioUri]);
-  const videoSource = useMemo(() => (playableVideoUri ? { uri: playableVideoUri } : null), [playableVideoUri]);
 
-  const videoPlayer = useVideoPlayer(videoSource, (player) => {
-    player.loop = false;
-    player.staysActiveInBackground = false;
-    player.audioMixingMode = "doNotMix";
-  });
   const audioPlayer = useAudioPlayer(audioSource, { updateInterval: 500 });
   const audioStatus = useAudioPlayerStatus(audioPlayer);
 
   useEffect(() => {
-    videoPlayer.playbackRate = playbackSpeed;
-    audioPlayer.playbackRate = playbackSpeed;
-  }, [audioPlayer, playbackSpeed, videoPlayer]);
-
-  const clearOverlayTimer = useCallback(() => {
-    if (overlayTimerRef.current) {
-      clearTimeout(overlayTimerRef.current);
-      overlayTimerRef.current = null;
-    }
-  }, []);
-
-  const showPlayOverlay = useCallback(() => {
-    setPlayOverlayVisible(true);
-    clearOverlayTimer();
-    overlayTimerRef.current = setTimeout(() => {
-      setPlayOverlayVisible(false);
-      overlayTimerRef.current = null;
-    }, 1000);
-  }, [clearOverlayTimer]);
+    audioPlayer.setPlaybackRate(playbackSpeed);
+  }, [audioPlayer, playbackSpeed]);
 
   const completeAutoPlaySample = useCallback(() => {
     if (!autoPlayKey || paused || completedAutoPlayKeyRef.current === autoPlayKey) {
@@ -96,20 +78,9 @@ export function LearningMediaPlayer({
 
   const pauseAll = useCallback(() => {
     shouldPlayFollowUpAudioRef.current = false;
-    videoPlayer.pause();
-    audioPlayer.pause();
-  }, [audioPlayer, videoPlayer]);
-
-  const restartVideo = useCallback(() => {
-    videoPlayer.pause();
-    try {
-      videoPlayer.currentTime = 0;
-      videoPlayer.play();
-    } catch {
-      videoPlayer.replay();
-      videoPlayer.play();
-    }
-  }, [videoPlayer]);
+    safelyPausePlayer(mouthVideoPlayerRef.current);
+    safelyPausePlayer(audioPlayer);
+  }, [audioPlayer]);
 
   const playAudio = useCallback((options?: { completeAutoPlaySampleOnEnd?: boolean }) => {
     shouldPlayFollowUpAudioRef.current = false;
@@ -119,13 +90,13 @@ export function LearningMediaPlayer({
       return;
     }
 
-    videoPlayer.pause();
+    safelyPausePlayer(mouthVideoPlayerRef.current);
     setActiveRole("pronunciation_audio");
     setFeedback(null);
     audioCompletionAutoPlayKeyRef.current =
       options?.completeAutoPlaySampleOnEnd && autoPlayKey ? autoPlayKey : null;
-    void audioPlayer.seekTo(0).finally(() => audioPlayer.play());
-  }, [audioPlayer, autoPlayKey, playableAudioUri, videoPlayer]);
+    safelyReplayAudioFromStart(audioPlayer);
+  }, [audioPlayer, autoPlayKey, playableAudioUri]);
 
   const playMouthVideo = useCallback(() => {
     shouldPlayFollowUpAudioRef.current = false;
@@ -135,12 +106,11 @@ export function LearningMediaPlayer({
       return;
     }
 
-    audioPlayer.pause();
+    safelyPausePlayer(audioPlayer);
     setActiveRole("mouth_video");
     setFeedback(null);
-    showPlayOverlay();
-    restartVideo();
-  }, [audioPlayer, playableVideoUri, restartVideo, showPlayOverlay]);
+    setVideoPlaySignal((value) => value + 1);
+  }, [audioPlayer, playableVideoUri]);
 
   const playQueuedFollowUpAudio = useCallback(() => {
     if (!shouldPlayFollowUpAudioRef.current || !playableAudioUri || paused) {
@@ -150,23 +120,28 @@ export function LearningMediaPlayer({
     playAudio({ completeAutoPlaySampleOnEnd: true });
   }, [paused, playableAudioUri, playAudio]);
 
-  useEventListener(videoPlayer, "playToEnd", () => {
+  const handleMouthVideoEnd = useCallback(() => {
     if (shouldPlayFollowUpAudioRef.current && playableAudioUri) {
       playQueuedFollowUpAudio();
       return;
     }
 
     completeAutoPlaySample();
-  });
+  }, [completeAutoPlaySample, playableAudioUri, playQueuedFollowUpAudio]);
+
+  const handleMouthVideoPlayStart = useCallback(() => {
+    safelyPausePlayer(audioPlayer);
+    setActiveRole("mouth_video");
+    setFeedback(null);
+  }, [audioPlayer]);
 
   const playSample = useCallback(() => {
     if (playableVideoUri) {
       shouldPlayFollowUpAudioRef.current = Boolean(playableAudioUri);
-      audioPlayer.pause();
+      safelyPausePlayer(audioPlayer);
       setActiveRole("mouth_video");
       setFeedback(null);
-      showPlayOverlay();
-      restartVideo();
+      setVideoPlaySignal((value) => value + 1);
       return;
     }
 
@@ -181,8 +156,6 @@ export function LearningMediaPlayer({
     playableAudioUri,
     playableVideoUri,
     playAudio,
-    restartVideo,
-    showPlayOverlay
   ]);
 
   useEffect(() => {
@@ -212,16 +185,6 @@ export function LearningMediaPlayer({
   }, [autoPlayKey, mediaPlaybackIdentity, paused, playSample]);
 
   useEffect(() => {
-    if (playableVideoUri) {
-      showPlayOverlay();
-      return;
-    }
-
-    setPlayOverlayVisible(false);
-    clearOverlayTimer();
-  }, [clearOverlayTimer, playableVideoUri, showPlayOverlay]);
-
-  useEffect(() => {
     if (paused) {
       pauseAll();
     }
@@ -240,9 +203,8 @@ export function LearningMediaPlayer({
   useEffect(() => {
     return () => {
       pauseAll();
-      clearOverlayTimer();
     };
-  }, [clearOverlayTimer, pauseAll]);
+  }, [pauseAll]);
 
   useEffect(() => {
     if (!autoPlayKey || paused) {
@@ -257,9 +219,13 @@ export function LearningMediaPlayer({
     playSample();
   }, [autoPlayKey, mediaPlaybackIdentity, paused, playSample]);
 
-  const hasRenderableIllustration = Boolean(illustrationUri && !illustrationUri.startsWith("seed://"));
+  const hasRenderableIllustration = isRenderableMediaUri(illustrationUri);
   const stageRole = resolveLearningMediaStageRole({
     activeRole,
+    hasRenderableIllustration,
+    hasPlayableVideo: Boolean(playableVideoUri)
+  });
+  const visualPlaceholderLabel = getLearningVisualPlaceholderLabel({
     hasRenderableIllustration,
     hasPlayableVideo: Boolean(playableVideoUri)
   });
@@ -268,30 +234,18 @@ export function LearningMediaPlayer({
     <View style={styles.container}>
       <View style={styles.stage}>
         {stageRole === "mouth_video" && playableVideoUri ? (
-          <View style={styles.videoPressable}>
-            <VideoView
-              contentFit="cover"
-              nativeControls={false}
-              player={videoPlayer}
-              playsInline
-              style={styles.video}
-            />
-            <Pressable
-              accessibilityLabel={isPlayOverlayVisible ? "Phát khẩu hình" : "Hiện nút phát khẩu hình"}
-              accessibilityRole="button"
-              onPress={isPlayOverlayVisible ? playMouthVideo : showPlayOverlay}
-              style={styles.videoTapLayer}
-            >
-              {isPlayOverlayVisible ? (
-                <View style={styles.playOverlay}>
-                  <Play color="#FFFFFF" fill="rgba(255,255,255,0.9)" size={30} />
-                </View>
-              ) : null}
-            </Pressable>
-          </View>
+          <MouthVideoPlayer
+            ref={mouthVideoPlayerRef}
+            onEnd={handleMouthVideoEnd}
+            onPlayStart={handleMouthVideoPlayStart}
+            paused={paused}
+            playSignal={videoPlaySignal}
+            playbackSpeed={playbackSpeed}
+            uri={playableVideoUri}
+          />
         ) : (
           <View style={styles.illustrationStage}>
-            <MediaPlaceholder large media={illustration} role="illustration" />
+            <MediaPlaceholder fallbackLabel={visualPlaceholderLabel} large media={illustration} role="illustration" />
             {activeRole === "pronunciation_audio" && playableAudioUri ? (
               <Pressable
                 accessibilityLabel={audioStatus.playing ? "Đang phát âm mẫu" : "Phát âm phát âm"}
@@ -327,6 +281,154 @@ export function LearningMediaPlayer({
   );
 }
 
+const MouthVideoPlayer = forwardRef<
+  MouthVideoPlayerHandle,
+  {
+    onEnd: () => void;
+    onPlayStart: () => void;
+    paused: boolean;
+    playbackSpeed: PlaybackSpeed;
+    playSignal: number;
+    uri: string;
+  }
+>(function MouthVideoPlayer({ onEnd, onPlayStart, paused, playbackSpeed, playSignal, uri }, ref) {
+  const [isPlayOverlayVisible, setPlayOverlayVisible] = useState(true);
+  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const videoPlayer = useVideoPlayer({ uri }, (player) => {
+    player.loop = false;
+    player.staysActiveInBackground = false;
+    player.audioMixingMode = "doNotMix";
+  });
+
+  const clearOverlayTimer = useCallback(() => {
+    if (overlayTimerRef.current) {
+      clearTimeout(overlayTimerRef.current);
+      overlayTimerRef.current = null;
+    }
+  }, []);
+
+  const showPlayOverlay = useCallback(() => {
+    setPlayOverlayVisible(true);
+    clearOverlayTimer();
+    overlayTimerRef.current = setTimeout(() => {
+      setPlayOverlayVisible(false);
+      overlayTimerRef.current = null;
+    }, 1000);
+  }, [clearOverlayTimer]);
+
+  const replayVideo = useCallback(() => {
+    onPlayStart();
+    showPlayOverlay();
+    safelyReplayVideoFromStart(videoPlayer);
+  }, [onPlayStart, showPlayOverlay, videoPlayer]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      pause: () => safelyPausePlayer(videoPlayer)
+    }),
+    [videoPlayer]
+  );
+
+  useEventListener(videoPlayer, "playToEnd", onEnd);
+
+  useEffect(() => {
+    setVideoPlaybackRate(videoPlayer, playbackSpeed);
+  }, [playbackSpeed, videoPlayer]);
+
+  useEffect(() => {
+    if (playSignal <= 0) {
+      return;
+    }
+
+    replayVideo();
+  }, [playSignal, replayVideo]);
+
+  useEffect(() => {
+    if (paused) {
+      safelyPausePlayer(videoPlayer);
+    }
+  }, [paused, videoPlayer]);
+
+  useEffect(() => {
+    return () => {
+      clearOverlayTimer();
+    };
+  }, [clearOverlayTimer]);
+
+  return (
+    <View style={styles.videoPressable}>
+      <VideoView contentFit="cover" nativeControls={false} player={videoPlayer} playsInline style={styles.video} />
+      <Pressable
+        accessibilityLabel={isPlayOverlayVisible ? "Phát khẩu hình" : "Hiện nút phát khẩu hình"}
+        accessibilityRole="button"
+        onPress={isPlayOverlayVisible ? replayVideo : showPlayOverlay}
+        style={styles.videoTapLayer}
+      >
+        {isPlayOverlayVisible ? (
+          <View style={styles.playOverlay}>
+            <Play color="#FFFFFF" fill="rgba(255,255,255,0.9)" size={30} />
+          </View>
+        ) : null}
+      </Pressable>
+    </View>
+  );
+});
+
+function setVideoPlaybackRate(videoPlayer: { playbackRate: number }, playbackSpeed: PlaybackSpeed): void {
+  try {
+    videoPlayer.playbackRate = playbackSpeed;
+  } catch {
+    // Some Expo Go native runtimes expose playbackRate as read-only despite the JS type.
+  }
+}
+
+function safelyPausePlayer(player: { pause: () => void } | null | undefined): void {
+  try {
+    player?.pause();
+  } catch {
+    // Expo can release native shared objects before React cleanup calls pause.
+  }
+}
+
+function safelyPlayPlayer(player: { play: () => void } | null | undefined): void {
+  try {
+    player?.play();
+  } catch {
+    // Ignore stale native player calls during fast unmount/remount cycles.
+  }
+}
+
+function safelyReplayAudioFromStart(player: { play: () => void; seekTo: (seconds: number) => Promise<void> }): void {
+  try {
+    void player.seekTo(0).then(() => safelyPlayPlayer(player)).catch(() => safelyPlayPlayer(player));
+  } catch {
+    safelyPlayPlayer(player);
+  }
+}
+
+function safelyReplayVideoFromStart(player: {
+  currentTime: number;
+  pause: () => void;
+  play: () => void;
+  replay: () => void;
+}): void {
+  safelyPausePlayer(player);
+
+  try {
+    player.currentTime = 0;
+    safelyPlayPlayer(player);
+  } catch {
+    try {
+      player.replay();
+      safelyPlayPlayer(player);
+    } catch {
+      // The video shared object may already be released on native teardown.
+    }
+  }
+}
+
 function MediaChip({
   active,
   available,
@@ -359,6 +461,10 @@ function MediaChip({
 }
 
 function isPlayableMediaUri(uri: string | null): uri is string {
+  return Boolean(uri && !uri.startsWith("seed://") && !uri.startsWith("data:"));
+}
+
+function isRenderableMediaUri(uri: string | null): uri is string {
   return Boolean(uri && !uri.startsWith("seed://") && !uri.startsWith("data:"));
 }
 

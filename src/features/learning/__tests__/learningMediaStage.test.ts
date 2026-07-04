@@ -1,4 +1,8 @@
-import { resolveLearningMediaStageRole } from "../learningMediaStage";
+import {
+  getLearningVisualPlaceholderLabel,
+  missingVisualMediaLabel,
+  resolveLearningMediaStageRole
+} from "../learningMediaStage";
 
 describe("resolveLearningMediaStageRole", () => {
   it("shows the illustration stage while pronunciation audio is selected", () => {
@@ -29,5 +33,28 @@ describe("resolveLearningMediaStageRole", () => {
         hasPlayableVideo: true
       })
     ).toBe("mouth_video");
+  });
+
+  it("shows the missing visual placeholder only when both image and video are unavailable", () => {
+    expect(
+      getLearningVisualPlaceholderLabel({
+        hasRenderableIllustration: false,
+        hasPlayableVideo: false
+      })
+    ).toBe(missingVisualMediaLabel);
+
+    expect(
+      getLearningVisualPlaceholderLabel({
+        hasRenderableIllustration: true,
+        hasPlayableVideo: false
+      })
+    ).toBeUndefined();
+
+    expect(
+      getLearningVisualPlaceholderLabel({
+        hasRenderableIllustration: false,
+        hasPlayableVideo: true
+      })
+    ).toBeUndefined();
   });
 });

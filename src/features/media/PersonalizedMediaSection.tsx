@@ -28,7 +28,7 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
   const saveMediaMutation = useSavePickedMediaMutation(item.id);
   const saveAudioMutation = useSaveRecordedAudioMutation(item.id);
   const deleteMediaMutation = useDeleteCustomMediaMutation(item.id);
-  const audioRecorder = useAudioRecorder({ ...RecordingPresets.LOW_QUALITY, directory: "cache" });
+  const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
   const audioRecorderState = useAudioRecorderState(audioRecorder);
   const isRecordingAudio = audioRecorderState.isRecording;
   const isMutationBusy = saveMediaMutation.isPending || saveAudioMutation.isPending || deleteMediaMutation.isPending;
@@ -121,7 +121,7 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
       }
 
       await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
-      await audioRecorder.prepareToRecordAsync({ ...RecordingPresets.LOW_QUALITY, directory: "cache" });
+      await audioRecorder.prepareToRecordAsync(RecordingPresets.LOW_QUALITY);
       audioRecorder.record();
     } catch (error) {
       Alert.alert("Chưa thu âm được", getErrorMessage(error));

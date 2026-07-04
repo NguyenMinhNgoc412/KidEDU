@@ -102,6 +102,8 @@ interface MediaFileRow {
 }
 
 export class SQLiteKidEduRepository implements KidEduRepository {
+  private transactionQueue: Promise<void> = Promise.resolve();
+
   constructor(private readonly db: KidEduDatabase) {}
 
   async listCategories(): Promise<Category[]> {
@@ -174,12 +176,12 @@ export class SQLiteKidEduRepository implements KidEduRepository {
 
   async archiveLearningItem(itemId: string): Promise<void> {
     const now = new Date().toISOString();
-    await this.db.withTransactionAsync(async () => {
-      await this.db.runAsync("UPDATE learning_items SET status = 'archived', updated_at = ? WHERE id = ?", [
+    await this.runInTransaction(async (db) => {
+      await db.runAsync("UPDATE learning_items SET status = 'archived', updated_at = ? WHERE id = ?", [
         now,
         itemId
       ]);
-      await this.db.runAsync("DELETE FROM deck_items WHERE learning_item_id = ?", [itemId]);
+      await db.runAsync("DELETE FROM deck_items WHERE learning_item_id = ?", [itemId]);
     });
   }
 
@@ -190,11 +192,11 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     const thumbnailAssetId = input.thumbnailUri && input.thumbnailUri !== input.uri ? makeId("media-thumb") : null;
     const oldUris = await this.getActiveCustomMediaUris(input.learningItemId, input.role);
 
-    await this.db.withTransactionAsync(async () => {
-      await this.markActiveCustomMediaDeleted(input.learningItemId, input.role);
+    await this.runInTransaction(async (db) => {
+      await this.markActiveCustomMediaDeleted(db, input.learningItemId, input.role);
 
       if (thumbnailAssetId && input.thumbnailUri) {
-        await this.db.runAsync(
+        await db.runAsync(
           `INSERT INTO media_assets
             (id, type, source, uri, thumbnail_asset_id, duration_ms, size_bytes, mime_type, status, created_at, updated_at)
            VALUES (?, 'thumbnail', 'custom', ?, NULL, NULL, NULL, ?, 'active', ?, ?)`,
@@ -202,7 +204,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
         );
       }
 
-      await this.db.runAsync(
+      await db.runAsync(
         `INSERT INTO media_assets
           (id, type, source, uri, thumbnail_asset_id, duration_ms, size_bytes, mime_type, status, created_at, updated_at)
          VALUES (?, ?, 'custom', ?, ?, ?, ?, ?, 'active', ?, ?)`,
@@ -219,14 +221,14 @@ export class SQLiteKidEduRepository implements KidEduRepository {
         ]
       );
 
-      await this.db.runAsync(
+      await db.runAsync(
         `INSERT INTO learning_item_media
           (id, learning_item_id, media_asset_id, role, priority, is_active, created_at)
          VALUES (?, ?, ?, ?, 100, 1, ?)`,
         [mappingId, input.learningItemId, mediaAssetId, input.role, now]
       );
 
-      await this.db.runAsync("UPDATE learning_items SET updated_at = ? WHERE id = ?", [now, input.learningItemId]);
+      await db.runAsync("UPDATE learning_items SET updated_at = ? WHERE id = ?", [now, input.learningItemId]);
     });
 
     return oldUris.filter((uri) => uri !== input.uri && uri !== input.thumbnailUri);
@@ -235,9 +237,9 @@ export class SQLiteKidEduRepository implements KidEduRepository {
   async deleteCustomMediaForItem(input: DeleteCustomMediaInput): Promise<string[]> {
     const oldUris = await this.getActiveCustomMediaUris(input.learningItemId, input.role);
 
-    await this.db.withTransactionAsync(async () => {
-      await this.markActiveCustomMediaDeleted(input.learningItemId, input.role);
-      await this.db.runAsync("UPDATE learning_items SET updated_at = ? WHERE id = ?", [
+    await this.runInTransaction(async (db) => {
+      await this.markActiveCustomMediaDeleted(db, input.learningItemId, input.role);
+      await db.runAsync("UPDATE learning_items SET updated_at = ? WHERE id = ?", [
         new Date().toISOString(),
         input.learningItemId
       ]);
@@ -299,24 +301,24 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     const deckId = makeId("deck");
     const now = new Date().toISOString();
 
-    await this.db.withTransactionAsync(async () => {
-      await this.db.runAsync(
+    await this.runInTransaction(async (db) => {
+      await db.runAsync(
         "INSERT INTO decks (id, title, description, status, created_at, updated_at) VALUES (?, ?, ?, 'active', ?, ?)",
         [deckId, input.title.trim(), input.description?.trim() || null, now, now]
       );
-      await this.replaceDeckItems(deckId, input.itemIds, false);
+      await this.replaceDeckItems(db, deckId, input.itemIds);
     });
 
     return deckId;
   }
 
   async updateDeck(deckId: string, input: UpdateDeckInput): Promise<void> {
-    await this.db.withTransactionAsync(async () => {
-      await this.db.runAsync(
+    await this.runInTransaction(async (db) => {
+      await db.runAsync(
         "UPDATE decks SET title = ?, description = ?, status = ?, updated_at = ? WHERE id = ?",
         [input.title.trim(), input.description?.trim() || null, input.status, new Date().toISOString(), deckId]
       );
-      await this.replaceDeckItems(deckId, input.itemIds, false);
+      await this.replaceDeckItems(db, deckId, input.itemIds);
     });
   }
 
@@ -367,13 +369,13 @@ export class SQLiteKidEduRepository implements KidEduRepository {
       [learningSettingKeys.sfxEnabled, nextSettings.sfxEnabled ? "true" : "false"]
     ] as const;
 
-    await this.db.withTransactionAsync(async () => {
+    await this.runInTransaction(async (db) => {
       for (const [key, value] of entries) {
-        await this.db.runAsync(
+        await db.runAsync(
           "UPDATE settings SET value = ?, updated_at = ? WHERE key = ?",
           [value, now, key]
         );
-        await this.db.runAsync(
+        await db.runAsync(
           "INSERT INTO settings (key, value, updated_at) SELECT ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM settings WHERE key = ?)",
           [key, value, now, key]
         );
@@ -405,14 +407,14 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     const practiceIncrement = input.eventType === "completed_item" ? 1 : 0;
     const viewIncrement = input.eventType === "viewed" || input.eventType === "replayed" ? 1 : 0;
 
-    await this.db.withTransactionAsync(async () => {
-      await this.db.runAsync(
+    await this.runInTransaction(async (db) => {
+      await db.runAsync(
         "INSERT INTO practice_events (id, session_id, learning_item_id, event_type, created_at) VALUES (?, ?, ?, ?, ?)",
         [eventId, input.sessionId, input.learningItemId, input.eventType, now]
       );
 
       if (practiceIncrement > 0 || viewIncrement > 0) {
-        await this.db.runAsync(
+        await db.runAsync(
           `INSERT INTO learning_progress
             (id, child_id, learning_item_id, view_count, practice_count, last_practiced_at, parent_mark)
            VALUES (?, ?, ?, ?, ?, ?, 'new')
@@ -464,8 +466,8 @@ export class SQLiteKidEduRepository implements KidEduRepository {
   async updateProgressParentMark(input: UpdateProgressParentMarkInput): Promise<void> {
     const now = new Date().toISOString();
 
-    await this.db.withTransactionAsync(async () => {
-      await this.db.runAsync(
+    await this.runInTransaction(async (db) => {
+      await db.runAsync(
         `INSERT INTO learning_progress
           (id, child_id, learning_item_id, view_count, practice_count, last_practiced_at, parent_mark)
          VALUES (?, ?, ?, 0, 0, NULL, ?)
@@ -474,7 +476,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
         [`progress-${defaultChildId}-${input.learningItemId}`, defaultChildId, input.learningItemId, input.parentMark]
       );
 
-      await this.db.runAsync("UPDATE learning_items SET learning_status = ?, updated_at = ? WHERE id = ?", [
+      await db.runAsync("UPDATE learning_items SET learning_status = ?, updated_at = ? WHERE id = ?", [
         input.parentMark,
         now,
         input.learningItemId
@@ -482,23 +484,14 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     });
   }
 
-  private async replaceDeckItems(deckId: string, itemIds: string[], wrapInTransaction = true): Promise<void> {
-    const run = async () => {
-      await this.db.runAsync("DELETE FROM deck_items WHERE deck_id = ?", [deckId]);
-      for (const [index, itemId] of itemIds.entries()) {
-        await this.db.runAsync(
-          "INSERT INTO deck_items (id, deck_id, learning_item_id, sort_order) VALUES (?, ?, ?, ?)",
-          [`deck-item-${deckId}-${itemId}-${index + 1}`, deckId, itemId, index + 1]
-        );
-      }
-    };
-
-    if (wrapInTransaction) {
-      await this.db.withTransactionAsync(run);
-      return;
+  private async replaceDeckItems(db: KidEduDatabase, deckId: string, itemIds: string[]): Promise<void> {
+    await db.runAsync("DELETE FROM deck_items WHERE deck_id = ?", [deckId]);
+    for (const [index, itemId] of itemIds.entries()) {
+      await db.runAsync(
+        "INSERT INTO deck_items (id, deck_id, learning_item_id, sort_order) VALUES (?, ?, ?, ?)",
+        [`deck-item-${deckId}-${itemId}-${index + 1}`, deckId, itemId, index + 1]
+      );
     }
-
-    await run();
   }
 
   private async mapLearningItemRow(row: LearningItemRow): Promise<LearningItem> {
@@ -546,8 +539,8 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     return rows.flatMap((row) => [row.uri, row.thumbnail_uri].filter((uri): uri is string => Boolean(uri)));
   }
 
-  private async markActiveCustomMediaDeleted(itemId: string, role: MediaRole): Promise<void> {
-    await this.db.runAsync(
+  private async markActiveCustomMediaDeleted(db: KidEduDatabase, itemId: string, role: MediaRole): Promise<void> {
+    await db.runAsync(
       `UPDATE media_assets
        SET status = 'deleted', updated_at = ?
        WHERE id IN (
@@ -563,7 +556,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
       [new Date().toISOString(), itemId, role]
     );
 
-    await this.db.runAsync(
+    await db.runAsync(
       `UPDATE media_assets
        SET status = 'deleted', updated_at = ?
        WHERE id IN (
@@ -578,7 +571,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
       [new Date().toISOString(), itemId, role]
     );
 
-    await this.db.runAsync(
+    await db.runAsync(
       `UPDATE learning_item_media
        SET is_active = 0
        WHERE id IN (
@@ -592,6 +585,22 @@ export class SQLiteKidEduRepository implements KidEduRepository {
        )`,
       [itemId, role]
     );
+  }
+
+  private async runInTransaction(task: (db: KidEduDatabase) => Promise<void>): Promise<void> {
+    const run = async () => {
+      const isWebRuntime = "document" in globalThis;
+
+      if (!isWebRuntime && typeof this.db.withExclusiveTransactionAsync === "function") {
+        await this.db.withExclusiveTransactionAsync((transaction) => task(transaction));
+        return;
+      }
+
+      await this.db.withTransactionAsync(() => task(this.db));
+    };
+    const queued = this.transactionQueue.then(run, run);
+    this.transactionQueue = queued.catch(() => undefined);
+    await queued;
   }
 }
 

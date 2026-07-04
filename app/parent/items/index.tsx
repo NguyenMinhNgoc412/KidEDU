@@ -1,7 +1,7 @@
 import { FlashList } from "@shopify/flash-list";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { Edit3, Layers3, Plus, Search, Trash2 } from "lucide-react-native";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { Badge } from "@/components/Badge";
@@ -19,24 +19,55 @@ import type { Category, LearningItem } from "@/data/types";
 import { getContentStatusLabel } from "@/features/media/mediaResolver";
 import { colors, radii } from "@/theme";
 
+const EMPTY_LEARNING_ITEMS: LearningItem[] = [];
+
 export default function ParentItemsScreen() {
   const router = useRouter();
   const categoriesQuery = useCategoriesQuery();
   const itemsQuery = useLearningItemsQuery();
   const createMutation = useCreateLearningItemMutation();
   const archiveMutation = useArchiveLearningItemMutation();
+  const refetchItems = itemsQuery.refetch;
   const categories = categoriesQuery.data ?? [];
-  const items = itemsQuery.data ?? [];
+  const queryItems = itemsQuery.data ?? EMPTY_LEARNING_ITEMS;
+  const [instantItems, setInstantItems] = useState<LearningItem[]>([]);
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [search, setSearch] = useState("");
   const titleInputRef = useRef<TextInput>(null);
+
+  const items = useMemo(() => {
+    if (instantItems.length === 0) {
+      return queryItems;
+    }
+
+    const instantItemIds = new Set(instantItems.map((item) => item.id));
+    return [...instantItems, ...queryItems.filter((item) => !instantItemIds.has(item.id))];
+  }, [instantItems, queryItems]);
 
   useEffect(() => {
     if (!categoryId && categories[0]) {
       setCategoryId(categories[0].id);
     }
   }, [categories, categoryId]);
+
+  useEffect(() => {
+    if (queryItems.length === 0) {
+      return;
+    }
+
+    const queryItemIds = new Set(queryItems.map((item) => item.id));
+    setInstantItems((currentItems) => {
+      const nextItems = currentItems.filter((item) => !queryItemIds.has(item.id));
+      return nextItems.length === currentItems.length ? currentItems : nextItems;
+    });
+  }, [queryItems]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void refetchItems();
+    }, [refetchItems])
+  );
 
   const filteredItems = useMemo(() => {
     const keyword = search.trim().toLocaleLowerCase("vi-VN");
@@ -51,6 +82,10 @@ export default function ParentItemsScreen() {
         item.categoryName.toLocaleLowerCase("vi-VN").includes(keyword)
     );
   }, [items, search]);
+  const filteredItemIds = useMemo(
+    () => filteredItems.map((item) => item.id).join("|"),
+    [filteredItems]
+  );
 
   const practicingCount = items.filter((item) => item.learningStatus === "practicing").length;
 
@@ -63,8 +98,17 @@ export default function ParentItemsScreen() {
     createMutation.mutate(
       { title: trimmedTitle, categoryId },
       {
-        onSuccess: () => {
+        onSuccess: async ({ item }) => {
+          if (item) {
+            setInstantItems((currentItems) => [
+              item,
+              ...currentItems.filter((currentItem) => currentItem.id !== item.id)
+            ]);
+          }
+
           setTitle("");
+          setSearch("");
+          await refetchItems();
         }
       }
     );
@@ -138,7 +182,9 @@ export default function ParentItemsScreen() {
           onPress={createItem}
           variant="secondary"
         />
-        <Text style={styles.formNote}>Sau khi lưu, mở thẻ để thêm ảnh, video khẩu hình hoặc âm phát âm cá nhân.</Text>
+        <Text style={styles.formNote}>
+          Sau khi lưu, mở thẻ để thêm ảnh, video khẩu hình hoặc âm phát âm cá nhân.
+        </Text>
       </View>
 
       <SectionHeader title="Danh sách từ" />
@@ -154,13 +200,22 @@ export default function ParentItemsScreen() {
       </View>
 
       {itemsQuery.isLoading ? <StateMessage title="Đang tải thẻ" /> : null}
-      {!itemsQuery.isLoading && items.length === 0 ? <StateMessage title="Chưa có thẻ học" /> : null}
-      {!itemsQuery.isLoading && items.length > 0 && filteredItems.length === 0 ? <StateMessage title="Không có từ phù hợp" /> : null}
+      {!itemsQuery.isLoading && items.length === 0 ? (
+        <StateMessage title="Chưa có thẻ học" />
+      ) : null}
+      {!itemsQuery.isLoading && items.length > 0 && filteredItems.length === 0 ? (
+        <StateMessage title="Không có từ phù hợp" />
+      ) : null}
       <FlashList
         data={filteredItems}
+        extraData={filteredItemIds}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ItemRow item={item} onArchive={() => confirmArchive(item)} onEdit={() => router.push(`/parent/items/${item.id}`)} />
+          <ItemRow
+            item={item}
+            onArchive={() => confirmArchive(item)}
+            onEdit={() => router.push(`/parent/items/${item.id}`)}
+          />
         )}
         scrollEnabled={false}
       />
@@ -191,7 +246,15 @@ function CategoryChooser({
   );
 }
 
-function ItemRow({ item, onEdit, onArchive }: { item: LearningItem; onEdit: () => void; onArchive: () => void }) {
+function ItemRow({
+  item,
+  onEdit,
+  onArchive
+}: {
+  item: LearningItem;
+  onEdit: () => void;
+  onArchive: () => void;
+}) {
   const label = getContentStatusLabel(item);
 
   return (
@@ -201,11 +264,24 @@ function ItemRow({ item, onEdit, onArchive }: { item: LearningItem; onEdit: () =
         <Text style={styles.rowMeta}>
           {item.categoryName} · {item.status === "hidden" ? "Tạm ẩn" : "Đang hiển thị"}
         </Text>
-        <Badge label={label} tone={label === "Cần bổ sung" ? "warn" : label === "Đã cá nhân hóa" ? "info" : "good"} />
+        <Badge
+          label={label}
+          tone={label === "Cần bổ sung" ? "warn" : label === "Đã cá nhân hóa" ? "info" : "good"}
+        />
       </View>
       <View style={styles.rowActions}>
-        <KidButton icon={<Edit3 color="#FFFFFF" size={20} />} label="Sửa" onPress={onEdit} variant="secondary" />
-        <KidButton icon={<Trash2 color="#FFFFFF" size={20} />} label="Xóa" onPress={onArchive} variant="danger" />
+        <KidButton
+          icon={<Edit3 color="#FFFFFF" size={20} />}
+          label="Sửa"
+          onPress={onEdit}
+          variant="secondary"
+        />
+        <KidButton
+          icon={<Trash2 color="#FFFFFF" size={20} />}
+          label="Xóa"
+          onPress={onArchive}
+          variant="danger"
+        />
       </View>
     </View>
   );

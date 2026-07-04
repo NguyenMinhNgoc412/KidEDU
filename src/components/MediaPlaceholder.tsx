@@ -9,11 +9,13 @@ import { colors, radii } from "@/theme";
 export function MediaPlaceholder({
   role,
   media,
+  fallbackLabel,
   large = false,
   compact = false
 }: {
   role: MediaRole;
   media?: LearningItemMedia;
+  fallbackLabel?: string;
   large?: boolean;
   compact?: boolean;
 }) {
@@ -36,7 +38,7 @@ export function MediaPlaceholder({
   }
 
   const iconColor = role === "mouth_video" ? colors.coral : role === "pronunciation_audio" ? colors.blue : colors.primary;
-  const label = roleLabel[role];
+  const label = fallbackLabel ?? roleLabel[role];
 
   return (
     <View style={[styles.frame, large ? styles.large : null, compact ? styles.compact : null]}>

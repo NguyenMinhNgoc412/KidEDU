@@ -5,6 +5,7 @@ import { useKidEduRepository } from "./KidEduDataProvider";
 import type {
   CreateDeckInput,
   CreateLearningItemInput,
+  LearningItem,
   LearningSettings,
   UpdateProgressParentMarkInput,
   UpdateDeckInput,
@@ -37,7 +38,8 @@ export function useLearningItemsQuery(options?: { childOnly?: boolean }) {
   const repository = useKidEduRepository();
   return useQuery({
     queryKey: options?.childOnly ? queryKeys.childLearningItems : queryKeys.learningItems,
-    queryFn: () => repository.listLearningItems({ includeArchived: false, childOnly: options?.childOnly }),
+    queryFn: () =>
+      repository.listLearningItems({ includeArchived: false, childOnly: options?.childOnly }),
     staleTime: 1000 * 30
   });
 }
@@ -92,12 +94,34 @@ export function useCreateLearningItemMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: CreateLearningItemInput) => repository.createLearningItem(input),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.learningItems });
-      await queryClient.invalidateQueries({ queryKey: queryKeys.childLearningItems });
-      await queryClient.refetchQueries({ queryKey: queryKeys.learningItems, type: "active" });
-      await queryClient.refetchQueries({ queryKey: queryKeys.childLearningItems, type: "active" });
+    mutationFn: async (input: CreateLearningItemInput) => {
+      const itemId = await repository.createLearningItem(input);
+      const item = await repository.getLearningItem(itemId);
+
+      return { itemId, item };
+    },
+    onSuccess: ({ itemId, item }) => {
+      if (!item) {
+        void Promise.all([
+          queryClient.invalidateQueries({ queryKey: queryKeys.learningItems }),
+          queryClient.invalidateQueries({ queryKey: queryKeys.childLearningItems })
+        ]);
+        return;
+      }
+
+      queryClient.setQueryData(queryKeys.learningItem(itemId), item);
+      addLearningItemToQueryCache(queryClient, queryKeys.learningItems, item);
+      addLearningItemToQueryCache(queryClient, queryKeys.childLearningItems, item);
+
+      void Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.learningItems }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.childLearningItems })
+      ]).then(() =>
+        Promise.all([
+          queryClient.refetchQueries({ queryKey: queryKeys.learningItems, type: "active" }),
+          queryClient.refetchQueries({ queryKey: queryKeys.childLearningItems, type: "active" })
+        ])
+      );
     }
   });
 }
@@ -202,12 +226,29 @@ export function useUpdateProgressParentMarkMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: UpdateProgressParentMarkInput) => repository.updateProgressParentMark(input),
+    mutationFn: (input: UpdateProgressParentMarkInput) =>
+      repository.updateProgressParentMark(input),
     onSuccess: async (_data, input) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.progress });
       await queryClient.invalidateQueries({ queryKey: queryKeys.learningItems });
       await queryClient.invalidateQueries({ queryKey: queryKeys.childLearningItems });
-      await queryClient.invalidateQueries({ queryKey: queryKeys.learningItem(input.learningItemId) });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.learningItem(input.learningItemId)
+      });
     }
+  });
+}
+
+function addLearningItemToQueryCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  queryKey: typeof queryKeys.learningItems | typeof queryKeys.childLearningItems,
+  item: LearningItem
+): void {
+  queryClient.setQueryData<LearningItem[]>(queryKey, (current) => {
+    if (!current) {
+      return [item];
+    }
+
+    return [item, ...current.filter((cachedItem) => cachedItem.id !== item.id)];
   });
 }

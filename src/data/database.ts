@@ -25,7 +25,18 @@ interface SettingValueRow {
   value: string;
 }
 
-export async function openKidEduDatabase(): Promise<KidEduDatabase> {
+let openDatabasePromise: Promise<KidEduDatabase> | null = null;
+
+export function openKidEduDatabase(): Promise<KidEduDatabase> {
+  openDatabasePromise ??= initializeKidEduDatabase().catch((error: unknown) => {
+    openDatabasePromise = null;
+    throw error;
+  });
+
+  return openDatabasePromise;
+}
+
+async function initializeKidEduDatabase(): Promise<KidEduDatabase> {
   const db = await SQLite.openDatabaseAsync("kidedu.db");
   await migrateDatabase(db);
   await seedDatabase(db);

@@ -3,6 +3,8 @@ import type { MediaRole } from "@/data/types";
 export type ActiveLearningMediaRole = Extract<MediaRole, "illustration" | "mouth_video" | "pronunciation_audio">;
 export type LearningMediaStageRole = Extract<MediaRole, "illustration" | "mouth_video">;
 
+export const missingVisualMediaLabel = "Từ này chưa có ảnh hoặc video";
+
 export function resolveLearningMediaStageRole({
   activeRole,
   hasRenderableIllustration,
@@ -29,4 +31,14 @@ export function resolveLearningMediaStageRole({
   }
 
   return "illustration";
+}
+
+export function getLearningVisualPlaceholderLabel({
+  hasRenderableIllustration,
+  hasPlayableVideo
+}: {
+  hasRenderableIllustration: boolean;
+  hasPlayableVideo: boolean;
+}): string | undefined {
+  return !hasRenderableIllustration && !hasPlayableVideo ? missingVisualMediaLabel : undefined;
 }

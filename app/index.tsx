@@ -1,6 +1,14 @@
-import { FlashList } from "@shopify/flash-list";
 import { useFocusEffect, useRouter } from "expo-router";
-import { BookOpen, LockKeyhole, PawPrint, PersonStanding, Play, Sparkles, Utensils, UsersRound } from "lucide-react-native";
+import {
+  BookOpen,
+  LockKeyhole,
+  PawPrint,
+  PersonStanding,
+  Play,
+  Sparkles,
+  Utensils,
+  UsersRound
+} from "lucide-react-native";
 import { useCallback, type ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -36,9 +44,14 @@ export default function ChildHomeScreen() {
     <Screen>
       <View style={styles.childHero}>
         <Text style={styles.title}>Bé chọn gì nào?</Text>
-        {categoriesQuery.isLoading || itemsQuery.isLoading ? <StateMessage title="Đang tải nhóm học" /> : null}
+        {categoriesQuery.isLoading || itemsQuery.isLoading ? (
+          <StateMessage title="Đang tải nhóm học" />
+        ) : null}
         {!categoriesQuery.isLoading && categories.length === 0 ? (
-          <StateMessage title="Chưa có nhóm học" message="Phụ huynh có thể tạo thẻ trong các nhóm mẫu." />
+          <StateMessage
+            title="Chưa có nhóm học"
+            message="Phụ huynh có thể tạo thẻ trong các nhóm mẫu."
+          />
         ) : (
           <View style={styles.categoryGrid}>
             {categories.map((category, index) => (
@@ -66,7 +79,11 @@ export default function ChildHomeScreen() {
       {!decksQuery.isLoading && decks.length === 0 ? (
         <StateMessage title="Chưa có bộ học" message="Vào khu phụ huynh để tạo bộ đầu tiên." />
       ) : (
-        <FlashList data={decks} keyExtractor={(deck) => deck.id} renderItem={({ item }) => <DeckRow deck={item} />} scrollEnabled={false} />
+        <View style={styles.deckList}>
+          {decks.map((deck) => (
+            <DeckRow key={deck.id} deck={deck} />
+          ))}
+        </View>
       )}
     </Screen>
   );
@@ -90,7 +107,11 @@ function CategoryTile({
       accessibilityLabel={`Mở nhóm ${category.name}`}
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [styles.categoryTile, { backgroundColor: tone }, pressed ? styles.pressed : null]}
+      style={({ pressed }) => [
+        styles.categoryTile,
+        { backgroundColor: tone },
+        pressed ? styles.pressed : null
+      ]}
     >
       <View style={styles.categoryIcon}>{icon}</View>
       <Text style={styles.categoryTitle} numberOfLines={2}>
@@ -152,11 +173,9 @@ function getCategoryIcon(name: string) {
 const styles = StyleSheet.create({
   childHero: {
     alignItems: "center",
-    flex: 1,
-    gap: 28,
-    justifyContent: "center",
-    minHeight: 560,
-    paddingVertical: 8
+    gap: 20,
+    justifyContent: "flex-start",
+    paddingTop: 8
   },
   title: {
     color: colors.text,
@@ -209,6 +228,9 @@ const styles = StyleSheet.create({
     opacity: 0.82,
     transform: [{ scale: 0.98 }]
   },
+  deckList: {
+    gap: 12
+  },
   deckRow: {
     alignItems: "center",
     backgroundColor: colors.surface,
@@ -218,7 +240,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     justifyContent: "space-between",
-    marginBottom: 12,
     padding: 14
   },
   deckText: {

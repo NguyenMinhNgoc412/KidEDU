@@ -58,6 +58,32 @@ class FakeSettingsDatabase {
   }
 }
 
+class TransactionGuardSettingsDatabase extends FakeSettingsDatabase {
+  maxActiveTransactions = 0;
+  private activeTransactions = 0;
+
+  override async runAsync(sql: string, params: unknown[] = []): Promise<void> {
+    await Promise.resolve();
+    await super.runAsync(sql, params);
+  }
+
+  override async withTransactionAsync(callback: () => Promise<void>): Promise<void> {
+    if (this.activeTransactions > 0) {
+      throw new Error("cannot start a transaction within a transaction");
+    }
+
+    this.activeTransactions += 1;
+    this.maxActiveTransactions = Math.max(this.maxActiveTransactions, this.activeTransactions);
+
+    try {
+      await Promise.resolve();
+      await callback();
+    } finally {
+      this.activeTransactions -= 1;
+    }
+  }
+}
+
 const threeLoopSettings: LearningSettings = {
   speedPreset: "fast",
   playbackSpeed: 1.15,
@@ -97,6 +123,25 @@ describe("SQLiteKidEduRepository settings", () => {
     expect(db.getRows(learningSettingKeys.loopMode).map((row) => row.value)).toEqual(["three_times", "three_times"]);
     expect(db.getRows(learningSettingKeys.loopCount).map((row) => row.value)).toEqual(["3"]);
     expect(db.getRows(learningSettingKeys.playbackSpeed).map((row) => row.value)).toEqual(["1.15"]);
+  });
+
+  it("serializes concurrent settings writes so SQLite transactions are not nested", async () => {
+    const db = new TransactionGuardSettingsDatabase([]);
+    const repository = new SQLiteKidEduRepository(db as unknown as KidEduDatabase);
+    const slowSettings: LearningSettings = {
+      speedPreset: "slow",
+      playbackSpeed: 0.85,
+      loopMode: "once",
+      loopCount: 1,
+      reinforcementEnabled: true,
+      sfxEnabled: false
+    };
+
+    await expect(Promise.all([
+      repository.updateLearningSettings(threeLoopSettings),
+      repository.updateLearningSettings(slowSettings)
+    ])).resolves.toEqual([undefined, undefined]);
+    expect(db.maxActiveTransactions).toBe(1);
   });
 
   it("prefers saved canonical loop count and playback speed over legacy defaults", async () => {
