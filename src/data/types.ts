@@ -35,6 +35,7 @@ export interface MediaAsset {
   source: MediaSource;
   uri: string;
   thumbnailAssetId: string | null;
+  thumbnailUri: string | null;
   durationMs: number | null;
   sizeBytes: number | null;
   mimeType: string | null;
@@ -131,6 +132,13 @@ export interface DeleteCustomMediaInput {
   role: MediaRole;
 }
 
+export interface MediaFileCleanupRecord {
+  assetId: string;
+  uri: string;
+  status: MediaStatus;
+  isReferencedByActiveMedia: boolean;
+}
+
 export interface UpdateProgressParentMarkInput {
   learningItemId: string;
   parentMark: LearningStatus;
@@ -158,6 +166,9 @@ export interface KidEduRepository {
   archiveLearningItem(itemId: string): Promise<void>;
   upsertCustomMediaForItem(input: UpsertCustomMediaInput): Promise<string[]>;
   deleteCustomMediaForItem(input: DeleteCustomMediaInput): Promise<string[]>;
+  listMediaFilesForCleanup(): Promise<MediaFileCleanupRecord[]>;
+  markMediaAssetsMissing(assetIds: string[]): Promise<void>;
+  markMediaAssetsDeleted(assetIds: string[]): Promise<void>;
   listDecks(options?: { includeArchived?: boolean; childOnly?: boolean }): Promise<Deck[]>;
   getDeckDetail(deckId: string): Promise<DeckDetail | null>;
   createDeck(input: CreateDeckInput): Promise<string>;

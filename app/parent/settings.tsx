@@ -8,16 +8,23 @@ import { Screen } from "@/components/Screen";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StateMessage } from "@/components/StateMessage";
 import { useLearningSettingsQuery, useUpdateLearningSettingsMutation } from "@/data/queries";
-import { getLoopModeForCount, getSpeedPresetForPlaybackSpeed, loopCountsByMode, playbackSpeedsByPreset } from "@/data/learningSettings";
+import {
+  getLoopModeForCount,
+  getSpeedPresetForPlaybackSpeed,
+  loopCountsByMode,
+  playbackSpeedsByPreset
+} from "@/data/learningSettings";
 import type { LearningSettings, LoopMode, SpeedPreset } from "@/data/types";
-import { colors, radii } from "@/theme";
+import { colors, fontSizes, fontWeights, radii, spacing } from "@/theme";
 
 export default function ParentSettingsScreen() {
   const router = useRouter();
   const settingsQuery = useLearningSettingsQuery();
   const updateMutation = useUpdateLearningSettingsMutation();
   const [draft, setDraft] = useState<LearningSettings | null>(null);
-  const isDirty = Boolean(draft && settingsQuery.data && !areSettingsEqual(draft, settingsQuery.data));
+  const isDirty = Boolean(
+    draft && settingsQuery.data && !areSettingsEqual(draft, settingsQuery.data)
+  );
 
   useEffect(() => {
     if (settingsQuery.data) {
@@ -92,7 +99,11 @@ export default function ParentSettingsScreen() {
               key={choice.value}
               label={choice.label}
               onPress={() => updateSpeedPreset(choice.value)}
-              variant={getSpeedPresetForPlaybackSpeed(draft.playbackSpeed) === choice.value ? "primary" : "plain"}
+              variant={
+                getSpeedPresetForPlaybackSpeed(draft.playbackSpeed) === choice.value
+                  ? "primary"
+                  : "plain"
+              }
             />
           ))}
         </View>
@@ -123,11 +134,13 @@ export default function ParentSettingsScreen() {
           />
         </View>
 
-        {updateMutation.isError ? <Text style={styles.error}>Chưa lưu được cài đặt. Thử lại giúp mình nhé.</Text> : null}
+        {updateMutation.isError ? (
+          <Text style={styles.error}>Chưa lưu được cài đặt. Thử lại giúp mình nhé.</Text>
+        ) : null}
 
         <KidButton
           disabled={updateMutation.isPending || !isDirty}
-          icon={<Save color="#FFFFFF" size={22} />}
+          icon={<Save color={colors.onPrimary} size={22} />}
           label={updateMutation.isPending ? "Đang lưu" : isDirty ? "Lưu cài đặt" : "Đã lưu"}
           onPress={save}
         />
@@ -165,22 +178,22 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radii.xl,
     borderWidth: 1,
-    gap: 14,
-    padding: 18
+    gap: spacing[14],
+    padding: spacing[18]
   },
   label: {
     color: colors.text,
-    fontSize: 16,
-    fontWeight: "900"
+    fontSize: fontSizes[16],
+    fontWeight: fontWeights.black
   },
   choiceWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: spacing[8]
   },
   error: {
     color: colors.danger,
-    fontSize: 13,
-    fontWeight: "800"
+    fontSize: fontSizes[13],
+    fontWeight: fontWeights.extraBold
   }
 });

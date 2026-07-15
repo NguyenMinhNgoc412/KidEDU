@@ -1,8 +1,11 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Save, Trash2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 
+import { AppText } from "@/components/AppText";
+import { Card } from "@/components/Card";
+import { TextField } from "@/components/Input";
 import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -15,7 +18,7 @@ import {
 } from "@/data/queries";
 import type { EntityStatus, LearningStatus } from "@/data/types";
 import { PersonalizedMediaSection } from "@/features/media/PersonalizedMediaSection";
-import { colors, radii } from "@/theme";
+import { colors, spacing } from "@/theme";
 
 export default function ParentItemDetailScreen() {
   const router = useRouter();
@@ -93,27 +96,26 @@ export default function ParentItemDetailScreen() {
 
   return (
     <Screen>
-      <SectionHeader title="Sửa thẻ" action={<KidButton label="Quay lại" onPress={() => router.back()} variant="plain" />} />
-      <View style={styles.form}>
-        <Text style={styles.label}>Từ vựng</Text>
-        <TextInput
+      <SectionHeader
+        title="Sửa thẻ"
+        action={<KidButton label="Quay lại" onPress={() => router.back()} variant="plain" />}
+      />
+      <Card padding="lg" style={styles.form} variant="form">
+        <TextField
+          label="Từ vựng"
           onChangeText={setTitle}
           placeholder="Từ hoặc cụm từ"
-          placeholderTextColor={colors.muted}
-          style={styles.input}
           value={title}
         />
-        <Text style={styles.label}>Ghi chú</Text>
-        <TextInput
+        <TextField
+          label="Ghi chú"
           multiline
           onChangeText={setNote}
           placeholder="Ghi chú"
-          placeholderTextColor={colors.muted}
-          style={[styles.input, styles.note]}
           value={note}
         />
 
-        <Text style={styles.label}>Chủ đề</Text>
+        <AppText variant="fieldLabel">Chủ đề</AppText>
         <View style={styles.choiceWrap}>
           {(categoriesQuery.data ?? []).map((category) => (
             <KidButton
@@ -125,15 +127,27 @@ export default function ParentItemDetailScreen() {
           ))}
         </View>
 
-        <Text style={styles.label}>Hiển thị</Text>
+        <AppText variant="fieldLabel">Hiển thị</AppText>
         <View style={styles.choiceWrap}>
-          <KidButton label="Đang hiển thị" onPress={() => setStatus("active")} variant={status === "active" ? "primary" : "plain"} />
-          <KidButton label="Tạm ẩn" onPress={() => setStatus("hidden")} variant={status === "hidden" ? "primary" : "plain"} />
+          <KidButton
+            label="Đang hiển thị"
+            onPress={() => setStatus("active")}
+            variant={status === "active" ? "primary" : "plain"}
+          />
+          <KidButton
+            label="Tạm ẩn"
+            onPress={() => setStatus("hidden")}
+            variant={status === "hidden" ? "primary" : "plain"}
+          />
         </View>
 
-        <Text style={styles.label}>Trạng thái học</Text>
+        <AppText variant="fieldLabel">Trạng thái học</AppText>
         <View style={styles.choiceWrap}>
-          <KidButton label="Mới" onPress={() => setLearningStatus("new")} variant={learningStatus === "new" ? "primary" : "plain"} />
+          <KidButton
+            label="Mới"
+            onPress={() => setLearningStatus("new")}
+            variant={learningStatus === "new" ? "primary" : "plain"}
+          />
           <KidButton
             label="Đang luyện"
             onPress={() => setLearningStatus("practicing")}
@@ -149,51 +163,36 @@ export default function ParentItemDetailScreen() {
         <PersonalizedMediaSection item={itemQuery.data} />
 
         <View style={styles.actions}>
-          <KidButton disabled={updateMutation.isPending} icon={<Save color="#FFFFFF" size={22} />} label="Lưu" onPress={save} />
-          <KidButton icon={<Trash2 color="#FFFFFF" size={22} />} label="Xóa" onPress={confirmArchive} variant="danger" />
+          <KidButton
+            disabled={updateMutation.isPending}
+            icon={<Save color={colors.onPrimary} size={22} />}
+            label="Lưu"
+            onPress={save}
+          />
+          <KidButton
+            icon={<Trash2 color={colors.onPrimary} size={22} />}
+            label="Xóa"
+            onPress={confirmArchive}
+            variant="danger"
+          />
         </View>
-      </View>
+      </Card>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   form: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    gap: 12,
-    padding: 18
-  },
-  input: {
-    backgroundColor: "#FFFDF2",
-    borderColor: colors.sage,
-    borderRadius: radii.lg,
-    borderWidth: 2,
-    color: colors.text,
-    fontSize: 16,
-    minHeight: 56,
-    paddingHorizontal: 16
-  },
-  note: {
-    minHeight: 92,
-    paddingTop: 12,
-    textAlignVertical: "top"
-  },
-  label: {
-    color: colors.text,
-    fontSize: 15,
-    fontWeight: "900"
+    gap: spacing[12]
   },
   choiceWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: spacing[8]
   },
   actions: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10
+    gap: spacing[10]
   }
 });

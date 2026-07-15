@@ -1,6 +1,8 @@
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
+import { colors, fontSizes, fontWeights, spacing } from "@/theme";
+
 import { openKidEduDatabase } from "./database";
 import { SQLiteKidEduRepository } from "./repository";
 import type { KidEduRepository } from "./types";
@@ -48,13 +50,15 @@ export function KidEduDataProvider({ children }: { children: ReactNode }) {
   if (!value) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#116B65" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.message}>Đang chuẩn bị nội dung học</Text>
       </View>
     );
   }
 
-  return <KidEduRepositoryContext.Provider value={value}>{children}</KidEduRepositoryContext.Provider>;
+  return (
+    <KidEduRepositoryContext.Provider value={value}>{children}</KidEduRepositoryContext.Provider>
+  );
 }
 
 export function useKidEduRepository(): KidEduRepository {
@@ -70,21 +74,21 @@ export function useKidEduRepository(): KidEduRepository {
 const styles = StyleSheet.create({
   center: {
     alignItems: "center",
-    backgroundColor: "#F7FBFA",
+    backgroundColor: colors.loadingBackground,
     flex: 1,
-    gap: 12,
+    gap: spacing[12],
     justifyContent: "center",
-    padding: 24
+    padding: spacing[24]
   },
   title: {
-    color: "#163B3A",
-    fontSize: 22,
-    fontWeight: "800",
+    color: colors.loadingText,
+    fontSize: fontSizes[22],
+    fontWeight: fontWeights.extraBold,
     textAlign: "center"
   },
   message: {
-    color: "#42615F",
-    fontSize: 16,
+    color: colors.loadingMuted,
+    fontSize: fontSizes[16],
     textAlign: "center"
   }
 });

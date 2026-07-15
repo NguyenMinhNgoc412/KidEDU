@@ -1,11 +1,17 @@
 import { FlashList } from "@shopify/flash-list";
-import { ArrowDown, ArrowUp, Check, Search } from "lucide-react-native";
+import { ArrowDown, ArrowUp, Check } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
+import { AppText } from "@/components/AppText";
+import { Card } from "@/components/Card";
+import { SearchField } from "@/components/Input";
 import { KidButton } from "@/components/KidButton";
 import type { LearningItem } from "@/data/types";
-import { colors, radii } from "@/theme";
+import { colors, radii, spacing } from "@/theme";
+
+const chooserMaxHeight = 360;
+const chooserRowHeight = 92;
 
 export function DeckItemChooser({
   items,
@@ -35,29 +41,32 @@ export function DeckItemChooser({
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchBox}>
-        <Search color={colors.muted} size={18} />
-        <TextInput
-          onChangeText={setSearch}
-          placeholder="Tìm từ để thêm vào bộ..."
-          placeholderTextColor={colors.muted}
-          style={styles.searchInput}
-          value={search}
-        />
-      </View>
-      {filteredItems.length === 0 ? <Text style={styles.emptyText}>Không có từ phù hợp</Text> : null}
+      <SearchField
+        onChangeText={setSearch}
+        placeholder="Tìm từ để thêm vào bộ..."
+        value={search}
+      />
       <FlashList
         data={filteredItems}
+        ItemSeparatorComponent={ListGap}
+        ListEmptyComponent={
+          <AppText align="center" color="muted" variant="meta">
+            Không có từ phù hợp
+          </AppText>
+        }
+        contentContainerStyle={styles.listContent}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {
           const selectedIndex = selectedIds.indexOf(item.id);
           const isSelected = selectedIndex >= 0;
 
           return (
-            <View style={[styles.row, isSelected ? styles.selected : null]}>
+            <Card style={[styles.row, isSelected ? styles.selected : null]} variant="input">
               <View style={styles.textWrap}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.meta}>{item.categoryName}</Text>
+                <AppText variant="cardTitle">{item.title}</AppText>
+                <AppText color="muted" variant="meta">
+                  {item.categoryName}
+                </AppText>
               </View>
               {isSelected && onMove ? (
                 <View style={styles.moveWrap}>
@@ -78,58 +87,42 @@ export function DeckItemChooser({
                 </View>
               ) : null}
               <KidButton
-                icon={isSelected ? <Check color="#FFFFFF" size={18} /> : undefined}
+                icon={isSelected ? <Check color={colors.onPrimary} size={18} /> : undefined}
                 label={isSelected ? `${selectedIndex + 1}` : "Chọn"}
                 onPress={() => onToggle(item.id)}
                 variant={isSelected ? "primary" : "plain"}
               />
-            </View>
+            </Card>
           );
         }}
-        scrollEnabled={false}
+        style={{
+          borderRadius: radii.lg,
+          height: Math.min(Math.max(filteredItems.length, 1) * chooserRowHeight, chooserMaxHeight)
+        }}
       />
     </View>
   );
 }
 
+function ListGap() {
+  return <View style={styles.listGap} />;
+}
+
 const styles = StyleSheet.create({
   container: {
-    gap: 10
+    gap: spacing[10]
   },
-  searchBox: {
-    alignItems: "center",
-    backgroundColor: "#FFFDF2",
-    borderColor: colors.border,
-    borderRadius: radii.full,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 8,
-    minHeight: 46,
-    paddingHorizontal: 14
+  listContent: {
+    paddingBottom: spacing[2]
   },
-  searchInput: {
-    color: colors.text,
-    flex: 1,
-    fontSize: 15,
-    fontWeight: "700",
-    minWidth: 0
-  },
-  emptyText: {
-    color: colors.muted,
-    fontSize: 13,
-    fontWeight: "800",
-    textAlign: "center"
+  listGap: {
+    height: spacing[8]
   },
   row: {
     alignItems: "center",
-    backgroundColor: "#FFFDF2",
-    borderColor: colors.border,
-    borderRadius: radii.lg,
-    borderWidth: 1,
     flexDirection: "row",
-    gap: 10,
-    marginBottom: 8,
-    padding: 10
+    gap: spacing[10],
+    padding: spacing[10]
   },
   selected: {
     backgroundColor: colors.primarySoft,
@@ -137,19 +130,9 @@ const styles = StyleSheet.create({
   },
   textWrap: {
     flex: 1,
-    gap: 4
-  },
-  title: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: "900"
-  },
-  meta: {
-    color: colors.muted,
-    fontSize: 13,
-    fontWeight: "700"
+    gap: spacing[4]
   },
   moveWrap: {
-    gap: 6
+    gap: spacing[6]
   }
 });

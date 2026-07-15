@@ -69,7 +69,7 @@ export function useSaveRecordedAudioMutation(learningItemId: string) {
         });
         await cleanupMediaFiles(replacedUris);
       } catch (error) {
-        await cleanupMediaFiles([savedMedia.uri]);
+        await cleanupMediaFiles([savedMedia.uri, savedMedia.thumbnailUri]);
         throw error;
       }
     },

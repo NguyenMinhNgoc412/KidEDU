@@ -1,22 +1,38 @@
 import {
   RecordingPresets,
-  requestRecordingPermissionsAsync,
   setAudioModeAsync,
   useAudioRecorder,
   useAudioRecorderState
 } from "expo-audio";
 import * as ImagePicker from "expo-image-picker";
-import { Camera, Image as ImageIcon, Mic2, Square, Trash2, Video, Volume2 } from "lucide-react-native";
+import {
+  Camera,
+  Image as ImageIcon,
+  Mic2,
+  Square,
+  Trash2,
+  Video,
+  Volume2
+} from "lucide-react-native";
 import { useEffect, type ReactNode } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 
+import { AppText } from "@/components/AppText";
+import { Card } from "@/components/Card";
 import { KidButton } from "@/components/KidButton";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
+import { useKidEduRepository } from "@/data/KidEduDataProvider";
 import type { LearningItem, LearningItemMedia, MediaRole } from "@/data/types";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
-import { colors, radii } from "@/theme";
+import { colors, spacing } from "@/theme";
 
+import { cleanupOrphanedMediaFiles } from "./mediaCleanupService";
 import { cleanupTempMediaImports } from "./mediaImportService";
+import {
+  ensureAudioRecordingPermission,
+  ensureMediaLibraryPermission,
+  ensureMouthVideoCapturePermission
+} from "./mediaPermissions";
 import {
   useDeleteCustomMediaMutation,
   useSavePickedMediaMutation,
@@ -24,6 +40,7 @@ import {
 } from "./useMediaPersonalization";
 
 export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
+  const repository = useKidEduRepository();
   const resolved = resolveLearningItemMedia(item);
   const saveMediaMutation = useSavePickedMediaMutation(item.id);
   const saveAudioMutation = useSaveRecordedAudioMutation(item.id);
@@ -31,12 +48,14 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
   const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
   const audioRecorderState = useAudioRecorderState(audioRecorder);
   const isRecordingAudio = audioRecorderState.isRecording;
-  const isMutationBusy = saveMediaMutation.isPending || saveAudioMutation.isPending || deleteMediaMutation.isPending;
+  const isMutationBusy =
+    saveMediaMutation.isPending || saveAudioMutation.isPending || deleteMediaMutation.isPending;
   const isBusy = isMutationBusy || isRecordingAudio;
 
   useEffect(() => {
     void cleanupTempMediaImports();
-  }, []);
+    void cleanupOrphanedMediaFiles(repository);
+  }, [repository]);
 
   useEffect(() => {
     return () => {
@@ -48,7 +67,7 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
 
   async function pickMedia(role: MediaRole) {
     try {
-      await ensureLibraryPermission();
+      await ensureMediaLibraryPermission();
       const result = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: role === "illustration",
         allowsMultipleSelection: false,
@@ -82,7 +101,7 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
 
   async function captureVideo() {
     try {
-      await ensureCameraPermission();
+      await ensureMouthVideoCapturePermission();
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: false,
         base64: false,
@@ -115,11 +134,7 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
 
   async function startAudioRecording() {
     try {
-      const permission = await requestRecordingPermissionsAsync();
-      if (!permission.granted) {
-        throw new Error("Ứng dụng cần quyền micro để thu âm phát âm.");
-      }
-
+      await ensureAudioRecordingPermission();
       await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
       await audioRecorder.prepareToRecordAsync(RecordingPresets.LOW_QUALITY);
       audioRecorder.record();
@@ -171,7 +186,7 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Media cá nhân</Text>
+      <AppText variant="cardTitle">Media cá nhân</AppText>
       <MediaRoleRow
         disabled={isBusy}
         icon={<ImageIcon color={colors.primary} size={20} />}
@@ -203,8 +218,18 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
           void (isRecordingAudio ? stopAudioRecording() : startAudioRecording());
         }}
         recordDisabled={isMutationBusy}
-        recordIcon={isRecordingAudio ? <Square color={colors.primary} size={22} /> : <Mic2 color={colors.primary} size={22} />}
-        recordLabel={isRecordingAudio ? `Dừng ${Math.round(audioRecorderState.durationMillis / 1000)}s` : "Thu âm"}
+        recordIcon={
+          isRecordingAudio ? (
+            <Square color={colors.primary} size={22} />
+          ) : (
+            <Mic2 color={colors.primary} size={22} />
+          )
+        }
+        recordLabel={
+          isRecordingAudio
+            ? `Dừng ${Math.round(audioRecorderState.durationMillis / 1000)}s`
+            : "Thu âm"
+        }
         role="pronunciation_audio"
       />
     </View>
@@ -243,18 +268,28 @@ function MediaRoleRow({
   const isCustom = media?.asset.source === "custom";
 
   return (
-    <View style={styles.row}>
+    <Card style={styles.row} variant="input">
       <View style={styles.preview}>
         <MediaPlaceholder media={media} role={role} />
       </View>
       <View style={styles.body}>
         <View style={styles.labelRow}>
           {icon}
-          <Text style={styles.label}>{label}</Text>
+          <AppText style={styles.label} variant="fieldLabel">
+            {label}
+          </AppText>
         </View>
-        <Text style={styles.source}>{isCustom ? "Đang dùng media cá nhân" : media ? "Đang dùng media mặc định" : "Chưa có media"}</Text>
+        <AppText color="muted" variant="meta">
+          {isCustom
+            ? "Đang dùng media cá nhân"
+            : media
+              ? "Đang dùng media mặc định"
+              : "Chưa có media"}
+        </AppText>
         <View style={styles.actions}>
-          {onPick && pickLabel ? <KidButton disabled={disabled} label={pickLabel} onPress={onPick} variant="plain" /> : null}
+          {onPick && pickLabel ? (
+            <KidButton disabled={disabled} label={pickLabel} onPress={onPick} variant="plain" />
+          ) : null}
           {onCapture ? (
             <KidButton
               disabled={disabled}
@@ -276,7 +311,7 @@ function MediaRoleRow({
           {isCustom && onDelete ? (
             <KidButton
               disabled={disabled}
-              icon={<Trash2 color="#FFFFFF" size={22} />}
+              icon={<Trash2 color={colors.onPrimary} size={22} />}
               label="Xóa custom"
               onPress={onDelete}
               variant="danger"
@@ -284,22 +319,8 @@ function MediaRoleRow({
           ) : null}
         </View>
       </View>
-    </View>
+    </Card>
   );
-}
-
-async function ensureLibraryPermission(): Promise<void> {
-  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (!permission.granted) {
-    throw new Error("Ứng dụng cần quyền đọc thư viện ảnh/video để lưu media cá nhân.");
-  }
-}
-
-async function ensureCameraPermission(): Promise<void> {
-  const permission = await ImagePicker.requestCameraPermissionsAsync();
-  if (!permission.granted) {
-    throw new Error("Ứng dụng cần quyền camera để quay video khẩu hình.");
-  }
 }
 
 function getErrorMessage(error: unknown): string {
@@ -308,48 +329,30 @@ function getErrorMessage(error: unknown): string {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 14,
-    paddingTop: 4
-  },
-  heading: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: "900"
+    gap: spacing[14],
+    paddingTop: spacing[4]
   },
   row: {
-    backgroundColor: "#FFFDF2",
-    borderColor: colors.border,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    gap: 12,
-    padding: 12
+    gap: spacing[12]
   },
   preview: {
     width: "100%"
   },
   body: {
-    gap: 8,
+    gap: spacing[8],
     justifyContent: "center"
   },
   labelRow: {
     alignItems: "center",
     flexDirection: "row",
-    gap: 8
+    gap: spacing[8]
   },
   label: {
-    color: colors.text,
-    flexShrink: 1,
-    fontSize: 15,
-    fontWeight: "900"
-  },
-  source: {
-    color: colors.muted,
-    fontSize: 13,
-    fontWeight: "700"
+    flexShrink: 1
   },
   actions: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: spacing[8]
   }
 });

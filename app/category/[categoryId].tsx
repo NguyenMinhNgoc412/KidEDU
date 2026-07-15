@@ -2,15 +2,17 @@ import { FlashList } from "@shopify/flash-list";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, Play, Star } from "lucide-react-native";
 import { useCallback } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
+import { AppText } from "@/components/AppText";
+import { PressableCard } from "@/components/Card";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { Screen } from "@/components/Screen";
 import { StateMessage } from "@/components/StateMessage";
 import { useCategoriesQuery, useLearningItemsQuery } from "@/data/queries";
 import type { LearningItem } from "@/data/types";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
-import { colors, radii } from "@/theme";
+import { colors, radii, spacing } from "@/theme";
 
 export default function ChildCategoryScreen() {
   const router = useRouter();
@@ -29,27 +31,49 @@ export default function ChildCategoryScreen() {
   );
 
   return (
-    <Screen>
-      <View style={styles.topBar}>
-        <Pressable accessibilityLabel="Quay lại" accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft color={colors.secondary} size={22} />
-        </Pressable>
-        <Text style={styles.title}>{category?.name ?? "Nhóm học"}</Text>
-      </View>
-
-      {itemsQuery.isLoading ? <StateMessage title="Đang tải từ" /> : null}
-      {!itemsQuery.isLoading && items.length === 0 ? (
-        <StateMessage title="Chưa có từ trong nhóm này" message="Từ phụ huynh thêm sẽ xuất hiện ở đây khi đang hiển thị." />
-      ) : (
-        <FlashList
-          data={items}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => <WordRow item={item} tone={index % 2 === 0 ? colors.surface : colors.surfaceAlt} />}
-          scrollEnabled={false}
-        />
-      )}
+    <Screen scroll={false}>
+      <FlashList
+        data={items}
+        ItemSeparatorComponent={ListGap}
+        ListEmptyComponent={
+          !itemsQuery.isLoading ? (
+            <StateMessage
+              title="Chưa có từ trong nhóm này"
+              message="Từ phụ huynh thêm sẽ xuất hiện ở đây khi đang hiển thị."
+            />
+          ) : null
+        }
+        ListHeaderComponent={
+          <View style={styles.listHeader}>
+            <View style={styles.topBar}>
+              <Pressable
+                accessibilityLabel="Quay lại"
+                accessibilityRole="button"
+                onPress={() => router.back()}
+                style={styles.backButton}
+              >
+                <ArrowLeft color={colors.secondary} size={22} />
+              </Pressable>
+              <AppText style={styles.title} variant="deckTitle">
+                {category?.name ?? "Nhóm học"}
+              </AppText>
+            </View>
+            {itemsQuery.isLoading ? <StateMessage title="Đang tải từ" /> : null}
+          </View>
+        }
+        contentContainerStyle={styles.listContent}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item, index }) => (
+          <WordRow item={item} tone={index % 2 === 0 ? colors.surface : colors.surfaceAlt} />
+        )}
+        style={styles.list}
+      />
     </Screen>
   );
+}
+
+function ListGap() {
+  return <View style={styles.listGap} />;
 }
 
 function WordRow({ item, tone }: { item: LearningItem; tone: string }) {
@@ -60,24 +84,28 @@ function WordRow({ item, tone }: { item: LearningItem; tone: string }) {
   const isFamiliar = item.learningStatus === "familiar";
 
   return (
-    <Pressable
+    <PressableCard
       accessibilityLabel={`Học từ ${item.title}`}
       accessibilityRole="button"
       onPress={() => router.push(`/learning/${item.id}`)}
-      style={({ pressed }) => [styles.wordRow, { backgroundColor: tone }, pressed ? styles.pressed : null]}
+      style={[styles.wordRow, { backgroundColor: tone }]}
     >
       <View style={styles.preview}>
         <MediaPlaceholder compact media={media} role={role} />
       </View>
       <View style={styles.wordText}>
-        <Text style={styles.wordTitle} numberOfLines={2}>
+        <AppText numberOfLines={2} variant="deckTitle">
           {item.title}
-        </Text>
+        </AppText>
       </View>
       <View style={[styles.statusIcon, isFamiliar ? styles.starIcon : styles.playIcon]}>
-        {isFamiliar ? <Star color={colors.coral} fill={colors.yellow} size={18} /> : <Play color={colors.primary} size={17} />}
+        {isFamiliar ? (
+          <Star color={colors.coral} fill={colors.yellow} size={18} />
+        ) : (
+          <Play color={colors.primary} size={17} />
+        )}
       </View>
-    </Pressable>
+    </PressableCard>
   );
 }
 
@@ -85,7 +113,7 @@ const styles = StyleSheet.create({
   topBar: {
     alignItems: "center",
     flexDirection: "row",
-    gap: 12,
+    gap: spacing[12],
     minHeight: 44
   },
   backButton: {
@@ -96,22 +124,27 @@ const styles = StyleSheet.create({
     width: 42
   },
   title: {
-    color: colors.text,
-    flex: 1,
-    fontSize: 22,
-    fontWeight: "900",
-    lineHeight: 28
+    flex: 1
+  },
+  list: {
+    flex: 1
+  },
+  listContent: {
+    paddingBottom: spacing[24]
+  },
+  listHeader: {
+    gap: spacing[16],
+    paddingBottom: spacing[16]
+  },
+  listGap: {
+    height: spacing[14]
   },
   wordRow: {
     alignItems: "center",
-    borderColor: "rgba(80, 97, 63, 0.1)",
-    borderRadius: radii.lg,
-    borderWidth: 1,
     flexDirection: "row",
-    gap: 14,
-    marginBottom: 14,
+    gap: spacing[14],
     minHeight: 82,
-    padding: 10
+    padding: spacing[10]
   },
   preview: {
     height: 58,
@@ -119,12 +152,6 @@ const styles = StyleSheet.create({
   },
   wordText: {
     flex: 1
-  },
-  wordTitle: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: "900",
-    lineHeight: 26
   },
   statusIcon: {
     alignItems: "center",
@@ -134,13 +161,9 @@ const styles = StyleSheet.create({
     width: 34
   },
   starIcon: {
-    backgroundColor: "#FFE8B9"
+    backgroundColor: colors.starSoft
   },
   playIcon: {
     backgroundColor: colors.surfaceContainer
-  },
-  pressed: {
-    opacity: 0.84,
-    transform: [{ scale: 0.99 }]
   }
 });

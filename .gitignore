@@ -7,3 +7,15 @@ coverage/
 pnpm-debug.log*
 ios/
 android/
+
+# Local env and native signing artifacts
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+*.provisionprofile
+*.cer

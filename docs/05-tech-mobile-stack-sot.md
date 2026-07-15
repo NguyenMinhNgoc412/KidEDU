@@ -2,7 +2,7 @@
 
 **Trạng thái:** SOT kỹ thuật chi tiết  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-01  
+**Ngày cập nhật:** 2026-07-15  
 **Phạm vi:** Mobile app MVP / Phase 0–1  
 **Nguyên tắc:** Chốt một stack chính, hạn chế nhiều lựa chọn song song để Codex dễ implement.
 
@@ -74,6 +74,7 @@ Quy tắc:
 | File system | `expo-file-system` | Lưu file media vào app storage |
 | Bundled default assets | `expo-asset` | Nội dung mẫu đóng gói trong app |
 | Xử lý ảnh | `expo-image-manipulator` | Resize/crop/compress ảnh và thumbnail |
+| Tạo thumbnail video | `expo-video-thumbnails` | Tạo thumbnail tĩnh cho video khẩu hình custom |
 | Nén video | `react-native-compressor` | Để Phase 2 hoặc khi video upload gây nặng rõ rệt |
 
 Quy tắc:
@@ -146,7 +147,7 @@ Khi setup, dùng phiên bản stable mới nhất theo Expo tại thời điểm
 ```bash
 pnpm dlx create-expo-app@latest kidedu
 cd kidedu
-pnpm dlx expo install expo-router expo-sqlite expo-file-system expo-image expo-video expo-audio expo-image-picker expo-camera expo-asset expo-image-manipulator react-native-reanimated react-native-safe-area-context react-native-svg react-native-gesture-handler
+pnpm dlx expo install expo-router expo-sqlite expo-file-system expo-image expo-video expo-video-thumbnails expo-audio expo-image-picker expo-camera expo-asset expo-image-manipulator react-native-reanimated react-native-safe-area-context react-native-svg react-native-gesture-handler
 pnpm add zustand @tanstack/react-query react-hook-form zod @shopify/flash-list lucide-react-native
 pnpm add -D jest-expo @testing-library/react-native @types/jest eslint prettier typescript
 ```

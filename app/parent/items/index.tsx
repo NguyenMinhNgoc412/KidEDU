@@ -1,10 +1,13 @@
 import { FlashList } from "@shopify/flash-list";
 import { useFocusEffect, useRouter } from "expo-router";
-import { Edit3, Layers3, Plus, Search, Trash2 } from "lucide-react-native";
+import { Edit3, Layers3, Plus, Trash2 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, StyleSheet, View, type TextInput } from "react-native";
 
+import { AppText } from "@/components/AppText";
 import { Badge } from "@/components/Badge";
+import { Card } from "@/components/Card";
+import { SearchField, TextField } from "@/components/Input";
 import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -17,7 +20,7 @@ import {
 } from "@/data/queries";
 import type { Category, LearningItem } from "@/data/types";
 import { getContentStatusLabel } from "@/features/media/mediaResolver";
-import { colors, radii } from "@/theme";
+import { colors, radii, spacing } from "@/theme";
 
 const EMPTY_LEARNING_ITEMS: LearningItem[] = [];
 
@@ -122,93 +125,101 @@ export default function ParentItemsScreen() {
   }
 
   return (
-    <Screen>
-      <View style={styles.appHeader}>
-        <Text style={styles.brand}>KidEDU</Text>
-        <KidButton label="Xong" onPress={() => router.back()} variant="plain" />
-      </View>
-
-      <View style={styles.titleBlock}>
-        <Text style={styles.screenTitle}>Quản lý từ vựng</Text>
-        <Text style={styles.subtitle}>Theo dõi và tạo từ gần với con</Text>
-      </View>
-
-      <View style={styles.actionRow}>
-        <KidButton
-          icon={<Plus color="#FFFFFF" size={22} />}
-          label="Thêm thẻ mới"
-          onPress={() => titleInputRef.current?.focus()}
-          variant="secondary"
-        />
-        <KidButton
-          icon={<Layers3 color={colors.primary} size={22} />}
-          label="Quản lý bộ học"
-          onPress={() => router.push("/parent/decks")}
-          variant="plain"
-        />
-      </View>
-
-      <View style={styles.statsCard}>
-        <Text style={styles.statsTitle}>Tổng quan tiến độ</Text>
-        <View style={styles.statsRow}>
-          <View style={styles.statPill}>
-            <Text style={styles.statNumber}>{items.length}</Text>
-            <Text style={styles.statLabel}>Đã thêm</Text>
-          </View>
-          <View style={styles.statPill}>
-            <Text style={styles.statNumber}>{practicingCount}</Text>
-            <Text style={styles.statLabel}>Đang luyện</Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.form}>
-        <Text style={styles.formTitle}>Thêm thẻ nhanh</Text>
-        <Text style={styles.fieldLabel}>Từ vựng</Text>
-        <TextInput
-          ref={titleInputRef}
-          onChangeText={setTitle}
-          placeholder="Nhập từ vựng..."
-          placeholderTextColor={colors.muted}
-          style={styles.input}
-          value={title}
-        />
-        <Text style={styles.fieldLabel}>Danh mục</Text>
-        <CategoryChooser categories={categories} selectedId={categoryId} onSelect={setCategoryId} />
-        <KidButton
-          disabled={!title.trim() || !categoryId || createMutation.isPending}
-          icon={<Plus color="#FFFFFF" size={22} />}
-          label="Lưu thẻ"
-          onPress={createItem}
-          variant="secondary"
-        />
-        <Text style={styles.formNote}>
-          Sau khi lưu, mở thẻ để thêm ảnh, video khẩu hình hoặc âm phát âm cá nhân.
-        </Text>
-      </View>
-
-      <SectionHeader title="Danh sách từ" />
-      <View style={styles.searchBox}>
-        <Search color={colors.muted} size={18} />
-        <TextInput
-          onChangeText={setSearch}
-          placeholder="Tìm kiếm..."
-          placeholderTextColor={colors.muted}
-          style={styles.searchInput}
-          value={search}
-        />
-      </View>
-
-      {itemsQuery.isLoading ? <StateMessage title="Đang tải thẻ" /> : null}
-      {!itemsQuery.isLoading && items.length === 0 ? (
-        <StateMessage title="Chưa có thẻ học" />
-      ) : null}
-      {!itemsQuery.isLoading && items.length > 0 && filteredItems.length === 0 ? (
-        <StateMessage title="Không có từ phù hợp" />
-      ) : null}
+    <Screen scroll={false}>
       <FlashList
         data={filteredItems}
         extraData={filteredItemIds}
+        ItemSeparatorComponent={ListGap}
+        ListEmptyComponent={
+          itemsQuery.isLoading ? (
+            <StateMessage title="Đang tải thẻ" />
+          ) : items.length === 0 ? (
+            <StateMessage title="Chưa có thẻ học" />
+          ) : (
+            <StateMessage title="Không có từ phù hợp" />
+          )
+        }
+        ListHeaderComponent={
+          <View style={styles.listHeader}>
+            <View style={styles.appHeader}>
+              <AppText variant="bodyStrong">KidEDU</AppText>
+              <KidButton label="Xong" onPress={() => router.back()} variant="plain" />
+            </View>
+
+            <View style={styles.titleBlock}>
+              <AppText variant="screenTitle">Quản lý từ vựng</AppText>
+              <AppText color="muted" variant="label">
+                Theo dõi và tạo từ gần với con
+              </AppText>
+            </View>
+
+            <View style={styles.actionRow}>
+              <KidButton
+                icon={<Plus color={colors.onPrimary} size={22} />}
+                label="Thêm thẻ mới"
+                onPress={() => titleInputRef.current?.focus()}
+                variant="secondary"
+              />
+              <KidButton
+                icon={<Layers3 color={colors.primary} size={22} />}
+                label="Quản lý bộ học"
+                onPress={() => router.push("/parent/decks")}
+                variant="plain"
+              />
+            </View>
+
+            <Card style={styles.statsCard} variant="surface">
+              <AppText color="secondary" variant="labelStrong">
+                Tổng quan tiến độ
+              </AppText>
+              <View style={styles.statsRow}>
+                <View style={styles.statPill}>
+                  <AppText variant="sectionTitle">{items.length}</AppText>
+                  <AppText align="center" color="muted" variant="caption">
+                    Đã thêm
+                  </AppText>
+                </View>
+                <View style={styles.statPill}>
+                  <AppText variant="sectionTitle">{practicingCount}</AppText>
+                  <AppText align="center" color="muted" variant="caption">
+                    Đang luyện
+                  </AppText>
+                </View>
+              </View>
+            </Card>
+
+            <Card padding="lg" style={styles.form} variant="form">
+              <AppText variant="cardTitle">Thêm thẻ nhanh</AppText>
+              <TextField
+                ref={titleInputRef}
+                label="Từ vựng"
+                onChangeText={setTitle}
+                placeholder="Nhập từ vựng..."
+                value={title}
+              />
+              <AppText variant="fieldLabel">Danh mục</AppText>
+              <CategoryChooser
+                categories={categories}
+                selectedId={categoryId}
+                onSelect={setCategoryId}
+              />
+              <KidButton
+                disabled={!title.trim() || !categoryId || createMutation.isPending}
+                icon={<Plus color={colors.onPrimary} size={22} />}
+                label="Lưu thẻ"
+                onPress={createItem}
+                variant="secondary"
+              />
+              <AppText color="muted" variant="caption">
+                Sau khi lưu, mở thẻ để thêm ảnh, video khẩu hình hoặc âm phát âm cá nhân.
+              </AppText>
+            </Card>
+
+            <SectionHeader title="Danh sách từ" />
+            <SearchField onChangeText={setSearch} placeholder="Tìm kiếm..." value={search} />
+          </View>
+        }
+        contentContainerStyle={styles.listContent}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <ItemRow
@@ -217,10 +228,14 @@ export default function ParentItemsScreen() {
             onEdit={() => router.push(`/parent/items/${item.id}`)}
           />
         )}
-        scrollEnabled={false}
+        style={styles.list}
       />
     </Screen>
   );
+}
+
+function ListGap() {
+  return <View style={styles.listGap} />;
 }
 
 function CategoryChooser({
@@ -258,12 +273,12 @@ function ItemRow({
   const label = getContentStatusLabel(item);
 
   return (
-    <View style={styles.row}>
+    <Card variant="subtle">
       <View style={styles.rowText}>
-        <Text style={styles.rowTitle}>{item.title}</Text>
-        <Text style={styles.rowMeta}>
+        <AppText variant="deckTitle">{item.title}</AppText>
+        <AppText color="muted" variant="meta">
           {item.categoryName} · {item.status === "hidden" ? "Tạm ẩn" : "Đang hiển thị"}
-        </Text>
+        </AppText>
         <Badge
           label={label}
           tone={label === "Cần bổ sung" ? "warn" : label === "Đã cá nhân hóa" ? "info" : "good"}
@@ -271,168 +286,76 @@ function ItemRow({
       </View>
       <View style={styles.rowActions}>
         <KidButton
-          icon={<Edit3 color="#FFFFFF" size={20} />}
+          icon={<Edit3 color={colors.onPrimary} size={20} />}
           label="Sửa"
           onPress={onEdit}
           variant="secondary"
         />
         <KidButton
-          icon={<Trash2 color="#FFFFFF" size={20} />}
+          icon={<Trash2 color={colors.onPrimary} size={20} />}
           label="Xóa"
           onPress={onArchive}
           variant="danger"
         />
       </View>
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
+  list: {
+    flex: 1
+  },
+  listContent: {
+    paddingBottom: spacing[24]
+  },
+  listHeader: {
+    gap: spacing[16],
+    paddingBottom: spacing[16]
+  },
+  listGap: {
+    height: spacing[12]
+  },
   appHeader: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between"
   },
-  brand: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: "900"
-  },
   titleBlock: {
-    gap: 4
-  },
-  screenTitle: {
-    color: colors.text,
-    fontSize: 26,
-    fontWeight: "900",
-    lineHeight: 32
-  },
-  subtitle: {
-    color: colors.muted,
-    fontSize: 14,
-    fontWeight: "700"
+    gap: spacing[4]
   },
   actionRow: {
     flexDirection: "row",
-    gap: 10
+    gap: spacing[10]
   },
   statsCard: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    gap: 14,
-    padding: 16
-  },
-  statsTitle: {
-    color: colors.secondary,
-    fontSize: 14,
-    fontWeight: "900"
+    gap: spacing[14]
   },
   statsRow: {
     flexDirection: "row",
-    gap: 12
+    gap: spacing[12]
   },
   statPill: {
     alignItems: "center",
-    backgroundColor: "#FFFDF2",
+    backgroundColor: colors.surfaceInput,
     borderRadius: radii.lg,
     flex: 1,
-    gap: 4,
-    padding: 12
-  },
-  statNumber: {
-    color: colors.text,
-    fontSize: 24,
-    fontWeight: "900"
-  },
-  statLabel: {
-    color: colors.muted,
-    fontSize: 12,
-    fontWeight: "800",
-    textAlign: "center"
+    gap: spacing[4],
+    padding: spacing[12]
   },
   form: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    gap: 10,
-    padding: 18
-  },
-  formTitle: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: "900"
-  },
-  fieldLabel: {
-    color: colors.text,
-    fontSize: 13,
-    fontWeight: "900"
-  },
-  input: {
-    backgroundColor: "#FFFDF2",
-    borderColor: colors.sage,
-    borderRadius: radii.lg,
-    borderWidth: 2,
-    color: colors.text,
-    fontSize: 16,
-    minHeight: 56,
-    paddingHorizontal: 16
+    gap: spacing[10]
   },
   choiceWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
-  },
-  formNote: {
-    color: colors.muted,
-    fontSize: 12,
-    fontWeight: "700",
-    lineHeight: 17
-  },
-  searchBox: {
-    alignItems: "center",
-    backgroundColor: "#FFFDF2",
-    borderColor: colors.border,
-    borderRadius: radii.full,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 8,
-    minHeight: 46,
-    paddingHorizontal: 14
-  },
-  searchInput: {
-    color: colors.text,
-    flex: 1,
-    fontSize: 15,
-    fontWeight: "700"
-  },
-  row: {
-    backgroundColor: colors.surfaceAlt,
-    borderColor: "rgba(80, 97, 63, 0.1)",
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    gap: 12,
-    marginBottom: 12,
-    padding: 14
+    gap: spacing[8]
   },
   rowText: {
-    gap: 6
-  },
-  rowTitle: {
-    color: colors.text,
-    fontSize: 21,
-    fontWeight: "900",
-    lineHeight: 27
-  },
-  rowMeta: {
-    color: colors.muted,
-    fontSize: 13,
-    fontWeight: "800"
+    gap: spacing[6]
   },
   rowActions: {
     flexDirection: "row",
-    gap: 8
+    gap: spacing[8]
   }
 });

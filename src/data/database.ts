@@ -7,7 +7,7 @@ import {
   normalizeSpeedPreset as normalizeStoredSpeedPreset,
   playbackSpeedsByPreset
 } from "./learningSettings";
-import { createSchemaSql, schemaVersion } from "./schema";
+import { migrateKidEduDatabase } from "./migrations";
 import {
   defaultChildId,
   isLoopMode,
@@ -38,17 +38,9 @@ export function openKidEduDatabase(): Promise<KidEduDatabase> {
 
 async function initializeKidEduDatabase(): Promise<KidEduDatabase> {
   const db = await SQLite.openDatabaseAsync("kidedu.db");
-  await migrateDatabase(db);
+  await migrateKidEduDatabase(db);
   await seedDatabase(db);
   return db;
-}
-
-async function migrateDatabase(db: KidEduDatabase): Promise<void> {
-  await db.execAsync(createSchemaSql);
-  await db.runAsync(
-    "INSERT INTO schema_versions (id, version) VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET version = excluded.version",
-    [schemaVersion]
-  );
 }
 
 async function seedDatabase(db: KidEduDatabase): Promise<void> {

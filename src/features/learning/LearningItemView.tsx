@@ -1,12 +1,14 @@
 import { Home, RotateCcw, X } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
+import { AppText } from "@/components/AppText";
+import { Card } from "@/components/Card";
 import type { LearningItem, PlaybackSpeed } from "@/data/types";
 import { LearningMediaPlayer } from "@/features/learning/LearningMediaPlayer";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
-import { colors, radii } from "@/theme";
+import { colors, radii, spacing } from "@/theme";
 
 export function LearningItemView({
   item,
@@ -28,10 +30,14 @@ export function LearningItemView({
   return (
     <View style={styles.container}>
       <View style={styles.wordBlock}>
-        <View style={styles.wordPill}>
-          <Text style={styles.word}>{item.title.toLocaleUpperCase("vi-VN")}</Text>
-        </View>
-        <Text style={styles.category}>{item.categoryName}</Text>
+        <Card padding="none" style={styles.wordPill} variant="subtle">
+          <AppText align="center" color="primary" variant="learningTitle">
+            {item.title.toLocaleUpperCase("vi-VN")}
+          </AppText>
+        </Card>
+        <AppText align="center" color="muted" variant="labelStrong">
+          {item.categoryName}
+        </AppText>
       </View>
 
       <LearningMediaPlayer
@@ -44,7 +50,12 @@ export function LearningItemView({
       />
 
       <View style={styles.controls}>
-        <ControlButton icon={<X color={colors.danger} size={20} />} label="Thoát" onPress={onExit} tone="danger" />
+        <ControlButton
+          icon={<X color={colors.danger} size={20} />}
+          label="Thoát"
+          onPress={onExit}
+          tone="danger"
+        />
         <ControlButton
           icon={<RotateCcw color={colors.blue} size={20} />}
           label={replayCount > 0 ? "Phát lại" : "Phát lại"}
@@ -55,7 +66,12 @@ export function LearningItemView({
           }}
           tone="info"
         />
-        <ControlButton icon={<Home color={colors.primary} size={20} />} label="Tiếp tục" onPress={onContinue} tone="good" />
+        <ControlButton
+          icon={<Home color={colors.primary} size={20} />}
+          label="Tiếp tục"
+          onPress={onContinue}
+          tone="good"
+        />
       </View>
     </View>
   );
@@ -77,59 +93,50 @@ function ControlButton({
       accessibilityLabel={label}
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [styles.controlButton, controlToneStyles[tone], pressed ? styles.pressed : null]}
+      style={({ pressed }) => [
+        styles.controlButton,
+        controlToneStyles[tone],
+        pressed ? styles.pressed : null
+      ]}
     >
       <View style={styles.controlIcon}>{icon}</View>
-      <Text style={styles.controlLabel}>{label}</Text>
+      <AppText align="center" variant="caption">
+        {label}
+      </AppText>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: 14
+    gap: spacing[14]
   },
   wordBlock: {
     alignItems: "center",
-    gap: 8,
-    paddingTop: 4
+    gap: spacing[8],
+    paddingTop: spacing[4]
   },
   wordPill: {
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radii.lg,
-    paddingHorizontal: 28,
-    paddingVertical: 14
-  },
-  word: {
-    color: colors.primary,
-    fontSize: 40,
-    fontWeight: "900",
-    lineHeight: 48,
-    textAlign: "center"
-  },
-  category: {
-    color: colors.muted,
-    fontSize: 15,
-    fontWeight: "800",
-    textAlign: "center"
+    paddingHorizontal: spacing[28],
+    paddingVertical: spacing[14]
   },
   controls: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surfaceLowest,
     borderRadius: radii.lg,
     flexDirection: "row",
-    gap: 10,
+    gap: spacing[10],
     justifyContent: "space-between",
-    marginTop: 6,
-    padding: 12
+    marginTop: spacing[6],
+    padding: spacing[12]
   },
   controlButton: {
     alignItems: "center",
     borderRadius: radii.lg,
     flex: 1,
-    gap: 6,
+    gap: spacing[6],
     justifyContent: "center",
     minHeight: 70,
-    padding: 8
+    padding: spacing[8]
   },
   controlIcon: {
     alignItems: "center",
@@ -138,12 +145,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 34
   },
-  controlLabel: {
-    color: colors.text,
-    fontSize: 12,
-    fontWeight: "800",
-    textAlign: "center"
-  },
   pressed: {
     opacity: 0.82
   }
@@ -151,12 +152,12 @@ const styles = StyleSheet.create({
 
 const controlToneStyles = StyleSheet.create({
   danger: {
-    backgroundColor: "#FFF1F0"
+    backgroundColor: colors.dangerSoft
   },
   info: {
-    backgroundColor: "#ECF6FF"
+    backgroundColor: colors.infoSoft
   },
   good: {
-    backgroundColor: "#F1F8E8"
+    backgroundColor: colors.successSoft
   }
 });

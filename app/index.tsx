@@ -10,17 +10,21 @@ import {
   UsersRound
 } from "lucide-react-native";
 import { useCallback, type ReactNode } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
+import { AppText } from "@/components/AppText";
+import { Card, PressableCard } from "@/components/Card";
 import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StateMessage } from "@/components/StateMessage";
 import { useCategoriesQuery, useDecksQuery, useLearningItemsQuery } from "@/data/queries";
 import type { Category, Deck } from "@/data/types";
-import { colors, radii } from "@/theme";
-
-const tileColors = ["#FFD2A8", "#DDE7C8", "#EEF0D8", "#FFDABC", "#E6E3D2"];
+import {
+  categoryTileColors,
+  colors,
+  spacing
+} from "@/theme";
 
 export default function ChildHomeScreen() {
   const router = useRouter();
@@ -43,7 +47,9 @@ export default function ChildHomeScreen() {
   return (
     <Screen>
       <View style={styles.childHero}>
-        <Text style={styles.title}>Bé chọn gì nào?</Text>
+        <AppText align="center" variant="sectionTitle">
+          Bé chọn gì nào?
+        </AppText>
         {categoriesQuery.isLoading || itemsQuery.isLoading ? (
           <StateMessage title="Đang tải nhóm học" />
         ) : null}
@@ -60,7 +66,9 @@ export default function ChildHomeScreen() {
                 category={category}
                 count={items.filter((item) => item.categoryId === category.id).length}
                 icon={getCategoryIcon(category.name)}
-                tone={tileColors[index % tileColors.length] ?? "#FFD2A8"}
+                tone={
+                  categoryTileColors[index % categoryTileColors.length] ?? categoryTileColors[0]
+                }
                 onPress={() => router.push(`/category/${category.id}`)}
               />
             ))}
@@ -103,22 +111,20 @@ function CategoryTile({
   onPress: () => void;
 }) {
   return (
-    <Pressable
+    <PressableCard
       accessibilityLabel={`Mở nhóm ${category.name}`}
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.categoryTile,
-        { backgroundColor: tone },
-        pressed ? styles.pressed : null
-      ]}
+      style={[styles.categoryTile, { backgroundColor: tone }]}
     >
       <View style={styles.categoryIcon}>{icon}</View>
-      <Text style={styles.categoryTitle} numberOfLines={2}>
+      <AppText align="center" numberOfLines={2} style={styles.categoryTitle} variant="bodyStrong">
         {category.name}
-      </Text>
-      <Text style={styles.categoryMeta}>{count} từ</Text>
-    </Pressable>
+      </AppText>
+      <AppText align="center" color="muted" variant="caption">
+        {count} từ
+      </AppText>
+    </PressableCard>
   );
 }
 
@@ -127,19 +133,21 @@ function DeckRow({ deck }: { deck: Deck }) {
   const canStart = deck.itemCount > 0;
 
   return (
-    <View style={styles.deckRow}>
+    <Card style={styles.deckRow} variant="surface">
       <View style={styles.deckText}>
-        <Text style={styles.deckTitle}>{deck.title}</Text>
-        <Text style={styles.deckMeta}>{deck.itemCount} thẻ</Text>
+        <AppText variant="deckTitle">{deck.title}</AppText>
+        <AppText color="muted" variant="label">
+          {deck.itemCount} thẻ
+        </AppText>
       </View>
       <KidButton
         disabled={!canStart}
-        icon={<Play color="#FFFFFF" size={22} />}
+        icon={<Play color={colors.onPrimary} size={22} />}
         label="Bắt đầu"
         onPress={() => router.push(`/autoplay/${deck.id}`)}
         variant="secondary"
       />
-    </View>
+    </Card>
   );
 }
 
@@ -173,37 +181,27 @@ function getCategoryIcon(name: string) {
 const styles = StyleSheet.create({
   childHero: {
     alignItems: "center",
-    gap: 20,
+    gap: spacing[20],
     justifyContent: "flex-start",
-    paddingTop: 8
-  },
-  title: {
-    color: colors.text,
-    fontSize: 28,
-    fontWeight: "900",
-    lineHeight: 34,
-    textAlign: "center"
+    paddingTop: spacing[8]
   },
   categoryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 16,
+    gap: spacing[16],
     justifyContent: "center",
     width: "100%"
   },
   categoryTile: {
     alignItems: "center",
-    borderColor: "rgba(80, 97, 63, 0.12)",
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    gap: 8,
+    gap: spacing[8],
     justifyContent: "center",
     minHeight: 128,
-    padding: 14,
+    padding: spacing[14],
     shadowColor: colors.sage,
-    shadowOffset: { height: 8, width: 0 },
+    shadowOffset: { height: spacing[8], width: spacing.none },
     shadowOpacity: 0.1,
-    shadowRadius: 18,
+    shadowRadius: spacing[18],
     width: "44%"
   },
   categoryIcon: {
@@ -213,48 +211,20 @@ const styles = StyleSheet.create({
     width: 48
   },
   categoryTitle: {
-    color: colors.text,
-    fontSize: 17,
-    fontWeight: "900",
-    lineHeight: 22,
-    textAlign: "center"
-  },
-  categoryMeta: {
-    color: colors.muted,
-    fontSize: 12,
-    fontWeight: "800"
-  },
-  pressed: {
-    opacity: 0.82,
-    transform: [{ scale: 0.98 }]
+    minHeight: 44
   },
   deckList: {
-    gap: 12
+    gap: spacing[12]
   },
   deckRow: {
     alignItems: "center",
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: radii.lg,
-    borderWidth: 1,
     flexDirection: "row",
-    gap: 12,
+    gap: spacing[12],
     justifyContent: "space-between",
-    padding: 14
+    padding: spacing[14]
   },
   deckText: {
     flex: 1,
-    gap: 5
+    gap: spacing[5]
   },
-  deckTitle: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: "900",
-    lineHeight: 25
-  },
-  deckMeta: {
-    color: colors.muted,
-    fontSize: 14,
-    fontWeight: "800"
-  }
 });

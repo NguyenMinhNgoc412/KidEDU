@@ -6,7 +6,8 @@ export const mediaImportLimits = {
   imageMaxBytes: 8 * 1024 * 1024,
   videoMaxBytes: 80 * 1024 * 1024,
   videoMaxDurationMs: 15_000,
-  imageMaxWidth: 1280
+  imageMaxWidth: 1280,
+  thumbnailMaxWidth: 640
 };
 
 export class MediaImportError extends Error {

@@ -9,7 +9,7 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { StateMessage } from "@/components/StateMessage";
 import { useProgressSummaryQuery, useUpdateProgressParentMarkMutation } from "@/data/queries";
 import type { LearningStatus, ProgressSummaryItem } from "@/data/types";
-import { colors, radii } from "@/theme";
+import { colors, fontSizes, fontWeights, radii, spacing } from "@/theme";
 
 export default function ParentProgressScreen() {
   const router = useRouter();
@@ -18,24 +18,41 @@ export default function ParentProgressScreen() {
   const progress = progressQuery.data ?? [];
 
   return (
-    <Screen>
-      <SectionHeader title="Tiến độ" action={<KidButton label="Xong" onPress={() => router.back()} variant="plain" />} />
-      {progressQuery.isLoading ? <StateMessage title="Đang tải tiến độ" /> : null}
-      {!progressQuery.isLoading && progress.length === 0 ? <StateMessage title="Chưa có lượt học" /> : null}
+    <Screen scroll={false}>
       <FlashList
         data={progress}
+        ItemSeparatorComponent={ListGap}
+        ListEmptyComponent={
+          !progressQuery.isLoading ? <StateMessage title="Chưa có lượt học" /> : null
+        }
+        ListHeaderComponent={
+          <View style={styles.listHeader}>
+            <SectionHeader
+              title="Tiến độ"
+              action={<KidButton label="Xong" onPress={() => router.back()} variant="plain" />}
+            />
+            {progressQuery.isLoading ? <StateMessage title="Đang tải tiến độ" /> : null}
+          </View>
+        }
+        contentContainerStyle={styles.listContent}
         keyExtractor={(item) => item.learningItemId}
         renderItem={({ item }) => (
           <ProgressRow
             disabled={updateMarkMutation.isPending}
             item={item}
-            onMark={(parentMark) => updateMarkMutation.mutate({ learningItemId: item.learningItemId, parentMark })}
+            onMark={(parentMark) =>
+              updateMarkMutation.mutate({ learningItemId: item.learningItemId, parentMark })
+            }
           />
         )}
-        scrollEnabled={false}
+        style={styles.list}
       />
     </Screen>
   );
+}
+
+function ListGap() {
+  return <View style={styles.listGap} />;
 }
 
 function ProgressRow({
@@ -55,9 +72,16 @@ function ProgressRow({
           <Text style={styles.meta}>
             Xem {item.viewCount} · Luyện {item.practiceCount}
           </Text>
-          <Text style={styles.date}>{item.lastPracticedAt ? new Date(item.lastPracticedAt).toLocaleString() : "Chưa có ngày"}</Text>
+          <Text style={styles.date}>
+            {item.lastPracticedAt
+              ? new Date(item.lastPracticedAt).toLocaleString()
+              : "Chưa có ngày"}
+          </Text>
         </View>
-        <Badge label={markLabel[item.parentMark]} tone={item.parentMark === "familiar" ? "good" : "info"} />
+        <Badge
+          label={markLabel[item.parentMark]}
+          tone={item.parentMark === "familiar" ? "good" : "info"}
+        />
       </View>
       <View style={styles.markActions}>
         {markOptions.map((option) => (
@@ -87,43 +111,55 @@ const markOptions: Array<{ label: string; value: LearningStatus }> = [
 ];
 
 const styles = StyleSheet.create({
+  list: {
+    flex: 1
+  },
+  listContent: {
+    paddingBottom: spacing[24]
+  },
+  listHeader: {
+    gap: spacing[16],
+    paddingBottom: spacing[16]
+  },
+  listGap: {
+    height: spacing[10]
+  },
   row: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderRadius: radii.lg,
     borderWidth: 1,
-    gap: 12,
-    marginBottom: 10,
-    padding: 12
+    gap: spacing[12],
+    padding: spacing[12]
   },
   topRow: {
     alignItems: "center",
     flexDirection: "row",
-    gap: 12,
+    gap: spacing[12],
     justifyContent: "space-between"
   },
   textWrap: {
     flex: 1,
-    gap: 4
+    gap: spacing[4]
   },
   title: {
     color: colors.text,
-    fontSize: 20,
-    fontWeight: "900"
+    fontSize: fontSizes[20],
+    fontWeight: fontWeights.black
   },
   meta: {
     color: colors.muted,
-    fontSize: 14,
-    fontWeight: "800"
+    fontSize: fontSizes[14],
+    fontWeight: fontWeights.extraBold
   },
   date: {
     color: colors.muted,
-    fontSize: 12,
-    fontWeight: "700"
+    fontSize: fontSizes[12],
+    fontWeight: fontWeights.bold
   },
   markActions: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: spacing[8]
   }
 });

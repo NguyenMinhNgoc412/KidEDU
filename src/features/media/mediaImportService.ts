@@ -1,6 +1,7 @@
 import * as FileSystem from "expo-file-system/legacy";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import type { ImagePickerAsset } from "expo-image-picker";
+import * as VideoThumbnails from "expo-video-thumbnails";
 import { Platform } from "react-native";
 
 import type { MediaRole, MediaType } from "@/data/types";
@@ -60,11 +61,12 @@ export async function saveImagePickerAssetToAppStorage(asset: ImagePickerAsset, 
 
   const info = await FileSystem.getInfoAsync(destinationUri);
   const storedSize = info.exists && "size" in info ? info.size : asset.fileSize ?? null;
+  const thumbnailUri = type === "video" ? await createVideoThumbnail(destinationUri) : null;
 
   return {
     type,
     uri: destinationUri,
-    thumbnailUri: null,
+    thumbnailUri,
     durationMs: asset.duration ?? null,
     sizeBytes: storedSize,
     mimeType: asset.mimeType ?? inferMimeType(type, extension)
@@ -175,13 +177,62 @@ async function compressImageForStorage(uri: string): Promise<string> {
   }
 }
 
+async function createVideoThumbnail(videoUri: string): Promise<string | null> {
+  const tempUris: string[] = [];
+  let destinationUri: string | null = null;
+
+  try {
+    const thumbnail = await VideoThumbnails.getThumbnailAsync(videoUri, {
+      quality: 0.76,
+      time: 0
+    });
+    tempUris.push(thumbnail.uri);
+
+    const processedUri = await compressVideoThumbnailForStorage(thumbnail.uri);
+    if (processedUri !== thumbnail.uri) {
+      tempUris.push(processedUri);
+    }
+
+    const durableDir = await ensureMediaDirectory("thumbnail");
+    destinationUri = `${durableDir}${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+    await FileSystem.copyAsync({ from: processedUri, to: destinationUri });
+
+    return destinationUri;
+  } catch {
+    await cleanupMediaFiles([destinationUri]);
+    return null;
+  } finally {
+    await cleanupMediaFiles(tempUris);
+  }
+}
+
+async function compressVideoThumbnailForStorage(uri: string): Promise<string> {
+  try {
+    const result = await manipulateAsync(uri, [{ resize: { width: mediaImportLimits.thumbnailMaxWidth } }], {
+      compress: 0.76,
+      format: SaveFormat.JPEG
+    });
+
+    return result.uri;
+  } catch {
+    return uri;
+  }
+}
+
 async function ensureMediaDirectory(type: MediaType): Promise<string> {
   const root = FileSystem.documentDirectory;
   if (!root) {
     throw new MediaImportError("Thiết bị chưa cấp vùng lưu trữ nội bộ cho ứng dụng.");
   }
 
-  const directoryName = type === "video" ? "videos" : type === "audio" ? "audio" : "images";
+  const directoryName =
+    type === "video"
+      ? "videos"
+      : type === "audio"
+        ? "audio"
+        : type === "thumbnail"
+          ? "thumbnails"
+          : "images";
   const directory = `${root}media/${directoryName}/custom/`;
   const info = await FileSystem.getInfoAsync(directory);
   if (!info.exists) {

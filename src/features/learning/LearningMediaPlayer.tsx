@@ -3,9 +3,19 @@ import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { Play, Volume2 } from "lucide-react-native";
 import type { ReactNode } from "react";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { AppState, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState
+} from "react";
+import { AppState, Pressable, StyleSheet, View } from "react-native";
 
+import { AppText } from "@/components/AppText";
+import { MediaContainer } from "@/components/MediaContainer";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import type { LearningItemMedia, PlaybackSpeed } from "@/data/types";
 import {
@@ -14,7 +24,7 @@ import {
   type ActiveLearningMediaRole
 } from "@/features/learning/learningMediaStage";
 import { useDisplayMediaUri } from "@/features/media/useDisplayMediaUri";
-import { colors, radii } from "@/theme";
+import { colors, radii, spacing } from "@/theme";
 
 interface MouthVideoPlayerHandle {
   pause(): void;
@@ -40,7 +50,9 @@ export function LearningMediaPlayer({
   const illustrationUri = useDisplayMediaUri(illustration?.asset.uri ?? null);
   const videoUri = useDisplayMediaUri(mouthVideo?.asset.uri ?? null);
   const audioUri = useDisplayMediaUri(pronunciationAudio?.asset.uri ?? null);
-  const [activeRole, setActiveRole] = useState<ActiveLearningMediaRole>(illustration ? "illustration" : "mouth_video");
+  const [activeRole, setActiveRole] = useState<ActiveLearningMediaRole>(
+    illustration ? "illustration" : "mouth_video"
+  );
   const [feedback, setFeedback] = useState<string | null>(null);
   const [videoPlaySignal, setVideoPlaySignal] = useState(0);
   const mouthVideoPlayerRef = useRef<MouthVideoPlayerHandle | null>(null);
@@ -53,10 +65,16 @@ export function LearningMediaPlayer({
   const playableVideoUri = isPlayableMediaUri(videoUri) ? videoUri : null;
   const playableAudioUri = isPlayableMediaUri(audioUri) ? audioUri : null;
   const mediaPlaybackIdentity = useMemo(
-    () => (autoPlayKey ? `${autoPlayKey}:${playableVideoUri ?? ""}:${playableAudioUri ?? ""}:${playbackSpeed}` : null),
+    () =>
+      autoPlayKey
+        ? `${autoPlayKey}:${playableVideoUri ?? ""}:${playableAudioUri ?? ""}:${playbackSpeed}`
+        : null,
     [autoPlayKey, playableAudioUri, playableVideoUri, playbackSpeed]
   );
-  const audioSource = useMemo(() => (playableAudioUri ? { uri: playableAudioUri } : null), [playableAudioUri]);
+  const audioSource = useMemo(
+    () => (playableAudioUri ? { uri: playableAudioUri } : null),
+    [playableAudioUri]
+  );
 
   const audioPlayer = useAudioPlayer(audioSource, { updateInterval: 500 });
   const audioStatus = useAudioPlayerStatus(audioPlayer);
@@ -82,21 +100,24 @@ export function LearningMediaPlayer({
     safelyPausePlayer(audioPlayer);
   }, [audioPlayer]);
 
-  const playAudio = useCallback((options?: { completeAutoPlaySampleOnEnd?: boolean }) => {
-    shouldPlayFollowUpAudioRef.current = false;
-    if (!playableAudioUri) {
-      setActiveRole("pronunciation_audio");
-      setFeedback("Chưa có âm phát âm để phát.");
-      return;
-    }
+  const playAudio = useCallback(
+    (options?: { completeAutoPlaySampleOnEnd?: boolean }) => {
+      shouldPlayFollowUpAudioRef.current = false;
+      if (!playableAudioUri) {
+        setActiveRole("pronunciation_audio");
+        setFeedback("Chưa có âm phát âm để phát.");
+        return;
+      }
 
-    safelyPausePlayer(mouthVideoPlayerRef.current);
-    setActiveRole("pronunciation_audio");
-    setFeedback(null);
-    audioCompletionAutoPlayKeyRef.current =
-      options?.completeAutoPlaySampleOnEnd && autoPlayKey ? autoPlayKey : null;
-    safelyReplayAudioFromStart(audioPlayer);
-  }, [audioPlayer, autoPlayKey, playableAudioUri]);
+      safelyPausePlayer(mouthVideoPlayerRef.current);
+      setActiveRole("pronunciation_audio");
+      setFeedback(null);
+      audioCompletionAutoPlayKeyRef.current =
+        options?.completeAutoPlaySampleOnEnd && autoPlayKey ? autoPlayKey : null;
+      safelyReplayAudioFromStart(audioPlayer);
+    },
+    [audioPlayer, autoPlayKey, playableAudioUri]
+  );
 
   const playMouthVideo = useCallback(() => {
     shouldPlayFollowUpAudioRef.current = false;
@@ -151,12 +172,7 @@ export function LearningMediaPlayer({
     }
 
     setFeedback("Thẻ này chưa có video hoặc âm phát âm có thể phát.");
-  }, [
-    audioPlayer,
-    playableAudioUri,
-    playableVideoUri,
-    playAudio,
-  ]);
+  }, [audioPlayer, playableAudioUri, playableVideoUri, playAudio]);
 
   useEffect(() => {
     if (!audioStatus.didJustFinish || audioCompletionAutoPlayKeyRef.current !== autoPlayKey) {
@@ -245,7 +261,12 @@ export function LearningMediaPlayer({
           />
         ) : (
           <View style={styles.illustrationStage}>
-            <MediaPlaceholder fallbackLabel={visualPlaceholderLabel} large media={illustration} role="illustration" />
+            <MediaPlaceholder
+              fallbackLabel={visualPlaceholderLabel}
+              large
+              media={illustration}
+              role="illustration"
+            />
             {activeRole === "pronunciation_audio" && playableAudioUri ? (
               <Pressable
                 accessibilityLabel={audioStatus.playing ? "Đang phát âm mẫu" : "Phát âm phát âm"}
@@ -253,7 +274,7 @@ export function LearningMediaPlayer({
                 onPress={() => playAudio()}
                 style={({ pressed }) => [styles.audioOverlay, pressed ? styles.pressed : null]}
               >
-                <Volume2 color="#FFFFFF" size={26} />
+                <Volume2 color={colors.onPrimary} size={26} />
               </Pressable>
             ) : null}
           </View>
@@ -264,19 +285,33 @@ export function LearningMediaPlayer({
         <MediaChip
           active={activeRole === "mouth_video"}
           available={Boolean(playableVideoUri)}
-          icon={<Play color={activeRole === "mouth_video" ? "#FFFFFF" : colors.muted} size={17} />}
+          icon={
+            <Play
+              color={activeRole === "mouth_video" ? colors.onPrimary : colors.muted}
+              size={17}
+            />
+          }
           label="Khẩu hình"
           onPress={playMouthVideo}
         />
         <MediaChip
           active={activeRole === "pronunciation_audio"}
           available={Boolean(playableAudioUri)}
-          icon={<Volume2 color={activeRole === "pronunciation_audio" ? "#FFFFFF" : colors.muted} size={17} />}
+          icon={
+            <Volume2
+              color={activeRole === "pronunciation_audio" ? colors.onPrimary : colors.muted}
+              size={17}
+            />
+          }
           label="Âm phát âm"
           onPress={() => playAudio()}
         />
       </View>
-      {feedback ? <Text style={styles.feedback}>{feedback}</Text> : null}
+      {feedback ? (
+        <AppText align="center" color="secondary" variant="meta">
+          {feedback}
+        </AppText>
+      ) : null}
     </View>
   );
 }
@@ -358,8 +393,14 @@ const MouthVideoPlayer = forwardRef<
   }, [clearOverlayTimer]);
 
   return (
-    <View style={styles.videoPressable}>
-      <VideoView contentFit="cover" nativeControls={false} player={videoPlayer} playsInline style={styles.video} />
+    <MediaContainer size="large" style={styles.videoPressable}>
+      <VideoView
+        contentFit="cover"
+        nativeControls={false}
+        player={videoPlayer}
+        playsInline
+        style={styles.video}
+      />
       <Pressable
         accessibilityLabel={isPlayOverlayVisible ? "Phát khẩu hình" : "Hiện nút phát khẩu hình"}
         accessibilityRole="button"
@@ -368,15 +409,18 @@ const MouthVideoPlayer = forwardRef<
       >
         {isPlayOverlayVisible ? (
           <View style={styles.playOverlay}>
-            <Play color="#FFFFFF" fill="rgba(255,255,255,0.9)" size={30} />
+            <Play color={colors.onPrimary} fill={colors.mediaOverlayLight} size={30} />
           </View>
         ) : null}
       </Pressable>
-    </View>
+    </MediaContainer>
   );
 });
 
-function setVideoPlaybackRate(videoPlayer: { playbackRate: number }, playbackSpeed: PlaybackSpeed): void {
+function setVideoPlaybackRate(
+  videoPlayer: { playbackRate: number },
+  playbackSpeed: PlaybackSpeed
+): void {
   try {
     videoPlayer.playbackRate = playbackSpeed;
   } catch {
@@ -400,9 +444,15 @@ function safelyPlayPlayer(player: { play: () => void } | null | undefined): void
   }
 }
 
-function safelyReplayAudioFromStart(player: { play: () => void; seekTo: (seconds: number) => Promise<void> }): void {
+function safelyReplayAudioFromStart(player: {
+  play: () => void;
+  seekTo: (seconds: number) => Promise<void>;
+}): void {
   try {
-    void player.seekTo(0).then(() => safelyPlayPlayer(player)).catch(() => safelyPlayPlayer(player));
+    void player
+      .seekTo(0)
+      .then(() => safelyPlayPlayer(player))
+      .catch(() => safelyPlayPlayer(player));
   } catch {
     safelyPlayPlayer(player);
   }
@@ -455,7 +505,14 @@ function MediaChip({
       ]}
     >
       {icon}
-      <Text style={[styles.mediaChipText, active ? styles.mediaChipTextActive : null]}>{label}</Text>
+      <AppText
+        align="center"
+        color={active ? "onPrimary" : "muted"}
+        style={styles.mediaChipText}
+        variant="meta"
+      >
+        {label}
+      </AppText>
     </Pressable>
   );
 }
@@ -470,19 +527,13 @@ function isRenderableMediaUri(uri: string | null): uri is string {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 12
+    gap: spacing[12]
   },
   stage: {
     overflow: "hidden"
   },
   videoPressable: {
-    aspectRatio: 1.15,
-    backgroundColor: colors.surfaceContainer,
-    borderColor: colors.border,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    minHeight: 230,
-    overflow: "hidden"
+    padding: 0
   },
   video: {
     height: "100%",
@@ -502,7 +553,7 @@ const styles = StyleSheet.create({
   },
   playOverlay: {
     alignItems: "center",
-    backgroundColor: "rgba(125, 86, 45, 0.58)",
+    backgroundColor: colors.mediaOverlay,
     borderRadius: radii.full,
     height: 64,
     justifyContent: "center",
@@ -510,18 +561,18 @@ const styles = StyleSheet.create({
   },
   audioOverlay: {
     alignItems: "center",
-    backgroundColor: "rgba(125, 86, 45, 0.74)",
+    backgroundColor: colors.mediaOverlayStrong,
     borderRadius: radii.full,
-    bottom: 14,
+    bottom: spacing[14],
     height: 52,
     justifyContent: "center",
     position: "absolute",
-    right: 14,
+    right: spacing[14],
     width: 52
   },
   mediaChips: {
     flexDirection: "row",
-    gap: 12
+    gap: spacing[12]
   },
   mediaChip: {
     alignItems: "center",
@@ -529,10 +580,10 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     flex: 1,
     flexDirection: "row",
-    gap: 8,
+    gap: spacing[8],
     justifyContent: "center",
     minHeight: 48,
-    paddingHorizontal: 12
+    paddingHorizontal: spacing[12]
   },
   mediaChipActive: {
     backgroundColor: colors.coral
@@ -541,21 +592,7 @@ const styles = StyleSheet.create({
     opacity: 0.72
   },
   mediaChipText: {
-    color: colors.muted,
-    flexShrink: 1,
-    fontSize: 13,
-    fontWeight: "800",
-    textAlign: "center"
-  },
-  mediaChipTextActive: {
-    color: "#FFFFFF"
-  },
-  feedback: {
-    color: colors.secondary,
-    fontSize: 13,
-    fontWeight: "800",
-    lineHeight: 18,
-    textAlign: "center"
+    flexShrink: 1
   },
   pressed: {
     opacity: 0.82

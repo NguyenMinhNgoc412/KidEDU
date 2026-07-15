@@ -12,6 +12,22 @@ Format dùng theo hướng đơn giản:
 
 ---
 
+## [0.3.2] — 2026-07-15
+
+### Added
+
+- Bổ sung `expo-video-thumbnails` vào media stack để tạo thumbnail tĩnh cho video khẩu hình custom.
+
+### Affected files
+
+- `05-tech-mobile-stack-sot.md`
+
+### Reason
+
+Đồng bộ tech stack với media pipeline local-first: danh sách chỉ hiển thị thumbnail, không render video trực tiếp.
+
+---
+
 ## [0.3.1] — 2026-07-04
 
 ### Changed

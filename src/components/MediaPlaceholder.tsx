@@ -1,10 +1,12 @@
-import { Image } from "expo-image";
 import { Mic2, Play, Volume2 } from "lucide-react-native";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 
 import type { LearningItemMedia, MediaRole } from "@/data/types";
 import { useDisplayMediaUri } from "@/features/media/useDisplayMediaUri";
-import { colors, radii } from "@/theme";
+import { colors } from "@/theme";
+
+import { AppText } from "./AppText";
+import { MediaContainer } from "./MediaContainer";
 
 export function MediaPlaceholder({
   role,
@@ -19,36 +21,60 @@ export function MediaPlaceholder({
   large?: boolean;
   compact?: boolean;
 }) {
-  const displayUri = useDisplayMediaUri(media?.asset.uri ?? null);
+  const displayUri = useDisplayMediaUri(media?.asset.thumbnailUri ?? media?.asset.uri ?? null);
   const canRenderImage =
-    role === "illustration" &&
+    (role === "illustration" || Boolean(media?.asset.thumbnailUri)) &&
     displayUri &&
     !displayUri.startsWith("seed://") &&
     !displayUri.startsWith("data:");
 
   if (canRenderImage) {
-    return (
-      <Image
-        cachePolicy="memory-disk"
-        contentFit="cover"
-        source={{ uri: displayUri }}
-        style={[styles.frame, large ? styles.large : null, compact ? styles.compact : null]}
-      />
-    );
+    return <MediaContainer size={getContainerSize({ large, compact })} uri={displayUri} />;
   }
 
-  const iconColor = role === "mouth_video" ? colors.coral : role === "pronunciation_audio" ? colors.blue : colors.primary;
+  const iconColor =
+    role === "mouth_video"
+      ? colors.coral
+      : role === "pronunciation_audio"
+        ? colors.blue
+        : colors.primary;
   const label = fallbackLabel ?? roleLabel[role];
 
   return (
-    <View style={[styles.frame, large ? styles.large : null, compact ? styles.compact : null]}>
+    <MediaContainer size={getContainerSize({ large, compact })}>
       {role === "mouth_video" ? <Play color={iconColor} size={large ? 42 : 28} /> : null}
       {role === "pronunciation_audio" ? <Volume2 color={iconColor} size={large ? 42 : 28} /> : null}
       {role === "illustration" ? <Mic2 color={iconColor} size={large ? 42 : 28} /> : null}
-      {compact ? null : <Text style={styles.text}>{label}</Text>}
-      {media && !compact ? <Text style={styles.source}>{media.asset.source === "custom" ? "Cá nhân hóa" : "Mặc định"}</Text> : null}
-    </View>
+      {compact ? null : (
+        <AppText align="center" style={styles.text} variant="labelStrong">
+          {label}
+        </AppText>
+      )}
+      {media && !compact ? (
+        <AppText align="center" color="muted" variant="caption">
+          {media.asset.source === "custom" ? "Cá nhân hóa" : "Mặc định"}
+        </AppText>
+      ) : null}
+    </MediaContainer>
   );
+}
+
+function getContainerSize({
+  large,
+  compact
+}: {
+  large: boolean;
+  compact: boolean;
+}): "large" | "compact" | "default" {
+  if (large) {
+    return "large";
+  }
+
+  if (compact) {
+    return "compact";
+  }
+
+  return "default";
 }
 
 const roleLabel: Record<MediaRole, string> = {
@@ -59,38 +85,7 @@ const roleLabel: Record<MediaRole, string> = {
 };
 
 const styles = StyleSheet.create({
-  frame: {
-    alignItems: "center",
-    aspectRatio: 1.3,
-    backgroundColor: colors.surfaceContainer,
-    borderColor: colors.border,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    gap: 6,
-    justifyContent: "center",
-    minHeight: 112,
-    overflow: "hidden",
-    padding: 12
-  },
-  large: {
-    aspectRatio: 1.15,
-    minHeight: 230
-  },
-  compact: {
-    aspectRatio: 1,
-    borderRadius: 18,
-    minHeight: 0,
-    padding: 8
-  },
   text: {
-    color: colors.text,
-    fontSize: 15,
-    fontWeight: "800",
-    textAlign: "center"
-  },
-  source: {
-    color: colors.muted,
-    fontSize: 12,
-    fontWeight: "700"
+    color: colors.text
   }
 });

@@ -225,6 +225,7 @@ function makeMedia(
       source: "custom",
       uri: `file:///media/${role}`,
       thumbnailAssetId: null,
+      thumbnailUri: null,
       durationMs: null,
       sizeBytes: null,
       mimeType: null,

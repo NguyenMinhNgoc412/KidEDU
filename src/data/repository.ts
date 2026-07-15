@@ -25,6 +25,7 @@ import type {
   LearningSettings,
   LearningStatus,
   MediaAsset,
+  MediaFileCleanupRecord,
   MediaRole,
   MediaSource,
   MediaStatus,
@@ -68,6 +69,7 @@ interface LearningItemMediaRow {
   source: MediaSource;
   uri: string;
   thumbnail_asset_id: string | null;
+  thumbnail_uri: string | null;
   duration_ms: number | null;
   size_bytes: number | null;
   mime_type: string | null;
@@ -101,6 +103,13 @@ interface MediaFileRow {
   thumbnail_uri: string | null;
 }
 
+interface MediaCleanupRow {
+  asset_id: string;
+  uri: string;
+  status: MediaStatus;
+  is_referenced_by_active_media: number;
+}
+
 export class SQLiteKidEduRepository implements KidEduRepository {
   private transactionQueue: Promise<void> = Promise.resolve();
 
@@ -128,7 +137,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
        ORDER BY li.created_at DESC, c.sort_order ASC, li.title ASC`
     );
 
-    return Promise.all(rows.map((row) => this.mapLearningItemRow(row)));
+    return this.mapLearningItemRows(rows);
   }
 
   async getLearningItem(itemId: string): Promise<LearningItem | null> {
@@ -140,7 +149,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
       [itemId]
     );
 
-    return row ? this.mapLearningItemRow(row) : null;
+    return row ? this.mapLearningItemRow(row, await this.getMediaForItem(row.id)) : null;
   }
 
   async createLearningItem(input: CreateLearningItemInput): Promise<string> {
@@ -200,7 +209,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
           `INSERT INTO media_assets
             (id, type, source, uri, thumbnail_asset_id, duration_ms, size_bytes, mime_type, status, created_at, updated_at)
            VALUES (?, 'thumbnail', 'custom', ?, NULL, NULL, NULL, ?, 'active', ?, ?)`,
-          [thumbnailAssetId, input.thumbnailUri, input.mimeType ?? null, now, now]
+          [thumbnailAssetId, input.thumbnailUri, "image/jpeg", now, now]
         );
       }
 
@@ -248,6 +257,49 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     return oldUris;
   }
 
+  async listMediaFilesForCleanup(): Promise<MediaFileCleanupRecord[]> {
+    const rows = await this.db.getAllAsync<MediaCleanupRow>(
+      `SELECT ma.id AS asset_id,
+              ma.uri,
+              ma.status,
+              CASE
+                WHEN EXISTS (
+                  SELECT 1
+                  FROM learning_item_media lim
+                  WHERE lim.media_asset_id = ma.id
+                    AND lim.is_active = 1
+                )
+                OR EXISTS (
+                  SELECT 1
+                  FROM learning_item_media lim
+                  JOIN media_assets parent ON parent.id = lim.media_asset_id
+                  WHERE parent.thumbnail_asset_id = ma.id
+                    AND lim.is_active = 1
+                )
+                THEN 1
+                ELSE 0
+              END AS is_referenced_by_active_media
+       FROM media_assets ma
+       WHERE ma.source IN ('custom', 'generated')
+         AND ma.uri LIKE 'file://%'`
+    );
+
+    return rows.map((row) => ({
+      assetId: row.asset_id,
+      uri: row.uri,
+      status: row.status,
+      isReferencedByActiveMedia: row.is_referenced_by_active_media === 1
+    }));
+  }
+
+  async markMediaAssetsMissing(assetIds: string[]): Promise<void> {
+    await this.markMediaAssetsStatus(assetIds, "missing", { onlyActive: true });
+  }
+
+  async markMediaAssetsDeleted(assetIds: string[]): Promise<void> {
+    await this.markMediaAssetsStatus(assetIds, "deleted");
+  }
+
   async listDecks(options?: { includeArchived?: boolean; childOnly?: boolean }): Promise<Deck[]> {
     const whereParts = options?.includeArchived ? [] : ["d.status != 'archived'"];
 
@@ -293,7 +345,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
       [deckId]
     );
 
-    const items = await Promise.all(itemRows.map((row) => this.mapLearningItemRow(row)));
+    const items = await this.mapLearningItemRows(itemRows);
     return { ...mapDeckRow(deckRow), items };
   }
 
@@ -494,7 +546,13 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     }
   }
 
-  private async mapLearningItemRow(row: LearningItemRow): Promise<LearningItem> {
+  private async mapLearningItemRows(rows: LearningItemRow[]): Promise<LearningItem[]> {
+    const mediaByItemId = await this.getMediaForItems(rows.map((row) => row.id));
+
+    return rows.map((row) => this.mapLearningItemRow(row, mediaByItemId.get(row.id) ?? []));
+  }
+
+  private mapLearningItemRow(row: LearningItemRow, media: LearningItemMedia[]): LearningItem {
     return {
       id: row.id,
       title: row.title,
@@ -503,23 +561,50 @@ export class SQLiteKidEduRepository implements KidEduRepository {
       status: row.status,
       learningStatus: row.learning_status,
       note: row.note,
-      media: await this.getMediaForItem(row.id)
+      media
     };
   }
 
   private async getMediaForItem(itemId: string): Promise<LearningItemMedia[]> {
-    const rows = await this.db.getAllAsync<LearningItemMediaRow>(
-      `SELECT lim.id, lim.learning_item_id, lim.media_asset_id, lim.role, lim.priority, lim.is_active,
-              ma.id AS asset_id, ma.type, ma.source, ma.uri, ma.thumbnail_asset_id, ma.duration_ms,
-              ma.size_bytes, ma.mime_type, ma.status AS asset_status
-       FROM learning_item_media lim
-       JOIN media_assets ma ON ma.id = lim.media_asset_id
-       WHERE lim.learning_item_id = ? AND lim.is_active = 1
-       ORDER BY lim.role ASC, lim.priority DESC`,
-      [itemId]
-    );
+    const mediaByItemId = await this.getMediaForItems([itemId]);
+    return mediaByItemId.get(itemId) ?? [];
+  }
 
-    return rows.map(mapLearningItemMediaRow);
+  private async getMediaForItems(itemIds: string[]): Promise<Map<string, LearningItemMedia[]>> {
+    const uniqueItemIds = [...new Set(itemIds)];
+    const mediaByItemId = new Map<string, LearningItemMedia[]>();
+
+    if (uniqueItemIds.length === 0) {
+      return mediaByItemId;
+    }
+
+    const rows: LearningItemMediaRow[] = [];
+
+    for (const chunk of chunkArray(uniqueItemIds, 250)) {
+      const placeholders = chunk.map(() => "?").join(", ");
+      rows.push(
+        ...(await this.db.getAllAsync<LearningItemMediaRow>(
+          `SELECT lim.id, lim.learning_item_id, lim.media_asset_id, lim.role, lim.priority, lim.is_active,
+                  ma.id AS asset_id, ma.type, ma.source, ma.uri, ma.thumbnail_asset_id,
+                  thumb.uri AS thumbnail_uri, ma.duration_ms,
+                  ma.size_bytes, ma.mime_type, ma.status AS asset_status
+           FROM learning_item_media lim
+           JOIN media_assets ma ON ma.id = lim.media_asset_id
+           LEFT JOIN media_assets thumb ON thumb.id = ma.thumbnail_asset_id
+           WHERE lim.learning_item_id IN (${placeholders}) AND lim.is_active = 1
+           ORDER BY lim.learning_item_id ASC, lim.role ASC, lim.priority DESC`,
+          chunk
+        ))
+      );
+    }
+
+    for (const row of rows) {
+      const itemMedia = mediaByItemId.get(row.learning_item_id) ?? [];
+      itemMedia.push(mapLearningItemMediaRow(row));
+      mediaByItemId.set(row.learning_item_id, itemMedia);
+    }
+
+    return mediaByItemId;
   }
 
   private async getActiveCustomMediaUris(itemId: string, role: MediaRole): Promise<string[]> {
@@ -587,6 +672,30 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     );
   }
 
+  private async markMediaAssetsStatus(
+    assetIds: string[],
+    status: MediaStatus,
+    options?: { onlyActive?: boolean }
+  ): Promise<void> {
+    const uniqueAssetIds = [...new Set(assetIds)];
+    if (uniqueAssetIds.length === 0) {
+      return;
+    }
+
+    const now = new Date().toISOString();
+
+    for (const chunk of chunkArray(uniqueAssetIds, 250)) {
+      const placeholders = chunk.map(() => "?").join(", ");
+      await this.db.runAsync(
+        `UPDATE media_assets
+         SET status = ?, updated_at = ?
+         WHERE id IN (${placeholders})
+         ${options?.onlyActive ? "AND status = 'active'" : ""}`,
+        [status, now, ...chunk]
+      );
+    }
+  }
+
   private async runInTransaction(task: (db: KidEduDatabase) => Promise<void>): Promise<void> {
     const run = async () => {
       const isWebRuntime = "document" in globalThis;
@@ -630,6 +739,7 @@ function mapLearningItemMediaRow(row: LearningItemMediaRow): LearningItemMedia {
     source: row.source,
     uri: row.uri,
     thumbnailAssetId: row.thumbnail_asset_id,
+    thumbnailUri: row.thumbnail_uri,
     durationMs: row.duration_ms,
     sizeBytes: row.size_bytes,
     mimeType: row.mime_type,
@@ -645,6 +755,16 @@ function mapLearningItemMediaRow(row: LearningItemMediaRow): LearningItemMedia {
     isActive: row.is_active === 1,
     asset
   };
+}
+
+function chunkArray<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size));
+  }
+
+  return chunks;
 }
 
 function makeId(prefix: string): string {

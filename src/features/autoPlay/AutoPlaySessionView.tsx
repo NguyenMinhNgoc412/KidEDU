@@ -1,7 +1,9 @@
 import { Pause, Play, RotateCcw, X } from "lucide-react-native";
 import type { ReactNode } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
+import { AppText } from "@/components/AppText";
+import { Card } from "@/components/Card";
 import { KidButton } from "@/components/KidButton";
 import { StateMessage } from "@/components/StateMessage";
 import type { DeckDetail, LearningSettings } from "@/data/types";
@@ -9,7 +11,7 @@ import { getAutoPlaySignal } from "@/features/autoPlay/autoPlayEngine";
 import { useAutoPlaySession } from "@/features/autoPlay/useAutoPlaySession";
 import { LearningMediaPlayer } from "@/features/learning/LearningMediaPlayer";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
-import { colors, radii } from "@/theme";
+import { colors, radii, spacing } from "@/theme";
 
 export function AutoPlaySessionView({
   deck,
@@ -30,10 +32,23 @@ export function AutoPlaySessionView({
       <View style={styles.completed}>
         <StateMessage
           title={isEmpty ? "Chưa có thẻ trong bộ" : "Con đã học xong bộ này"}
-          message={isEmpty ? "Phụ huynh hãy thêm ít nhất một thẻ trước khi bắt đầu." : `${session.playableItems.length} thẻ đã được phát.`}
+          message={
+            isEmpty
+              ? "Phụ huynh hãy thêm ít nhất một thẻ trước khi bắt đầu."
+              : `${session.playableItems.length} thẻ đã được phát.`
+          }
         />
-        <KidButton icon={<RotateCcw color="#FFFFFF" size={22} />} label="Học lại" onPress={session.restart} />
-        <KidButton icon={<X color={colors.primary} size={22} />} label="Về danh sách" onPress={onExitToHome} variant="plain" />
+        <KidButton
+          icon={<RotateCcw color={colors.onPrimary} size={22} />}
+          label="Học lại"
+          onPress={session.restart}
+        />
+        <KidButton
+          icon={<X color={colors.primary} size={22} />}
+          label="Về danh sách"
+          onPress={onExitToHome}
+          variant="plain"
+        />
       </View>
     );
   }
@@ -45,7 +60,9 @@ export function AutoPlaySessionView({
   const resolved = resolveLearningItemMedia(currentItem);
   const progressLabel = `${session.state.itemIndex + 1}/${session.playableItems.length}`;
   const loopLabel =
-    settings.loopCount === null ? `Vòng ${session.state.loopIndex + 1}` : `Vòng ${session.state.loopIndex + 1}/${settings.loopCount}`;
+    settings.loopCount === null
+      ? `Vòng ${session.state.loopIndex + 1}`
+      : `Vòng ${session.state.loopIndex + 1}/${settings.loopCount}`;
   const isPaused = session.state.phase === "paused";
   const sampleAutoPlayKey =
     session.state.phase === "sample"
@@ -61,10 +78,12 @@ export function AutoPlaySessionView({
   return (
     <View style={styles.container}>
       <View style={styles.topBar}>
-        <Text style={styles.deckTitle}>{deck.title}</Text>
-        <Text style={styles.progress}>
+        <AppText align="center" style={styles.deckTitle} variant="bodyStrong">
+          {deck.title}
+        </AppText>
+        <AppText color="muted" variant="caption">
           {progressLabel} · {loopLabel}
-        </Text>
+        </AppText>
       </View>
 
       <Pressable
@@ -73,15 +92,25 @@ export function AutoPlaySessionView({
         onPress={isPaused ? session.resume : session.pause}
         style={({ pressed }) => [styles.pausePill, pressed ? styles.pressed : null]}
       >
-        {isPaused ? <Play color="#FFFFFF" size={17} /> : <Pause color="#FFFFFF" size={17} />}
-        <Text style={styles.pauseText}>{isPaused ? "Tiếp tục" : "Tạm dừng"}</Text>
+        {isPaused ? (
+          <Play color={colors.onPrimary} size={17} />
+        ) : (
+          <Pause color={colors.onPrimary} size={17} />
+        )}
+        <AppText color="onPrimary" variant="labelStrong">
+          {isPaused ? "Tiếp tục" : "Tạm dừng"}
+        </AppText>
       </Pressable>
 
       <View style={styles.wordBlock}>
-        <View style={styles.wordPill}>
-          <Text style={styles.word}>{currentItem.title.toLocaleUpperCase("vi-VN")}</Text>
-        </View>
-        <Text style={styles.category}>{currentItem.categoryName}</Text>
+        <Card padding="none" style={styles.wordPill} variant="subtle">
+          <AppText align="center" color="primary" variant="learningTitle">
+            {currentItem.title.toLocaleUpperCase("vi-VN")}
+          </AppText>
+        </Card>
+        <AppText align="center" color="muted" variant="labelStrong">
+          {currentItem.categoryName}
+        </AppText>
       </View>
 
       <LearningMediaPlayer
@@ -95,13 +124,31 @@ export function AutoPlaySessionView({
         pronunciationAudio={resolved.byRole.pronunciation_audio}
       />
 
-      <Text style={styles.signal}>{getAutoPlaySignal(session.state.phase)}</Text>
+      <AppText align="center" color="secondary" variant="fieldLabel">
+        {getAutoPlaySignal(session.state.phase)}
+      </AppText>
 
       <View style={styles.controls}>
-        <ControlButton icon={<X color={colors.danger} size={20} />} label="Thoát" onPress={exit} tone="danger" />
-        <ControlButton icon={<RotateCcw color={colors.blue} size={20} />} label="Phát lại" onPress={session.replay} tone="info" />
         <ControlButton
-          icon={isPaused ? <Play color={colors.primary} size={20} /> : <Pause color={colors.primary} size={20} />}
+          icon={<X color={colors.danger} size={20} />}
+          label="Thoát"
+          onPress={exit}
+          tone="danger"
+        />
+        <ControlButton
+          icon={<RotateCcw color={colors.blue} size={20} />}
+          label="Phát lại"
+          onPress={session.replay}
+          tone="info"
+        />
+        <ControlButton
+          icon={
+            isPaused ? (
+              <Play color={colors.primary} size={20} />
+            ) : (
+              <Pause color={colors.primary} size={20} />
+            )
+          }
           label={isPaused ? "Tiếp tục" : "Tạm dừng"}
           onPress={isPaused ? session.resume : session.pause}
           tone="good"
@@ -127,39 +174,35 @@ function ControlButton({
       accessibilityLabel={label}
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [styles.controlButton, controlToneStyles[tone], pressed ? styles.pressed : null]}
+      style={({ pressed }) => [
+        styles.controlButton,
+        controlToneStyles[tone],
+        pressed ? styles.pressed : null
+      ]}
     >
       <View style={styles.controlIcon}>{icon}</View>
-      <Text style={styles.controlLabel}>{label}</Text>
+      <AppText align="center" variant="caption">
+        {label}
+      </AppText>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: 12
+    gap: spacing[12]
   },
   completed: {
-    gap: 14
+    gap: spacing[14]
   },
   topBar: {
     alignItems: "center",
     flexDirection: "row",
-    gap: 12,
+    gap: spacing[12],
     justifyContent: "space-between"
   },
   deckTitle: {
-    color: colors.text,
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "900",
-    lineHeight: 21,
-    textAlign: "center"
-  },
-  progress: {
-    color: colors.muted,
-    fontSize: 12,
-    fontWeight: "900"
+    flex: 1
   },
   pausePill: {
     alignItems: "center",
@@ -167,65 +210,39 @@ const styles = StyleSheet.create({
     backgroundColor: colors.coral,
     borderRadius: radii.full,
     flexDirection: "row",
-    gap: 8,
+    gap: spacing[8],
     justifyContent: "center",
     minHeight: 42,
-    paddingHorizontal: 26,
+    paddingHorizontal: spacing[26],
     shadowColor: colors.sage,
-    shadowOffset: { height: 8, width: 0 },
+    shadowOffset: { height: spacing[8], width: spacing.none },
     shadowOpacity: 0.12,
-    shadowRadius: 14
-  },
-  pauseText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "900"
+    shadowRadius: spacing[14]
   },
   wordBlock: {
     alignItems: "center",
-    gap: 7
+    gap: spacing[7]
   },
   wordPill: {
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radii.lg,
-    paddingHorizontal: 28,
-    paddingVertical: 12
-  },
-  word: {
-    color: colors.primary,
-    fontSize: 36,
-    fontWeight: "900",
-    lineHeight: 44,
-    textAlign: "center"
-  },
-  category: {
-    color: colors.muted,
-    fontSize: 14,
-    fontWeight: "800",
-    textAlign: "center"
-  },
-  signal: {
-    color: colors.secondary,
-    fontSize: 15,
-    fontWeight: "900",
-    textAlign: "center"
+    paddingHorizontal: spacing[28],
+    paddingVertical: spacing[12]
   },
   controls: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surfaceLowest,
     borderRadius: radii.lg,
     flexDirection: "row",
-    gap: 10,
+    gap: spacing[10],
     justifyContent: "space-between",
-    padding: 12
+    padding: spacing[12]
   },
   controlButton: {
     alignItems: "center",
     borderRadius: radii.lg,
     flex: 1,
-    gap: 6,
+    gap: spacing[6],
     justifyContent: "center",
     minHeight: 70,
-    padding: 8
+    padding: spacing[8]
   },
   controlIcon: {
     alignItems: "center",
@@ -234,12 +251,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 34
   },
-  controlLabel: {
-    color: colors.text,
-    fontSize: 12,
-    fontWeight: "800",
-    textAlign: "center"
-  },
   pressed: {
     opacity: 0.82
   }
@@ -247,12 +258,12 @@ const styles = StyleSheet.create({
 
 const controlToneStyles = StyleSheet.create({
   danger: {
-    backgroundColor: "#FFF1F0"
+    backgroundColor: colors.dangerSoft
   },
   info: {
-    backgroundColor: "#ECF6FF"
+    backgroundColor: colors.infoSoft
   },
   good: {
-    backgroundColor: "#F1F8E8"
+    backgroundColor: colors.successSoft
   }
 });

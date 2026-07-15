@@ -2,7 +2,7 @@ import { type ReactNode } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { colors } from "@/theme";
+import { colors, spacing } from "@/theme";
 
 export function Screen({
   children,
@@ -18,7 +18,10 @@ export function Screen({
   return (
     <SafeAreaView style={styles.safeArea}>
       {scroll ? (
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           {content}
         </ScrollView>
       ) : (
@@ -39,11 +42,11 @@ const styles = StyleSheet.create({
   content: {
     alignSelf: "center",
     flex: 1,
-    gap: 16,
+    gap: spacing[16],
     maxWidth: 560,
     width: "100%"
   },
   padded: {
-    padding: 24
+    padding: spacing[24]
   }
 });

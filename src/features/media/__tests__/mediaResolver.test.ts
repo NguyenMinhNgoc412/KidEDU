@@ -65,6 +65,7 @@ function makeMedia(role: MediaRole, source: MediaSource, priority: number): Lear
       source,
       uri: `test://${role}/${source}`,
       thumbnailAssetId: null,
+      thumbnailUri: null,
       durationMs: null,
       sizeBytes: null,
       mimeType: null,
