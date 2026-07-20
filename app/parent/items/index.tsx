@@ -112,6 +112,9 @@ export default function ParentItemsScreen() {
           setTitle("");
           setSearch("");
           await refetchItems();
+          if (item) {
+            router.push(`/parent/items/${item.id}`);
+          }
         }
       }
     );
@@ -189,12 +192,12 @@ export default function ParentItemsScreen() {
             </Card>
 
             <Card padding="lg" style={styles.form} variant="form">
-              <AppText variant="cardTitle">Thêm thẻ nhanh</AppText>
+              <AppText variant="cardTitle">Tạo thẻ mới</AppText>
               <TextField
                 ref={titleInputRef}
                 label="Từ vựng"
                 onChangeText={setTitle}
-                placeholder="Nhập từ vựng..."
+                placeholder="Từ hoặc cụm từ"
                 value={title}
               />
               <AppText variant="fieldLabel">Danh mục</AppText>
@@ -206,12 +209,12 @@ export default function ParentItemsScreen() {
               <KidButton
                 disabled={!title.trim() || !categoryId || createMutation.isPending}
                 icon={<Plus color={colors.onPrimary} size={22} />}
-                label="Lưu thẻ"
+                label={createMutation.isPending ? "Đang lưu" : "Lưu và thêm media"}
                 onPress={createItem}
                 variant="secondary"
               />
               <AppText color="muted" variant="caption">
-                Sau khi lưu, mở thẻ để thêm ảnh, video khẩu hình hoặc âm phát âm cá nhân.
+                Sau khi lưu, KidEDU mở thẻ để phụ huynh thêm ảnh, video khẩu hình hoặc âm phát âm.
               </AppText>
             </Card>
 

@@ -1,7 +1,8 @@
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
+import { AppText } from "@/components/AppText";
 import { Badge } from "@/components/Badge";
 import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
@@ -9,7 +10,7 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { StateMessage } from "@/components/StateMessage";
 import { useProgressSummaryQuery, useUpdateProgressParentMarkMutation } from "@/data/queries";
 import type { LearningStatus, ProgressSummaryItem } from "@/data/types";
-import { colors, fontSizes, fontWeights, radii, spacing } from "@/theme";
+import { colors, radii, spacing } from "@/theme";
 
 export default function ParentProgressScreen() {
   const router = useRouter();
@@ -68,15 +69,15 @@ function ProgressRow({
     <View style={styles.row}>
       <View style={styles.topRow}>
         <View style={styles.textWrap}>
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.meta}>
+          <AppText variant="deckTitle">{item.title}</AppText>
+          <AppText color="muted" variant="meta">
             Xem {item.viewCount} · Luyện {item.practiceCount}
-          </Text>
-          <Text style={styles.date}>
+          </AppText>
+          <AppText color="muted" variant="caption">
             {item.lastPracticedAt
               ? new Date(item.lastPracticedAt).toLocaleString()
               : "Chưa có ngày"}
-          </Text>
+          </AppText>
         </View>
         <Badge
           label={markLabel[item.parentMark]}
@@ -141,21 +142,6 @@ const styles = StyleSheet.create({
   textWrap: {
     flex: 1,
     gap: spacing[4]
-  },
-  title: {
-    color: colors.text,
-    fontSize: fontSizes[20],
-    fontWeight: fontWeights.black
-  },
-  meta: {
-    color: colors.muted,
-    fontSize: fontSizes[14],
-    fontWeight: fontWeights.extraBold
-  },
-  date: {
-    color: colors.muted,
-    fontSize: fontSizes[12],
-    fontWeight: fontWeights.bold
   },
   markActions: {
     flexDirection: "row",

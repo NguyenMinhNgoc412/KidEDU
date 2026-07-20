@@ -51,13 +51,13 @@ export function LearningItemView({
 
       <View style={styles.controls}>
         <ControlButton
-          icon={<X color={colors.danger} size={20} />}
+          icon={<X color={colors.danger} size={24} />}
           label="Thoát"
           onPress={onExit}
           tone="danger"
         />
         <ControlButton
-          icon={<RotateCcw color={colors.blue} size={20} />}
+          icon={<RotateCcw color={colors.blue} size={24} />}
           label={replayCount > 0 ? "Phát lại" : "Phát lại"}
           onPress={() => {
             onReplay?.();
@@ -67,7 +67,7 @@ export function LearningItemView({
           tone="info"
         />
         <ControlButton
-          icon={<Home color={colors.primary} size={20} />}
+          icon={<Home color={colors.primary} size={24} />}
           label="Tiếp tục"
           onPress={onContinue}
           tone="good"
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   },
   controls: {
     backgroundColor: colors.surfaceLowest,
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     flexDirection: "row",
     gap: spacing[10],
     justifyContent: "space-between",
@@ -131,19 +131,19 @@ const styles = StyleSheet.create({
   },
   controlButton: {
     alignItems: "center",
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     flex: 1,
     gap: spacing[6],
     justifyContent: "center",
-    minHeight: 70,
+    minHeight: 82,
     padding: spacing[8]
   },
   controlIcon: {
     alignItems: "center",
     borderRadius: radii.full,
-    height: 34,
+    height: 42,
     justifyContent: "center",
-    width: 34
+    width: 42
   },
   pressed: {
     opacity: 0.82

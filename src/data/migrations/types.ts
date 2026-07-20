@@ -6,6 +6,7 @@ export interface MigrationDatabase {
   getFirstAsync<T>(sql: string, params: MigrationBindParams): Promise<T | null>;
   runAsync(sql: string, params: MigrationBindParams): Promise<unknown>;
   withTransactionAsync?(callback: () => Promise<void>): Promise<void>;
+  withExclusiveTransactionAsync?(callback: (transaction: MigrationDatabase) => Promise<void>): Promise<void>;
 }
 
 export interface SchemaMigration {

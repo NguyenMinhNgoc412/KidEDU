@@ -577,12 +577,12 @@ const styles = StyleSheet.create({
   mediaChip: {
     alignItems: "center",
     backgroundColor: colors.surfaceContainer,
-    borderRadius: radii.lg,
+    borderRadius: radii.full,
     flex: 1,
     flexDirection: "row",
     gap: spacing[8],
     justifyContent: "center",
-    minHeight: 48,
+    minHeight: 54,
     paddingHorizontal: spacing[12]
   },
   mediaChipActive: {

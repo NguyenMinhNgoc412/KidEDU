@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 import { StyleSheet, Text } from "react-native";
 
-import { colors, fontSizes, fontWeights, lineHeights, typography } from "@/theme";
+import { colors, fontFamilies, fontSizes, lineHeights, typography } from "@/theme";
 
 type TextColor = "default" | "muted" | "primary" | "secondary" | "danger" | "onPrimary";
 
@@ -34,14 +34,21 @@ export function AppText({
   return (
     <Text
       {...props}
-      style={[styles.base, variantStyles[variant], colorStyles[color], align ? { textAlign: align } : null, style]}
+      style={[
+        styles.base,
+        variantStyles[variant],
+        colorStyles[color],
+        align ? { textAlign: align } : null,
+        style
+      ]}
     />
   );
 }
 
 const styles = StyleSheet.create({
   base: {
-    color: colors.text
+    color: colors.text,
+    fontFamily: fontFamilies.regular
   }
 });
 
@@ -56,19 +63,19 @@ const variantStyles = StyleSheet.create({
   label: typography.label,
   labelStrong: typography.labelStrong,
   fieldLabel: {
+    fontFamily: fontFamilies.bold,
     fontSize: fontSizes[15],
-    fontWeight: fontWeights.black,
     lineHeight: lineHeights[20]
   },
   caption: typography.caption,
   meta: {
+    fontFamily: fontFamilies.semibold,
     fontSize: fontSizes[13],
-    fontWeight: fontWeights.bold,
     lineHeight: lineHeights[18]
   },
   button: {
+    fontFamily: fontFamilies.bold,
     fontSize: fontSizes[16],
-    fontWeight: fontWeights.extraBold,
     lineHeight: lineHeights[20]
   }
 });

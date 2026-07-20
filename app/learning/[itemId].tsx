@@ -1,13 +1,14 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
+import { AppText } from "@/components/AppText";
 import { Screen } from "@/components/Screen";
 import { StateMessage } from "@/components/StateMessage";
 import { useLearningItemQuery, useLearningSettingsQuery } from "@/data/queries";
 import { LearningItemView } from "@/features/learning/LearningItemView";
 import { useSingleItemProgress } from "@/features/learning/useSingleItemProgress";
-import { colors, fontSizes, fontWeights, lineHeights, radii, spacing } from "@/theme";
+import { colors, radii, spacing } from "@/theme";
 
 export default function LearningItemScreen() {
   const router = useRouter();
@@ -28,7 +29,9 @@ export default function LearningItemScreen() {
         >
           <ArrowLeft color={colors.secondary} size={22} />
         </Pressable>
-        <Text style={styles.title}>{itemQuery.data?.categoryName ?? "Thẻ học"}</Text>
+        <AppText align="center" style={styles.title} variant="cardTitle">
+          {itemQuery.data?.categoryName ?? "Thẻ học"}
+        </AppText>
       </View>
       {itemQuery.isLoading ? <StateMessage title="Đang tải thẻ học" /> : null}
       {!itemQuery.isLoading && !itemQuery.data ? <StateMessage title="Không tìm thấy thẻ" /> : null}
@@ -60,11 +63,6 @@ const styles = StyleSheet.create({
     width: 42
   },
   title: {
-    color: colors.text,
-    flex: 1,
-    fontSize: fontSizes[18],
-    fontWeight: fontWeights.black,
-    lineHeight: lineHeights[24],
-    textAlign: "center"
+    flex: 1
   }
 });

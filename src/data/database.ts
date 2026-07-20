@@ -38,9 +38,24 @@ export function openKidEduDatabase(): Promise<KidEduDatabase> {
 
 async function initializeKidEduDatabase(): Promise<KidEduDatabase> {
   const db = await SQLite.openDatabaseAsync("kidedu.db");
+  await configureKidEduDatabase(db);
   await migrateKidEduDatabase(db);
   await seedDatabase(db);
   return db;
+}
+
+async function configureKidEduDatabase(db: KidEduDatabase): Promise<void> {
+  const isWebRuntime = "document" in globalThis;
+  const statements = [
+    "PRAGMA busy_timeout = 5000;",
+    "PRAGMA foreign_keys = ON;"
+  ];
+
+  if (!isWebRuntime) {
+    statements.unshift("PRAGMA journal_mode = WAL;");
+  }
+
+  await db.execAsync(statements.join("\n"));
 }
 
 async function seedDatabase(db: KidEduDatabase): Promise<void> {
@@ -48,21 +63,21 @@ async function seedDatabase(db: KidEduDatabase): Promise<void> {
   const existingSpeedPreset = normalizeStoredSpeedPreset(await getSettingValue(db, learningSettingKeys.speedPreset));
   const existingLoopMode = normalizeStoredLoopMode(await getSettingValue(db, learningSettingKeys.loopMode));
 
-  await db.withTransactionAsync(async () => {
-    await db.runAsync(
+  await runDatabaseTransaction(db, async (transaction) => {
+    await transaction.runAsync(
       "INSERT OR IGNORE INTO children (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)",
       [defaultChildId, "Con", now, now]
     );
 
     for (const category of seedCategories) {
-      await db.runAsync(
+      await transaction.runAsync(
         "INSERT OR IGNORE INTO categories (id, name, sort_order, is_default) VALUES (?, ?, ?, ?)",
         [category.id, category.name, category.sortOrder, category.isDefault ? 1 : 0]
       );
     }
 
     for (const item of seedLearningItems) {
-      await db.runAsync(
+      await transaction.runAsync(
         `INSERT OR IGNORE INTO learning_items
           (id, title, category_id, status, learning_status, note, created_at, updated_at)
          VALUES (?, ?, ?, 'active', 'new', NULL, ?, ?)`,
@@ -73,14 +88,14 @@ async function seedDatabase(db: KidEduDatabase): Promise<void> {
         const assetId = `media-${item.id}-${role}-default`;
         const mappingId = `map-${item.id}-${role}-default`;
 
-        await db.runAsync(
+        await transaction.runAsync(
           `INSERT OR IGNORE INTO media_assets
             (id, type, source, uri, thumbnail_asset_id, duration_ms, size_bytes, mime_type, status, created_at, updated_at)
            VALUES (?, ?, 'default', ?, NULL, NULL, NULL, NULL, 'active', ?, ?)`,
           [assetId, mediaTypeForRole(role), `seed://${item.id}/${role}`, now, now]
         );
 
-        await db.runAsync(
+        await transaction.runAsync(
           `INSERT OR IGNORE INTO learning_item_media
             (id, learning_item_id, media_asset_id, role, priority, is_active, created_at)
            VALUES (?, ?, ?, ?, 10, 1, ?)`,
@@ -90,31 +105,45 @@ async function seedDatabase(db: KidEduDatabase): Promise<void> {
     }
 
     for (const deck of seedDecks) {
-      await db.runAsync(
+      await transaction.runAsync(
         "INSERT OR IGNORE INTO decks (id, title, description, status, created_at, updated_at) VALUES (?, ?, ?, 'active', ?, ?)",
         [deck.id, deck.title, deck.description, now, now]
       );
 
       for (const [index, itemId] of deck.itemIds.entries()) {
-        await db.runAsync(
+        await transaction.runAsync(
           "INSERT OR IGNORE INTO deck_items (id, deck_id, learning_item_id, sort_order) VALUES (?, ?, ?, ?)",
           [`deck-item-${deck.id}-${itemId}`, deck.id, itemId, index + 1]
         );
       }
     }
 
-    await seedSetting(db, learningSettingKeys.speedPreset, defaultLearningSettings.speedPreset, now);
-    await seedSetting(db, learningSettingKeys.playbackSpeed, String(playbackSpeedsByPreset[existingSpeedPreset]), now);
-    await seedSetting(db, learningSettingKeys.loopMode, defaultLearningSettings.loopMode, now);
-    await seedSetting(db, learningSettingKeys.loopCount, String(loopCountsByMode[existingLoopMode]), now);
+    await seedSetting(transaction, learningSettingKeys.speedPreset, defaultLearningSettings.speedPreset, now);
+    await seedSetting(transaction, learningSettingKeys.playbackSpeed, String(playbackSpeedsByPreset[existingSpeedPreset]), now);
+    await seedSetting(transaction, learningSettingKeys.loopMode, defaultLearningSettings.loopMode, now);
+    await seedSetting(transaction, learningSettingKeys.loopCount, String(loopCountsByMode[existingLoopMode]), now);
     await seedSetting(
-      db,
+      transaction,
       learningSettingKeys.reinforcementEnabled,
       defaultLearningSettings.reinforcementEnabled ? "true" : "false",
       now
     );
-    await seedSetting(db, learningSettingKeys.sfxEnabled, defaultLearningSettings.sfxEnabled ? "true" : "false", now);
+    await seedSetting(transaction, learningSettingKeys.sfxEnabled, defaultLearningSettings.sfxEnabled ? "true" : "false", now);
   });
+}
+
+async function runDatabaseTransaction(
+  db: KidEduDatabase,
+  task: (transaction: KidEduDatabase) => Promise<void>
+): Promise<void> {
+  const isWebRuntime = "document" in globalThis;
+
+  if (!isWebRuntime && typeof db.withExclusiveTransactionAsync === "function") {
+    await db.withExclusiveTransactionAsync((transaction) => task(transaction));
+    return;
+  }
+
+  await db.withTransactionAsync(() => task(db));
 }
 
 async function getSettingValue(db: KidEduDatabase, key: string): Promise<string | null> {

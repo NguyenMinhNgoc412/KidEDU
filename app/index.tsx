@@ -1,10 +1,10 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import {
   BookOpen,
+  Clapperboard,
   LockKeyhole,
   PawPrint,
   PersonStanding,
-  Play,
   Sparkles,
   Utensils,
   UsersRound
@@ -13,18 +13,13 @@ import { useCallback, type ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
-import { Card, PressableCard } from "@/components/Card";
+import { PressableCard } from "@/components/Card";
 import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
-import { SectionHeader } from "@/components/SectionHeader";
 import { StateMessage } from "@/components/StateMessage";
 import { useCategoriesQuery, useDecksQuery, useLearningItemsQuery } from "@/data/queries";
-import type { Category, Deck } from "@/data/types";
-import {
-  categoryTileColors,
-  colors,
-  spacing
-} from "@/theme";
+import type { Category } from "@/data/types";
+import { categoryTileColors, colors, spacing } from "@/theme";
 
 export default function ChildHomeScreen() {
   const router = useRouter();
@@ -74,6 +69,15 @@ export default function ChildHomeScreen() {
             ))}
           </View>
         )}
+        {decks.length > 0 ? (
+          <KidButton
+            icon={<Clapperboard color={colors.onPrimary} size={22} />}
+            label="Học tự động"
+            onPress={() => router.push("/decks")}
+            size="lg"
+            variant="secondary"
+          />
+        ) : null}
         <KidButton
           icon={<LockKeyhole color={colors.primary} size={20} />}
           label="Khu vực Phụ huynh"
@@ -81,18 +85,6 @@ export default function ChildHomeScreen() {
           variant="plain"
         />
       </View>
-
-      <SectionHeader title="Bộ tự chạy" />
-      {decksQuery.isLoading ? <StateMessage title="Đang tải bộ học" /> : null}
-      {!decksQuery.isLoading && decks.length === 0 ? (
-        <StateMessage title="Chưa có bộ học" message="Vào khu phụ huynh để tạo bộ đầu tiên." />
-      ) : (
-        <View style={styles.deckList}>
-          {decks.map((deck) => (
-            <DeckRow key={deck.id} deck={deck} />
-          ))}
-        </View>
-      )}
     </Screen>
   );
 }
@@ -128,29 +120,6 @@ function CategoryTile({
   );
 }
 
-function DeckRow({ deck }: { deck: Deck }) {
-  const router = useRouter();
-  const canStart = deck.itemCount > 0;
-
-  return (
-    <Card style={styles.deckRow} variant="surface">
-      <View style={styles.deckText}>
-        <AppText variant="deckTitle">{deck.title}</AppText>
-        <AppText color="muted" variant="label">
-          {deck.itemCount} thẻ
-        </AppText>
-      </View>
-      <KidButton
-        disabled={!canStart}
-        icon={<Play color={colors.onPrimary} size={22} />}
-        label="Bắt đầu"
-        onPress={() => router.push(`/autoplay/${deck.id}`)}
-        variant="secondary"
-      />
-    </Card>
-  );
-}
-
 function getCategoryIcon(name: string) {
   const normalized = name.toLocaleLowerCase("vi-VN");
   const iconProps = { color: colors.text, size: 34, strokeWidth: 2.4 };
@@ -181,9 +150,10 @@ function getCategoryIcon(name: string) {
 const styles = StyleSheet.create({
   childHero: {
     alignItems: "center",
+    flex: 1,
     gap: spacing[20],
-    justifyContent: "flex-start",
-    paddingTop: spacing[8]
+    justifyContent: "center",
+    minHeight: 560
   },
   categoryGrid: {
     flexDirection: "row",
@@ -212,19 +182,5 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     minHeight: 44
-  },
-  deckList: {
-    gap: spacing[12]
-  },
-  deckRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: spacing[12],
-    justifyContent: "space-between",
-    padding: spacing[14]
-  },
-  deckText: {
-    flex: 1,
-    gap: spacing[5]
-  },
+  }
 });

@@ -1,8 +1,9 @@
 import { useRouter } from "expo-router";
 import { Save } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
+import { AppText } from "@/components/AppText";
 import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -15,7 +16,7 @@ import {
   playbackSpeedsByPreset
 } from "@/data/learningSettings";
 import type { LearningSettings, LoopMode, SpeedPreset } from "@/data/types";
-import { colors, fontSizes, fontWeights, radii, spacing } from "@/theme";
+import { colors, radii, spacing } from "@/theme";
 
 export default function ParentSettingsScreen() {
   const router = useRouter();
@@ -92,7 +93,7 @@ export default function ParentSettingsScreen() {
         }
       />
       <View style={styles.panel}>
-        <Text style={styles.label}>Tốc độ học</Text>
+        <AppText variant="fieldLabel">Tốc độ học</AppText>
         <View style={styles.choiceWrap}>
           {speedChoices.map((choice) => (
             <KidButton
@@ -108,7 +109,7 @@ export default function ParentSettingsScreen() {
           ))}
         </View>
 
-        <Text style={styles.label}>Số vòng lặp</Text>
+        <AppText variant="fieldLabel">Số vòng lặp</AppText>
         <View style={styles.choiceWrap}>
           {loopChoices.map((choice) => (
             <KidButton
@@ -120,7 +121,7 @@ export default function ParentSettingsScreen() {
           ))}
         </View>
 
-        <Text style={styles.label}>Âm thanh</Text>
+        <AppText variant="fieldLabel">Âm thanh</AppText>
         <View style={styles.choiceWrap}>
           <KidButton
             label={draft.reinforcementEnabled ? "Khen: bật" : "Khen: tắt"}
@@ -135,7 +136,9 @@ export default function ParentSettingsScreen() {
         </View>
 
         {updateMutation.isError ? (
-          <Text style={styles.error}>Chưa lưu được cài đặt. Thử lại giúp mình nhé.</Text>
+          <AppText color="danger" variant="meta">
+            Chưa lưu được cài đặt. Thử lại giúp mình nhé.
+          </AppText>
         ) : null}
 
         <KidButton
@@ -181,19 +184,9 @@ const styles = StyleSheet.create({
     gap: spacing[14],
     padding: spacing[18]
   },
-  label: {
-    color: colors.text,
-    fontSize: fontSizes[16],
-    fontWeight: fontWeights.black
-  },
   choiceWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing[8]
-  },
-  error: {
-    color: colors.danger,
-    fontSize: fontSizes[13],
-    fontWeight: fontWeights.extraBold
   }
 });

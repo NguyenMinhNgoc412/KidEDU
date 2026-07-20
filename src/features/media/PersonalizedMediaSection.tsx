@@ -24,7 +24,7 @@ import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { useKidEduRepository } from "@/data/KidEduDataProvider";
 import type { LearningItem, LearningItemMedia, MediaRole } from "@/data/types";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
-import { colors, spacing } from "@/theme";
+import { colors, radii, spacing } from "@/theme";
 
 import { cleanupOrphanedMediaFiles } from "./mediaCleanupService";
 import { cleanupTempMediaImports } from "./mediaImportService";
@@ -189,7 +189,7 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
       <AppText variant="cardTitle">Media cá nhân</AppText>
       <MediaRoleRow
         disabled={isBusy}
-        icon={<ImageIcon color={colors.primary} size={20} />}
+        icon={<ImageIcon color={colors.primary} size={26} />}
         label="Ảnh minh họa"
         media={resolved.byRole.illustration}
         onDelete={() => confirmDelete("illustration")}
@@ -199,7 +199,7 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
       />
       <MediaRoleRow
         disabled={isBusy}
-        icon={<Video color={colors.coral} size={20} />}
+        icon={<Video color={colors.coral} size={26} />}
         label="Video khẩu hình"
         media={resolved.byRole.mouth_video}
         onCapture={captureVideo}
@@ -210,7 +210,7 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
       />
       <MediaRoleRow
         disabled={isBusy}
-        icon={<Volume2 color={colors.blue} size={20} />}
+        icon={<Volume2 color={colors.blue} size={26} />}
         label="Âm phát âm"
         media={resolved.byRole.pronunciation_audio}
         onDelete={() => confirmDelete("pronunciation_audio")}
@@ -266,11 +266,12 @@ function MediaRoleRow({
   recordLabel?: string;
 }) {
   const isCustom = media?.asset.source === "custom";
+  const hint = mediaHintByRole[role];
 
   return (
     <Card style={styles.row} variant="input">
       <View style={styles.preview}>
-        <MediaPlaceholder media={media} role={role} />
+        <MediaPlaceholder large={role !== "pronunciation_audio"} media={media} role={role} />
       </View>
       <View style={styles.body}>
         <View style={styles.labelRow}>
@@ -285,6 +286,9 @@ function MediaRoleRow({
             : media
               ? "Đang dùng media mặc định"
               : "Chưa có media"}
+        </AppText>
+        <AppText align="center" color="muted" variant="caption">
+          {hint}
         </AppText>
         <View style={styles.actions}>
           {onPick && pickLabel ? (
@@ -327,18 +331,34 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Vui lòng thử lại.";
 }
 
+const mediaHintByRole: Record<MediaRole, string> = {
+  illustration: "Chọn ảnh rõ một chủ thể, JPG hoặc PNG.",
+  mouth_video: "Video ngắn, rõ miệng, tối đa khoảng 15 giây.",
+  pronunciation_audio: "Thu âm giọng rõ, ngắn, không có nhạc nền.",
+  sfx: "Âm thanh minh họa ngắn và nhẹ."
+};
+
 const styles = StyleSheet.create({
   container: {
     gap: spacing[14],
     paddingTop: spacing[4]
   },
   row: {
-    gap: spacing[12]
+    alignItems: "center",
+    backgroundColor: colors.surfaceInput,
+    borderColor: colors.sage,
+    borderRadius: radii.lg,
+    borderStyle: "dashed",
+    borderWidth: 2,
+    gap: spacing[12],
+    padding: spacing[14]
   },
   preview: {
+    alignSelf: "stretch",
     width: "100%"
   },
   body: {
+    alignItems: "center",
     gap: spacing[8],
     justifyContent: "center"
   },
@@ -353,6 +373,7 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing[8]
+    gap: spacing[8],
+    justifyContent: "center"
   }
 });

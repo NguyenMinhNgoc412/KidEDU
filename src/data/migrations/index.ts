@@ -44,9 +44,9 @@ export async function migrateKidEduDatabase(
   ensureCompleteMigrationPath(currentVersion, targetVersion, pendingMigrations);
 
   for (const migration of pendingMigrations) {
-    await runMigrationTransaction(db, async () => {
-      await migration.migrate(db);
-      await setSchemaVersion(db, migration.version);
+    await runMigrationTransaction(db, async (transaction) => {
+      await migration.migrate(transaction);
+      await setSchemaVersion(transaction, migration.version);
     });
   }
 }
@@ -87,12 +87,19 @@ async function setSchemaVersion(db: MigrationDatabase, version: number): Promise
 
 async function runMigrationTransaction(
   db: MigrationDatabase,
-  task: () => Promise<void>
+  task: (transaction: MigrationDatabase) => Promise<void>
 ): Promise<void> {
-  if (db.withTransactionAsync) {
-    await db.withTransactionAsync(task);
+  const isWebRuntime = "document" in globalThis;
+
+  if (!isWebRuntime && db.withExclusiveTransactionAsync) {
+    await db.withExclusiveTransactionAsync(task);
     return;
   }
 
-  await task();
+  if (db.withTransactionAsync) {
+    await db.withTransactionAsync(() => task(db));
+    return;
+  }
+
+  await task(db);
 }

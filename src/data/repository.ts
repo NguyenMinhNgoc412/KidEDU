@@ -111,7 +111,7 @@ interface MediaCleanupRow {
 }
 
 export class SQLiteKidEduRepository implements KidEduRepository {
-  private transactionQueue: Promise<void> = Promise.resolve();
+  private writeQueue: Promise<unknown> = Promise.resolve();
 
   constructor(private readonly db: KidEduDatabase) {}
 
@@ -156,30 +156,34 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     const now = new Date().toISOString();
     const itemId = makeId("item");
 
-    await this.db.runAsync(
-      `INSERT INTO learning_items
-        (id, title, category_id, status, learning_status, note, created_at, updated_at)
-       VALUES (?, ?, ?, 'active', 'new', ?, ?, ?)`,
-      [itemId, input.title.trim(), input.categoryId, input.note?.trim() || null, now, now]
+    await this.runWrite((db) =>
+      db.runAsync(
+        `INSERT INTO learning_items
+          (id, title, category_id, status, learning_status, note, created_at, updated_at)
+         VALUES (?, ?, ?, 'active', 'new', ?, ?, ?)`,
+        [itemId, input.title.trim(), input.categoryId, input.note?.trim() || null, now, now]
+      )
     );
 
     return itemId;
   }
 
   async updateLearningItem(itemId: string, input: UpdateLearningItemInput): Promise<void> {
-    await this.db.runAsync(
-      `UPDATE learning_items
-       SET title = ?, category_id = ?, learning_status = ?, note = ?, status = ?, updated_at = ?
-       WHERE id = ?`,
-      [
-        input.title.trim(),
-        input.categoryId,
-        input.learningStatus,
-        input.note?.trim() || null,
-        input.status,
-        new Date().toISOString(),
-        itemId
-      ]
+    await this.runWrite((db) =>
+      db.runAsync(
+        `UPDATE learning_items
+         SET title = ?, category_id = ?, learning_status = ?, note = ?, status = ?, updated_at = ?
+         WHERE id = ?`,
+        [
+          input.title.trim(),
+          input.categoryId,
+          input.learningStatus,
+          input.note?.trim() || null,
+          input.status,
+          new Date().toISOString(),
+          itemId
+        ]
+      )
     );
   }
 
@@ -375,10 +379,12 @@ export class SQLiteKidEduRepository implements KidEduRepository {
   }
 
   async archiveDeck(deckId: string): Promise<void> {
-    await this.db.runAsync("UPDATE decks SET status = 'archived', updated_at = ? WHERE id = ?", [
-      new Date().toISOString(),
-      deckId
-    ]);
+    await this.runWrite((db) =>
+      db.runAsync("UPDATE decks SET status = 'archived', updated_at = ? WHERE id = ?", [
+        new Date().toISOString(),
+        deckId
+      ])
+    );
   }
 
   async getLearningSettings(): Promise<LearningSettings> {
@@ -439,11 +445,13 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     const sessionId = makeId("session");
     const now = new Date().toISOString();
 
-    await this.db.runAsync(
-      `INSERT INTO practice_sessions
-        (id, child_id, mode, deck_id, started_at, ended_at, status)
-       VALUES (?, ?, ?, ?, ?, NULL, 'active')`,
-      [sessionId, defaultChildId, input.mode, input.deckId ?? null, now]
+    await this.runWrite((db) =>
+      db.runAsync(
+        `INSERT INTO practice_sessions
+          (id, child_id, mode, deck_id, started_at, ended_at, status)
+         VALUES (?, ?, ?, ?, ?, NULL, 'active')`,
+        [sessionId, defaultChildId, input.mode, input.deckId ?? null, now]
+      )
     );
 
     return sessionId;
@@ -489,11 +497,13 @@ export class SQLiteKidEduRepository implements KidEduRepository {
   }
 
   async finishPracticeSession(input: { sessionId: string; status: PracticeSessionStatus }): Promise<void> {
-    await this.db.runAsync("UPDATE practice_sessions SET status = ?, ended_at = ? WHERE id = ?", [
-      input.status,
-      new Date().toISOString(),
-      input.sessionId
-    ]);
+    await this.runWrite((db) =>
+      db.runAsync("UPDATE practice_sessions SET status = ?, ended_at = ? WHERE id = ?", [
+        input.status,
+        new Date().toISOString(),
+        input.sessionId
+      ])
+    );
   }
 
   async listProgressSummary(): Promise<ProgressSummaryItem[]> {
@@ -684,20 +694,26 @@ export class SQLiteKidEduRepository implements KidEduRepository {
 
     const now = new Date().toISOString();
 
-    for (const chunk of chunkArray(uniqueAssetIds, 250)) {
-      const placeholders = chunk.map(() => "?").join(", ");
-      await this.db.runAsync(
-        `UPDATE media_assets
-         SET status = ?, updated_at = ?
-         WHERE id IN (${placeholders})
-         ${options?.onlyActive ? "AND status = 'active'" : ""}`,
-        [status, now, ...chunk]
-      );
-    }
+    await this.runWrite(async (db) => {
+      for (const chunk of chunkArray(uniqueAssetIds, 250)) {
+        const placeholders = chunk.map(() => "?").join(", ");
+        await db.runAsync(
+          `UPDATE media_assets
+           SET status = ?, updated_at = ?
+           WHERE id IN (${placeholders})
+           ${options?.onlyActive ? "AND status = 'active'" : ""}`,
+          [status, now, ...chunk]
+        );
+      }
+    });
+  }
+
+  private async runWrite<T>(task: (db: KidEduDatabase) => Promise<T>): Promise<T> {
+    return this.enqueueWrite(() => task(this.db));
   }
 
   private async runInTransaction(task: (db: KidEduDatabase) => Promise<void>): Promise<void> {
-    const run = async () => {
+    await this.enqueueWrite(async () => {
       const isWebRuntime = "document" in globalThis;
 
       if (!isWebRuntime && typeof this.db.withExclusiveTransactionAsync === "function") {
@@ -706,10 +722,13 @@ export class SQLiteKidEduRepository implements KidEduRepository {
       }
 
       await this.db.withTransactionAsync(() => task(this.db));
-    };
-    const queued = this.transactionQueue.then(run, run);
-    this.transactionQueue = queued.catch(() => undefined);
-    await queued;
+    });
+  }
+
+  private async enqueueWrite<T>(task: () => Promise<T>): Promise<T> {
+    const queued = this.writeQueue.then(task, task);
+    this.writeQueue = queued.catch(() => undefined);
+    return queued;
   }
 }
 

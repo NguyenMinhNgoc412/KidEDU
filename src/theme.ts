@@ -118,58 +118,71 @@ export const lineHeights = {
   48: 48
 } as const;
 
+export const fontFamilies = {
+  regular: "PlusJakartaSans_400Regular",
+  medium: "PlusJakartaSans_500Medium",
+  semibold: "PlusJakartaSans_600SemiBold",
+  bold: "PlusJakartaSans_700Bold"
+} as const;
+
 export const fontWeights = {
   regular: "400",
   medium: "500",
   semibold: "600",
   bold: "700",
-  extraBold: "800",
-  black: "900"
+  extraBold: "700",
+  black: "700"
 } as const;
 
 export const typography = {
   screenTitle: {
+    fontFamily: fontFamilies.bold,
     fontSize: fontSizes[26],
-    fontWeight: fontWeights.black,
     lineHeight: lineHeights[32]
   },
   sectionTitle: {
+    fontFamily: fontFamilies.bold,
     fontSize: fontSizes[24],
-    fontWeight: fontWeights.black
+    lineHeight: lineHeights[30]
   },
   learningTitle: {
+    fontFamily: fontFamilies.bold,
     fontSize: fontSizes[40],
-    fontWeight: fontWeights.black,
     lineHeight: lineHeights[48]
   },
   deckTitle: {
+    fontFamily: fontFamilies.bold,
     fontSize: fontSizes[20],
-    fontWeight: fontWeights.black,
-    lineHeight: lineHeights[25]
+    lineHeight: lineHeights[26]
   },
   cardTitle: {
+    fontFamily: fontFamilies.semibold,
     fontSize: fontSizes[18],
-    fontWeight: fontWeights.black
+    lineHeight: lineHeights[24]
   },
   body: {
+    fontFamily: fontFamilies.regular,
     fontSize: fontSizes[16],
     lineHeight: lineHeights[24]
   },
   bodyStrong: {
+    fontFamily: fontFamilies.semibold,
     fontSize: fontSizes[16],
-    fontWeight: fontWeights.extraBold,
     lineHeight: lineHeights[20]
   },
   label: {
+    fontFamily: fontFamilies.semibold,
     fontSize: fontSizes[14],
-    fontWeight: fontWeights.bold
+    lineHeight: lineHeights[20]
   },
   labelStrong: {
+    fontFamily: fontFamilies.bold,
     fontSize: fontSizes[14],
-    fontWeight: fontWeights.extraBold
+    lineHeight: lineHeights[20]
   },
   caption: {
+    fontFamily: fontFamilies.semibold,
     fontSize: fontSizes[12],
-    fontWeight: fontWeights.extraBold
+    lineHeight: lineHeights[17]
   }
 } as const;

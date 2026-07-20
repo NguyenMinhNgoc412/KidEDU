@@ -10,7 +10,7 @@ import {
   type ViewStyle
 } from "react-native";
 
-import { colors, fontSizes, fontWeights, radii, spacing } from "@/theme";
+import { colors, fontFamilies, fontSizes, radii, spacing } from "@/theme";
 
 import { AppText } from "./AppText";
 
@@ -32,7 +32,12 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
         ref={ref}
         multiline={multiline}
         placeholderTextColor={colors.muted}
-        style={[styles.input, error ? styles.inputError : null, multiline ? styles.multiline : null, inputStyle]}
+        style={[
+          styles.input,
+          error ? styles.inputError : null,
+          multiline ? styles.multiline : null,
+          inputStyle
+        ]}
         {...props}
       />
     </View>
@@ -76,6 +81,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     borderWidth: 2,
     color: colors.text,
+    fontFamily: fontFamilies.regular,
     fontSize: fontSizes[16],
     minHeight: spacing[56],
     paddingHorizontal: spacing[16]
@@ -102,8 +108,8 @@ const styles = StyleSheet.create({
   searchInput: {
     color: colors.text,
     flex: 1,
+    fontFamily: fontFamilies.semibold,
     fontSize: fontSizes[15],
-    fontWeight: fontWeights.bold,
     minWidth: 0
   }
 });

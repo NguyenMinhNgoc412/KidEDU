@@ -12,6 +12,28 @@ Format dùng theo hướng đơn giản:
 
 ---
 
+## [0.3.3] — 2026-07-15
+
+### Added
+
+- Bổ sung font loading bằng `expo-font` và `@expo-google-fonts/plus-jakarta-sans` để app dùng đúng Plus Jakarta Sans theo design system.
+- Bổ sung `expo-blur` cho Parent Gate/modal backdrop theo design system.
+
+### Changed
+
+- Làm rõ ngoại lệ typography: riêng từ/cụm từ mục tiêu trong màn Child study và Auto Play được phép viết hoa để tăng tập trung và khớp ảnh reference.
+
+### Affected files
+
+- `05-tech-mobile-stack-sot.md`
+- `09-design-system-sot.md`
+
+### Reason
+
+Đồng bộ implementation UI với design system Gentle Growth, đồng thời giải quyết mâu thuẫn giữa quy tắc tránh All-Caps và ảnh reference màn học.
+
+---
+
 ## [0.3.2] — 2026-07-15
 
 ### Added

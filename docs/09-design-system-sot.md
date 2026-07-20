@@ -132,7 +132,7 @@ The palette avoids "vibrating" or high-saturation colors that could trigger sens
 
 - **Scale:** Sizes are intentionally larger than standard SaaS applications to ensure accessibility and clear word recognition.
 - **Legibility:** Generous line heights prevent text crowding, which is essential for parents managing data and children seeing word labels.
-- **Case:** Use Title Case for labels and Sentence case for instructions. Avoid All-Caps to maintain an approachable tone.
+- **Case:** Use Title Case for labels and Sentence case for instructions. Avoid All-Caps to maintain an approachable tone, except the single target word/phrase in Child study and Auto Play screens may use uppercase to increase word focus and match the study-screen reference.
 
 ## Layout & Spacing
 

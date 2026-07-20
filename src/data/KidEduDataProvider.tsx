@@ -1,7 +1,7 @@
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
-import { colors, fontSizes, fontWeights, spacing } from "@/theme";
+import { colors, fontFamilies, fontSizes, spacing } from "@/theme";
 
 import { openKidEduDatabase } from "./database";
 import { SQLiteKidEduRepository } from "./repository";
@@ -82,12 +82,13 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.loadingText,
+    fontFamily: fontFamilies.bold,
     fontSize: fontSizes[22],
-    fontWeight: fontWeights.extraBold,
     textAlign: "center"
   },
   message: {
     color: colors.loadingMuted,
+    fontFamily: fontFamilies.regular,
     fontSize: fontSizes[16],
     textAlign: "center"
   }

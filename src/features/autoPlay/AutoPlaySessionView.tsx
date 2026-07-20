@@ -93,9 +93,9 @@ export function AutoPlaySessionView({
         style={({ pressed }) => [styles.pausePill, pressed ? styles.pressed : null]}
       >
         {isPaused ? (
-          <Play color={colors.onPrimary} size={17} />
+          <Play color={colors.onPrimary} size={20} />
         ) : (
-          <Pause color={colors.onPrimary} size={17} />
+          <Pause color={colors.onPrimary} size={20} />
         )}
         <AppText color="onPrimary" variant="labelStrong">
           {isPaused ? "Tiếp tục" : "Tạm dừng"}
@@ -130,13 +130,13 @@ export function AutoPlaySessionView({
 
       <View style={styles.controls}>
         <ControlButton
-          icon={<X color={colors.danger} size={20} />}
+          icon={<X color={colors.danger} size={24} />}
           label="Thoát"
           onPress={exit}
           tone="danger"
         />
         <ControlButton
-          icon={<RotateCcw color={colors.blue} size={20} />}
+          icon={<RotateCcw color={colors.blue} size={24} />}
           label="Phát lại"
           onPress={session.replay}
           tone="info"
@@ -144,9 +144,9 @@ export function AutoPlaySessionView({
         <ControlButton
           icon={
             isPaused ? (
-              <Play color={colors.primary} size={20} />
+              <Play color={colors.primary} size={24} />
             ) : (
-              <Pause color={colors.primary} size={20} />
+              <Pause color={colors.primary} size={24} />
             )
           }
           label={isPaused ? "Tiếp tục" : "Tạm dừng"}
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing[8],
     justifyContent: "center",
-    minHeight: 42,
+    minHeight: 48,
     paddingHorizontal: spacing[26],
     shadowColor: colors.sage,
     shadowOffset: { height: spacing[8], width: spacing.none },
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   },
   controls: {
     backgroundColor: colors.surfaceLowest,
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     flexDirection: "row",
     gap: spacing[10],
     justifyContent: "space-between",
@@ -237,19 +237,19 @@ const styles = StyleSheet.create({
   },
   controlButton: {
     alignItems: "center",
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     flex: 1,
     gap: spacing[6],
     justifyContent: "center",
-    minHeight: 70,
+    minHeight: 82,
     padding: spacing[8]
   },
   controlIcon: {
     alignItems: "center",
     borderRadius: radii.full,
-    height: 34,
+    height: 42,
     justifyContent: "center",
-    width: 34
+    width: 42
   },
   pressed: {
     opacity: 0.82

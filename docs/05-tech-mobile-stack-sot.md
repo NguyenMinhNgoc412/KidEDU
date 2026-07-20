@@ -94,6 +94,8 @@ Quy tắc:
 | Animation UI | `react-native-reanimated` | Animation nhẹ, mượt, tránh block JS thread |
 | Vector/SVG | `react-native-svg` | Icon/shape minh họa nếu cần |
 | Icon | `lucide-react-native` | Gọn, dễ dùng, phổ biến |
+| Font loading | `expo-font` + `@expo-google-fonts/plus-jakarta-sans` | Load Plus Jakarta Sans local theo design system |
+| Backdrop blur | `expo-blur` | Dùng cho Parent Gate/modal tách khỏi Child Mode |
 | Safe area | `react-native-safe-area-context` | Bắt buộc cho mobile layout |
 | Gesture nếu cần | `react-native-gesture-handler` | Dùng khi cần drag/sort/gesture phức tạp |
 
@@ -147,8 +149,8 @@ Khi setup, dùng phiên bản stable mới nhất theo Expo tại thời điểm
 ```bash
 pnpm dlx create-expo-app@latest kidedu
 cd kidedu
-pnpm dlx expo install expo-router expo-sqlite expo-file-system expo-image expo-video expo-video-thumbnails expo-audio expo-image-picker expo-camera expo-asset expo-image-manipulator react-native-reanimated react-native-safe-area-context react-native-svg react-native-gesture-handler
-pnpm add zustand @tanstack/react-query react-hook-form zod @shopify/flash-list lucide-react-native
+pnpm dlx expo install expo-router expo-sqlite expo-file-system expo-image expo-video expo-video-thumbnails expo-audio expo-image-picker expo-camera expo-asset expo-image-manipulator expo-font expo-blur react-native-reanimated react-native-safe-area-context react-native-svg react-native-gesture-handler
+pnpm add zustand @tanstack/react-query react-hook-form zod @shopify/flash-list lucide-react-native @expo-google-fonts/plus-jakarta-sans
 pnpm add -D jest-expo @testing-library/react-native @types/jest eslint prettier typescript
 ```
 
