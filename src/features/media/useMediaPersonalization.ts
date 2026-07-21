@@ -1,34 +1,38 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ImagePickerAsset } from "expo-image-picker";
-
 import { useKidEduRepository } from "@/data/KidEduDataProvider";
 import { queryKeys } from "@/data/queries";
 import type { MediaRole } from "@/data/types";
 
-import { cleanupMediaFiles, saveImagePickerAssetToAppStorage, saveRecordedAudioToAppStorage } from "./mediaImportService";
+import {
+  cleanupMediaFiles,
+  commitStagedMediaToAppStorage,
+  discardStagedMedia,
+  type StagedMediaImport
+} from "./mediaImportService";
 
-interface SavePickedMediaInput {
-  role: MediaRole;
-  asset: ImagePickerAsset;
-}
-
-export function useSavePickedMediaMutation(learningItemId: string) {
+export function useSaveStagedMediaMutation(learningItemId: string) {
   const repository = useKidEduRepository();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ role, asset }: SavePickedMediaInput) => {
-      const savedMedia = await saveImagePickerAssetToAppStorage(asset, role);
+    mutationFn: async (staged: StagedMediaImport) => {
+      let savedMedia: Awaited<ReturnType<typeof commitStagedMediaToAppStorage>> | null = null;
 
       try {
+        savedMedia = await commitStagedMediaToAppStorage(staged);
         const replacedUris = await repository.upsertCustomMediaForItem({
           learningItemId,
-          role,
+          role: staged.role,
           ...savedMedia
         });
         await cleanupMediaFiles(replacedUris);
+
+        if (savedMedia.uri !== staged.uri) {
+          await discardStagedMedia(staged);
+        }
       } catch (error) {
-        await cleanupMediaFiles([savedMedia.uri, savedMedia.thumbnailUri]);
+        await cleanupMediaFiles([savedMedia?.uri, savedMedia?.thumbnailUri]);
+        await discardStagedMedia(staged);
         throw error;
       }
     },
@@ -46,32 +50,6 @@ export function useDeleteCustomMediaMutation(learningItemId: string) {
     mutationFn: async (role: MediaRole) => {
       const deletedUris = await repository.deleteCustomMediaForItem({ learningItemId, role });
       await cleanupMediaFiles(deletedUris);
-    },
-    onSuccess: async () => {
-      await invalidateLearningContent(queryClient, learningItemId);
-    }
-  });
-}
-
-export function useSaveRecordedAudioMutation(learningItemId: string) {
-  const repository = useKidEduRepository();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (input: { uri: string; durationMs?: number | null; mimeType?: string | null }) => {
-      const savedMedia = await saveRecordedAudioToAppStorage(input);
-
-      try {
-        const replacedUris = await repository.upsertCustomMediaForItem({
-          learningItemId,
-          role: "pronunciation_audio",
-          ...savedMedia
-        });
-        await cleanupMediaFiles(replacedUris);
-      } catch (error) {
-        await cleanupMediaFiles([savedMedia.uri, savedMedia.thumbnailUri]);
-        throw error;
-      }
     },
     onSuccess: async () => {
       await invalidateLearningContent(queryClient, learningItemId);

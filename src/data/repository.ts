@@ -1,3 +1,4 @@
+import type { BackupDatabaseSnapshot } from "./backupSnapshot";
 import type { KidEduDatabase } from "./database";
 import {
   completeLearningSettings,
@@ -11,6 +12,8 @@ import {
   playbackSpeedsByPreset
 } from "./learningSettings";
 import { defaultChildId, learningSettingKeys } from "./seedData";
+import { seedKidEduDatabaseInTransaction } from "./seedDatabase";
+import { schemaVersion } from "./schema";
 import type {
   Category,
   CreateDeckInput,
@@ -33,6 +36,7 @@ import type {
   PracticeEventType,
   PracticeMode,
   PracticeSessionStatus,
+  PrivacyDataSummary,
   ProgressSummaryItem,
   UpdateDeckInput,
   UpdateLearningItemInput,
@@ -110,10 +114,286 @@ interface MediaCleanupRow {
   is_referenced_by_active_media: number;
 }
 
+interface SchemaVersionRow {
+  version: number;
+}
+
+interface PersonalizedMediaUriRow {
+  uri: string;
+}
+
+interface ForeignKeyViolationRow {
+  table: string;
+  rowid: number | null;
+  parent: string;
+  fkid: number;
+}
+
+interface PrivacyDataSummaryRow {
+  learning_item_count: number;
+  deck_count: number;
+  practice_session_count: number;
+  practice_event_count: number;
+  learning_progress_count: number;
+  personalized_media_count: number;
+  personalized_media_bytes: number | null;
+}
+
 export class SQLiteKidEduRepository implements KidEduRepository {
   private writeQueue: Promise<unknown> = Promise.resolve();
 
   constructor(private readonly db: KidEduDatabase) {}
+
+  async createBackupSnapshot(): Promise<BackupDatabaseSnapshot> {
+    return this.runInTransaction(async (db) => {
+      const createdAt = new Date().toISOString();
+      const storedSchemaVersion = await db.getFirstAsync<SchemaVersionRow>(
+        "SELECT version FROM schema_versions WHERE id = 1",
+        []
+      );
+
+      if (!storedSchemaVersion) {
+        throw new Error("KidEDU local database has no schema version.");
+      }
+
+      const children = await db.getAllAsync<BackupDatabaseSnapshot["children"][number]>(
+        `SELECT id, name, avatar_asset_id, created_at, updated_at
+         FROM children
+         ORDER BY id ASC`
+      );
+      const categories = await db.getAllAsync<BackupDatabaseSnapshot["categories"][number]>(
+        `SELECT id, name, sort_order, is_default
+         FROM categories
+         ORDER BY id ASC`
+      );
+      const learningItems = await db.getAllAsync<BackupDatabaseSnapshot["learning_items"][number]>(
+        `SELECT id, title, category_id, status, learning_status, note, created_at, updated_at
+         FROM learning_items
+         ORDER BY id ASC`
+      );
+      const mediaAssets = await db.getAllAsync<BackupDatabaseSnapshot["media_assets"][number]>(
+        `SELECT ma.id, ma.type, ma.source, ma.uri, ma.thumbnail_asset_id,
+                ma.duration_ms, ma.size_bytes, ma.mime_type, ma.status,
+                ma.created_at, ma.updated_at
+         FROM media_assets ma
+         WHERE ma.source = 'default'
+            OR ma.id IN (
+              SELECT lim.media_asset_id
+              FROM learning_item_media lim
+              JOIN media_assets mapped_asset ON mapped_asset.id = lim.media_asset_id
+              WHERE lim.is_active = 1
+                AND mapped_asset.source IN ('custom', 'generated')
+            )
+            OR ma.id IN (
+              SELECT mapped_asset.thumbnail_asset_id
+              FROM learning_item_media lim
+              JOIN media_assets mapped_asset ON mapped_asset.id = lim.media_asset_id
+              WHERE lim.is_active = 1
+                AND mapped_asset.source IN ('custom', 'generated')
+                AND mapped_asset.thumbnail_asset_id IS NOT NULL
+            )
+            OR ma.id IN (
+              SELECT avatar_asset_id
+              FROM children
+              WHERE avatar_asset_id IS NOT NULL
+            )
+            OR ma.id IN (
+              SELECT avatar_asset.thumbnail_asset_id
+              FROM children child
+              JOIN media_assets avatar_asset ON avatar_asset.id = child.avatar_asset_id
+              WHERE avatar_asset.thumbnail_asset_id IS NOT NULL
+            )
+         ORDER BY ma.id ASC`
+      );
+      const learningItemMedia = await db.getAllAsync<
+        BackupDatabaseSnapshot["learning_item_media"][number]
+      >(
+        `SELECT lim.id, lim.learning_item_id, lim.media_asset_id, lim.role,
+                lim.priority, lim.is_active, lim.created_at
+         FROM learning_item_media lim
+         JOIN media_assets ma ON ma.id = lim.media_asset_id
+         WHERE ma.source = 'default'
+            OR (ma.source IN ('custom', 'generated') AND lim.is_active = 1)
+         ORDER BY lim.id ASC`
+      );
+      const decks = await db.getAllAsync<BackupDatabaseSnapshot["decks"][number]>(
+        `SELECT id, title, description, status, created_at, updated_at
+         FROM decks
+         ORDER BY id ASC`
+      );
+      const deckItems = await db.getAllAsync<BackupDatabaseSnapshot["deck_items"][number]>(
+        `SELECT id, deck_id, learning_item_id, sort_order
+         FROM deck_items
+         ORDER BY deck_id ASC, sort_order ASC, id ASC`
+      );
+      const practiceSessions = await db.getAllAsync<
+        BackupDatabaseSnapshot["practice_sessions"][number]
+      >(
+        `SELECT id, child_id, mode, deck_id, started_at, ended_at, status
+         FROM practice_sessions
+         ORDER BY started_at ASC, id ASC`
+      );
+      const practiceEvents = await db.getAllAsync<
+        BackupDatabaseSnapshot["practice_events"][number]
+      >(
+        `SELECT id, session_id, learning_item_id, event_type, created_at
+         FROM practice_events
+         ORDER BY created_at ASC, id ASC`
+      );
+      const learningProgress = await db.getAllAsync<
+        BackupDatabaseSnapshot["learning_progress"][number]
+      >(
+        `SELECT id, child_id, learning_item_id, view_count, practice_count,
+                last_practiced_at, parent_mark
+         FROM learning_progress
+         ORDER BY id ASC`
+      );
+      const settings = await db.getAllAsync<BackupDatabaseSnapshot["settings"][number]>(
+        `SELECT key, value, updated_at
+         FROM settings
+         ORDER BY key ASC`
+      );
+
+      return {
+        schemaVersion: storedSchemaVersion.version,
+        createdAt,
+        children,
+        categories,
+        learning_items: learningItems,
+        media_assets: mediaAssets,
+        learning_item_media: learningItemMedia,
+        decks,
+        deck_items: deckItems,
+        practice_sessions: practiceSessions.map((session) =>
+          session.status === "active"
+            ? { ...session, ended_at: createdAt, status: "interrupted" }
+            : session
+        ),
+        practice_events: practiceEvents,
+        learning_progress: learningProgress,
+        settings
+      };
+    });
+  }
+
+  async replaceFromBackup(snapshot: BackupDatabaseSnapshot): Promise<string[]> {
+    if (snapshot.schemaVersion !== schemaVersion) {
+      throw new Error(
+        `Unsupported KidEDU backup schema version ${snapshot.schemaVersion}; expected ${schemaVersion}.`
+      );
+    }
+
+    return this.runInTransaction(async (db) => {
+      const previousMediaUris = await this.listPersonalizedMediaUris(db);
+
+      await this.deleteBackupTables(db);
+      await this.insertBackupSnapshot(db, snapshot);
+
+      const violations = await db.getAllAsync<ForeignKeyViolationRow>("PRAGMA foreign_key_check");
+      if (violations.length > 0) {
+        const first = violations[0];
+        throw new Error(
+          `Restored KidEDU backup violates a foreign key in ${first?.table ?? "unknown table"}.`
+        );
+      }
+
+      return previousMediaUris;
+    });
+  }
+
+  async getPrivacyDataSummary(): Promise<PrivacyDataSummary> {
+    return this.runInTransaction(async (db) => {
+      const row = await db.getFirstAsync<PrivacyDataSummaryRow>(
+        `SELECT
+           (SELECT COUNT(*) FROM learning_items) AS learning_item_count,
+           (SELECT COUNT(*) FROM decks) AS deck_count,
+           (SELECT COUNT(*) FROM practice_sessions) AS practice_session_count,
+           (SELECT COUNT(*) FROM practice_events) AS practice_event_count,
+           (SELECT COUNT(*) FROM learning_progress) AS learning_progress_count,
+           (SELECT COUNT(*)
+              FROM media_assets
+             WHERE source IN ('custom', 'generated')) AS personalized_media_count,
+           (SELECT COALESCE(SUM(size_bytes), 0)
+              FROM media_assets
+             WHERE source IN ('custom', 'generated')) AS personalized_media_bytes`,
+        []
+      );
+
+      return {
+        learningItemCount: row?.learning_item_count ?? 0,
+        deckCount: row?.deck_count ?? 0,
+        practiceSessionCount: row?.practice_session_count ?? 0,
+        practiceEventCount: row?.practice_event_count ?? 0,
+        learningProgressCount: row?.learning_progress_count ?? 0,
+        personalizedMediaCount: row?.personalized_media_count ?? 0,
+        personalizedMediaBytes: row?.personalized_media_bytes ?? 0
+      };
+    });
+  }
+
+  async clearLearningHistory(): Promise<void> {
+    const now = new Date().toISOString();
+
+    await this.runInTransaction(async (db) => {
+      await db.runAsync("DELETE FROM practice_events", []);
+      await db.runAsync("DELETE FROM learning_progress", []);
+      await db.runAsync("DELETE FROM practice_sessions", []);
+      await db.runAsync(
+        `UPDATE learning_items
+         SET learning_status = 'new', updated_at = ?
+         WHERE learning_status != 'new'`,
+        [now]
+      );
+    });
+  }
+
+  async deleteAllPersonalizedMedia(): Promise<string[]> {
+    return this.runInTransaction(async (db) => {
+      const mediaUris = await this.listPersonalizedMediaUris(db);
+      const now = new Date().toISOString();
+
+      await db.runAsync(
+        `UPDATE children
+         SET avatar_asset_id = NULL, updated_at = ?
+         WHERE avatar_asset_id IN (
+           SELECT id FROM media_assets WHERE source IN ('custom', 'generated')
+         )`,
+        [now]
+      );
+      await db.runAsync(
+        `DELETE FROM learning_item_media
+         WHERE media_asset_id IN (
+           SELECT id FROM media_assets WHERE source IN ('custom', 'generated')
+         )`,
+        []
+      );
+      await db.runAsync(
+        `UPDATE media_assets
+         SET thumbnail_asset_id = NULL, updated_at = ?
+         WHERE source = 'default'
+           AND thumbnail_asset_id IN (
+             SELECT id FROM media_assets WHERE source IN ('custom', 'generated')
+           )`,
+        [now]
+      );
+      await db.runAsync("DELETE FROM media_assets WHERE source IN ('custom', 'generated')", []);
+
+      await this.assertForeignKeysValid(db, "Deleting personalized media");
+      return mediaUris;
+    });
+  }
+
+  async resetAllLocalData(): Promise<string[]> {
+    return this.runInTransaction(async (db) => {
+      const mediaUris = await this.listPersonalizedMediaUris(db);
+
+      await this.deleteBackupTables(db);
+      await seedKidEduDatabaseInTransaction(db, { preserveExistingSettings: false });
+      await this.assertForeignKeysValid(db, "Resetting KidEDU local data");
+
+      return mediaUris;
+    });
+  }
 
   async listCategories(): Promise<Category[]> {
     const rows = await this.db.getAllAsync<CategoryRow>(
@@ -122,7 +402,10 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     return rows.map(mapCategoryRow);
   }
 
-  async listLearningItems(options?: { includeArchived?: boolean; childOnly?: boolean }): Promise<LearningItem[]> {
+  async listLearningItems(options?: {
+    includeArchived?: boolean;
+    childOnly?: boolean;
+  }): Promise<LearningItem[]> {
     const whereParts = options?.includeArchived ? [] : ["li.status != 'archived'"];
 
     if (options?.childOnly) {
@@ -190,11 +473,62 @@ export class SQLiteKidEduRepository implements KidEduRepository {
   async archiveLearningItem(itemId: string): Promise<void> {
     const now = new Date().toISOString();
     await this.runInTransaction(async (db) => {
-      await db.runAsync("UPDATE learning_items SET status = 'archived', updated_at = ? WHERE id = ?", [
-        now,
-        itemId
-      ]);
+      await db.runAsync(
+        "UPDATE learning_items SET status = 'archived', updated_at = ? WHERE id = ?",
+        [now, itemId]
+      );
       await db.runAsync("DELETE FROM deck_items WHERE learning_item_id = ?", [itemId]);
+      await db.runAsync(
+        `UPDATE learning_item_media
+         SET is_active = 0
+         WHERE id IN (
+           SELECT lim.id
+           FROM learning_item_media lim
+           JOIN media_assets ma ON ma.id = lim.media_asset_id
+           WHERE lim.learning_item_id = ?
+             AND lim.is_active = 1
+             AND ma.source = 'custom'
+         )`,
+        [itemId]
+      );
+      await db.runAsync(
+        `UPDATE media_assets
+         SET status = 'deleted', updated_at = ?
+         WHERE id IN (
+           SELECT ma.id
+           FROM learning_item_media lim
+           JOIN media_assets ma ON ma.id = lim.media_asset_id
+           WHERE lim.learning_item_id = ?
+             AND ma.source = 'custom'
+         )
+           AND NOT EXISTS (
+             SELECT 1
+             FROM learning_item_media active_lim
+             WHERE active_lim.media_asset_id = media_assets.id
+               AND active_lim.is_active = 1
+           )`,
+        [now, itemId]
+      );
+      await db.runAsync(
+        `UPDATE media_assets
+         SET status = 'deleted', updated_at = ?
+         WHERE id IN (
+           SELECT custom_asset.thumbnail_asset_id
+           FROM learning_item_media lim
+           JOIN media_assets custom_asset ON custom_asset.id = lim.media_asset_id
+           WHERE lim.learning_item_id = ?
+             AND custom_asset.source = 'custom'
+             AND custom_asset.thumbnail_asset_id IS NOT NULL
+         )
+           AND NOT EXISTS (
+             SELECT 1
+             FROM learning_item_media active_lim
+             JOIN media_assets active_asset ON active_asset.id = active_lim.media_asset_id
+             WHERE active_asset.thumbnail_asset_id = media_assets.id
+               AND active_lim.is_active = 1
+           )`,
+        [now, itemId]
+      );
     });
   }
 
@@ -202,7 +536,8 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     const now = new Date().toISOString();
     const mediaAssetId = makeId("media");
     const mappingId = makeId("item-media");
-    const thumbnailAssetId = input.thumbnailUri && input.thumbnailUri !== input.uri ? makeId("media-thumb") : null;
+    const thumbnailAssetId =
+      input.thumbnailUri && input.thumbnailUri !== input.uri ? makeId("media-thumb") : null;
     const oldUris = await this.getActiveCustomMediaUris(input.learningItemId, input.role);
 
     await this.runInTransaction(async (db) => {
@@ -241,7 +576,10 @@ export class SQLiteKidEduRepository implements KidEduRepository {
         [mappingId, input.learningItemId, mediaAssetId, input.role, now]
       );
 
-      await db.runAsync("UPDATE learning_items SET updated_at = ? WHERE id = ?", [now, input.learningItemId]);
+      await db.runAsync("UPDATE learning_items SET updated_at = ? WHERE id = ?", [
+        now,
+        input.learningItemId
+      ]);
     });
 
     return oldUris.filter((uri) => uri !== input.uri && uri !== input.thumbnailUri);
@@ -279,6 +617,17 @@ export class SQLiteKidEduRepository implements KidEduRepository {
                   JOIN media_assets parent ON parent.id = lim.media_asset_id
                   WHERE parent.thumbnail_asset_id = ma.id
                     AND lim.is_active = 1
+                )
+                OR EXISTS (
+                  SELECT 1
+                  FROM children c
+                  WHERE c.avatar_asset_id = ma.id
+                )
+                OR EXISTS (
+                  SELECT 1
+                  FROM children c
+                  JOIN media_assets avatar ON avatar.id = c.avatar_asset_id
+                  WHERE avatar.thumbnail_asset_id = ma.id
                 )
                 THEN 1
                 ELSE 0
@@ -372,7 +721,13 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     await this.runInTransaction(async (db) => {
       await db.runAsync(
         "UPDATE decks SET title = ?, description = ?, status = ?, updated_at = ? WHERE id = ?",
-        [input.title.trim(), input.description?.trim() || null, input.status, new Date().toISOString(), deckId]
+        [
+          input.title.trim(),
+          input.description?.trim() || null,
+          input.status,
+          new Date().toISOString(),
+          deckId
+        ]
       );
       await this.replaceDeckItems(db, deckId, input.itemIds);
     });
@@ -388,10 +743,15 @@ export class SQLiteKidEduRepository implements KidEduRepository {
   }
 
   async getLearningSettings(): Promise<LearningSettings> {
-    const rows = await this.db.getAllAsync<SettingRow>("SELECT key, value FROM settings ORDER BY updated_at ASC");
+    const rows = await this.db.getAllAsync<SettingRow>(
+      "SELECT key, value FROM settings ORDER BY updated_at ASC"
+    );
     const values = new Map(rows.map((row) => [row.key, row.value]));
     const legacySpeedPreset = normalizeSpeedPreset(values.get(learningSettingKeys.speedPreset));
-    const savedPlaybackSpeed = normalizePlaybackSpeed(values.get(learningSettingKeys.playbackSpeed), legacySpeedPreset);
+    const savedPlaybackSpeed = normalizePlaybackSpeed(
+      values.get(learningSettingKeys.playbackSpeed),
+      legacySpeedPreset
+    );
     const playbackSpeed =
       savedPlaybackSpeed === playbackSpeedsByPreset.normal && legacySpeedPreset !== "normal"
         ? playbackSpeedsByPreset[legacySpeedPreset]
@@ -400,10 +760,17 @@ export class SQLiteKidEduRepository implements KidEduRepository {
       ? getSpeedPresetForPlaybackSpeed(playbackSpeed)
       : legacySpeedPreset;
     const legacyLoopMode = normalizeLoopMode(values.get(learningSettingKeys.loopMode));
-    const savedLoopCount = normalizeLoopCount(values.get(learningSettingKeys.loopCount), legacyLoopMode);
+    const savedLoopCount = normalizeLoopCount(
+      values.get(learningSettingKeys.loopCount),
+      legacyLoopMode
+    );
     const loopCount =
-      savedLoopCount === loopCountsByMode.once && legacyLoopMode !== "once" ? loopCountsByMode[legacyLoopMode] : savedLoopCount;
-    const loopMode = values.has(learningSettingKeys.loopCount) ? getLoopModeForCount(loopCount) : legacyLoopMode;
+      savedLoopCount === loopCountsByMode.once && legacyLoopMode !== "once"
+        ? loopCountsByMode[legacyLoopMode]
+        : savedLoopCount;
+    const loopMode = values.has(learningSettingKeys.loopCount)
+      ? getLoopModeForCount(loopCount)
+      : legacyLoopMode;
 
     return {
       speedPreset,
@@ -423,16 +790,20 @@ export class SQLiteKidEduRepository implements KidEduRepository {
       [learningSettingKeys.playbackSpeed, String(nextSettings.playbackSpeed)],
       [learningSettingKeys.loopMode, nextSettings.loopMode],
       [learningSettingKeys.loopCount, String(nextSettings.loopCount)],
-      [learningSettingKeys.reinforcementEnabled, nextSettings.reinforcementEnabled ? "true" : "false"],
+      [
+        learningSettingKeys.reinforcementEnabled,
+        nextSettings.reinforcementEnabled ? "true" : "false"
+      ],
       [learningSettingKeys.sfxEnabled, nextSettings.sfxEnabled ? "true" : "false"]
     ] as const;
 
     await this.runInTransaction(async (db) => {
       for (const [key, value] of entries) {
-        await db.runAsync(
-          "UPDATE settings SET value = ?, updated_at = ? WHERE key = ?",
-          [value, now, key]
-        );
+        await db.runAsync("UPDATE settings SET value = ?, updated_at = ? WHERE key = ?", [
+          value,
+          now,
+          key
+        ]);
         await db.runAsync(
           "INSERT INTO settings (key, value, updated_at) SELECT ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM settings WHERE key = ?)",
           [key, value, now, key]
@@ -441,7 +812,10 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     });
   }
 
-  async startPracticeSession(input: { mode: PracticeMode; deckId?: string | null }): Promise<string> {
+  async startPracticeSession(input: {
+    mode: PracticeMode;
+    deckId?: string | null;
+  }): Promise<string> {
     const sessionId = makeId("session");
     const now = new Date().toISOString();
 
@@ -496,7 +870,10 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     });
   }
 
-  async finishPracticeSession(input: { sessionId: string; status: PracticeSessionStatus }): Promise<void> {
+  async finishPracticeSession(input: {
+    sessionId: string;
+    status: PracticeSessionStatus;
+  }): Promise<void> {
     await this.runWrite((db) =>
       db.runAsync("UPDATE practice_sessions SET status = ?, ended_at = ? WHERE id = ?", [
         input.status,
@@ -535,18 +912,213 @@ export class SQLiteKidEduRepository implements KidEduRepository {
          VALUES (?, ?, ?, 0, 0, NULL, ?)
          ON CONFLICT(child_id, learning_item_id)
          DO UPDATE SET parent_mark = excluded.parent_mark`,
-        [`progress-${defaultChildId}-${input.learningItemId}`, defaultChildId, input.learningItemId, input.parentMark]
+        [
+          `progress-${defaultChildId}-${input.learningItemId}`,
+          defaultChildId,
+          input.learningItemId,
+          input.parentMark
+        ]
       );
 
-      await db.runAsync("UPDATE learning_items SET learning_status = ?, updated_at = ? WHERE id = ?", [
-        input.parentMark,
-        now,
-        input.learningItemId
-      ]);
+      await db.runAsync(
+        "UPDATE learning_items SET learning_status = ?, updated_at = ? WHERE id = ?",
+        [input.parentMark, now, input.learningItemId]
+      );
     });
   }
 
-  private async replaceDeckItems(db: KidEduDatabase, deckId: string, itemIds: string[]): Promise<void> {
+  private async listPersonalizedMediaUris(db: KidEduDatabase): Promise<string[]> {
+    const rows = await db.getAllAsync<PersonalizedMediaUriRow>(
+      `SELECT DISTINCT uri
+       FROM media_assets
+       WHERE source IN ('custom', 'generated')
+       ORDER BY uri ASC`
+    );
+
+    return [...new Set(rows.map((row) => row.uri))];
+  }
+
+  private async assertForeignKeysValid(db: KidEduDatabase, operation: string): Promise<void> {
+    const violations = await db.getAllAsync<ForeignKeyViolationRow>("PRAGMA foreign_key_check");
+    if (violations.length === 0) {
+      return;
+    }
+
+    const first = violations[0];
+    throw new Error(`${operation} violates a foreign key in ${first?.table ?? "unknown table"}.`);
+  }
+
+  private async deleteBackupTables(db: KidEduDatabase): Promise<void> {
+    const tables = [
+      "practice_events",
+      "learning_progress",
+      "practice_sessions",
+      "deck_items",
+      "learning_item_media",
+      "learning_items",
+      "decks",
+      "children",
+      "categories",
+      "media_assets",
+      "settings"
+    ] as const;
+
+    for (const table of tables) {
+      await db.runAsync(`DELETE FROM ${table}`, []);
+    }
+  }
+
+  private async insertBackupSnapshot(
+    db: KidEduDatabase,
+    snapshot: BackupDatabaseSnapshot
+  ): Promise<void> {
+    for (const category of snapshot.categories) {
+      await db.runAsync(
+        "INSERT INTO categories (id, name, sort_order, is_default) VALUES (?, ?, ?, ?)",
+        [category.id, category.name, category.sort_order, category.is_default]
+      );
+    }
+
+    for (const asset of snapshot.media_assets) {
+      await db.runAsync(
+        `INSERT INTO media_assets
+          (id, type, source, uri, thumbnail_asset_id, duration_ms, size_bytes, mime_type,
+           status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          asset.id,
+          asset.type,
+          asset.source,
+          asset.uri,
+          asset.thumbnail_asset_id,
+          asset.duration_ms,
+          asset.size_bytes,
+          asset.mime_type,
+          asset.status,
+          asset.created_at,
+          asset.updated_at
+        ]
+      );
+    }
+
+    for (const child of snapshot.children) {
+      await db.runAsync(
+        `INSERT INTO children (id, name, avatar_asset_id, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?)`,
+        [child.id, child.name, child.avatar_asset_id, child.created_at, child.updated_at]
+      );
+    }
+
+    for (const item of snapshot.learning_items) {
+      await db.runAsync(
+        `INSERT INTO learning_items
+          (id, title, category_id, status, learning_status, note, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          item.id,
+          item.title,
+          item.category_id,
+          item.status,
+          item.learning_status,
+          item.note,
+          item.created_at,
+          item.updated_at
+        ]
+      );
+    }
+
+    for (const deck of snapshot.decks) {
+      await db.runAsync(
+        `INSERT INTO decks (id, title, description, status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [deck.id, deck.title, deck.description, deck.status, deck.created_at, deck.updated_at]
+      );
+    }
+
+    for (const setting of snapshot.settings) {
+      await db.runAsync("INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?)", [
+        setting.key,
+        setting.value,
+        setting.updated_at
+      ]);
+    }
+
+    for (const mapping of snapshot.learning_item_media) {
+      await db.runAsync(
+        `INSERT INTO learning_item_media
+          (id, learning_item_id, media_asset_id, role, priority, is_active, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          mapping.id,
+          mapping.learning_item_id,
+          mapping.media_asset_id,
+          mapping.role,
+          mapping.priority,
+          mapping.is_active,
+          mapping.created_at
+        ]
+      );
+    }
+
+    for (const deckItem of snapshot.deck_items) {
+      await db.runAsync(
+        `INSERT INTO deck_items (id, deck_id, learning_item_id, sort_order)
+         VALUES (?, ?, ?, ?)`,
+        [deckItem.id, deckItem.deck_id, deckItem.learning_item_id, deckItem.sort_order]
+      );
+    }
+
+    for (const session of snapshot.practice_sessions) {
+      const isActive = session.status === "active";
+      await db.runAsync(
+        `INSERT INTO practice_sessions
+          (id, child_id, mode, deck_id, started_at, ended_at, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          session.id,
+          session.child_id,
+          session.mode,
+          session.deck_id,
+          session.started_at,
+          isActive ? snapshot.createdAt : session.ended_at,
+          isActive ? "interrupted" : session.status
+        ]
+      );
+    }
+
+    for (const event of snapshot.practice_events) {
+      await db.runAsync(
+        `INSERT INTO practice_events
+          (id, session_id, learning_item_id, event_type, created_at)
+         VALUES (?, ?, ?, ?, ?)`,
+        [event.id, event.session_id, event.learning_item_id, event.event_type, event.created_at]
+      );
+    }
+
+    for (const progress of snapshot.learning_progress) {
+      await db.runAsync(
+        `INSERT INTO learning_progress
+          (id, child_id, learning_item_id, view_count, practice_count,
+           last_practiced_at, parent_mark)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          progress.id,
+          progress.child_id,
+          progress.learning_item_id,
+          progress.view_count,
+          progress.practice_count,
+          progress.last_practiced_at,
+          progress.parent_mark
+        ]
+      );
+    }
+  }
+
+  private async replaceDeckItems(
+    db: KidEduDatabase,
+    deckId: string,
+    itemIds: string[]
+  ): Promise<void> {
     await db.runAsync("DELETE FROM deck_items WHERE deck_id = ?", [deckId]);
     for (const [index, itemId] of itemIds.entries()) {
       await db.runAsync(
@@ -631,10 +1203,16 @@ export class SQLiteKidEduRepository implements KidEduRepository {
       [itemId, role]
     );
 
-    return rows.flatMap((row) => [row.uri, row.thumbnail_uri].filter((uri): uri is string => Boolean(uri)));
+    return rows.flatMap((row) =>
+      [row.uri, row.thumbnail_uri].filter((uri): uri is string => Boolean(uri))
+    );
   }
 
-  private async markActiveCustomMediaDeleted(db: KidEduDatabase, itemId: string, role: MediaRole): Promise<void> {
+  private async markActiveCustomMediaDeleted(
+    db: KidEduDatabase,
+    itemId: string,
+    role: MediaRole
+  ): Promise<void> {
     await db.runAsync(
       `UPDATE media_assets
        SET status = 'deleted', updated_at = ?
@@ -712,16 +1290,23 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     return this.enqueueWrite(() => task(this.db));
   }
 
-  private async runInTransaction(task: (db: KidEduDatabase) => Promise<void>): Promise<void> {
-    await this.enqueueWrite(async () => {
+  private async runInTransaction<T>(task: (db: KidEduDatabase) => Promise<T>): Promise<T> {
+    return this.enqueueWrite(async () => {
       const isWebRuntime = "document" in globalThis;
 
       if (!isWebRuntime && typeof this.db.withExclusiveTransactionAsync === "function") {
-        await this.db.withExclusiveTransactionAsync((transaction) => task(transaction));
-        return;
+        let result!: T;
+        await this.db.withExclusiveTransactionAsync(async (transaction) => {
+          result = await task(transaction);
+        });
+        return result;
       }
 
-      await this.db.withTransactionAsync(() => task(this.db));
+      let result!: T;
+      await this.db.withTransactionAsync(async () => {
+        result = await task(this.db);
+      });
+      return result;
     });
   }
 

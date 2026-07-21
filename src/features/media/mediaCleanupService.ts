@@ -11,9 +11,19 @@ export interface MediaCleanupResult {
   skipped: boolean;
 }
 
+export interface ManagedMediaSweepResult {
+  deletedFileCount: number;
+  skipped: boolean;
+}
+
 interface MediaCleanupFileAdapter {
   deleteFiles(uris: string[]): Promise<void>;
   fileExists(uri: string): Promise<boolean>;
+}
+
+interface ManagedMediaStorageAdapter {
+  deleteFiles(uris: string[]): Promise<void>;
+  listManagedFileUris(): Promise<string[]>;
 }
 
 export async function cleanupOrphanedMediaFiles(
@@ -34,7 +44,9 @@ export async function cleanupOrphanedMediaFiles(
 
   const fileAdapter = options?.fileAdapter ?? defaultFileAdapter;
   const records = await repository.listMediaFilesForCleanup();
-  const activeUris = new Set(records.filter((record) => record.isReferencedByActiveMedia).map((record) => record.uri));
+  const activeUris = new Set(
+    records.filter((record) => record.isReferencedByActiveMedia).map((record) => record.uri)
+  );
   const missingAssetIds: string[] = [];
   const orphanAssetIds: string[] = [];
   const orphanUris: string[] = [];
@@ -70,6 +82,49 @@ export async function cleanupOrphanedMediaFiles(
   };
 }
 
+/**
+ * Removes app-owned media/cache files that no longer have an active DB reference.
+ * Running this on startup recovers the window where SQLite committed but the process
+ * stopped before post-commit file cleanup completed.
+ */
+export async function cleanupUnreferencedManagedMediaFiles(
+  repository: KidEduRepository,
+  options?: {
+    storageAdapter?: ManagedMediaStorageAdapter;
+    isPlaybackActive?: () => boolean;
+  }
+): Promise<ManagedMediaSweepResult> {
+  if (options?.isPlaybackActive?.()) {
+    return { deletedFileCount: 0, skipped: true };
+  }
+
+  try {
+    const storageAdapter = options?.storageAdapter ?? defaultManagedMediaStorageAdapter;
+    const [records, managedFileUris] = await Promise.all([
+      repository.listMediaFilesForCleanup(),
+      storageAdapter.listManagedFileUris()
+    ]);
+    const referencedUris = new Set(
+      records
+        .filter((record) => record.isReferencedByActiveMedia)
+        .map((record) => normalizeFileUri(record.uri))
+    );
+    const orphanUris = [
+      ...new Set(
+        managedFileUris.filter(
+          (uri) => uri.startsWith("file://") && !referencedUris.has(normalizeFileUri(uri))
+        )
+      )
+    ];
+
+    await storageAdapter.deleteFiles(orphanUris);
+    return { deletedFileCount: orphanUris.length, skipped: false };
+  } catch {
+    // A sweep is recovery/best-effort work and must never block app startup or undo a DB commit.
+    return { deletedFileCount: 0, skipped: false };
+  }
+}
+
 const defaultFileAdapter: MediaCleanupFileAdapter = {
   async fileExists(uri) {
     if (!uri.startsWith("file://")) {
@@ -87,3 +142,81 @@ const defaultFileAdapter: MediaCleanupFileAdapter = {
     await cleanupMediaFiles(uris);
   }
 };
+
+const defaultManagedMediaStorageAdapter: ManagedMediaStorageAdapter = {
+  async listManagedFileUris() {
+    const roots = getManagedMediaRoots();
+    const files: string[] = [];
+
+    for (const root of roots) {
+      files.push(...(await listFilesRecursively(root)));
+    }
+
+    return files;
+  },
+  async deleteFiles(uris) {
+    await cleanupMediaFiles(uris);
+  }
+};
+
+function getManagedMediaRoots(): string[] {
+  const documentRoot = FileSystem.documentDirectory;
+  const cacheRoot = FileSystem.cacheDirectory;
+  const roots: string[] = [];
+
+  if (documentRoot) {
+    roots.push(
+      `${documentRoot}media/images/custom/`,
+      `${documentRoot}media/images/generated/`,
+      `${documentRoot}media/videos/custom/`,
+      `${documentRoot}media/videos/generated/`,
+      `${documentRoot}media/audio/custom/`,
+      `${documentRoot}media/audio/generated/`,
+      `${documentRoot}media/thumbnails/`,
+      `${documentRoot}media/restores/`
+    );
+  }
+
+  if (cacheRoot) {
+    roots.push(`${cacheRoot}kidedu/imports/`, `${cacheRoot}kidedu/backups/`);
+  }
+
+  return roots;
+}
+
+async function listFilesRecursively(directoryUri: string): Promise<string[]> {
+  try {
+    const info = await FileSystem.getInfoAsync(directoryUri);
+    if (!info.exists) {
+      return [];
+    }
+    if (!info.isDirectory) {
+      return [directoryUri];
+    }
+
+    const names = await FileSystem.readDirectoryAsync(directoryUri);
+    const files: string[] = [];
+    const normalizedDirectory = directoryUri.endsWith("/") ? directoryUri : `${directoryUri}/`;
+
+    for (const name of names) {
+      const childUri = `${normalizedDirectory}${name}`;
+      const childInfo = await FileSystem.getInfoAsync(childUri);
+      if (!childInfo.exists) {
+        continue;
+      }
+      if (childInfo.isDirectory) {
+        files.push(...(await listFilesRecursively(`${childUri}/`)));
+      } else {
+        files.push(childUri);
+      }
+    }
+
+    return files;
+  } catch {
+    return [];
+  }
+}
+
+function normalizeFileUri(uri: string): string {
+  return uri.replace(/\/+$/, "");
+}

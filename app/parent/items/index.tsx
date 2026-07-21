@@ -12,6 +12,7 @@ import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StateMessage } from "@/components/StateMessage";
+import { useKidEduRepository } from "@/data/KidEduDataProvider";
 import {
   useArchiveLearningItemMutation,
   useCategoriesQuery,
@@ -19,6 +20,7 @@ import {
   useLearningItemsQuery
 } from "@/data/queries";
 import type { Category, LearningItem } from "@/data/types";
+import { cleanupOrphanedMediaFiles } from "@/features/media/mediaCleanupService";
 import { getContentStatusLabel } from "@/features/media/mediaResolver";
 import { colors, radii, spacing } from "@/theme";
 
@@ -26,6 +28,7 @@ const EMPTY_LEARNING_ITEMS: LearningItem[] = [];
 
 export default function ParentItemsScreen() {
   const router = useRouter();
+  const repository = useKidEduRepository();
   const categoriesQuery = useCategoriesQuery();
   const itemsQuery = useLearningItemsQuery();
   const createMutation = useCreateLearningItemMutation();
@@ -123,7 +126,16 @@ export default function ParentItemsScreen() {
   function confirmArchive(item: LearningItem) {
     Alert.alert("Xóa thẻ học", `Xóa thẻ "${item.title}" khỏi danh sách học?`, [
       { text: "Hủy", style: "cancel" },
-      { text: "Xóa", style: "destructive", onPress: () => archiveMutation.mutate(item.id) }
+      {
+        text: "Xóa",
+        style: "destructive",
+        onPress: () =>
+          archiveMutation.mutate(item.id, {
+            onSuccess: () => {
+              void cleanupOrphanedMediaFiles(repository).catch(() => undefined);
+            }
+          })
+      }
     ]);
   }
 

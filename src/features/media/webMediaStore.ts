@@ -33,7 +33,9 @@ export async function saveWebMediaBlob(blob: Blob, mimeType?: string | null): Pr
 export async function getWebMediaObjectUrl(uri: string): Promise<string | null> {
   const id = uri.replace(webMediaScheme, "");
   const database = await openWebMediaDatabase();
-  const record = await runStoreRequest<WebMediaRecord | undefined>(database, "readonly", (store) => store.get(id));
+  const record = await runStoreRequest<WebMediaRecord | undefined>(database, "readonly", (store) =>
+    store.get(id)
+  );
   database.close();
 
   if (!record?.blob) {
@@ -50,7 +52,14 @@ export async function deleteWebMediaUris(uris: string[]): Promise<void> {
   }
 
   const database = await openWebMediaDatabase();
-  await Promise.all(ids.map((id) => runStoreRequest(database, "readwrite", (store) => store.delete(id))));
+  const cleanupConcurrency = 4;
+  for (let index = 0; index < ids.length; index += cleanupConcurrency) {
+    await Promise.all(
+      ids
+        .slice(index, index + cleanupConcurrency)
+        .map((id) => runStoreRequest(database, "readwrite", (store) => store.delete(id)))
+    );
+  }
   database.close();
 }
 
@@ -86,6 +95,7 @@ function runStoreRequest<T>(
 
     request.onerror = () => reject(request.error ?? new Error("Không ghi được media local."));
     request.onsuccess = () => resolve(request.result);
-    transaction.onerror = () => reject(transaction.error ?? new Error("Không hoàn tất thao tác media local."));
+    transaction.onerror = () =>
+      reject(transaction.error ?? new Error("Không hoàn tất thao tác media local."));
   });
 }

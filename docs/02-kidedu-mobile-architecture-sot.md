@@ -2,7 +2,7 @@
 
 **Trạng thái:** Source of Truth chính cho kiến trúc tổng quan  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-01  
+**Ngày cập nhật:** 2026-07-21  
 **Phạm vi:** Mobile app MVP / Phase 0–1  
 **Ghi chú:** File này chỉ mô tả architecture ở mức tổng quan. Tech stack chi tiết nằm ở `05-tech-mobile-stack-sot.md`. Data/media chi tiết nằm ở `06-tech-local-data-media-sot.md`. Performance/cache/memory nằm ở `07-tech-performance-cache-memory-sot.md`.
 
@@ -22,6 +22,8 @@ Mobile App
   ├── Parent Area
   ├── Content Management
   ├── Progress Tracking
+  ├── Local Backup & Restore
+  ├── Privacy & Data Controls
   ├── Media Playback
   ├── Media Management
   ├── Local Data Layer
@@ -49,6 +51,7 @@ MVP không có:
 6. **Modular:** mỗi nhóm nghiệp vụ có module riêng để dễ giao Codex implement.
 7. **Performance-conscious:** không render hoặc preload media quá mức.
 8. **Testable:** nghiệp vụ autoplay, media resolver, repository và progress phải test được độc lập.
+9. **Privacy-controlled:** phụ huynh xem được dữ liệu/quyền local và mọi thao tác xóa phải có phạm vi rõ, transaction an toàn và xác nhận riêng.
 
 ---
 
@@ -71,15 +74,17 @@ Presentation layer không tự xử lý business rule phức tạp và không tr
 
 Mỗi feature lớn có module riêng:
 
-| Module | Trách nhiệm |
-|---|---|
-| `learning` | Màn hình học từng thẻ |
-| `deck` | Danh sách bộ học, chi tiết bộ học, sắp xếp thẻ trong bộ |
-| `autoPlay` | Phiên học tự chạy theo bộ |
-| `parent` | Khu phụ huynh, Parent Gate, dashboard quản lý |
-| `media` | Chọn, xem trước, thay, xóa nội dung ảnh/video/audio |
-| `progress` | Ghi nhận và hiển thị tiến độ cơ bản |
-| `settings` | Cài đặt tốc độ học, lặp vòng, âm thanh, hành vi học |
+| Module     | Trách nhiệm                                                                                        |
+| ---------- | -------------------------------------------------------------------------------------------------- |
+| `learning` | Màn hình học từng thẻ                                                                              |
+| `deck`     | Danh sách bộ học, chi tiết bộ học, sắp xếp thẻ trong bộ                                            |
+| `autoPlay` | Phiên học tự chạy theo bộ                                                                          |
+| `parent`   | Khu phụ huynh, Parent Gate, dashboard quản lý                                                      |
+| `media`    | Chọn, xem trước, thay, xóa nội dung ảnh/video/audio                                                |
+| `progress` | Ghi nhận và hiển thị tiến độ cơ bản                                                                |
+| `settings` | Cài đặt tốc độ học, lặp vòng, âm thanh, hành vi học                                                |
+| `backup`   | Tạo, kiểm tra, xem trước và khôi phục tệp sao lưu local có version                                 |
+| `privacy`  | Tổng quan dữ liệu local, trạng thái quyền thiết bị và các thao tác xóa/reset do phụ huynh chủ động |
 
 ### 3.3. Domain/service layer
 
@@ -91,7 +96,9 @@ Chịu trách nhiệm xử lý logic dùng chung:
 - xử lý lifecycle phát video/audio;
 - ghi nhận tiến độ;
 - kiểm tra quyền vào khu phụ huynh;
-- cleanup dữ liệu/media không còn dùng.
+- cleanup dữ liệu/media không còn dùng;
+- tạo logical snapshot, kiểm tra version/checksum và điều phối restore có rollback.
+- tổng hợp số liệu dữ liệu local và điều phối xóa lịch sử/media/reset mà không để DB ở trạng thái ghi một phần.
 
 ### 3.4. Data layer
 
@@ -101,7 +108,9 @@ Chịu trách nhiệm:
 - đọc/ghi bộ học;
 - đọc/ghi tiến độ;
 - đọc/ghi cài đặt;
-- quản lý mapping giữa bản ghi nội dung và file media trên thiết bị.
+- quản lý mapping giữa bản ghi nội dung và file media trên thiết bị;
+- export/import logical snapshot bằng transaction, không thay thế trực tiếp file SQLite.
+- xóa lịch sử, gỡ media cá nhân hóa và reset dữ liệu bằng transaction theo đúng quan hệ khóa ngoại.
 
 Data layer không quyết định UI hiển thị như thế nào.
 
@@ -113,7 +122,8 @@ Chịu trách nhiệm:
 - tách file tạm và file đã lưu bền vững;
 - tạo và lưu thumbnail nếu cần;
 - xóa file không còn được sử dụng;
-- đảm bảo app không đọc file đã mất hoặc hỏng mà không xử lý fallback.
+- đảm bảo app không đọc file đã mất hoặc hỏng mà không xử lý fallback;
+- quản lý staging, tệp `.kidedu` và media được khôi phục bằng đường dẫn local mới.
 
 ---
 
@@ -151,7 +161,8 @@ Parent module quản lý:
 
 - Parent Gate;
 - dashboard phụ huynh;
-- entry point tới quản lý thẻ, bộ học, media, tiến độ và cài đặt.
+- entry point tới quản lý thẻ, bộ học, media, tiến độ, cài đặt và sao lưu dữ liệu.
+- entry point tới quyền riêng tư, trạng thái quyền thiết bị và kiểm soát dữ liệu local.
 
 Parent module không tự xử lý media pipeline chi tiết; nó gọi media module/service.
 
@@ -180,6 +191,32 @@ Progress module ghi nhận:
 - trạng thái do phụ huynh đánh dấu.
 
 MVP không có scoring tự động.
+
+### 4.6. Backup module
+
+Backup module chịu trách nhiệm:
+
+- tạo tệp sao lưu local `.kidedu` có version từ logical snapshot và media cá nhân hóa;
+- dùng đường dẫn tương đối trong tệp sao lưu, không mang theo URI tuyệt đối của thiết bị nguồn;
+- kiểm tra version, cấu trúc và checksum trước khi cho phép khôi phục;
+- cung cấp dữ liệu preview để phụ huynh xác nhận;
+- điều phối restore kiểu replace-all bằng staging, transaction và rollback;
+- cleanup tệp tạm và làm mới read cache sau khi restore thành công.
+
+Backup module không thực hiện cloud sync, upload nền, chia sẻ công khai hoặc quản lý tài khoản. Việc chuyển tệp do phụ huynh chủ động qua picker/share sheet của hệ điều hành.
+
+### 4.7. Privacy module
+
+Privacy module chịu trách nhiệm:
+
+- đọc tổng quan dữ liệu local từ repository mà không tạo một source of truth mới;
+- đọc trạng thái hiện tại của quyền camera, micro và thư viện ảnh/video mà không tự hiện permission prompt;
+- mở trang cài đặt hệ thống khi phụ huynh muốn thay đổi quyền;
+- điều phối xóa lịch sử học, xóa media cá nhân hóa và reset toàn bộ dữ liệu;
+- cleanup file local sau khi DB transaction đã commit;
+- reset query cache và khóa lại Parent Gate sau reset toàn bộ.
+
+Privacy module không chứa analytics/telemetry, không gửi dữ liệu ra mạng và không thể xóa bản backup mà phụ huynh đã lưu bên ngoài vùng dữ liệu của app.
 
 ---
 
@@ -224,6 +261,41 @@ Parent/Child chọn bộ học
   -> Kết thúc hoặc lặp lại
 ```
 
+### 5.4. Backup và restore flow
+
+```text
+Parent chọn tạo backup
+  -> Backup service đọc logical snapshot
+  -> Stream metadata + media vào tệp .kidedu có version/checksum
+  -> Parent tự lưu hoặc chuyển tệp qua hệ điều hành
+
+Parent chọn tệp restore
+  -> Copy vào staging và kiểm tra version/cấu trúc/checksum
+  -> Hiển thị preview
+  -> Parent xác nhận replace-all
+  -> Copy media sang durable storage với URI mới
+  -> Restore logical data trong một transaction
+  -> Commit, cleanup dữ liệu cũ và refresh query cache
+```
+
+Nếu bất kỳ bước nào trước commit thất bại, app rollback transaction, xóa staging/media mới chưa dùng và giữ nguyên dữ liệu local hiện tại.
+
+### 5.5. Privacy/data-control flow
+
+```text
+Parent mở Privacy & Data Controls
+  -> Query tổng quan dữ liệu local
+  -> Đọc trạng thái quyền thiết bị, không request quyền
+  -> Parent chọn một thao tác xóa
+  -> UI giải thích phạm vi và yêu cầu xác nhận riêng
+  -> Repository mutation trong transaction
+  -> Commit DB
+  -> Cleanup file liên quan best-effort
+  -> Reset query cache và làm mới màn hình
+```
+
+Nếu DB mutation lỗi, app rollback và không xóa file đang còn được dữ liệu hiện tại tham chiếu. Nếu cleanup file sau commit lỗi, DB vẫn là source of truth và cleanup orphan được thử lại ở thời điểm an toàn.
+
 ---
 
 ## 6. Navigation zones
@@ -248,7 +320,9 @@ Dành cho phụ huynh:
 - quản lý bộ học;
 - quản lý media cá nhân hóa;
 - tiến độ;
-- cài đặt.
+- cài đặt;
+- sao lưu và khôi phục local.
+- quyền riêng tư và kiểm soát dữ liệu local.
 
 Child zone không được lẫn thao tác xóa/sửa nội dung.
 
@@ -256,15 +330,17 @@ Child zone không được lẫn thao tác xóa/sửa nội dung.
 
 ## 7. Data ownership tổng quan
 
-| Nhóm dữ liệu | Owner module | Ghi chú |
-|---|---|---|
-| Hồ sơ trẻ | `progress` / `settings` | MVP có thể bắt đầu đơn giản |
-| Thẻ học | `learning` + data repository | Parent module tạo/sửa, learning module hiển thị |
-| Bộ học | `deck` | Auto Play dùng deck làm input |
-| Media asset | `media` | Bao gồm default/custom/generated |
-| Phiên học | `autoPlay` / `learning` | Dùng để ghi nhận progress |
-| Tiến độ | `progress` | Không chứa AI scoring |
-| Cài đặt | `settings` | Tốc độ học, lặp vòng, âm thanh |
+| Nhóm dữ liệu             | Owner module                 | Ghi chú                                                                 |
+| ------------------------ | ---------------------------- | ----------------------------------------------------------------------- |
+| Hồ sơ trẻ                | `progress` / `settings`      | MVP có thể bắt đầu đơn giản                                             |
+| Thẻ học                  | `learning` + data repository | Parent module tạo/sửa, learning module hiển thị                         |
+| Bộ học                   | `deck`                       | Auto Play dùng deck làm input                                           |
+| Media asset              | `media`                      | Bao gồm default/custom/generated                                        |
+| Phiên học                | `autoPlay` / `learning`      | Dùng để ghi nhận progress                                               |
+| Tiến độ                  | `progress`                   | Không chứa AI scoring                                                   |
+| Cài đặt                  | `settings`                   | Tốc độ học, lặp vòng, âm thanh                                          |
+| Tệp sao lưu local        | `backup`                     | Snapshot có version, metadata và media dùng đường dẫn tương đối         |
+| Tổng quan quyền riêng tư | `privacy`                    | Dữ liệu suy ra từ repository và permission API; không lưu bản sao riêng |
 
 ---
 
@@ -279,6 +355,11 @@ App phải xử lý tốt các lỗi thường gặp:
 5. Phiên học bị pause/thoát giữa chừng.
 6. App vào background trong lúc đang phát video/audio.
 7. Danh sách thẻ/bộ học rỗng.
+8. Tệp sao lưu sai định dạng, không tương thích hoặc checksum không khớp.
+9. Thiết bị không đủ dung lượng để tạo hoặc khôi phục bản sao lưu.
+10. Restore bị gián đoạn trước khi transaction hoàn tất.
+11. Permission API không khả dụng hoặc phụ huynh đã chặn hỏi lại.
+12. Xóa/reset DB thành công nhưng một số file local chưa cleanup được.
 
 Nguyên tắc chung:
 
@@ -291,13 +372,17 @@ Nguyên tắc chung:
 
 ## 9. Testing strategy tổng quan
 
-| Nhóm test | Mục tiêu |
-|---|---|
-| Unit test | Kiểm tra service, resolver, timing, progress calculation |
-| Component test | Kiểm tra component học, card, form, empty/error state |
-| Integration test | Kiểm tra flow lưu thẻ, thay media, đọc lại nội dung |
-| E2E test | Kiểm tra luồng phụ huynh tạo nội dung và trẻ học theo bộ |
+| Nhóm test          | Mục tiêu                                                               |
+| ------------------ | ---------------------------------------------------------------------- |
+| Unit test          | Kiểm tra service, resolver, timing, progress calculation               |
+| Component test     | Kiểm tra component học, card, form, empty/error state                  |
+| Integration test   | Kiểm tra flow lưu thẻ, thay media, đọc lại nội dung                    |
+| E2E test           | Kiểm tra luồng phụ huynh tạo nội dung và trẻ học theo bộ               |
 | Manual device test | Kiểm tra playback, memory, background/foreground, thiết bị Android yếu |
+
+Backup cần unit test cho format/version/checksum, integration test cho replace-all và rollback, cùng manual device test với tệp có media lớn và picker/share sheet thật.
+
+Privacy/data controls cần unit test cho phạm vi từng mutation và rollback, test permission mapping không hiện prompt, component/hook test cho confirm/mutex/cache refresh, cùng manual device test cho trang cài đặt hệ thống và xóa file thật.
 
 Chi tiết tooling nằm trong `05-tech-mobile-stack-sot.md`.
 

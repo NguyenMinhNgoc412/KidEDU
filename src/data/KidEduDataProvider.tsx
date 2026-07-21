@@ -1,6 +1,10 @@
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
+import {
+  cleanupOrphanedMediaFiles,
+  cleanupUnreferencedManagedMediaFiles
+} from "@/features/media/mediaCleanupService";
 import { colors, fontFamilies, fontSizes, spacing } from "@/theme";
 
 import { openKidEduDatabase } from "./database";
@@ -19,8 +23,17 @@ export function KidEduDataProvider({ children }: { children: ReactNode }) {
     async function initDatabase() {
       try {
         const db = await openKidEduDatabase();
+        const nextRepository = new SQLiteKidEduRepository(db);
+
+        try {
+          await cleanupOrphanedMediaFiles(nextRepository);
+          await cleanupUnreferencedManagedMediaFiles(nextRepository);
+        } catch {
+          // Recovery cleanup is best effort and must not block local learning data from opening.
+        }
+
         if (isMounted) {
-          setRepository(new SQLiteKidEduRepository(db));
+          setRepository(nextRepository);
         }
       } catch (caught) {
         if (isMounted) {

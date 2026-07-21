@@ -1,3 +1,5 @@
+import type { BackupDatabaseSnapshot } from "./backupSnapshot";
+
 export type EntityStatus = "active" | "hidden" | "archived";
 
 export type LearningStatus = "new" | "practicing" | "familiar";
@@ -102,6 +104,16 @@ export interface ProgressSummaryItem {
   parentMark: LearningStatus;
 }
 
+export interface PrivacyDataSummary {
+  learningItemCount: number;
+  deckCount: number;
+  practiceSessionCount: number;
+  practiceEventCount: number;
+  learningProgressCount: number;
+  personalizedMediaCount: number;
+  personalizedMediaBytes: number;
+}
+
 export interface CreateLearningItemInput {
   title: string;
   categoryId: string;
@@ -158,8 +170,17 @@ export interface UpdateDeckInput {
 }
 
 export interface KidEduRepository {
+  createBackupSnapshot(): Promise<BackupDatabaseSnapshot>;
+  replaceFromBackup(snapshot: BackupDatabaseSnapshot): Promise<string[]>;
+  getPrivacyDataSummary(): Promise<PrivacyDataSummary>;
+  clearLearningHistory(): Promise<void>;
+  deleteAllPersonalizedMedia(): Promise<string[]>;
+  resetAllLocalData(): Promise<string[]>;
   listCategories(): Promise<Category[]>;
-  listLearningItems(options?: { includeArchived?: boolean; childOnly?: boolean }): Promise<LearningItem[]>;
+  listLearningItems(options?: {
+    includeArchived?: boolean;
+    childOnly?: boolean;
+  }): Promise<LearningItem[]>;
   getLearningItem(itemId: string): Promise<LearningItem | null>;
   createLearningItem(input: CreateLearningItemInput): Promise<string>;
   updateLearningItem(itemId: string, input: UpdateLearningItemInput): Promise<void>;

@@ -41,6 +41,7 @@ export default function LearningItemScreen() {
           onContinue={() => router.back()}
           onExit={() => router.replace("/")}
           onReplay={progress.recordReplay}
+          onSampleCompleted={progress.recordSampleCompleted}
           playbackSpeed={settingsQuery.data?.playbackSpeed}
         />
       ) : null}

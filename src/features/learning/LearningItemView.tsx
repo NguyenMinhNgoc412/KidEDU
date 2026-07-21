@@ -6,19 +6,24 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { AppText } from "@/components/AppText";
 import { Card } from "@/components/Card";
 import type { LearningItem, PlaybackSpeed } from "@/data/types";
-import { LearningMediaPlayer } from "@/features/learning/LearningMediaPlayer";
+import {
+  LearningMediaPlayer,
+  type LearningSampleCompletion
+} from "@/features/learning/LearningMediaPlayer";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
 import { colors, radii, spacing } from "@/theme";
 
 export function LearningItemView({
   item,
   onReplay,
+  onSampleCompleted,
   onExit,
   onContinue,
   playbackSpeed
 }: {
   item: LearningItem;
   onReplay?: () => void;
+  onSampleCompleted?: (completion: LearningSampleCompletion) => void;
   onExit?: () => void;
   onContinue?: () => void;
   playbackSpeed?: PlaybackSpeed;
@@ -45,6 +50,7 @@ export function LearningItemView({
         autoPlayKey={`${item.id}:${sampleRequestCount}`}
         illustration={resolved.byRole.illustration}
         mouthVideo={resolved.byRole.mouth_video}
+        onAutoPlaySampleEnd={onSampleCompleted}
         playbackSpeed={playbackSpeed}
         pronunciationAudio={resolved.byRole.pronunciation_audio}
       />

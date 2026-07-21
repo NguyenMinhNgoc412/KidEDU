@@ -1,6 +1,14 @@
 import type { LearningSettings, LoopMode, SpeedPreset } from "@/data/types";
 
-export type AutoPlayPhase = "attention" | "sample" | "speak" | "reinforce" | "transition" | "paused" | "completed" | "stopped";
+export type AutoPlayPhase =
+  | "attention"
+  | "sample"
+  | "speak"
+  | "reinforce"
+  | "transition"
+  | "paused"
+  | "completed"
+  | "stopped";
 
 export type AutoPlayCompletedReason = "finished" | "no_valid_items" | "exited";
 
@@ -85,6 +93,24 @@ export function getLoopLimitForSettings(settings: LearningSettings): number | nu
   }
 
   return getLoopLimit(settings.loopMode);
+}
+
+export function getNextAutoPlayItemIndex(
+  state: AutoPlayState,
+  settings: LearningSettings,
+  itemCount: number
+): number | null {
+  if (itemCount <= 0 || state.phase === "completed" || state.phase === "stopped") {
+    return null;
+  }
+
+  const nextItemIndex = state.itemIndex + 1;
+  if (nextItemIndex < itemCount) {
+    return nextItemIndex;
+  }
+
+  const loopLimit = getLoopLimitForSettings(settings);
+  return loopLimit === null || state.loopIndex + 1 < loopLimit ? 0 : null;
 }
 
 export function getPhaseDurationMs(phase: AutoPlayPhase, preset: SpeedPreset): number | null {

@@ -25,7 +25,14 @@ export interface SavedPickedMedia {
   mimeType: string | null;
 }
 
-export async function saveImagePickerAssetToAppStorage(asset: ImagePickerAsset, role: MediaRole): Promise<SavedPickedMedia> {
+export interface StagedMediaImport extends SavedPickedMedia {
+  role: MediaRole;
+}
+
+export async function stageImagePickerAssetForPreview(
+  asset: ImagePickerAsset,
+  role: MediaRole
+): Promise<StagedMediaImport> {
   validatePickedMediaAsset(asset, role);
 
   const type = getMediaTypeForRole(role, asset);
@@ -35,6 +42,7 @@ export async function saveImagePickerAssetToAppStorage(asset: ImagePickerAsset, 
     const webUri = await saveWebMediaBlob(asset.file, asset.mimeType);
 
     return {
+      role,
       type,
       uri: webUri,
       thumbnailUri: null,
@@ -44,14 +52,14 @@ export async function saveImagePickerAssetToAppStorage(asset: ImagePickerAsset, 
     };
   }
 
-  const durableDir = await ensureMediaDirectory(type);
-  const destinationUri = `${durableDir}${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
+  const stagingDir = await ensureTempImportDirectory();
+  const stagedUri = `${stagingDir}${makeFileName(extension)}`;
   const processedUri = type === "image" ? await compressImageForStorage(asset.uri) : asset.uri;
 
   try {
-    await FileSystem.copyAsync({ from: processedUri, to: destinationUri });
+    await FileSystem.copyAsync({ from: processedUri, to: stagedUri });
   } catch (error) {
-    await cleanupMediaFiles([destinationUri]);
+    await cleanupMediaFiles([stagedUri]);
     throw error;
   } finally {
     if (processedUri !== asset.uri) {
@@ -59,25 +67,24 @@ export async function saveImagePickerAssetToAppStorage(asset: ImagePickerAsset, 
     }
   }
 
-  const info = await FileSystem.getInfoAsync(destinationUri);
-  const storedSize = info.exists && "size" in info ? info.size : asset.fileSize ?? null;
-  const thumbnailUri = type === "video" ? await createVideoThumbnail(destinationUri) : null;
+  const info = await FileSystem.getInfoAsync(stagedUri);
 
   return {
+    role,
     type,
-    uri: destinationUri,
-    thumbnailUri,
+    uri: stagedUri,
+    thumbnailUri: null,
     durationMs: asset.duration ?? null,
-    sizeBytes: storedSize,
+    sizeBytes: info.exists && "size" in info ? info.size : (asset.fileSize ?? null),
     mimeType: asset.mimeType ?? inferMimeType(type, extension)
   };
 }
 
-export async function saveRecordedAudioToAppStorage(input: {
+export async function stageRecordedAudioForPreview(input: {
   uri: string;
   durationMs?: number | null;
   mimeType?: string | null;
-}): Promise<SavedPickedMedia> {
+}): Promise<StagedMediaImport> {
   if (!input.uri) {
     throw new MediaImportError("Không đọc được tệp thu âm.");
   }
@@ -90,6 +97,7 @@ export async function saveRecordedAudioToAppStorage(input: {
     const webUri = await saveWebMediaBlob(blob, input.mimeType ?? blob.type);
 
     return {
+      role: "pronunciation_audio",
       type: "audio",
       uri: webUri,
       thumbnailUri: null,
@@ -99,15 +107,15 @@ export async function saveRecordedAudioToAppStorage(input: {
     };
   }
 
-  const durableDir = await ensureMediaDirectory("audio");
-  const destinationUri = `${durableDir}${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
+  const stagingDir = await ensureTempImportDirectory();
+  const stagedUri = `${stagingDir}${makeFileName(extension)}`;
   let didCopy = false;
 
   try {
-    await FileSystem.copyAsync({ from: input.uri, to: destinationUri });
+    await FileSystem.copyAsync({ from: input.uri, to: stagedUri });
     didCopy = true;
   } catch (error) {
-    await cleanupMediaFiles([destinationUri]);
+    await cleanupMediaFiles([stagedUri]);
     throw error;
   } finally {
     if (didCopy) {
@@ -115,17 +123,97 @@ export async function saveRecordedAudioToAppStorage(input: {
     }
   }
 
-  const info = await FileSystem.getInfoAsync(destinationUri);
-  const storedSize = info.exists && "size" in info ? info.size : null;
+  const info = await FileSystem.getInfoAsync(stagedUri);
 
   return {
+    role: "pronunciation_audio",
     type: "audio",
-    uri: destinationUri,
+    uri: stagedUri,
     thumbnailUri: null,
     durationMs: input.durationMs ?? null,
-    sizeBytes: storedSize,
+    sizeBytes: info.exists && "size" in info ? info.size : null,
     mimeType: input.mimeType ?? inferMimeType("audio", extension)
   };
+}
+
+export async function commitStagedMediaToAppStorage(
+  staged: StagedMediaImport
+): Promise<SavedPickedMedia> {
+  if (Platform.OS === "web") {
+    return staged;
+  }
+
+  const extension = getFileExtension(staged.uri, staged.mimeType ?? undefined, staged.type);
+  const durableDir = await ensureMediaDirectory(staged.type);
+  const destinationUri = `${durableDir}${makeFileName(extension)}`;
+
+  try {
+    await FileSystem.copyAsync({ from: staged.uri, to: destinationUri });
+    const info = await FileSystem.getInfoAsync(destinationUri);
+    const thumbnailUri =
+      staged.type === "video" ? await createVideoThumbnail(destinationUri) : null;
+
+    return {
+      type: staged.type,
+      uri: destinationUri,
+      thumbnailUri,
+      durationMs: staged.durationMs,
+      sizeBytes: info.exists && "size" in info ? info.size : staged.sizeBytes,
+      mimeType: staged.mimeType
+    };
+  } catch (error) {
+    await cleanupMediaFiles([destinationUri]);
+    throw error;
+  }
+}
+
+export async function discardStagedMedia(
+  staged: StagedMediaImport | null | undefined
+): Promise<void> {
+  if (!staged) {
+    return;
+  }
+
+  await cleanupMediaFiles([staged.uri, staged.thumbnailUri]);
+}
+
+export async function saveImagePickerAssetToAppStorage(
+  asset: ImagePickerAsset,
+  role: MediaRole
+): Promise<SavedPickedMedia> {
+  let staged: StagedMediaImport | null = null;
+
+  try {
+    staged = await stageImagePickerAssetForPreview(asset, role);
+    const saved = await commitStagedMediaToAppStorage(staged);
+    if (saved.uri !== staged.uri) {
+      await discardStagedMedia(staged);
+    }
+    return saved;
+  } catch (error) {
+    await discardStagedMedia(staged);
+    throw error;
+  }
+}
+
+export async function saveRecordedAudioToAppStorage(input: {
+  uri: string;
+  durationMs?: number | null;
+  mimeType?: string | null;
+}): Promise<SavedPickedMedia> {
+  let staged: StagedMediaImport | null = null;
+
+  try {
+    staged = await stageRecordedAudioForPreview(input);
+    const saved = await commitStagedMediaToAppStorage(staged);
+    if (saved.uri !== staged.uri) {
+      await discardStagedMedia(staged);
+    }
+    return saved;
+  } catch (error) {
+    await discardStagedMedia(staged);
+    throw error;
+  }
 }
 
 export async function cleanupMediaFiles(uris: Array<string | null | undefined>): Promise<void> {
@@ -136,19 +224,22 @@ export async function cleanupMediaFiles(uris: Array<string | null | undefined>):
     // Cleanup is best effort; failed cleanup should not roll back valid media metadata.
   }
 
-  await Promise.all(
-    uniqueUris.map(async (uri) => {
-      if (!uri.startsWith("file://")) {
-        return;
-      }
+  const cleanupConcurrency = 4;
+  for (let index = 0; index < uniqueUris.length; index += cleanupConcurrency) {
+    await Promise.all(
+      uniqueUris.slice(index, index + cleanupConcurrency).map(async (uri) => {
+        if (!uri.startsWith("file://")) {
+          return;
+        }
 
-      try {
-        await FileSystem.deleteAsync(uri, { idempotent: true });
-      } catch {
-        // File cleanup is best effort; DB state must remain the source of truth.
-      }
-    })
-  );
+        try {
+          await FileSystem.deleteAsync(uri, { idempotent: true });
+        } catch {
+          // File cleanup is best effort; DB state must remain the source of truth.
+        }
+      })
+    );
+  }
 }
 
 export async function cleanupTempMediaImports(): Promise<void> {
@@ -166,10 +257,14 @@ export async function cleanupTempMediaImports(): Promise<void> {
 
 async function compressImageForStorage(uri: string): Promise<string> {
   try {
-    const result = await manipulateAsync(uri, [{ resize: { width: mediaImportLimits.imageMaxWidth } }], {
-      compress: 0.82,
-      format: SaveFormat.JPEG
-    });
+    const result = await manipulateAsync(
+      uri,
+      [{ resize: { width: mediaImportLimits.imageMaxWidth } }],
+      {
+        compress: 0.82,
+        format: SaveFormat.JPEG
+      }
+    );
 
     return result.uri;
   } catch {
@@ -208,10 +303,14 @@ async function createVideoThumbnail(videoUri: string): Promise<string | null> {
 
 async function compressVideoThumbnailForStorage(uri: string): Promise<string> {
   try {
-    const result = await manipulateAsync(uri, [{ resize: { width: mediaImportLimits.thumbnailMaxWidth } }], {
-      compress: 0.76,
-      format: SaveFormat.JPEG
-    });
+    const result = await manipulateAsync(
+      uri,
+      [{ resize: { width: mediaImportLimits.thumbnailMaxWidth } }],
+      {
+        compress: 0.76,
+        format: SaveFormat.JPEG
+      }
+    );
 
     return result.uri;
   } catch {
@@ -242,11 +341,33 @@ async function ensureMediaDirectory(type: MediaType): Promise<string> {
   return directory;
 }
 
+async function ensureTempImportDirectory(): Promise<string> {
+  const directory = getTempImportDirectory();
+  if (!directory) {
+    throw new MediaImportError("Thiết bị chưa cấp vùng lưu tạm cho ứng dụng.");
+  }
+
+  const info = await FileSystem.getInfoAsync(directory);
+  if (!info.exists) {
+    await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
+  }
+
+  return directory;
+}
+
+function makeFileName(extension: string): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
+}
+
 function getTempImportDirectory(): string | null {
   return FileSystem.cacheDirectory ? `${FileSystem.cacheDirectory}kidedu/imports/` : null;
 }
 
-function getFileExtension(fileName: string | null | undefined, mimeType: string | undefined, type: MediaType): string {
+function getFileExtension(
+  fileName: string | null | undefined,
+  mimeType: string | undefined,
+  type: MediaType
+): string {
   const extension = fileName?.split(".").pop()?.toLowerCase();
   if (extension && /^[a-z0-9]{2,5}$/.test(extension)) {
     return extension === "jpeg" ? "jpg" : extension;

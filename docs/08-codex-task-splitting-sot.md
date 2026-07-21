@@ -2,7 +2,7 @@
 
 **Trạng thái:** Hướng dẫn chia task implement  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-04  
+**Ngày cập nhật:** 2026-07-21  
 **Phạm vi:** Mobile app MVP / Phase 0–1
 
 ---
@@ -28,13 +28,13 @@ Nếu task có giao diện/UI/UX, Codex phải làm thêm:
 
 Mapping ảnh reference:
 
-| Màn hình/chức năng | Ảnh cần mở |
-|---|---|
-| Child home / chọn nhóm | `screenshots/01-home-childmode.JPG` |
-| Child word list / danh sách từ cho trẻ | `screenshots/02-Child-Word-List.JPG` |
+| Màn hình/chức năng                             | Ảnh cần mở                              |
+| ---------------------------------------------- | --------------------------------------- |
+| Child home / chọn nhóm                         | `screenshots/01-home-childmode.JPG`     |
+| Child word list / danh sách từ cho trẻ         | `screenshots/02-Child-Word-List.JPG`    |
 | Child study / màn học từng thẻ / autoplay card | `screenshots/03-child-study-screen.JPG` |
-| Parent create item / media upload | `screenshots/04-media-upload.JPG` |
-| Parent word list / quản lý từ | `screenshots/05-parent-word-list.JPG` |
+| Parent create item / media upload              | `screenshots/04-media-upload.JPG`       |
+| Parent word list / quản lý từ                  | `screenshots/05-parent-word-list.JPG`   |
 
 ---
 
@@ -348,6 +348,86 @@ Acceptance:
 
 ---
 
+### T-012 — Local backup & restore P1
+
+Đọc:
+
+- `01-kidedu-business-sot.md`
+- `02-kidedu-mobile-architecture-sot.md`
+- `04-business-parent-content-management-sot.md`
+- `05-tech-mobile-stack-sot.md`
+- `06-tech-local-data-media-sot.md`
+- `07-tech-performance-cache-memory-sot.md`
+- `09-design-system-sot.md`
+- `screenshots/05-parent-word-list.JPG`
+
+Nên chia implementation thành các bước test độc lập: format/validation, logical repository, file pipeline, restore transaction/rollback, rồi UI Parent Zone.
+
+Output:
+
+- Route “Sao lưu & khôi phục” trong Parent Zone.
+- Custom binary container `.kidedu` v1 theo thứ tự header → payloads → manifest → footer, chứa snapshot 11 bảng, relative media path, offset/size và CRC32.
+- Export/import streaming/chunked, không dùng ZIP/native archive module nặng và không giữ binary lớn trong JS memory.
+- Chọn tệp bằng document picker và chuyển tệp thủ công bằng share sheet của hệ điều hành.
+- Preview tệp trước restore và xác nhận riêng cho replace-all.
+- Restore transaction, rewrite media URI, rollback, cleanup staging/orphan và refresh query cache.
+- Unit/integration test cho format, validation, repository snapshot, transaction và failure paths.
+- Manual device smoke cho picker/share sheet, media gần budget và thiếu dung lượng.
+
+Acceptance:
+
+- Tạo được backup khi offline và tệp hoàn tất có thể được phụ huynh tự lưu/chuyển.
+- Snapshot chứa đủ 11 bảng dữ liệu; không copy `schema_versions` hoặc SQLite database thô.
+- Không ghi URI tuyệt đối của thiết bị nguồn; restore tạo URI durable mới trên thiết bị đích.
+- Chọn tệp chỉ validate và hiển thị preview, chưa mutation dữ liệu.
+- Tệp sai version, cấu trúc, size, path, range hoặc CRC32 bị từ chối trước xác nhận.
+- Restore chỉ bắt đầu sau xác nhận replace-all và ghi 11 bảng trong một transaction.
+- Restore lỗi giữ nguyên dữ liệu/media cũ và cleanup staging/media mới chưa dùng.
+- Không có backend, cloud sync, tài khoản online hoặc chia sẻ công khai.
+- UI giữ visual DNA Parent Zone, trạng thái pending chống double-tap và lỗi dùng ngôn ngữ dễ hiểu.
+
+---
+
+### T-013 — Privacy & Data Controls P1
+
+Đọc:
+
+- `01-kidedu-business-sot.md`
+- `02-kidedu-mobile-architecture-sot.md`
+- `04-business-parent-content-management-sot.md`
+- `05-tech-mobile-stack-sot.md`
+- `06-tech-local-data-media-sot.md`
+- `07-tech-performance-cache-memory-sot.md`
+- `09-design-system-sot.md`
+- `screenshots/05-parent-word-list.JPG`
+
+Nên chia implementation thành các bước test độc lập: repository aggregate/mutations, permission snapshot, cleanup service, hook/cache lifecycle, rồi UI Parent Zone.
+
+Output:
+
+- Route “Quyền riêng tư & dữ liệu” trong Parent Zone.
+- Giải thích local-only và tổng quan số thẻ/bộ/lịch sử/media cá nhân hóa.
+- Trạng thái camera, micro, thư viện ảnh/video và hành động mở Cài đặt hệ thống; không tự request quyền khi mở màn.
+- Xóa lịch sử học, xóa toàn bộ media cá nhân hóa và reset toàn bộ dữ liệu bằng ba thao tác tách biệt.
+- Transaction, rollback, post-commit file cleanup, mutex và query cache refresh.
+- Reset-all reseed canonical defaults, khóa Parent Gate và quay về Child Mode.
+- Unit/component test và Maestro/manual smoke cho confirm, permission refresh và file cleanup thật.
+
+Acceptance:
+
+- Màn hình chỉ nằm sau Parent Gate và bám visual DNA Parent Zone.
+- Summary dùng metadata aggregate, không đọc binary media.
+- Mở màn không hiện permission prompt; trạng thái refresh khi quay lại từ Cài đặt.
+- Mỗi action phá hủy mô tả đúng phạm vi, có xác nhận riêng và chống double-tap.
+- Clear history xóa session/event/progress, reset trạng thái thẻ về `new`, giữ content/media/settings.
+- Delete personalized media gỡ custom/generated media/avatar/thumbnail, giữ content/progress/settings và fallback default.
+- Reset-all xóa dữ liệu user, reseed default content/settings trong một transaction, khóa Parent Gate và về Child Mode.
+- DB failure rollback và không xóa file cũ; file cleanup chỉ chạy sau commit.
+- Tệp backup ngoài app và permission hệ điều hành không bị tuyên bố là đã xóa/reset.
+- Không có backend, analytics/telemetry, cloud sync hoặc tài khoản online.
+
+---
+
 ## 4. Prompt template cho Codex
 
 ```text
@@ -380,15 +460,15 @@ Yêu cầu:
 
 Sau mỗi task, nếu có thay đổi:
 
-| Loại thay đổi | File cần update |
-|---|---|
-| Thay đổi nghiệp vụ | `01` và file business chi tiết liên quan |
-| Thay đổi architecture tổng quan | `02` |
-| Thay đổi tech stack | `05` |
-| Thay đổi schema/media pipeline | `06` |
-| Thay đổi lazy load/cache/memory | `07` |
-| Thay đổi cách chia task | `08` |
+| Loại thay đổi                            | File cần update                                  |
+| ---------------------------------------- | ------------------------------------------------ |
+| Thay đổi nghiệp vụ                       | `01` và file business chi tiết liên quan         |
+| Thay đổi architecture tổng quan          | `02`                                             |
+| Thay đổi tech stack                      | `05`                                             |
+| Thay đổi schema/media pipeline           | `06`                                             |
+| Thay đổi lazy load/cache/memory          | `07`                                             |
+| Thay đổi cách chia task                  | `08`                                             |
 | Thay đổi design system hoặc UI reference | `09`, `README.md` nếu thêm/xóa ảnh hoặc file SOT |
-| Thêm/xóa file SOT | `README.md` và `CHANGELOG.md` |
+| Thêm/xóa file SOT                        | `README.md` và `CHANGELOG.md`                    |
 
 Không update tài liệu lung tung nếu code change không ảnh hưởng quyết định SOT.

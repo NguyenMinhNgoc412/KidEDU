@@ -5,12 +5,18 @@ import {
   createInitialAutoPlayState,
   getPhaseDurationMs,
   getLoopLimit,
+  getNextAutoPlayItemIndex,
   pauseAutoPlayState,
   replayCurrentAutoPlayItem,
   resumeAutoPlayState
 } from "../autoPlayEngine";
 import { getAutoPlayItems } from "../autoPlayItems";
-import { shouldWaitForSamplePlaybackEnd } from "../autoPlayTimeline";
+import {
+  getAutoPlayPreloadMediaUris,
+  getAutoPlayPreloadVisualUri,
+  getSamplePlaybackTimeoutMs,
+  shouldWaitForSamplePlaybackEnd
+} from "../autoPlayTimeline";
 
 const baseSettings: LearningSettings = {
   speedPreset: "normal",
@@ -65,7 +71,12 @@ describe("autoPlayEngine", () => {
   });
 
   it("honors three loop mode before completing", () => {
-    const settings: LearningSettings = { ...baseSettings, loopMode: "three_times", loopCount: 3, reinforcementEnabled: false };
+    const settings: LearningSettings = {
+      ...baseSettings,
+      loopMode: "three_times",
+      loopCount: 3,
+      reinforcementEnabled: false
+    };
     let state = createInitialAutoPlayState(1);
 
     for (let i = 0; i < 12; i += 1) {
@@ -78,7 +89,12 @@ describe("autoPlayEngine", () => {
   });
 
   it("plays every item in every configured loop before completing", () => {
-    const settings: LearningSettings = { ...baseSettings, loopMode: "three_times", loopCount: 3, reinforcementEnabled: false };
+    const settings: LearningSettings = {
+      ...baseSettings,
+      loopMode: "three_times",
+      loopCount: 3,
+      reinforcementEnabled: false
+    };
     let state = createInitialAutoPlayState(2);
     const visits = [`${state.loopIndex}:${state.itemIndex}`];
 
@@ -95,7 +111,12 @@ describe("autoPlayEngine", () => {
   });
 
   it("uses canonical loop count even when legacy loop mode still has the default value", () => {
-    const settings: LearningSettings = { ...baseSettings, loopMode: "once", loopCount: 3, reinforcementEnabled: false };
+    const settings: LearningSettings = {
+      ...baseSettings,
+      loopMode: "once",
+      loopCount: 3,
+      reinforcementEnabled: false
+    };
     let state = createInitialAutoPlayState(1);
 
     for (let i = 0; i < 12; i += 1) {
@@ -136,7 +157,12 @@ describe("autoPlayEngine", () => {
   });
 
   it("keeps canonical null loop count as continuous play", () => {
-    const settings: LearningSettings = { ...baseSettings, loopMode: "once", loopCount: null, reinforcementEnabled: false };
+    const settings: LearningSettings = {
+      ...baseSettings,
+      loopMode: "once",
+      loopCount: null,
+      reinforcementEnabled: false
+    };
     let state = createInitialAutoPlayState(1);
 
     for (let i = 0; i < 8; i += 1) {
@@ -166,7 +192,9 @@ describe("autoPlayEngine", () => {
 
   it("marks real video samples as playback-driven instead of timer-driven", () => {
     const item = makeLearningItem({
-      media: [makeMedia("mouth_video", { durationMs: null, uri: "file:///media/videos/custom/mouth.mp4" })]
+      media: [
+        makeMedia("mouth_video", { durationMs: null, uri: "file:///media/videos/custom/mouth.mp4" })
+      ]
     });
 
     expect(shouldWaitForSamplePlaybackEnd(item)).toBe(true);
@@ -190,6 +218,71 @@ describe("autoPlayEngine", () => {
     expect(shouldWaitForSamplePlaybackEnd(bundledPlaceholderItem)).toBe(false);
   });
 
+  it("treats registered bundle URIs as playback-driven media", () => {
+    const bundledItem = makeLearningItem({
+      media: [
+        makeMedia("mouth_video", {
+          durationMs: 2_000,
+          uri: "bundle://default/item-test-mouth-video-v1"
+        })
+      ]
+    });
+
+    expect(shouldWaitForSamplePlaybackEnd(bundledItem)).toBe(true);
+    expect(getSamplePlaybackTimeoutMs(bundledItem, 1)).toBe(4_000);
+  });
+
+  it("caps playback-driven samples so corrupt media cannot block Auto Play forever", () => {
+    const unknownDurationItem = makeLearningItem({
+      media: [makeMedia("mouth_video", { durationMs: null, uri: "file:///missing.mp4" })]
+    });
+    const knownDurationItem = makeLearningItem({
+      media: [
+        makeMedia("mouth_video", { durationMs: 4_000, uri: "file:///mouth.mp4" }),
+        makeMedia("pronunciation_audio", { durationMs: 1_000, uri: "file:///voice.m4a" })
+      ]
+    });
+
+    expect(getSamplePlaybackTimeoutMs(unknownDurationItem, 1)).toBe(20_000);
+    expect(getSamplePlaybackTimeoutMs(knownDurationItem, 1)).toBe(7_000);
+    expect(getSamplePlaybackTimeoutMs(makeLearningItem({}), 1)).toBeNull();
+  });
+
+  it("preloads only a lightweight visual URI for the next item", () => {
+    const item = makeLearningItem({
+      media: [
+        makeMedia("illustration", {
+          thumbnailUri: "file:///thumb.jpg",
+          uri: "file:///full.jpg"
+        }),
+        makeMedia("mouth_video", { uri: "file:///mouth.mp4" }),
+        makeMedia("pronunciation_audio", { uri: "file:///voice.m4a" })
+      ]
+    });
+
+    expect(getAutoPlayPreloadVisualUri(item)).toBe("file:///thumb.jpg");
+    expect(getAutoPlayPreloadMediaUris(item)).toEqual([
+      "file:///full.jpg",
+      "file:///thumb.jpg",
+      "file:///mouth.mp4",
+      "file:///voice.m4a"
+    ]);
+  });
+
+  it("selects at most one next item and respects the final loop", () => {
+    const first = createInitialAutoPlayState(2);
+    expect(getNextAutoPlayItemIndex(first, baseSettings, 2)).toBe(1);
+
+    const last = { ...first, itemIndex: 1 };
+    expect(getNextAutoPlayItemIndex(last, baseSettings, 2)).toBeNull();
+    expect(
+      getNextAutoPlayItemIndex(
+        last,
+        { ...baseSettings, loopMode: "continuous", loopCount: null },
+        2
+      )
+    ).toBe(0);
+  });
 });
 
 function makeLearningItem(overrides: Partial<LearningItem>): LearningItem {
@@ -210,7 +303,8 @@ function makeMedia(
   role: MediaRole,
   overrides: Partial<LearningItemMedia["asset"]> = {}
 ): LearningItemMedia {
-  const type = role === "mouth_video" ? "video" : role === "pronunciation_audio" ? "audio" : "image";
+  const type =
+    role === "mouth_video" ? "video" : role === "pronunciation_audio" ? "audio" : "image";
 
   return {
     id: `media-${role}`,

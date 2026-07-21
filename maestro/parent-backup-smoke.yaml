@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+---
+- launchApp
+- assertVisible: "Bé chọn gì nào?"
+- tapOn: "Khu vực Phụ huynh"
+- assertVisible: "3 + 5 = ?"
+- tapOn: "Câu trả lời"
+- inputText: "8"
+- tapOn: "Mở"
+- assertVisible: "Khu phụ huynh"
+- tapOn: "Sao lưu dữ liệu"
+- assertVisible: "Sao lưu & khôi phục"
+- assertVisible: "Tạo bản sao lưu"
+- assertVisible: "Khôi phục từ tệp"
+- assertVisible: "Dữ liệu chỉ ở nơi bạn chọn"
+- tapOn: "Xong"
+- assertVisible: "Khu phụ huynh"
+- tapOn: "Về học"
+- assertVisible: "Bé chọn gì nào?"

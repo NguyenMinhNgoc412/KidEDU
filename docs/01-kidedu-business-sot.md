@@ -2,7 +2,7 @@
 
 **Trạng thái:** Source of Truth chính cho nghiệp vụ  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-01  
+**Ngày cập nhật:** 2026-07-21  
 **Phạm vi:** MVP / Phase 0–1  
 **Ngôn ngữ:** Tiếng Việt  
 **Ghi chú:** File này chỉ mô tả sản phẩm theo ngôn ngữ business/nghiệp vụ. Không mô tả framework, database, thư viện hoặc cách implement.
@@ -83,6 +83,8 @@ Phụ huynh cần:
 - chọn tốc độ tự chạy;
 - xem tiến độ cơ bản;
 - xóa nội dung cá nhân hóa khi không còn muốn dùng.
+- biết dữ liệu nào đang được lưu local và quyền thiết bị nào KidEDU đang dùng;
+- xóa lịch sử học, xóa toàn bộ media cá nhân hóa hoặc đặt lại app khi cần.
 
 ### 3.3. Chuyên gia/giáo viên
 
@@ -107,6 +109,7 @@ Có thể mở rộng ở phase sau để:
 6. **Mỗi bài học phải ngắn.** Một thẻ học nên tập trung vào một từ hoặc một cụm từ ngắn.
 7. **Phải có cách quay về nội dung mặc định.** Nếu phụ huynh xóa nội dung cá nhân hóa, app dùng lại nội dung mặc định nếu có.
 8. **MVP ưu tiên sử dụng trong gia đình.** Không thiết kế luồng chuyên gia, lớp học, marketplace hoặc chia sẻ cộng đồng ở giai đoạn này.
+9. **Phụ huynh phải kiểm soát dữ liệu của trẻ.** App phải giải thích dữ liệu được lưu local, không tự upload, và cung cấp thao tác xóa rõ ràng trong khu phụ huynh.
 
 ---
 
@@ -140,16 +143,16 @@ Ví dụ:
 
 Một thẻ học gồm:
 
-| Thành phần | Ý nghĩa nghiệp vụ | Bắt buộc ở MVP |
-|---|---|---|
-| Từ/cụm từ | Nội dung trẻ cần luyện | Có |
-| Nhóm/chủ đề | Gia đình, nhu cầu, đồ vật, con vật, hành động... | Có |
-| Hình minh họa | Giúp trẻ hiểu nghĩa của từ | Nên có |
-| Ảnh động/chuyển động minh họa | Thu hút chú ý nếu dùng đúng mức | Nên có nếu phù hợp |
-| Khẩu hình phát âm | Giúp trẻ quan sát cách miệng phát âm | Nên có |
-| Âm thanh phát âm | Giúp trẻ nghe mẫu rõ ràng | Nên có |
-| Âm thanh minh họa | Ví dụ tiếng mèo, tiếng xe, tiếng nước | Không bắt buộc |
-| Nội dung cá nhân hóa | Nội dung do phụ huynh thêm/thay | Không bắt buộc |
+| Thành phần                    | Ý nghĩa nghiệp vụ                                | Bắt buộc ở MVP     |
+| ----------------------------- | ------------------------------------------------ | ------------------ |
+| Từ/cụm từ                     | Nội dung trẻ cần luyện                           | Có                 |
+| Nhóm/chủ đề                   | Gia đình, nhu cầu, đồ vật, con vật, hành động... | Có                 |
+| Hình minh họa                 | Giúp trẻ hiểu nghĩa của từ                       | Nên có             |
+| Ảnh động/chuyển động minh họa | Thu hút chú ý nếu dùng đúng mức                  | Nên có nếu phù hợp |
+| Khẩu hình phát âm             | Giúp trẻ quan sát cách miệng phát âm             | Nên có             |
+| Âm thanh phát âm              | Giúp trẻ nghe mẫu rõ ràng                        | Nên có             |
+| Âm thanh minh họa             | Ví dụ tiếng mèo, tiếng xe, tiếng nước            | Không bắt buộc     |
+| Nội dung cá nhân hóa          | Nội dung do phụ huynh thêm/thay                  | Không bắt buộc     |
 
 ### 5.3. Bộ học
 
@@ -209,31 +212,32 @@ Có thể ghi nhận:
 
 ---
 
-## 6. Feature list MVP
+## 6. Feature list MVP / Phase 0–1
 
-| Mã | Feature | Mục tiêu nghiệp vụ | MVP |
-|---|---|---|---:|
-| BIZ-001 | Màn hình học từng thẻ | Trẻ học một từ/cụm từ bằng hình, khẩu hình và âm thanh | Có |
-| BIZ-002 | Bộ học tự chạy | Trẻ học liên tục nhiều thẻ mà không cần bấm nhiều | Có |
-| BIZ-003 | Quản lý thẻ học | Phụ huynh tạo/sửa/xóa thẻ phù hợp với trẻ | Có |
-| BIZ-004 | Quản lý bộ học | Phụ huynh gom thẻ thành bộ và sắp xếp thứ tự học | Có |
-| BIZ-005 | Cá nhân hóa video khẩu hình | Trẻ học bằng video người thân quen thuộc | Có |
-| BIZ-006 | Cá nhân hóa hình/ảnh động | Nội dung gần với đồ vật/người thật quanh trẻ | Có |
-| BIZ-007 | Cá nhân hóa âm thanh phát âm | Phụ huynh có thể dùng giọng người thân | Nên có |
-| BIZ-008 | Parent Gate | Bảo vệ khu phụ huynh khỏi thao tác nhầm của trẻ | Có |
-| BIZ-009 | Cài đặt tốc độ học | Phụ huynh điều chỉnh nhịp tự chạy theo khả năng của trẻ | Có |
-| BIZ-010 | Tiến độ cơ bản | Phụ huynh biết trẻ đã luyện gì | Có |
-| BIZ-011 | Bộ học mẫu ban đầu | Có nội dung để trẻ học ngay sau khi cài app | Có |
-| BIZ-012 | Backup/chia sẻ bộ học | Mang dữ liệu sang thiết bị khác hoặc cho người khác | Sau MVP |
-| BIZ-013 | Tài khoản online | Quản lý người dùng trên nhiều thiết bị | Sau MVP |
-| BIZ-014 | Chuyên gia giao bài | Chuyên gia tạo lộ trình từ xa | Sau MVP |
-| BIZ-015 | AI chấm phát âm | App tự phân tích phát âm của trẻ | Sau MVP |
+| Mã      | Feature                            | Mục tiêu nghiệp vụ                                                                                   | Phạm vi |
+| ------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------- | ------: |
+| BIZ-001 | Màn hình học từng thẻ              | Trẻ học một từ/cụm từ bằng hình, khẩu hình và âm thanh                                               |      Có |
+| BIZ-002 | Bộ học tự chạy                     | Trẻ học liên tục nhiều thẻ mà không cần bấm nhiều                                                    |      Có |
+| BIZ-003 | Quản lý thẻ học                    | Phụ huynh tạo/sửa/xóa thẻ phù hợp với trẻ                                                            |      Có |
+| BIZ-004 | Quản lý bộ học                     | Phụ huynh gom thẻ thành bộ và sắp xếp thứ tự học                                                     |      Có |
+| BIZ-005 | Cá nhân hóa video khẩu hình        | Trẻ học bằng video người thân quen thuộc                                                             |      Có |
+| BIZ-006 | Cá nhân hóa hình/ảnh động          | Nội dung gần với đồ vật/người thật quanh trẻ                                                         |      Có |
+| BIZ-007 | Cá nhân hóa âm thanh phát âm       | Phụ huynh có thể dùng giọng người thân                                                               |  Nên có |
+| BIZ-008 | Parent Gate                        | Bảo vệ khu phụ huynh khỏi thao tác nhầm của trẻ                                                      |      Có |
+| BIZ-009 | Cài đặt tốc độ học                 | Phụ huynh điều chỉnh nhịp tự chạy theo khả năng của trẻ                                              |      Có |
+| BIZ-010 | Tiến độ cơ bản                     | Phụ huynh biết trẻ đã luyện gì                                                                       |      Có |
+| BIZ-011 | Bộ học mẫu ban đầu                 | Có nội dung để trẻ học ngay sau khi cài app                                                          |      Có |
+| BIZ-012 | Sao lưu & khôi phục local          | Sao lưu dữ liệu học và media cá nhân hóa thành tệp để tự lưu hoặc chuyển thủ công sang thiết bị khác | Có (P1) |
+| BIZ-013 | Tài khoản online                   | Quản lý người dùng trên nhiều thiết bị                                                               | Sau MVP |
+| BIZ-014 | Chuyên gia giao bài                | Chuyên gia tạo lộ trình từ xa                                                                        | Sau MVP |
+| BIZ-015 | AI chấm phát âm                    | App tự phân tích phát âm của trẻ                                                                     | Sau MVP |
+| BIZ-016 | Quyền riêng tư & kiểm soát dữ liệu | Minh bạch dữ liệu local, trạng thái quyền thiết bị và cho phụ huynh xóa dữ liệu theo phạm vi         | Có (P1) |
 
 ---
 
-## 7. Scope MVP đã chốt
+## 7. Scope MVP / Phase 0–1 đã chốt
 
-### 7.1. Bắt buộc có
+### 7.1. Bắt buộc có trong Phase 0–1
 
 1. Màn hình học từng thẻ.
 2. Màn hình chọn bộ học.
@@ -248,6 +252,8 @@ Có thể ghi nhận:
 11. Thay hình minh họa bằng ảnh/ảnh động của phụ huynh.
 12. Lưu tiến độ học cơ bản.
 13. Cài đặt tốc độ học và số vòng lặp.
+14. Sao lưu và khôi phục toàn bộ dữ liệu local bằng tệp trước khi cân nhắc backend.
+15. Minh bạch dữ liệu local, trạng thái quyền thiết bị và các thao tác xóa dữ liệu có xác nhận trong khu phụ huynh.
 
 ### 7.2. Nên có nếu không làm chậm MVP
 
@@ -257,7 +263,7 @@ Có thể ghi nhận:
 4. Cho phép đảo thứ tự thẻ khi ôn tập.
 5. Cho phép phụ huynh ghi chú riêng cho từng thẻ.
 
-### 7.3. Chưa làm ở MVP
+### 7.3. Chưa làm trong Phase 0–1
 
 1. Đăng nhập online.
 2. Đồng bộ nhiều thiết bị.
@@ -323,6 +329,30 @@ Chi tiết nghiệp vụ nằm trong `04-business-parent-content-management-sot.
 3. App hiển thị các thẻ/bộ đã luyện gần đây.
 4. Phụ huynh có thể đánh dấu trạng thái của từng thẻ.
 5. Phụ huynh dùng thông tin này để chọn bộ học tiếp theo.
+
+### 8.6. Phụ huynh sao lưu và khôi phục dữ liệu local
+
+1. Phụ huynh vào khu phụ huynh và mở phần sao lưu dữ liệu.
+2. Phụ huynh tạo một tệp sao lưu local chứa dữ liệu học, tiến độ, cài đặt và media cá nhân hóa.
+3. Phụ huynh tự lưu hoặc chuyển tệp đó bằng chức năng chia sẻ tệp của thiết bị.
+4. Khi khôi phục, phụ huynh chọn một tệp sao lưu từ thiết bị.
+5. App kiểm tra tệp và hiển thị bản xem trước gồm thời điểm tạo, phiên bản, số thẻ, số bộ học và dung lượng media.
+6. App chỉ bắt đầu khôi phục sau khi phụ huynh xác nhận rằng dữ liệu local hiện tại sẽ được thay thế.
+7. Nếu khôi phục thất bại, app giữ nguyên dữ liệu hiện tại và báo lỗi dễ hiểu.
+
+Đây là luồng chuyển tệp thủ công, không phải cloud sync, chia sẻ công khai hoặc tài khoản online. Chi tiết nghiệp vụ nằm trong `04-business-parent-content-management-sot.md`.
+
+### 8.7. Phụ huynh kiểm soát dữ liệu local
+
+1. Phụ huynh mở phần “Quyền riêng tư & dữ liệu” trong khu phụ huynh.
+2. App giải thích dữ liệu học và media cá nhân hóa được lưu trong vùng riêng của KidEDU trên thiết bị và không tự upload.
+3. App hiển thị tổng quan dữ liệu local cùng trạng thái quyền camera, micro và thư viện ảnh/video.
+4. Phụ huynh có thể mở cài đặt hệ thống để thay đổi quyền; app không tự yêu cầu quyền chỉ vì mở màn hình này.
+5. Phụ huynh có thể chọn xóa lịch sử học, xóa toàn bộ media cá nhân hóa hoặc đặt lại toàn bộ dữ liệu app.
+6. Mỗi thao tác phá hủy phải giải thích chính xác dữ liệu bị xóa và yêu cầu xác nhận riêng.
+7. Sau khi hoàn tất, app làm mới dữ liệu hiển thị và không còn dùng file đã bị gỡ khỏi dữ liệu local.
+
+Việc xóa dữ liệu trong app không thể thu hồi tệp backup mà phụ huynh đã chủ động lưu hoặc chia sẻ ra ngoài vùng lưu trữ của KidEDU. Chi tiết nghiệp vụ nằm trong `04-business-parent-content-management-sot.md`.
 
 ---
 
@@ -413,9 +443,9 @@ MVP nên có bộ học mẫu để phụ huynh dùng ngay.
 
 ---
 
-## 11. Tiêu chí thành công MVP
+## 11. Tiêu chí thành công Phase 0–1
 
-MVP được coi là đạt nếu:
+Phase 0–1 được coi là đạt nếu:
 
 1. Trẻ có thể học một thẻ bằng hình, khẩu hình và âm thanh.
 2. Trẻ có thể học một bộ thẻ tự chạy mà gần như không cần thao tác.
@@ -426,19 +456,22 @@ MVP được coi là đạt nếu:
 7. App ghi nhận được tiến độ cơ bản.
 8. Trải nghiệm học không có quảng cáo, không có thao tác gây nhiễu.
 9. Nội dung animation/âm thanh thu hút nhưng không làm trẻ mất tập trung vào phát âm.
+10. Phụ huynh có thể sao lưu và khôi phục toàn bộ dữ liệu local bằng tệp mà không cần backend.
+11. Phụ huynh biết dữ liệu nào được lưu local, xem được trạng thái quyền thiết bị và chủ động xóa dữ liệu bằng các thao tác có xác nhận.
 
 ---
 
-## 12. Nguyên tắc mở rộng sau MVP
+## 12. Thứ tự mở rộng
 
-Sau MVP chỉ mở rộng khi feature lõi đã ổn định.
+Sau khi feature lõi ổn định, BIZ-012 được thực hiện ở P1 và phải hoàn tất trước khi cân nhắc backend, tài khoản online hoặc đồng bộ nhiều thiết bị.
 
 Thứ tự ưu tiên mở rộng đề xuất:
 
 1. Nâng cấp trải nghiệm bộ học tự chạy.
-2. Thêm export/backup local.
-3. Thêm nhiều hồ sơ trẻ.
-4. Thêm bộ học mẫu nâng cao.
-5. Thêm chia sẻ bộ học riêng tư.
-6. Sau đó mới cân nhắc backend, tài khoản online hoặc chuyên gia giao bài.
-7. AI chấm phát âm chỉ nên nghiên cứu khi có đủ dữ liệu và có tiêu chí đánh giá rõ ràng.
+2. Hoàn thiện sao lưu và khôi phục local ở P1.
+3. Hoàn thiện quyền riêng tư và kiểm soát dữ liệu local ở P1.
+4. Thêm nhiều hồ sơ trẻ.
+5. Thêm bộ học mẫu nâng cao.
+6. Thêm chia sẻ bộ học riêng tư sau khi có quy tắc quyền riêng tư rõ ràng.
+7. Sau đó mới cân nhắc backend, tài khoản online, cloud sync hoặc chuyên gia giao bài.
+8. AI chấm phát âm chỉ nên nghiên cứu khi có đủ dữ liệu và có tiêu chí đánh giá rõ ràng.

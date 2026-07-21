@@ -30,6 +30,10 @@ interface MouthVideoPlayerHandle {
   pause(): void;
 }
 
+export type LearningSampleCompletion = "played" | "unavailable";
+
+const audioLoadTimeoutMs = 4_000;
+
 export function LearningMediaPlayer({
   illustration,
   mouthVideo,
@@ -43,7 +47,7 @@ export function LearningMediaPlayer({
   mouthVideo?: LearningItemMedia;
   pronunciationAudio?: LearningItemMedia;
   autoPlayKey?: string | null;
-  onAutoPlaySampleEnd?: () => void;
+  onAutoPlaySampleEnd?: (completion: LearningSampleCompletion) => void;
   paused?: boolean;
   playbackSpeed?: PlaybackSpeed;
 }) {
@@ -59,6 +63,7 @@ export function LearningMediaPlayer({
   const lastAutoPlayKeyRef = useRef<string | null>(null);
   const completedAutoPlayKeyRef = useRef<string | null>(null);
   const audioCompletionAutoPlayKeyRef = useRef<string | null>(null);
+  const audioPlaybackRequestRef = useRef(0);
   const shouldPlayFollowUpAudioRef = useRef(false);
   const wasPausedRef = useRef(paused);
 
@@ -83,18 +88,23 @@ export function LearningMediaPlayer({
     audioPlayer.setPlaybackRate(playbackSpeed);
   }, [audioPlayer, playbackSpeed]);
 
-  const completeAutoPlaySample = useCallback(() => {
-    if (!autoPlayKey || paused || completedAutoPlayKeyRef.current === autoPlayKey) {
-      return;
-    }
+  const completeAutoPlaySample = useCallback(
+    (completion: LearningSampleCompletion = "played") => {
+      if (!autoPlayKey || paused || completedAutoPlayKeyRef.current === autoPlayKey) {
+        return;
+      }
 
-    completedAutoPlayKeyRef.current = autoPlayKey;
-    audioCompletionAutoPlayKeyRef.current = null;
-    shouldPlayFollowUpAudioRef.current = false;
-    onAutoPlaySampleEnd?.();
-  }, [autoPlayKey, onAutoPlaySampleEnd, paused]);
+      completedAutoPlayKeyRef.current = autoPlayKey;
+      audioCompletionAutoPlayKeyRef.current = null;
+      audioPlaybackRequestRef.current += 1;
+      shouldPlayFollowUpAudioRef.current = false;
+      onAutoPlaySampleEnd?.(completion);
+    },
+    [autoPlayKey, onAutoPlaySampleEnd, paused]
+  );
 
   const pauseAll = useCallback(() => {
+    audioPlaybackRequestRef.current += 1;
     shouldPlayFollowUpAudioRef.current = false;
     safelyPausePlayer(mouthVideoPlayerRef.current);
     safelyPausePlayer(audioPlayer);
@@ -103,6 +113,10 @@ export function LearningMediaPlayer({
   const playAudio = useCallback(
     (options?: { completeAutoPlaySampleOnEnd?: boolean }) => {
       shouldPlayFollowUpAudioRef.current = false;
+      if (paused) {
+        return;
+      }
+
       if (!playableAudioUri) {
         setActiveRole("pronunciation_audio");
         setFeedback("Chưa có âm phát âm để phát.");
@@ -114,13 +128,23 @@ export function LearningMediaPlayer({
       setFeedback(null);
       audioCompletionAutoPlayKeyRef.current =
         options?.completeAutoPlaySampleOnEnd && autoPlayKey ? autoPlayKey : null;
-      safelyReplayAudioFromStart(audioPlayer);
+      const playbackRequest = audioPlaybackRequestRef.current + 1;
+      audioPlaybackRequestRef.current = playbackRequest;
+      safelyReplayAudioFromStart(
+        audioPlayer,
+        () => audioPlaybackRequestRef.current === playbackRequest
+      );
     },
-    [audioPlayer, autoPlayKey, playableAudioUri]
+    [audioPlayer, autoPlayKey, paused, playableAudioUri]
   );
 
   const playMouthVideo = useCallback(() => {
     shouldPlayFollowUpAudioRef.current = false;
+    audioPlaybackRequestRef.current += 1;
+    if (paused) {
+      return;
+    }
+
     if (!playableVideoUri) {
       setActiveRole("mouth_video");
       setFeedback("Chưa có video khẩu hình để phát.");
@@ -131,7 +155,7 @@ export function LearningMediaPlayer({
     setActiveRole("mouth_video");
     setFeedback(null);
     setVideoPlaySignal((value) => value + 1);
-  }, [audioPlayer, playableVideoUri]);
+  }, [audioPlayer, paused, playableVideoUri]);
 
   const playQueuedFollowUpAudio = useCallback(() => {
     if (!shouldPlayFollowUpAudioRef.current || !playableAudioUri || paused) {
@@ -151,14 +175,29 @@ export function LearningMediaPlayer({
   }, [completeAutoPlaySample, playableAudioUri, playQueuedFollowUpAudio]);
 
   const handleMouthVideoPlayStart = useCallback(() => {
+    audioPlaybackRequestRef.current += 1;
     safelyPausePlayer(audioPlayer);
     setActiveRole("mouth_video");
     setFeedback(null);
   }, [audioPlayer]);
 
+  const handleMouthVideoError = useCallback(() => {
+    safelyPausePlayer(mouthVideoPlayerRef.current);
+
+    if (shouldPlayFollowUpAudioRef.current && playableAudioUri) {
+      playQueuedFollowUpAudio();
+      return;
+    }
+
+    shouldPlayFollowUpAudioRef.current = false;
+    setFeedback("Không thể phát video khẩu hình. App sẽ tiếp tục thẻ này.");
+    completeAutoPlaySample("unavailable");
+  }, [completeAutoPlaySample, playableAudioUri, playQueuedFollowUpAudio]);
+
   const playSample = useCallback(() => {
     if (playableVideoUri) {
       shouldPlayFollowUpAudioRef.current = Boolean(playableAudioUri);
+      audioPlaybackRequestRef.current += 1;
       safelyPausePlayer(audioPlayer);
       setActiveRole("mouth_video");
       setFeedback(null);
@@ -181,6 +220,27 @@ export function LearningMediaPlayer({
 
     completeAutoPlaySample();
   }, [audioStatus.didJustFinish, autoPlayKey, completeAutoPlaySample]);
+
+  useEffect(() => {
+    if (
+      !autoPlayKey ||
+      paused ||
+      activeRole !== "pronunciation_audio" ||
+      audioCompletionAutoPlayKeyRef.current !== autoPlayKey ||
+      audioStatus.isLoaded
+    ) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      audioPlaybackRequestRef.current += 1;
+      safelyPausePlayer(audioPlayer);
+      setFeedback("Không thể phát âm mẫu. App sẽ chuyển sang lượt con nói.");
+      completeAutoPlaySample("unavailable");
+    }, audioLoadTimeoutMs);
+
+    return () => clearTimeout(timeout);
+  }, [activeRole, audioPlayer, audioStatus.isLoaded, autoPlayKey, completeAutoPlaySample, paused]);
 
   useEffect(() => {
     const wasPaused = wasPausedRef.current;
@@ -253,6 +313,7 @@ export function LearningMediaPlayer({
           <MouthVideoPlayer
             ref={mouthVideoPlayerRef}
             onEnd={handleMouthVideoEnd}
+            onError={handleMouthVideoError}
             onPlayStart={handleMouthVideoPlayStart}
             paused={paused}
             playSignal={videoPlaySignal}
@@ -320,13 +381,17 @@ const MouthVideoPlayer = forwardRef<
   MouthVideoPlayerHandle,
   {
     onEnd: () => void;
+    onError: () => void;
     onPlayStart: () => void;
     paused: boolean;
     playbackSpeed: PlaybackSpeed;
     playSignal: number;
     uri: string;
   }
->(function MouthVideoPlayer({ onEnd, onPlayStart, paused, playbackSpeed, playSignal, uri }, ref) {
+>(function MouthVideoPlayer(
+  { onEnd, onError, onPlayStart, paused, playbackSpeed, playSignal, uri },
+  ref
+) {
   const [isPlayOverlayVisible, setPlayOverlayVisible] = useState(true);
   const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -353,10 +418,15 @@ const MouthVideoPlayer = forwardRef<
   }, [clearOverlayTimer]);
 
   const replayVideo = useCallback(() => {
+    if (videoPlayer.status === "error") {
+      onError();
+      return;
+    }
+
     onPlayStart();
     showPlayOverlay();
     safelyReplayVideoFromStart(videoPlayer);
-  }, [onPlayStart, showPlayOverlay, videoPlayer]);
+  }, [onError, onPlayStart, showPlayOverlay, videoPlayer]);
 
   useImperativeHandle(
     ref,
@@ -367,6 +437,11 @@ const MouthVideoPlayer = forwardRef<
   );
 
   useEventListener(videoPlayer, "playToEnd", onEnd);
+  useEventListener(videoPlayer, "statusChange", ({ status }) => {
+    if (status === "error") {
+      onError();
+    }
+  });
 
   useEffect(() => {
     setVideoPlaybackRate(videoPlayer, playbackSpeed);
@@ -444,17 +519,23 @@ function safelyPlayPlayer(player: { play: () => void } | null | undefined): void
   }
 }
 
-function safelyReplayAudioFromStart(player: {
-  play: () => void;
-  seekTo: (seconds: number) => Promise<void>;
-}): void {
+function safelyReplayAudioFromStart(
+  player: {
+    play: () => void;
+    seekTo: (seconds: number) => Promise<void>;
+  },
+  shouldPlay: () => boolean
+): void {
+  const playIfCurrent = () => {
+    if (shouldPlay()) {
+      safelyPlayPlayer(player);
+    }
+  };
+
   try {
-    void player
-      .seekTo(0)
-      .then(() => safelyPlayPlayer(player))
-      .catch(() => safelyPlayPlayer(player));
+    void player.seekTo(0).then(playIfCurrent).catch(playIfCurrent);
   } catch {
-    safelyPlayPlayer(player);
+    playIfCurrent();
   }
 }
 

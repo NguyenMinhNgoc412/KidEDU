@@ -12,6 +12,68 @@ Format dùng theo hướng đơn giản:
 
 ---
 
+## [0.5.0] — 2026-07-21
+
+### Added
+
+- Đưa BIZ-016 “Quyền riêng tư & kiểm soát dữ liệu” vào P1.
+- Bổ sung tổng quan dữ liệu local và trạng thái quyền camera, micro, thư viện ảnh/video mà không tự hiện permission prompt.
+- Bổ sung ba thao tác có xác nhận riêng: xóa lịch sử học, xóa toàn bộ media cá nhân hóa và đặt lại toàn bộ dữ liệu app.
+- Bổ sung module `privacy`, repository aggregate/mutation transaction, post-commit file cleanup và query/session reset.
+- Bổ sung startup recovery sweep cho file app-owned không còn DB reference, bao gồm bảo vệ avatar/thumbnail và giới hạn concurrency cleanup.
+- Bổ sung task `T-013 — Privacy & Data Controls P1` cùng acceptance và yêu cầu test/device smoke.
+
+### Changed
+
+- Làm rõ reset-all phải reseed nội dung/cài đặt mặc định hiện hành, khóa Parent Gate và quay về Child Mode.
+- Làm rõ xóa/reset trong app không thể xóa backup đã lưu ngoài app hoặc tự thu hồi permission do hệ điều hành quản lý.
+
+### Affected files
+
+- `01-kidedu-business-sot.md`
+- `02-kidedu-mobile-architecture-sot.md`
+- `04-business-parent-content-management-sot.md`
+- `06-tech-local-data-media-sot.md`
+- `07-tech-performance-cache-memory-sot.md`
+- `08-codex-task-splitting-sot.md`
+
+### Reason
+
+Owner duyệt làm Privacy & Data Controls ở P1 để phụ huynh hiểu và chủ động kiểm soát dữ liệu local của trẻ trước khi dự án cân nhắc backend hoặc các luồng chia sẻ khác.
+
+---
+
+## [0.4.0] — 2026-07-20
+
+### Added
+
+- Đưa BIZ-012 “Sao lưu & khôi phục local” vào P1 trước backend.
+- Bổ sung luồng nghiệp vụ tạo tệp, preview, xác nhận replace-all và giữ nguyên dữ liệu cũ khi restore lỗi.
+- Bổ sung module `backup`, custom binary container `.kidedu` v1 streaming theo chunk 512 KB, logical snapshot 11 bảng, relative media path, offset/size/CRC32 và restore transaction/rollback.
+- Bổ sung `expo-document-picker` `~14.0.8` và `expo-sharing` `~14.0.8` cho chọn/chuyển tệp thủ công.
+- Bổ sung task `T-012 — Local backup & restore P1` cùng acceptance và yêu cầu test/device smoke.
+
+### Changed
+
+- Chuyển export/backup media khỏi danh sách tối ưu sau MVP và quy định budget, chunked I/O, staging cleanup, disk/memory safety cho P1.
+- Làm rõ share sheet chỉ dùng chuyển tệp local theo thao tác phụ huynh; không mở rộng sang cloud sync, backend, tài khoản online hoặc chia sẻ công khai.
+
+### Affected files
+
+- `01-kidedu-business-sot.md`
+- `02-kidedu-mobile-architecture-sot.md`
+- `04-business-parent-content-management-sot.md`
+- `05-tech-mobile-stack-sot.md`
+- `06-tech-local-data-media-sot.md`
+- `07-tech-performance-cache-memory-sot.md`
+- `08-codex-task-splitting-sot.md`
+
+### Reason
+
+Owner duyệt làm BIZ-012 ở P1 để phụ huynh có cách bảo vệ và chuyển dữ liệu local trước khi dự án cân nhắc backend hoặc đồng bộ online.
+
+---
+
 ## [0.3.3] — 2026-07-15
 
 ### Added

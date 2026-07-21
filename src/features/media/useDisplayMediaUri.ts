@@ -1,31 +1,51 @@
 import { useEffect, useState } from "react";
 
+import { isBundledDefaultMediaUri } from "@/data/defaultMediaRegistry";
+import { resolveBundledDefaultMediaUri } from "@/features/media/bundledMediaAssetResolver";
 import { getWebMediaObjectUrl, isWebMediaUri } from "@/features/media/webMediaStore";
 
 export function useDisplayMediaUri(uri: string | null): string | null {
-  const [displayUri, setDisplayUri] = useState<string | null>(uri);
+  const [resolved, setResolved] = useState(() => ({
+    sourceUri: uri,
+    displayUri: getImmediateDisplayUri(uri)
+  }));
 
   useEffect(() => {
     let isMounted = true;
     let objectUrl: string | null = null;
 
     async function resolveUri() {
-      if (!uri || !isWebMediaUri(uri)) {
-        setDisplayUri(uri);
+      if (!uri) {
+        setResolved({ sourceUri: null, displayUri: null });
         return;
       }
 
-      const resolvedUri = await getWebMediaObjectUrl(uri);
-      objectUrl = resolvedUri;
+      if (!isWebMediaUri(uri) && !isBundledDefaultMediaUri(uri)) {
+        setResolved({ sourceUri: uri, displayUri: uri });
+        return;
+      }
 
-      if (!isMounted) {
-        if (resolvedUri) {
-          URL.revokeObjectURL(resolvedUri);
+      setResolved({ sourceUri: uri, displayUri: null });
+
+      try {
+        const resolvedUri = isWebMediaUri(uri)
+          ? await getWebMediaObjectUrl(uri)
+          : await resolveBundledDefaultMediaUri(uri);
+        objectUrl = isWebMediaUri(uri) ? resolvedUri : null;
+
+        if (!isMounted) {
+          if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+          }
+          return;
         }
-        return;
-      }
 
-      setDisplayUri(resolvedUri);
+        setResolved({ sourceUri: uri, displayUri: resolvedUri });
+      } catch {
+        if (isMounted) {
+          setResolved({ sourceUri: uri, displayUri: null });
+        }
+      }
     }
 
     void resolveUri();
@@ -38,5 +58,13 @@ export function useDisplayMediaUri(uri: string | null): string | null {
     };
   }, [uri]);
 
-  return displayUri;
+  return resolved.sourceUri === uri ? resolved.displayUri : getImmediateDisplayUri(uri);
+}
+
+function getImmediateDisplayUri(uri: string | null): string | null {
+  if (!uri || isWebMediaUri(uri) || isBundledDefaultMediaUri(uri)) {
+    return null;
+  }
+
+  return uri;
 }

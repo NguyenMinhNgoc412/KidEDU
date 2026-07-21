@@ -1,10 +1,4 @@
-import type {
-  Category,
-  LoopMode,
-  MediaRole,
-  MediaType,
-  SpeedPreset
-} from "./types";
+import type { Category, LoopMode, MediaRole, SpeedPreset } from "./types";
 import { normalizeLoopMode, normalizeSpeedPreset } from "./learningSettings";
 
 export interface SeedLearningItem {
@@ -106,18 +100,6 @@ export const learningSettingKeys = {
   reinforcementEnabled: "learning.reinforcementEnabled",
   sfxEnabled: "learning.sfxEnabled"
 } as const;
-
-export function mediaTypeForRole(role: MediaRole): MediaType {
-  if (role === "mouth_video") {
-    return "video";
-  }
-
-  if (role === "pronunciation_audio" || role === "sfx") {
-    return "audio";
-  }
-
-  return "image";
-}
 
 export function isSpeedPreset(value: string | null): value is SpeedPreset {
   return normalizeSpeedPreset(value) === value;

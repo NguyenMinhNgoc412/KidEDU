@@ -4,13 +4,19 @@ import { AppState } from "react-native";
 
 import { useKidEduRepository } from "@/data/KidEduDataProvider";
 import { queryKeys } from "@/data/queries";
-import type { DeckDetail, LearningItem, LearningSettings, PracticeSessionStatus } from "@/data/types";
+import type {
+  DeckDetail,
+  LearningItem,
+  LearningSettings,
+  PracticeSessionStatus
+} from "@/data/types";
 
 import { getAutoPlayItems } from "./autoPlayItems";
-import { shouldWaitForSamplePlaybackEnd } from "./autoPlayTimeline";
+import { getSamplePlaybackTimeoutMs, shouldWaitForSamplePlaybackEnd } from "./autoPlayTimeline";
 import {
   advanceAutoPlayState,
   createInitialAutoPlayState,
+  getNextAutoPlayItemIndex,
   getPhaseDurationMs,
   pauseAutoPlayState,
   replayCurrentAutoPlayItem,
@@ -23,6 +29,7 @@ export interface UseAutoPlaySessionResult {
   state: AutoPlayState;
   playableItems: LearningItem[];
   currentItem: LearningItem | null;
+  nextItem: LearningItem | null;
   pause(): void;
   resume(): void;
   replay(): void;
@@ -31,67 +38,120 @@ export interface UseAutoPlaySessionResult {
   completeCurrentSample(): void;
 }
 
-export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings): UseAutoPlaySessionResult {
+interface AutoPlaySessionRun {
+  sessionId: string | null;
+  isActive: boolean;
+  finalStatus: PracticeSessionStatus | null;
+}
+
+export function useAutoPlaySession(
+  deck: DeckDetail,
+  settings: LearningSettings
+): UseAutoPlaySessionResult {
   const repository = useKidEduRepository();
   const queryClient = useQueryClient();
-  const { loopCount, loopMode, playbackSpeed, reinforcementEnabled, sfxEnabled, speedPreset } = settings;
+  const { loopCount, loopMode, playbackSpeed, reinforcementEnabled, sfxEnabled, speedPreset } =
+    settings;
   const playableItems = useMemo(() => getAutoPlayItems(deck.items), [deck.items]);
   const [state, setState] = useState(() => createInitialAutoPlayState(playableItems.length));
-  const shouldWaitForCurrentSamplePlaybackEnd = shouldWaitForSamplePlaybackEnd(playableItems[state.itemIndex]);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [sessionRun, setSessionRun] = useState(0);
+  const currentItem = playableItems[state.itemIndex];
+  const shouldWaitForCurrentSamplePlaybackEnd = shouldWaitForSamplePlaybackEnd(currentItem);
+  const samplePlaybackTimeoutMs = getSamplePlaybackTimeoutMs(currentItem, playbackSpeed);
+  const nextItemIndex = getNextAutoPlayItemIndex(state, settings, playableItems.length);
   const sessionIdRef = useRef<string | null>(null);
+  const activeSessionRunRef = useRef<AutoPlaySessionRun | null>(null);
   const viewedKeyRef = useRef<string | null>(null);
   const completedKeyRef = useRef<string | null>(null);
-  const finishedRef = useRef(false);
+  const finalizedSessionIdsRef = useRef(new Set<string>());
 
-  const finishSession = useCallback(
-    (status: PracticeSessionStatus) => {
-      const sessionId = sessionIdRef.current;
-
-      if (!sessionId || finishedRef.current) {
+  const finishSessionById = useCallback(
+    (sessionId: string, status: PracticeSessionStatus) => {
+      if (finalizedSessionIdsRef.current.has(sessionId)) {
         return;
       }
 
-      finishedRef.current = true;
-      void repository.finishPracticeSession({ sessionId, status }).then(async () => {
-        await queryClient.invalidateQueries({ queryKey: queryKeys.progress });
-      });
+      finalizedSessionIdsRef.current.add(sessionId);
+      void repository
+        .finishPracticeSession({ sessionId, status })
+        .then(() => queryClient.invalidateQueries({ queryKey: queryKeys.progress }))
+        .catch(() => {
+          finalizedSessionIdsRef.current.delete(sessionId);
+        });
     },
     [queryClient, repository]
+  );
+
+  const finishCurrentSession = useCallback(
+    (status: PracticeSessionStatus) => {
+      const run = activeSessionRunRef.current;
+      if (!run) {
+        return;
+      }
+
+      run.finalStatus ??= status;
+      if (run.sessionId) {
+        finishSessionById(run.sessionId, run.finalStatus);
+      }
+    },
+    [finishSessionById]
   );
 
   useEffect(() => {
     setState(createInitialAutoPlayState(playableItems.length));
     sessionIdRef.current = null;
+    setActiveSessionId(null);
     viewedKeyRef.current = null;
     completedKeyRef.current = null;
-    finishedRef.current = false;
   }, [deck.id, playableItems.length]);
 
   useEffect(() => {
-    let isMounted = true;
+    const run: AutoPlaySessionRun = {
+      sessionId: null,
+      isActive: true,
+      finalStatus: null
+    };
+    activeSessionRunRef.current = run;
 
     async function startSession() {
-      if (sessionIdRef.current || playableItems.length === 0) {
+      if (playableItems.length === 0) {
         return;
       }
 
-      const sessionId = await repository.startPracticeSession({ mode: "auto_play_deck", deckId: deck.id });
-      if (isMounted) {
-        sessionIdRef.current = sessionId;
+      const sessionId = await repository.startPracticeSession({
+        mode: "auto_play_deck",
+        deckId: deck.id
+      });
+      run.sessionId = sessionId;
+
+      if (!run.isActive || run.finalStatus) {
+        finishSessionById(sessionId, run.finalStatus ?? "interrupted");
+        return;
       }
+
+      sessionIdRef.current = sessionId;
+      setActiveSessionId(sessionId);
     }
 
-    void startSession();
+    void startSession().catch(() => undefined);
 
     return () => {
-      isMounted = false;
+      run.isActive = false;
+      run.finalStatus ??= "interrupted";
+      if (activeSessionRunRef.current === run) {
+        activeSessionRunRef.current = null;
+      }
+      if (run.sessionId) {
+        finishSessionById(run.sessionId, run.finalStatus);
+      }
     };
-  }, [deck.id, playableItems.length, repository]);
+  }, [deck.id, finishSessionById, playableItems.length, repository, sessionRun]);
 
   useEffect(() => {
     const duration =
       state.phase === "sample" && shouldWaitForCurrentSamplePlaybackEnd
-        ? null
+        ? samplePlaybackTimeoutMs
         : getPhaseDurationMs(state.phase, speedPreset);
 
     if (duration === null) {
@@ -131,6 +191,7 @@ export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings)
     playbackSpeed,
     playableItems.length,
     reinforcementEnabled,
+    samplePlaybackTimeoutMs,
     shouldWaitForCurrentSamplePlaybackEnd,
     sfxEnabled,
     speedPreset,
@@ -152,7 +213,7 @@ export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings)
 
   useEffect(() => {
     const currentItem = playableItems[state.itemIndex];
-    const sessionId = sessionIdRef.current;
+    const sessionId = activeSessionId;
 
     if (!currentItem || !sessionId || state.phase !== "attention") {
       return;
@@ -164,14 +225,32 @@ export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings)
     }
 
     viewedKeyRef.current = key;
-    void repository.recordPracticeEvent({ sessionId, learningItemId: currentItem.id, eventType: "viewed" });
-  }, [playableItems, repository, state.itemIndex, state.loopIndex, state.phase, state.replayNonce]);
+    void repository
+      .recordPracticeEvent({
+        sessionId,
+        learningItemId: currentItem.id,
+        eventType: "viewed"
+      })
+      .catch(() => undefined);
+  }, [
+    activeSessionId,
+    playableItems,
+    repository,
+    state.itemIndex,
+    state.loopIndex,
+    state.phase,
+    state.replayNonce
+  ]);
 
   useEffect(() => {
     const currentItem = playableItems[state.itemIndex];
-    const sessionId = sessionIdRef.current;
+    const sessionId = activeSessionId;
 
-    if (!currentItem || !sessionId || (state.phase !== "transition" && state.phase !== "reinforce")) {
+    if (
+      !currentItem ||
+      !sessionId ||
+      (state.phase !== "transition" && state.phase !== "reinforce")
+    ) {
       return;
     }
 
@@ -181,15 +260,29 @@ export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings)
     }
 
     completedKeyRef.current = key;
-    void repository.recordPracticeEvent({ sessionId, learningItemId: currentItem.id, eventType: "completed_item" });
-  }, [playableItems, repository, state.itemIndex, state.loopIndex, state.phase, state.replayNonce]);
+    void repository
+      .recordPracticeEvent({
+        sessionId,
+        learningItemId: currentItem.id,
+        eventType: "completed_item"
+      })
+      .catch(() => undefined);
+  }, [
+    activeSessionId,
+    playableItems,
+    repository,
+    state.itemIndex,
+    state.loopIndex,
+    state.phase,
+    state.replayNonce
+  ]);
 
   useEffect(() => {
     if (state.phase === "completed" || state.phase === "stopped") {
       const status: PracticeSessionStatus = state.phase === "completed" ? "completed" : "cancelled";
-      finishSession(status);
+      finishCurrentSession(status);
     }
-  }, [finishSession, state.phase]);
+  }, [finishCurrentSession, state.phase]);
 
   const pause = useCallback(() => {
     setState((current) => pauseAutoPlayState(current));
@@ -204,25 +297,32 @@ export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings)
     const sessionId = sessionIdRef.current;
 
     if (currentItem && sessionId) {
-      void repository.recordPracticeEvent({ sessionId, learningItemId: currentItem.id, eventType: "replayed" });
+      void repository
+        .recordPracticeEvent({
+          sessionId,
+          learningItemId: currentItem.id,
+          eventType: "replayed"
+        })
+        .catch(() => undefined);
     }
 
     setState((current) => replayCurrentAutoPlayItem(current));
   }, [playableItems, repository, state.itemIndex]);
 
   const exit = useCallback(() => {
-    finishSession("cancelled");
+    finishCurrentSession("cancelled");
     setState((current) => stopAutoPlayState(current));
-  }, [finishSession]);
+  }, [finishCurrentSession]);
 
   const restart = useCallback(() => {
-    finishSession("cancelled");
+    finishCurrentSession("cancelled");
     setState(createInitialAutoPlayState(playableItems.length));
     sessionIdRef.current = null;
+    setActiveSessionId(null);
     viewedKeyRef.current = null;
     completedKeyRef.current = null;
-    finishedRef.current = false;
-  }, [finishSession, playableItems.length]);
+    setSessionRun((run) => run + 1);
+  }, [finishCurrentSession, playableItems.length]);
 
   const completeCurrentSample = useCallback(() => {
     setState((current) => {
@@ -236,12 +336,21 @@ export function useAutoPlaySession(deck: DeckDetail, settings: LearningSettings)
         playableItems.length
       );
     });
-  }, [loopCount, loopMode, playbackSpeed, playableItems.length, reinforcementEnabled, sfxEnabled, speedPreset]);
+  }, [
+    loopCount,
+    loopMode,
+    playbackSpeed,
+    playableItems.length,
+    reinforcementEnabled,
+    sfxEnabled,
+    speedPreset
+  ]);
 
   return {
     state,
     playableItems,
-    currentItem: playableItems[state.itemIndex] ?? null,
+    currentItem: currentItem ?? null,
+    nextItem: nextItemIndex === null ? null : (playableItems[nextItemIndex] ?? null),
     pause,
     resume,
     replay,

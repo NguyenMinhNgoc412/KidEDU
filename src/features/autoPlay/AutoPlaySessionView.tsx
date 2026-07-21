@@ -1,15 +1,25 @@
+import { Image } from "expo-image";
 import { Pause, Play, RotateCcw, X } from "lucide-react-native";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
 import { Card } from "@/components/Card";
 import { KidButton } from "@/components/KidButton";
 import { StateMessage } from "@/components/StateMessage";
+import { isBundledDefaultMediaUri } from "@/data/defaultMediaRegistry";
 import type { DeckDetail, LearningSettings } from "@/data/types";
 import { getAutoPlaySignal } from "@/features/autoPlay/autoPlayEngine";
+import {
+  getAutoPlayPreloadMediaUris,
+  getAutoPlayPreloadVisualUri
+} from "@/features/autoPlay/autoPlayTimeline";
 import { useAutoPlaySession } from "@/features/autoPlay/useAutoPlaySession";
 import { LearningMediaPlayer } from "@/features/learning/LearningMediaPlayer";
+import {
+  preloadBundledDefaultMediaUris,
+  resolveBundledDefaultMediaUri
+} from "@/features/media/bundledMediaAssetResolver";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
 import { colors, radii, spacing } from "@/theme";
 
@@ -24,6 +34,36 @@ export function AutoPlaySessionView({
 }) {
   const session = useAutoPlaySession(deck, settings);
   const currentItem = session.currentItem;
+
+  useEffect(() => {
+    const nextItem = session.nextItem;
+    if (!nextItem) {
+      return;
+    }
+
+    let isCurrentPreload = true;
+
+    async function preloadNextItem() {
+      const mediaUris = getAutoPlayPreloadMediaUris(nextItem);
+      await preloadBundledDefaultMediaUris(mediaUris);
+
+      const visualUri = getAutoPlayPreloadVisualUri(nextItem);
+      const resolvedVisualUri =
+        visualUri && isBundledDefaultMediaUri(visualUri)
+          ? await resolveBundledDefaultMediaUri(visualUri)
+          : visualUri;
+
+      if (isCurrentPreload && resolvedVisualUri) {
+        await Image.prefetch(resolvedVisualUri, "memory-disk");
+      }
+    }
+
+    void preloadNextItem().catch(() => undefined);
+
+    return () => {
+      isCurrentPreload = false;
+    };
+  }, [session.nextItem]);
 
   if (session.state.phase === "completed") {
     const isEmpty = session.state.completedReason === "no_valid_items";

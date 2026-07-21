@@ -1,5 +1,14 @@
 import { useRouter } from "expo-router";
-import { BookOpen, ChartNoAxesColumn, Home, Layers3, LogOut, Settings } from "lucide-react-native";
+import {
+  Archive,
+  BookOpen,
+  ChartNoAxesColumn,
+  Home,
+  Layers3,
+  LogOut,
+  Settings,
+  ShieldCheck
+} from "lucide-react-native";
 import { StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
@@ -59,6 +68,18 @@ export default function ParentHomeScreen() {
           icon={<Settings color={colors.onPrimary} size={22} />}
           label="Cài đặt"
           onPress={() => router.push("/parent/settings")}
+          variant="secondary"
+        />
+        <KidButton
+          icon={<Archive color={colors.onPrimary} size={22} />}
+          label="Sao lưu dữ liệu"
+          onPress={() => router.push("/parent/backup")}
+          variant="secondary"
+        />
+        <KidButton
+          icon={<ShieldCheck color={colors.onPrimary} size={22} />}
+          label="Quyền riêng tư & dữ liệu"
+          onPress={() => router.push("/parent/privacy")}
           variant="secondary"
         />
       </View>
