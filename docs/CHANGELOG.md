@@ -12,6 +12,29 @@ Format dùng theo hướng đơn giản:
 
 ---
 
+## [0.5.2] — 2026-07-27
+
+### Added
+
+- Bổ sung release rule và preflight cho video học mặc định bundled: MP4 H.264, HD 720p trở lên, có thumbnail, duration, size và asset key versioned.
+- Bổ sung production build gate yêu cầu ít nhất một video khẩu hình bundled.
+
+### Changed
+
+- Chốt video học cốt lõi của MVP phát từ local bundled asset, không stream URL cloud trực tiếp trong Learning/Auto Play.
+- Làm rõ nội dung CDN sau MVP phải được tải và kiểm tra vào local storage trước khi học.
+
+### Affected files
+
+- `06-tech-local-data-media-sot.md`
+- `assets/default-media/README.md`
+
+### Reason
+
+Đảm bảo fresh install hoạt động offline, timeline học không phụ thuộc buffering mạng và media phát hành có metadata/dung lượng kiểm soát được.
+
+---
+
 ## [0.5.1] — 2026-07-27
 
 ### Changed

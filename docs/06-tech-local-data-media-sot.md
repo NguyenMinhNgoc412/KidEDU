@@ -246,6 +246,26 @@ Quy tắc:
 - Khi một media bị xóa, DB cập nhật trước rồi cleanup file an toàn sau.
 - Không dùng tên file gốc làm ID duy nhất; dùng generated ID.
 
+### 5.1. Media học mặc định bundled
+
+Trong MVP, video học mặc định cốt lõi phải được đóng gói bằng static asset của app và resolve
+thành URI local trước khi phát. Không lưu hoặc phát trực tiếp URL `http://`/`https://` trong
+Learning hay Auto Play.
+
+Mỗi video khẩu hình bundled bắt buộc:
+
+- MP4 H.264, tối thiểu HD 1280 × 720 và tối đa 15 giây;
+- có thumbnail JPEG/WebP riêng; list chỉ render thumbnail;
+- có asset key versioned, `duration_ms`, `size_bytes` và metadata resolution;
+- thuộc một seed item hợp lệ và dùng `require(...)` tĩnh để Metro đưa file vào build;
+- qua default-media preflight trước production build.
+
+Fresh install phải phát được bộ video bundled khi thiết bị ở chế độ máy bay. Nếu file không
+resolve được, UI fallback về missing state an toàn thay vì thử URL remote hoặc crash.
+
+Sau MVP có thể dùng CDN cho nội dung mở rộng, nhưng app phải tải, kiểm tra version, size và
+checksum vào durable local storage trước khi cho học. Auto Play không stream video remote.
+
 ---
 
 ## 6. Media import pipeline

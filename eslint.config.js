@@ -31,5 +31,21 @@ module.exports = [
     rules: {
       "@typescript-eslint/no-require-imports": "off"
     }
+  },
+  {
+    files: ["scripts/**/*.cjs"],
+    languageOptions: {
+      sourceType: "commonjs",
+      globals: {
+        __dirname: "readonly",
+        console: "readonly",
+        module: "readonly",
+        process: "readonly",
+        require: "readonly"
+      }
+    },
+    rules: {
+      "@typescript-eslint/no-require-imports": "off"
+    }
   }
 ];

@@ -11,6 +11,30 @@ describe("defaultMediaRegistry", () => {
     expect(validateBundledDefaultMediaDefinitions(bundledDefaultMedia)).toEqual([]);
   });
 
+  it("bundles the test mouth videos for ba and mẹ", () => {
+    expect(
+      bundledDefaultMedia.map(({ itemId, role, durationMs, videoMetadata }) => ({
+        itemId,
+        role,
+        durationMs,
+        videoMetadata
+      }))
+    ).toEqual([
+      {
+        itemId: "item-ba",
+        role: "mouth_video",
+        durationMs: 10_006,
+        videoMetadata: { codec: "h264", width: 1280, height: 720 }
+      },
+      {
+        itemId: "item-me",
+        role: "mouth_video",
+        durationMs: 10_006,
+        videoMetadata: { codec: "h264", width: 1280, height: 720 }
+      }
+    ]);
+  });
+
   it("creates an encoded logical URI for bundled assets", () => {
     const uri = createBundledDefaultMediaUri("item-mẹ/mouth video v1");
 
@@ -66,6 +90,50 @@ describe("defaultMediaRegistry", () => {
       "Default media thumbnail item-me-mouth-video-thumbnail-v1 must be an image"
     );
   });
+
+  it("requires versioned local assets and rejects cloud URLs", () => {
+    const errors = validateBundledDefaultMediaDefinitions([
+      makeDefinition({
+        asset: {
+          key: "mouth-video",
+          module: "https://cdn.example.com/mouth.mp4",
+          mimeType: "video/mp4"
+        }
+      })
+    ]);
+
+    expect(errors).toContain("Default media asset key mouth-video must start with item-me-");
+    expect(errors).toContain(
+      "Default media asset key mouth-video must end with a revision such as -v1"
+    );
+    expect(errors).toContain("Default media asset mouth-video must be bundled, not a remote URL");
+  });
+
+  it("requires complete HD H.264 metadata for bundled mouth videos", () => {
+    const errors = validateBundledDefaultMediaDefinitions([
+      makeDefinition({
+        durationMs: 0,
+        sizeBytes: undefined,
+        thumbnail: undefined,
+        videoMetadata: {
+          codec: "h264",
+          height: 480,
+          width: 640
+        }
+      })
+    ]);
+
+    expect(errors).toContain("Default media item-me:mouth_video requires a bundled thumbnail");
+    expect(errors).toContain(
+      "Default media item-me:mouth_video durationMs must be between 1 and 15000"
+    );
+    expect(errors).toContain(
+      "Default media item-me:mouth_video sizeBytes must be between 1 and 83886080"
+    );
+    expect(errors).toContain(
+      "Default media item-me:mouth_video resolution must be at least 1280 × 720"
+    );
+  });
 });
 
 function makeDefinition(
@@ -79,6 +147,18 @@ function makeDefinition(
       key: "item-me-mouth-video-v1",
       module: 1,
       mimeType: "video/mp4"
+    },
+    durationMs: 2_400,
+    sizeBytes: 1_200_000,
+    thumbnail: {
+      key: "item-me-mouth-video-thumbnail-v1",
+      module: 2,
+      mimeType: "image/jpeg"
+    },
+    videoMetadata: {
+      codec: "h264",
+      height: 720,
+      width: 1280
     },
     ...overrides
   };
