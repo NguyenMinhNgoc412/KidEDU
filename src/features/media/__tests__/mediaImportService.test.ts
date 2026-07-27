@@ -83,14 +83,42 @@ describe("mediaImportService", () => {
   it("rejects overlong mouth videos", () => {
     const video = makeAsset({
       duration: 16_000,
+      height: 720,
       mimeType: "video/mp4",
       type: "video",
-      uri: "file:///tmp/mouth.mp4"
+      uri: "file:///tmp/mouth.mp4",
+      width: 1280
     });
 
     expect(() => mediaImportService.validatePickedMediaAsset(video, "mouth_video")).toThrow(
       "15 giây"
     );
+  });
+
+  it("rejects mouth videos below HD resolution", () => {
+    const video = makeAsset({
+      height: 480,
+      mimeType: "video/mp4",
+      type: "video",
+      uri: "file:///tmp/mouth-sd.mp4",
+      width: 640
+    });
+
+    expect(() => mediaImportService.validatePickedMediaAsset(video, "mouth_video")).toThrow(
+      "HD 1280 × 720"
+    );
+  });
+
+  it("accepts portrait HD mouth videos", () => {
+    const video = makeAsset({
+      height: 1280,
+      mimeType: "video/mp4",
+      type: "video",
+      uri: "file:///tmp/mouth-hd.mp4",
+      width: 720
+    });
+
+    expect(() => mediaImportService.validatePickedMediaAsset(video, "mouth_video")).not.toThrow();
   });
 
   it("rejects videos for illustration role", () => {

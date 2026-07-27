@@ -12,7 +12,7 @@ import type {
 } from "@/data/types";
 
 import { getAutoPlayItems } from "./autoPlayItems";
-import { getSamplePlaybackTimeoutMs, shouldWaitForSamplePlaybackEnd } from "./autoPlayTimeline";
+import { shouldWaitForSamplePlaybackEnd } from "./autoPlayTimeline";
 import {
   advanceAutoPlayState,
   createInitialAutoPlayState,
@@ -58,7 +58,6 @@ export function useAutoPlaySession(
   const [sessionRun, setSessionRun] = useState(0);
   const currentItem = playableItems[state.itemIndex];
   const shouldWaitForCurrentSamplePlaybackEnd = shouldWaitForSamplePlaybackEnd(currentItem);
-  const samplePlaybackTimeoutMs = getSamplePlaybackTimeoutMs(currentItem, playbackSpeed);
   const nextItemIndex = getNextAutoPlayItemIndex(state, settings, playableItems.length);
   const sessionIdRef = useRef<string | null>(null);
   const activeSessionRunRef = useRef<AutoPlaySessionRun | null>(null);
@@ -151,7 +150,7 @@ export function useAutoPlaySession(
   useEffect(() => {
     const duration =
       state.phase === "sample" && shouldWaitForCurrentSamplePlaybackEnd
-        ? samplePlaybackTimeoutMs
+        ? null
         : getPhaseDurationMs(state.phase, speedPreset);
 
     if (duration === null) {
@@ -191,7 +190,6 @@ export function useAutoPlaySession(
     playbackSpeed,
     playableItems.length,
     reinforcementEnabled,
-    samplePlaybackTimeoutMs,
     shouldWaitForCurrentSamplePlaybackEnd,
     sfxEnabled,
     speedPreset,

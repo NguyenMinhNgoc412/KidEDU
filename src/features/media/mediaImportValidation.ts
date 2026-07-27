@@ -6,6 +6,8 @@ export const mediaImportLimits = {
   imageMaxBytes: 8 * 1024 * 1024,
   videoMaxBytes: 80 * 1024 * 1024,
   videoMaxDurationMs: 15_000,
+  videoMinLongEdge: 1280,
+  videoMinShortEdge: 720,
   imageMaxWidth: 1280,
   thumbnailMaxWidth: 640
 };
@@ -17,7 +19,10 @@ export class MediaImportError extends Error {
   }
 }
 
-export function getMediaTypeForRole(role: MediaRole, asset: Pick<ImagePickerAsset, "type" | "mimeType">): MediaType {
+export function getMediaTypeForRole(
+  role: MediaRole,
+  asset: Pick<ImagePickerAsset, "type" | "mimeType">
+): MediaType {
   if (role === "mouth_video") {
     return "video";
   }
@@ -65,6 +70,19 @@ export function validatePickedMediaAsset(asset: ImagePickerAsset, role: MediaRol
 
     if (asset.duration && asset.duration > mediaImportLimits.videoMaxDurationMs) {
       throw new MediaImportError("Video quá dài. Hãy chọn hoặc quay video tối đa 15 giây.");
+    }
+
+    const longEdge = Math.max(asset.width, asset.height);
+    const shortEdge = Math.min(asset.width, asset.height);
+    if (
+      longEdge > 0 &&
+      shortEdge > 0 &&
+      (longEdge < mediaImportLimits.videoMinLongEdge ||
+        shortEdge < mediaImportLimits.videoMinShortEdge)
+    ) {
+      throw new MediaImportError(
+        "Video có độ phân giải thấp. Hãy dùng video HD 1280 × 720 trở lên."
+      );
     }
 
     return;

@@ -31,6 +31,10 @@ describe("useAutoPlaySession lifecycle", () => {
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it("starts a new practice session when the deck is restarted", async () => {
     const repository = makeRepository(["session-1", "session-2"]);
     mockUseKidEduRepository.mockReturnValue(repository);
@@ -130,6 +134,33 @@ describe("useAutoPlaySession lifecycle", () => {
       });
     });
   });
+
+  it("keeps a real video in the sample phase until playback reports completion", async () => {
+    jest.useFakeTimers();
+    const repository = makeRepository(["session-video"]);
+    mockUseKidEduRepository.mockReturnValue(repository);
+
+    const { result, unmount } = await renderHook(() => useAutoPlaySession(videoDeck, settings));
+
+    expect(result.current.state.phase).toBe("attention");
+
+    await act(async () => {
+      jest.advanceTimersByTime(700);
+    });
+    expect(result.current.state.phase).toBe("sample");
+
+    await act(async () => {
+      jest.advanceTimersByTime(60_000);
+    });
+    expect(result.current.state.phase).toBe("sample");
+
+    await act(async () => {
+      result.current.completeCurrentSample();
+    });
+    expect(result.current.state.phase).toBe("speak");
+
+    await unmount();
+  });
 });
 
 const deck: DeckDetail = {
@@ -159,6 +190,38 @@ const settings: LearningSettings = {
   loopCount: 1,
   reinforcementEnabled: false,
   sfxEnabled: false
+};
+
+const videoDeck: DeckDetail = {
+  ...deck,
+  id: "deck-video",
+  items: [
+    {
+      ...deck.items[0]!,
+      media: [
+        {
+          id: "mapping-video",
+          learningItemId: "item-1",
+          mediaAssetId: "asset-video",
+          role: "mouth_video",
+          priority: 100,
+          isActive: true,
+          asset: {
+            id: "asset-video",
+            type: "video",
+            source: "custom",
+            uri: "file:///media/videos/custom/mouth.mp4",
+            thumbnailAssetId: null,
+            thumbnailUri: null,
+            durationMs: 15_000,
+            sizeBytes: 20_000_000,
+            mimeType: "video/mp4",
+            status: "active"
+          }
+        }
+      ]
+    }
+  ]
 };
 
 function makeRepository(sessionIds: string[]): KidEduRepository {

@@ -12,6 +12,24 @@ Format dùng theo hướng đơn giản:
 
 ---
 
+## [0.5.1] — 2026-07-27
+
+### Changed
+
+- Yêu cầu video khẩu hình cá nhân hóa đạt tối thiểu HD 1280 × 720.
+- Luồng quay dùng chất lượng cao nhất thiết bị hỗ trợ thay cho mức Medium; video chọn từ thư viện được giữ nguyên chất lượng bằng passthrough.
+
+### Affected files
+
+- `04-business-parent-content-management-sot.md`
+- `06-tech-local-data-media-sot.md`
+
+### Reason
+
+Đảm bảo khẩu hình trong video cá nhân hiển thị đủ rõ khi trẻ học, đồng thời không thêm bước nén video vào MVP.
+
+---
+
 ## [0.5.0] — 2026-07-21
 
 ### Added

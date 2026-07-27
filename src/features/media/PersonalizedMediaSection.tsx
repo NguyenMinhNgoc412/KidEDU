@@ -47,6 +47,7 @@ import {
   ensureMediaLibraryPermission,
   ensureMouthVideoCapturePermission
 } from "./mediaPermissions";
+import { cleanupPersonalizedMediaOnUnmount } from "./personalizedMediaLifecycle";
 import {
   useDeleteCustomMediaMutation,
   useSaveStagedMediaMutation
@@ -79,16 +80,16 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
-      isMountedRef.current = false;
-      if (audioRecorder.getStatus().isRecording) {
-        void audioRecorder.stop();
-      }
-
-      for (const staged of Object.values(stagedByRoleRef.current)) {
-        void discardStagedMedia(staged);
-      }
+      cleanupPersonalizedMediaOnUnmount({
+        discardStagedMedia,
+        markUnmounted: () => {
+          isMountedRef.current = false;
+        },
+        resetAudioMode: resetAudioRecordingMode,
+        stagedMedia: Object.values(stagedByRoleRef.current)
+      });
     };
-  }, [audioRecorder]);
+  }, []);
 
   function updateStagedMedia(role: MediaRole, staged?: StagedMediaImport) {
     const next = { ...stagedByRoleRef.current };
@@ -129,8 +130,10 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
         aspect: role === "illustration" ? [4, 3] : undefined,
         base64: false,
         mediaTypes: role === "illustration" ? ["images"] : ["videos"],
-        quality: role === "illustration" ? 0.82 : 0.7,
+        quality: role === "illustration" ? 0.82 : 1,
         selectionLimit: 1,
+        videoExportPreset:
+          role === "mouth_video" ? ImagePicker.VideoExportPreset.Passthrough : undefined,
         videoMaxDuration: 15
       });
 
@@ -157,9 +160,10 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
         base64: false,
         cameraType: ImagePicker.CameraType.front,
         mediaTypes: ["videos"],
-        quality: 0.7,
+        quality: 1,
+        videoExportPreset: ImagePicker.VideoExportPreset.Passthrough,
         videoMaxDuration: 15,
-        videoQuality: ImagePicker.UIImagePickerControllerQualityType.Medium
+        videoQuality: ImagePicker.UIImagePickerControllerQualityType.High
       });
 
       if (result.canceled) {
@@ -182,17 +186,38 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
   async function startAudioRecording() {
     try {
       await ensureAudioRecordingPermission();
+      if (!isMountedRef.current) {
+        return;
+      }
+
       await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+      if (!isMountedRef.current) {
+        await resetAudioRecordingMode();
+        return;
+      }
+
       await audioRecorder.prepareToRecordAsync(RecordingPresets.LOW_QUALITY);
+      if (!isMountedRef.current) {
+        await resetAudioRecordingMode();
+        return;
+      }
+
       audioRecorder.record();
     } catch (error) {
-      Alert.alert("Chưa thu âm được", getErrorMessage(error));
+      void resetAudioRecordingMode();
+      if (isMountedRef.current) {
+        Alert.alert("Chưa thu âm được", getErrorMessage(error));
+      }
     }
   }
 
   async function stopAudioRecording() {
     try {
       await audioRecorder.stop();
+      if (!isMountedRef.current) {
+        return;
+      }
+
       const status = audioRecorder.getStatus();
       const uri = status.url ?? audioRecorder.uri;
 
@@ -208,9 +233,11 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
         })
       );
     } catch (error) {
-      Alert.alert("Chưa dừng được thu âm", getErrorMessage(error));
+      if (isMountedRef.current) {
+        Alert.alert("Chưa dừng được thu âm", getErrorMessage(error));
+      }
     } finally {
-      void setAudioModeAsync({ allowsRecording: false });
+      void resetAudioRecordingMode();
     }
   }
 
@@ -536,9 +563,17 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Vui lòng thử lại.";
 }
 
+async function resetAudioRecordingMode(): Promise<void> {
+  try {
+    await setAudioModeAsync({ allowsRecording: false });
+  } catch {
+    // Audio mode reset is best effort during screen unmount or native teardown.
+  }
+}
+
 const mediaHintByRole: Record<MediaRole, string> = {
   illustration: "Chọn ảnh rõ một chủ thể, JPG hoặc PNG.",
-  mouth_video: "Video ngắn, rõ miệng, tối đa khoảng 15 giây.",
+  mouth_video: "Video HD 720p trở lên, rõ miệng, tối đa khoảng 15 giây.",
   pronunciation_audio: "Thu âm giọng rõ, ngắn, không có nhạc nền.",
   sfx: "Âm thanh minh họa ngắn và nhẹ."
 };

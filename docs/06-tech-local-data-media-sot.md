@@ -2,7 +2,7 @@
 
 **Trạng thái:** SOT kỹ thuật chi tiết  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-21  
+**Ngày cập nhật:** 2026-07-27  
 **Phạm vi:** Local database, file storage, media pipeline, backup/restore và privacy data controls local  
 **Liên quan:** `02-kidedu-mobile-architecture-sot.md`, `05-tech-mobile-stack-sot.md`, `07-tech-performance-cache-memory-sot.md`
 
@@ -255,7 +255,7 @@ Luồng import ảnh/video/audio:
 ```text
 User chọn/quay file
   -> Validate loại file
-  -> Validate size/duration nếu biết
+  -> Validate size/duration/resolution nếu biết
   -> Copy vào temp
   -> Preview
   -> Xử lý nếu cần: resize ảnh, tạo thumbnail, nén video nếu bật
@@ -281,6 +281,8 @@ MVP ưu tiên giới hạn video thay vì nén phức tạp.
 Rule đề xuất:
 
 - video nên ngắn;
+- video cá nhân hóa phải có cạnh dài tối thiểu 1280 px và cạnh ngắn tối thiểu 720 px, áp dụng cho cả video ngang và dọc;
+- luồng quay yêu cầu chất lượng cao nhất thiết bị hỗ trợ; video chọn từ thư viện dùng passthrough, không hạ độ phân giải;
 - cảnh báo nếu video quá dài;
 - không tự import video quá lớn nếu có nguy cơ ảnh hưởng app;
 - tạo thumbnail cho video;

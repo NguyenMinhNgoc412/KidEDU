@@ -2,7 +2,7 @@
 
 **Trạng thái:** SOT nghiệp vụ chi tiết  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-21  
+**Ngày cập nhật:** 2026-07-27  
 **Phạm vi:** Khu phụ huynh, quản lý thẻ học, bộ học, nội dung cá nhân hóa, sao lưu/khôi phục và kiểm soát dữ liệu local  
 **Ghi chú:** File này mô tả nghiệp vụ. Không mô tả framework, database hoặc code.
 
@@ -162,6 +162,7 @@ Khi một thẻ có nội dung cá nhân hóa:
 Video cá nhân hóa nên:
 
 - ngắn;
+- có độ phân giải tối thiểu HD 1280 × 720 để khẩu hình hiển thị rõ;
 - rõ mặt hoặc rõ miệng;
 - âm thanh không quá ồn;
 - chỉ tập trung vào từ/cụm từ cần học;

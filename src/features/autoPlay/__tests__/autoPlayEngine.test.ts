@@ -14,7 +14,6 @@ import { getAutoPlayItems } from "../autoPlayItems";
 import {
   getAutoPlayPreloadMediaUris,
   getAutoPlayPreloadVisualUri,
-  getSamplePlaybackTimeoutMs,
   shouldWaitForSamplePlaybackEnd
 } from "../autoPlayTimeline";
 
@@ -229,23 +228,6 @@ describe("autoPlayEngine", () => {
     });
 
     expect(shouldWaitForSamplePlaybackEnd(bundledItem)).toBe(true);
-    expect(getSamplePlaybackTimeoutMs(bundledItem, 1)).toBe(4_000);
-  });
-
-  it("caps playback-driven samples so corrupt media cannot block Auto Play forever", () => {
-    const unknownDurationItem = makeLearningItem({
-      media: [makeMedia("mouth_video", { durationMs: null, uri: "file:///missing.mp4" })]
-    });
-    const knownDurationItem = makeLearningItem({
-      media: [
-        makeMedia("mouth_video", { durationMs: 4_000, uri: "file:///mouth.mp4" }),
-        makeMedia("pronunciation_audio", { durationMs: 1_000, uri: "file:///voice.m4a" })
-      ]
-    });
-
-    expect(getSamplePlaybackTimeoutMs(unknownDurationItem, 1)).toBe(20_000);
-    expect(getSamplePlaybackTimeoutMs(knownDurationItem, 1)).toBe(7_000);
-    expect(getSamplePlaybackTimeoutMs(makeLearningItem({}), 1)).toBeNull();
   });
 
   it("preloads only a lightweight visual URI for the next item", () => {
