@@ -1,14 +1,27 @@
 import { useEffect, useState } from "react";
 
 import { isBundledDefaultMediaUri } from "@/data/defaultMediaRegistry";
-import { resolveBundledDefaultMediaUri } from "@/features/media/bundledMediaAssetResolver";
+import {
+  getCachedBundledDefaultMediaUri,
+  resolveBundledDefaultMediaUri
+} from "@/features/media/bundledMediaAssetResolver";
 import { getWebMediaObjectUrl, isWebMediaUri } from "@/features/media/webMediaStore";
 
-export function useDisplayMediaUri(uri: string | null): string | null {
-  const [resolved, setResolved] = useState(() => ({
-    sourceUri: uri,
-    displayUri: getImmediateDisplayUri(uri)
-  }));
+export type DisplayMediaResolutionStatus = "ready" | "resolving" | "unavailable";
+
+export interface DisplayMediaResolution {
+  status: DisplayMediaResolutionStatus;
+  uri: string | null;
+}
+
+interface DisplayMediaResolutionState extends DisplayMediaResolution {
+  sourceUri: string | null;
+}
+
+export function useDisplayMedia(uri: string | null): DisplayMediaResolution {
+  const [resolved, setResolved] = useState<DisplayMediaResolutionState>(() =>
+    getImmediateDisplayMediaResolution(uri)
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -16,16 +29,28 @@ export function useDisplayMediaUri(uri: string | null): string | null {
 
     async function resolveUri() {
       if (!uri) {
-        setResolved({ sourceUri: null, displayUri: null });
+        setResolved({ sourceUri: null, status: "unavailable", uri: null });
         return;
       }
 
       if (!isWebMediaUri(uri) && !isBundledDefaultMediaUri(uri)) {
-        setResolved({ sourceUri: uri, displayUri: uri });
+        setResolved({ sourceUri: uri, status: "ready", uri });
         return;
       }
 
-      setResolved({ sourceUri: uri, displayUri: null });
+      if (isBundledDefaultMediaUri(uri)) {
+        const cachedUri = getCachedBundledDefaultMediaUri(uri);
+        if (cachedUri) {
+          setResolved((current) =>
+            current.sourceUri === uri && current.uri === cachedUri
+              ? current
+              : { sourceUri: uri, status: "ready", uri: cachedUri }
+          );
+          return;
+        }
+      }
+
+      setResolved({ sourceUri: uri, status: "resolving", uri: null });
 
       try {
         const resolvedUri = isWebMediaUri(uri)
@@ -40,10 +65,14 @@ export function useDisplayMediaUri(uri: string | null): string | null {
           return;
         }
 
-        setResolved({ sourceUri: uri, displayUri: resolvedUri });
+        setResolved({
+          sourceUri: uri,
+          status: resolvedUri ? "ready" : "unavailable",
+          uri: resolvedUri
+        });
       } catch {
         if (isMounted) {
-          setResolved({ sourceUri: uri, displayUri: null });
+          setResolved({ sourceUri: uri, status: "unavailable", uri: null });
         }
       }
     }
@@ -58,13 +87,38 @@ export function useDisplayMediaUri(uri: string | null): string | null {
     };
   }, [uri]);
 
-  return resolved.sourceUri === uri ? resolved.displayUri : getImmediateDisplayUri(uri);
+  const current = resolved.sourceUri === uri ? resolved : getImmediateDisplayMediaResolution(uri);
+  return {
+    status: current.status,
+    uri: current.uri
+  };
 }
 
-function getImmediateDisplayUri(uri: string | null): string | null {
-  if (!uri || isWebMediaUri(uri) || isBundledDefaultMediaUri(uri)) {
-    return null;
+export function useDisplayMediaUri(uri: string | null): string | null {
+  return useDisplayMedia(uri).uri;
+}
+
+function getImmediateDisplayMediaResolution(uri: string | null): DisplayMediaResolutionState {
+  if (!uri || isWebMediaUri(uri)) {
+    return {
+      sourceUri: uri,
+      status: uri ? "resolving" : "unavailable",
+      uri: null
+    };
   }
 
-  return uri;
+  if (isBundledDefaultMediaUri(uri)) {
+    const cachedUri = getCachedBundledDefaultMediaUri(uri);
+    return {
+      sourceUri: uri,
+      status: cachedUri ? "ready" : "resolving",
+      uri: cachedUri
+    };
+  }
+
+  return {
+    sourceUri: uri,
+    status: "ready",
+    uri
+  };
 }

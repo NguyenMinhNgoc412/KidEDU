@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useKidEduRepository } from "@/data/KidEduDataProvider";
 import type { PrivacyDataSummary } from "@/data/types";
 import { cleanupMediaFiles } from "@/features/media/mediaImportService";
+import { tryBeginExclusiveDataOperation } from "@/features/session/learningOperationCoordinator";
 
 import { subscribeToAppResume } from "./privacyAppState";
 import {
@@ -147,7 +148,16 @@ export function usePrivacyControls(): PrivacyControlsController {
       success: string;
       reloadAfter?: boolean;
     }): Promise<boolean> => {
+      const releaseOperation = tryBeginExclusiveDataOperation();
+      if (!releaseOperation) {
+        if (mountedRef.current) {
+          setErrorMessage("Hãy kết thúc bài học đang mở trước khi thay đổi dữ liệu.");
+        }
+        return false;
+      }
+
       if (!beginOperation(action)) {
+        releaseOperation();
         return false;
       }
 
@@ -171,6 +181,7 @@ export function usePrivacyControls(): PrivacyControlsController {
         return false;
       } finally {
         finishOperation();
+        releaseOperation();
       }
     },
     [beginOperation, finishOperation, loadOverview, refreshQueryCache]

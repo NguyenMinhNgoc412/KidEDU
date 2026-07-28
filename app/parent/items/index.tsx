@@ -21,6 +21,7 @@ import {
 } from "@/data/queries";
 import type { Category, LearningItem } from "@/data/types";
 import { cleanupOrphanedMediaFiles } from "@/features/media/mediaCleanupService";
+import { isLearningSessionActive } from "@/features/session/learningOperationCoordinator";
 import { getContentStatusLabel } from "@/features/media/mediaResolver";
 import { colors, radii, spacing } from "@/theme";
 
@@ -132,7 +133,9 @@ export default function ParentItemsScreen() {
         onPress: () =>
           archiveMutation.mutate(item.id, {
             onSuccess: () => {
-              void cleanupOrphanedMediaFiles(repository).catch(() => undefined);
+              void cleanupOrphanedMediaFiles(repository, {
+                isPlaybackActive: isLearningSessionActive
+              }).catch(() => undefined);
             }
           })
       }

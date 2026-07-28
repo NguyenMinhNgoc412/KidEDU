@@ -2,6 +2,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useKidEduRepository } from "@/data/KidEduDataProvider";
+import {
+  type ActivityRelease,
+  tryBeginExclusiveDataOperation
+} from "@/features/session/learningOperationCoordinator";
 
 import {
   BackupServiceError,
@@ -41,6 +45,7 @@ export function useBackupRestore(): BackupRestoreController {
   const queryClient = useQueryClient();
   const mountedRef = useRef(true);
   const busyRef = useRef(false);
+  const operationReleaseRef = useRef<ActivityRelease | null>(null);
   const createdRef = useRef<CreatedLocalBackup | null>(null);
   const preparedRef = useRef<PreparedLocalRestore | null>(null);
   const [isBusy, setIsBusy] = useState(false);
@@ -75,6 +80,13 @@ export function useBackupRestore(): BackupRestoreController {
       return false;
     }
 
+    const releaseOperation = tryBeginExclusiveDataOperation();
+    if (!releaseOperation) {
+      setErrorMessage("Hãy kết thúc bài học đang mở trước khi sao lưu hoặc khôi phục.");
+      return false;
+    }
+
+    operationReleaseRef.current = releaseOperation;
     busyRef.current = true;
     setIsBusy(true);
     setStage(null);
@@ -84,6 +96,8 @@ export function useBackupRestore(): BackupRestoreController {
 
   const finishOperation = useCallback(() => {
     busyRef.current = false;
+    operationReleaseRef.current?.();
+    operationReleaseRef.current = null;
     if (mountedRef.current) {
       setIsBusy(false);
       setStage(null);

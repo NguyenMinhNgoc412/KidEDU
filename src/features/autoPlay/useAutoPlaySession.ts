@@ -201,7 +201,7 @@ export function useAutoPlaySession(
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextState) => {
-      if (nextState !== "active") {
+      if (nextState === "background") {
         setState((current) => pauseAutoPlayState(current));
       }
     });

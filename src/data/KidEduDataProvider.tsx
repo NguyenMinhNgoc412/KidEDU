@@ -5,6 +5,7 @@ import {
   cleanupOrphanedMediaFiles,
   cleanupUnreferencedManagedMediaFiles
 } from "@/features/media/mediaCleanupService";
+import { isLearningSessionActive } from "@/features/session/learningOperationCoordinator";
 import { colors, fontFamilies, fontSizes, spacing } from "@/theme";
 
 import { openKidEduDatabase } from "./database";
@@ -26,8 +27,12 @@ export function KidEduDataProvider({ children }: { children: ReactNode }) {
         const nextRepository = new SQLiteKidEduRepository(db);
 
         try {
-          await cleanupOrphanedMediaFiles(nextRepository);
-          await cleanupUnreferencedManagedMediaFiles(nextRepository);
+          await cleanupOrphanedMediaFiles(nextRepository, {
+            isPlaybackActive: isLearningSessionActive
+          });
+          await cleanupUnreferencedManagedMediaFiles(nextRepository, {
+            isPlaybackActive: isLearningSessionActive
+          });
         } catch {
           // Recovery cleanup is best effort and must not block local learning data from opening.
         }

@@ -23,7 +23,18 @@ import {
   resolveLearningMediaStageRole,
   type ActiveLearningMediaRole
 } from "@/features/learning/learningMediaStage";
-import { useDisplayMediaUri } from "@/features/media/useDisplayMediaUri";
+import {
+  mediaResolveTimeoutMs,
+  usePlaybackProgressFailSafe
+} from "@/features/learning/learningSampleFailSafe";
+import {
+  configureMouthVideoPlayer,
+  hasMouthVideoReachedEnd,
+  learningAudioPlayerOptions,
+  MouthVideoPlaybackAttempts,
+  replayMouthVideoFromStart
+} from "@/features/learning/mouthVideoPlayback";
+import { useDisplayMedia } from "@/features/media/useDisplayMediaUri";
 import { colors, radii, spacing } from "@/theme";
 
 interface MouthVideoPlayerHandle {
@@ -32,14 +43,14 @@ interface MouthVideoPlayerHandle {
 
 export type LearningSampleCompletion = "played" | "unavailable";
 
-const audioLoadTimeoutMs = 4_000;
-
 export function LearningMediaPlayer({
   illustration,
   mouthVideo,
   pronunciationAudio,
   autoPlayKey,
   onAutoPlaySampleEnd,
+  onRequestResume,
+  manageAppStateExternally = false,
   paused = false,
   playbackSpeed = 1
 }: {
@@ -47,41 +58,57 @@ export function LearningMediaPlayer({
   mouthVideo?: LearningItemMedia;
   pronunciationAudio?: LearningItemMedia;
   autoPlayKey?: string | null;
+  manageAppStateExternally?: boolean;
   onAutoPlaySampleEnd?: (completion: LearningSampleCompletion) => void;
+  onRequestResume?: () => void;
   paused?: boolean;
   playbackSpeed?: PlaybackSpeed;
 }) {
-  const illustrationUri = useDisplayMediaUri(illustration?.asset.uri ?? null);
-  const videoUri = useDisplayMediaUri(mouthVideo?.asset.uri ?? null);
-  const audioUri = useDisplayMediaUri(pronunciationAudio?.asset.uri ?? null);
+  const illustrationResolution = useDisplayMedia(illustration?.asset.uri ?? null);
+  const videoResolution = useDisplayMedia(mouthVideo?.asset.uri ?? null);
+  const audioResolution = useDisplayMedia(pronunciationAudio?.asset.uri ?? null);
   const [activeRole, setActiveRole] = useState<ActiveLearningMediaRole>(
     illustration ? "illustration" : "mouth_video"
   );
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [videoPlaySignal, setVideoPlaySignal] = useState(0);
+  const [audioPlaybackAttempt, setAudioPlaybackAttempt] = useState(0);
+  const [isLocallyPaused, setIsLocallyPaused] = useState(false);
+  const [mediaPreparationTimeoutKey, setMediaPreparationTimeoutKey] = useState<string | null>(null);
+  const [videoPlayRequest, setVideoPlayRequest] = useState<{
+    scope: string | null;
+    signal: number;
+  }>({ scope: null, signal: 0 });
   const mouthVideoPlayerRef = useRef<MouthVideoPlayerHandle | null>(null);
   const lastAutoPlayKeyRef = useRef<string | null>(null);
   const completedAutoPlayKeyRef = useRef<string | null>(null);
   const audioCompletionAutoPlayKeyRef = useRef<string | null>(null);
   const audioPlaybackRequestRef = useRef(0);
+  const audioStartedRequestRef = useRef<number | null>(null);
   const shouldPlayFollowUpAudioRef = useRef(false);
-  const wasPausedRef = useRef(paused);
+  const playbackPaused = paused || isLocallyPaused;
+  const wasPausedRef = useRef(playbackPaused);
 
-  const playableVideoUri = isPlayableMediaUri(videoUri) ? videoUri : null;
-  const playableAudioUri = isPlayableMediaUri(audioUri) ? audioUri : null;
+  const illustrationUri = illustrationResolution.uri;
+  const playableVideoUri = isPlayableMediaUri(videoResolution.uri) ? videoResolution.uri : null;
+  const playableAudioUri = isPlayableMediaUri(audioResolution.uri) ? audioResolution.uri : null;
+  const isSampleMediaSettled =
+    (!mouthVideo || videoResolution.status !== "resolving") &&
+    (!pronunciationAudio || audioResolution.status !== "resolving");
+  const isSampleMediaReady = isSampleMediaSettled || mediaPreparationTimeoutKey === autoPlayKey;
   const mediaPlaybackIdentity = useMemo(
-    () =>
-      autoPlayKey
-        ? `${autoPlayKey}:${playableVideoUri ?? ""}:${playableAudioUri ?? ""}:${playbackSpeed}`
-        : null,
-    [autoPlayKey, playableAudioUri, playableVideoUri, playbackSpeed]
+    () => (autoPlayKey ? `${autoPlayKey}:${playbackSpeed}` : null),
+    [autoPlayKey, playbackSpeed]
   );
+  const videoPlaybackScope =
+    autoPlayKey ?? (playableVideoUri ? `manual:${playableVideoUri}` : null);
   const audioSource = useMemo(
     () => (playableAudioUri ? { uri: playableAudioUri } : null),
     [playableAudioUri]
   );
+  const hasLogicalSampleMedia = Boolean(mouthVideo || pronunciationAudio);
+  const hasPlayableSampleMedia = Boolean(playableVideoUri || playableAudioUri);
 
-  const audioPlayer = useAudioPlayer(audioSource, { updateInterval: 500 });
+  const audioPlayer = useAudioPlayer(audioSource, learningAudioPlayerOptions);
   const audioStatus = useAudioPlayerStatus(audioPlayer);
 
   useEffect(() => {
@@ -90,30 +117,81 @@ export function LearningMediaPlayer({
 
   const completeAutoPlaySample = useCallback(
     (completion: LearningSampleCompletion = "played") => {
-      if (!autoPlayKey || paused || completedAutoPlayKeyRef.current === autoPlayKey) {
+      if (!autoPlayKey || playbackPaused || completedAutoPlayKeyRef.current === autoPlayKey) {
         return;
       }
 
       completedAutoPlayKeyRef.current = autoPlayKey;
       audioCompletionAutoPlayKeyRef.current = null;
       audioPlaybackRequestRef.current += 1;
+      audioStartedRequestRef.current = null;
       shouldPlayFollowUpAudioRef.current = false;
       onAutoPlaySampleEnd?.(completion);
     },
-    [autoPlayKey, onAutoPlaySampleEnd, paused]
+    [autoPlayKey, onAutoPlaySampleEnd, playbackPaused]
   );
 
   const pauseAll = useCallback(() => {
     audioPlaybackRequestRef.current += 1;
+    audioStartedRequestRef.current = null;
     shouldPlayFollowUpAudioRef.current = false;
     safelyPausePlayer(mouthVideoPlayerRef.current);
     safelyPausePlayer(audioPlayer);
   }, [audioPlayer]);
+  const pauseAllRef = useRef(pauseAll);
+  pauseAllRef.current = pauseAll;
+  const requestResume = useCallback(() => {
+    setIsLocallyPaused(false);
+    onRequestResume?.();
+  }, [onRequestResume]);
+  const requestMouthVideoPlayback = useCallback(() => {
+    if (!videoPlaybackScope) {
+      return;
+    }
+
+    setVideoPlayRequest((current) => ({
+      scope: videoPlaybackScope,
+      signal: current.signal + 1
+    }));
+  }, [videoPlaybackScope]);
+
+  useEffect(() => {
+    if (
+      !autoPlayKey ||
+      playbackPaused ||
+      !hasLogicalSampleMedia ||
+      completedAutoPlayKeyRef.current === autoPlayKey
+    ) {
+      return;
+    }
+
+    if (isSampleMediaReady) {
+      if (!hasPlayableSampleMedia) {
+        setFeedback("Không thể chuẩn bị video hoặc âm phát âm. App sẽ tiếp tục thẻ này.");
+        completeAutoPlaySample("unavailable");
+      }
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      setMediaPreparationTimeoutKey(autoPlayKey);
+    }, mediaResolveTimeoutMs);
+
+    return () => clearTimeout(timeout);
+  }, [
+    autoPlayKey,
+    completeAutoPlaySample,
+    hasLogicalSampleMedia,
+    hasPlayableSampleMedia,
+    isSampleMediaReady,
+    playbackPaused
+  ]);
 
   const playAudio = useCallback(
     (options?: { completeAutoPlaySampleOnEnd?: boolean }) => {
       shouldPlayFollowUpAudioRef.current = false;
-      if (paused) {
+      if (playbackPaused) {
+        requestResume();
         return;
       }
 
@@ -124,24 +202,28 @@ export function LearningMediaPlayer({
       }
 
       safelyPausePlayer(mouthVideoPlayerRef.current);
+      safelyPausePlayer(audioPlayer);
       setActiveRole("pronunciation_audio");
       setFeedback(null);
       audioCompletionAutoPlayKeyRef.current =
         options?.completeAutoPlaySampleOnEnd && autoPlayKey ? autoPlayKey : null;
       const playbackRequest = audioPlaybackRequestRef.current + 1;
       audioPlaybackRequestRef.current = playbackRequest;
+      audioStartedRequestRef.current = null;
+      setAudioPlaybackAttempt(playbackRequest);
       safelyReplayAudioFromStart(
         audioPlayer,
         () => audioPlaybackRequestRef.current === playbackRequest
       );
     },
-    [audioPlayer, autoPlayKey, paused, playableAudioUri]
+    [audioPlayer, autoPlayKey, playbackPaused, playableAudioUri, requestResume]
   );
 
   const playMouthVideo = useCallback(() => {
     shouldPlayFollowUpAudioRef.current = false;
     audioPlaybackRequestRef.current += 1;
-    if (paused) {
+    if (playbackPaused) {
+      requestResume();
       return;
     }
 
@@ -154,16 +236,16 @@ export function LearningMediaPlayer({
     safelyPausePlayer(audioPlayer);
     setActiveRole("mouth_video");
     setFeedback(null);
-    setVideoPlaySignal((value) => value + 1);
-  }, [audioPlayer, paused, playableVideoUri]);
+    requestMouthVideoPlayback();
+  }, [audioPlayer, playbackPaused, playableVideoUri, requestMouthVideoPlayback, requestResume]);
 
   const playQueuedFollowUpAudio = useCallback(() => {
-    if (!shouldPlayFollowUpAudioRef.current || !playableAudioUri || paused) {
+    if (!shouldPlayFollowUpAudioRef.current || !playableAudioUri || playbackPaused) {
       return;
     }
 
     playAudio({ completeAutoPlaySampleOnEnd: true });
-  }, [paused, playableAudioUri, playAudio]);
+  }, [playbackPaused, playableAudioUri, playAudio]);
 
   const handleMouthVideoEnd = useCallback(() => {
     if (shouldPlayFollowUpAudioRef.current && playableAudioUri) {
@@ -176,10 +258,9 @@ export function LearningMediaPlayer({
 
   const handleMouthVideoPlayStart = useCallback(() => {
     audioPlaybackRequestRef.current += 1;
-    safelyPausePlayer(audioPlayer);
     setActiveRole("mouth_video");
     setFeedback(null);
-  }, [audioPlayer]);
+  }, []);
 
   const handleMouthVideoError = useCallback(() => {
     safelyPausePlayer(mouthVideoPlayerRef.current);
@@ -201,7 +282,7 @@ export function LearningMediaPlayer({
       safelyPausePlayer(audioPlayer);
       setActiveRole("mouth_video");
       setFeedback(null);
-      setVideoPlaySignal((value) => value + 1);
+      requestMouthVideoPlayback();
       return;
     }
 
@@ -211,46 +292,72 @@ export function LearningMediaPlayer({
     }
 
     setFeedback("Thẻ này chưa có video hoặc âm phát âm có thể phát.");
-  }, [audioPlayer, playableAudioUri, playableVideoUri, playAudio]);
+  }, [audioPlayer, playableAudioUri, playableVideoUri, playAudio, requestMouthVideoPlayback]);
 
-  useEffect(() => {
-    if (!audioStatus.didJustFinish || audioCompletionAutoPlayKeyRef.current !== autoPlayKey) {
-      return;
-    }
+  const activeAutoPlayAudioAttempt =
+    autoPlayKey &&
+    !playbackPaused &&
+    activeRole === "pronunciation_audio" &&
+    audioCompletionAutoPlayKeyRef.current === autoPlayKey &&
+    audioPlaybackAttempt > 0
+      ? audioPlaybackAttempt
+      : null;
 
-    completeAutoPlaySample();
-  }, [audioStatus.didJustFinish, autoPlayKey, completeAutoPlaySample]);
-
-  useEffect(() => {
+  const handleAudioPlaybackTimeout = useCallback(() => {
     if (
       !autoPlayKey ||
-      paused ||
-      activeRole !== "pronunciation_audio" ||
+      playbackPaused ||
+      audioPlaybackAttempt !== audioPlaybackRequestRef.current ||
       audioCompletionAutoPlayKeyRef.current !== autoPlayKey ||
-      audioStatus.isLoaded
+      completedAutoPlayKeyRef.current === autoPlayKey
     ) {
       return;
     }
 
-    const timeout = setTimeout(() => {
-      audioPlaybackRequestRef.current += 1;
-      safelyPausePlayer(audioPlayer);
-      setFeedback("Không thể phát âm mẫu. App sẽ chuyển sang lượt con nói.");
-      completeAutoPlaySample("unavailable");
-    }, audioLoadTimeoutMs);
+    audioPlaybackRequestRef.current += 1;
+    audioStartedRequestRef.current = null;
+    safelyPausePlayer(audioPlayer);
+    setFeedback("Âm phát âm mất phản hồi. App sẽ chuyển sang lượt con nói.");
+    completeAutoPlaySample("unavailable");
+  }, [audioPlayer, audioPlaybackAttempt, autoPlayKey, completeAutoPlaySample, playbackPaused]);
 
-    return () => clearTimeout(timeout);
-  }, [activeRole, audioPlayer, audioStatus.isLoaded, autoPlayKey, completeAutoPlaySample, paused]);
+  usePlaybackProgressFailSafe({
+    attemptKey: activeAutoPlayAudioAttempt,
+    paused: playbackPaused,
+    playing: audioStatus.playing,
+    progressSeconds: audioStatus.currentTime,
+    onPlaybackStarted: (attemptKey) => {
+      if (typeof attemptKey === "number" && attemptKey === audioPlaybackRequestRef.current) {
+        audioStartedRequestRef.current = attemptKey;
+      }
+    },
+    onTimeout: handleAudioPlaybackTimeout
+  });
+
+  useEffect(() => {
+    if (
+      !audioStatus.didJustFinish ||
+      audioCompletionAutoPlayKeyRef.current !== autoPlayKey ||
+      audioStartedRequestRef.current !== audioPlaybackAttempt ||
+      audioPlaybackRequestRef.current !== audioPlaybackAttempt
+    ) {
+      return;
+    }
+
+    completeAutoPlaySample();
+  }, [audioPlaybackAttempt, audioStatus.didJustFinish, autoPlayKey, completeAutoPlaySample]);
 
   useEffect(() => {
     const wasPaused = wasPausedRef.current;
-    wasPausedRef.current = paused;
+    wasPausedRef.current = playbackPaused;
 
     if (
       !wasPaused ||
-      paused ||
+      playbackPaused ||
       !autoPlayKey ||
       !mediaPlaybackIdentity ||
+      !isSampleMediaReady ||
+      !hasPlayableSampleMedia ||
       lastAutoPlayKeyRef.current !== mediaPlaybackIdentity ||
       completedAutoPlayKeyRef.current === autoPlayKey
     ) {
@@ -258,32 +365,44 @@ export function LearningMediaPlayer({
     }
 
     playSample();
-  }, [autoPlayKey, mediaPlaybackIdentity, paused, playSample]);
+  }, [
+    autoPlayKey,
+    hasPlayableSampleMedia,
+    isSampleMediaReady,
+    mediaPlaybackIdentity,
+    playbackPaused,
+    playSample
+  ]);
 
   useEffect(() => {
-    if (paused) {
+    if (playbackPaused) {
       pauseAll();
     }
-  }, [pauseAll, paused]);
+  }, [pauseAll, playbackPaused]);
 
   useEffect(() => {
+    if (manageAppStateExternally) {
+      return;
+    }
+
     const subscription = AppState.addEventListener("change", (nextState) => {
-      if (nextState !== "active") {
+      if (nextState === "background") {
+        setIsLocallyPaused(true);
         pauseAll();
       }
     });
 
     return () => subscription.remove();
-  }, [pauseAll]);
+  }, [manageAppStateExternally, pauseAll]);
 
   useEffect(() => {
     return () => {
-      pauseAll();
+      pauseAllRef.current();
     };
-  }, [pauseAll]);
+  }, []);
 
   useEffect(() => {
-    if (!autoPlayKey || paused) {
+    if (!autoPlayKey || playbackPaused || !isSampleMediaReady || !hasPlayableSampleMedia) {
       return;
     }
 
@@ -293,7 +412,14 @@ export function LearningMediaPlayer({
 
     lastAutoPlayKeyRef.current = mediaPlaybackIdentity;
     playSample();
-  }, [autoPlayKey, mediaPlaybackIdentity, paused, playSample]);
+  }, [
+    autoPlayKey,
+    hasPlayableSampleMedia,
+    isSampleMediaReady,
+    mediaPlaybackIdentity,
+    playbackPaused,
+    playSample
+  ]);
 
   const hasRenderableIllustration = isRenderableMediaUri(illustrationUri);
   const stageRole = resolveLearningMediaStageRole({
@@ -315,8 +441,10 @@ export function LearningMediaPlayer({
             onEnd={handleMouthVideoEnd}
             onError={handleMouthVideoError}
             onPlayStart={handleMouthVideoPlayStart}
-            paused={paused}
-            playSignal={videoPlaySignal}
+            onRequestResume={requestResume}
+            paused={playbackPaused}
+            playRequestActive={videoPlayRequest.scope === videoPlaybackScope}
+            playSignal={videoPlayRequest.signal}
             playbackSpeed={playbackSpeed}
             uri={playableVideoUri}
           />
@@ -383,50 +511,158 @@ const MouthVideoPlayer = forwardRef<
     onEnd: () => void;
     onError: () => void;
     onPlayStart: () => void;
+    onRequestResume?: () => void;
     paused: boolean;
+    playRequestActive: boolean;
     playbackSpeed: PlaybackSpeed;
     playSignal: number;
     uri: string;
   }
 >(function MouthVideoPlayer(
-  { onEnd, onError, onPlayStart, paused, playbackSpeed, playSignal, uri },
+  {
+    onEnd,
+    onError,
+    onPlayStart,
+    onRequestResume,
+    paused,
+    playbackSpeed,
+    playRequestActive,
+    playSignal,
+    uri
+  },
   ref
 ) {
-  const [isPlayOverlayVisible, setPlayOverlayVisible] = useState(true);
-  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [activePlaybackAttempt, setActivePlaybackAttempt] = useState<number | null>(null);
+  const [playbackProgressSeconds, setPlaybackProgressSeconds] = useState(0);
+  const playbackAttemptsRef = useRef<MouthVideoPlaybackAttempts | null>(null);
+  playbackAttemptsRef.current ??= new MouthVideoPlaybackAttempts();
+  const playbackAttempts = playbackAttemptsRef.current;
+  const lastHandledPlaySignalRef = useRef(0);
+  const pausedRef = useRef(paused);
+  const playRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const videoPlayer = useVideoPlayer({ uri }, (player) => {
-    player.loop = false;
-    player.staysActiveInBackground = false;
-    player.audioMixingMode = "doNotMix";
+    configureMouthVideoPlayer(player);
   });
 
-  const clearOverlayTimer = useCallback(() => {
-    if (overlayTimerRef.current) {
-      clearTimeout(overlayTimerRef.current);
-      overlayTimerRef.current = null;
+  pausedRef.current = paused;
+
+  const clearPlayRetry = useCallback(() => {
+    if (playRetryTimerRef.current !== null) {
+      clearTimeout(playRetryTimerRef.current);
+      playRetryTimerRef.current = null;
     }
   }, []);
 
-  const showPlayOverlay = useCallback(() => {
-    setPlayOverlayVisible(true);
-    clearOverlayTimer();
-    overlayTimerRef.current = setTimeout(() => {
-      setPlayOverlayVisible(false);
-      overlayTimerRef.current = null;
-    }, 1000);
-  }, [clearOverlayTimer]);
+  const claimPendingPlaybackAttempt = useCallback(
+    (outcome: "end" | "error") => {
+      const pendingAttempt =
+        outcome === "end" ? playbackAttempts.claimEnd() : playbackAttempts.claimError();
+      if (pendingAttempt === null) {
+        return false;
+      }
 
-  const replayVideo = useCallback(() => {
-    if (videoPlayer.status === "error") {
-      onError();
+      clearPlayRetry();
+      setActivePlaybackAttempt((current) => (current === pendingAttempt ? null : current));
+      return true;
+    },
+    [clearPlayRetry, playbackAttempts]
+  );
+
+  const reportPlaybackError = useCallback(() => {
+    if (!claimPendingPlaybackAttempt("error")) {
       return;
     }
 
-    onPlayStart();
-    showPlayOverlay();
-    safelyReplayVideoFromStart(videoPlayer);
-  }, [onError, onPlayStart, showPlayOverlay, videoPlayer]);
+    setIsPlaying(false);
+    onError();
+  }, [claimPendingPlaybackAttempt, onError]);
+
+  const reportPlaybackEnd = useCallback(() => {
+    if (!hasMouthVideoReachedEnd(videoPlayer)) {
+      return;
+    }
+
+    if (!claimPendingPlaybackAttempt("end")) {
+      return;
+    }
+
+    setIsPlaying(false);
+    onEnd();
+  }, [claimPendingPlaybackAttempt, onEnd, videoPlayer]);
+
+  usePlaybackProgressFailSafe({
+    attemptKey: playRequestActive ? activePlaybackAttempt : null,
+    paused,
+    playing: isPlaying,
+    progressSeconds: playbackProgressSeconds,
+    onPlaybackStarted: (attemptKey) => {
+      if (typeof attemptKey === "number" && playbackAttempts.isActive(attemptKey)) {
+        playbackAttempts.markStarted();
+      }
+    },
+    onTimeout: reportPlaybackError
+  });
+
+  const startPendingPlayback = useCallback(
+    (isReady = videoPlayer.status === "readyToPlay") => {
+      if (paused || !isReady) {
+        return;
+      }
+
+      const pendingAttempt = playbackAttempts.tryStart();
+      if (pendingAttempt === null) {
+        return;
+      }
+
+      clearPlayRetry();
+      configureMouthVideoPlayer(videoPlayer);
+      onPlayStart();
+      replayMouthVideoFromStart(videoPlayer);
+      setVideoPlaybackRate(videoPlayer, playbackSpeed);
+
+      playRetryTimerRef.current = setTimeout(() => {
+        playRetryTimerRef.current = null;
+        if (
+          pausedRef.current ||
+          videoPlayer.playing ||
+          videoPlayer.status !== "readyToPlay" ||
+          !playbackAttempts.isActive(pendingAttempt)
+        ) {
+          return;
+        }
+
+        configureMouthVideoPlayer(videoPlayer);
+        safelyPlayPlayer(videoPlayer);
+      }, 300);
+    },
+    [clearPlayRetry, onPlayStart, paused, playbackAttempts, playbackSpeed, videoPlayer]
+  );
+
+  const beginPlaybackAttempt = useCallback(() => {
+    const playbackAttempt = playbackAttempts.begin();
+    setActivePlaybackAttempt(playbackAttempt);
+    setPlaybackProgressSeconds(0);
+
+    if (videoPlayer.status === "error") {
+      reportPlaybackError();
+      return;
+    }
+
+    startPendingPlayback();
+  }, [playbackAttempts, reportPlaybackError, startPendingPlayback, videoPlayer]);
+  const beginPlaybackAttemptRef = useRef(beginPlaybackAttempt);
+  beginPlaybackAttemptRef.current = beginPlaybackAttempt;
+
+  const replayVideo = useCallback(() => {
+    if (paused) {
+      onRequestResume?.();
+      return;
+    }
+
+    beginPlaybackAttempt();
+  }, [beginPlaybackAttempt, onRequestResume, paused]);
 
   useImperativeHandle(
     ref,
@@ -436,36 +672,83 @@ const MouthVideoPlayer = forwardRef<
     [videoPlayer]
   );
 
-  useEventListener(videoPlayer, "playToEnd", onEnd);
+  useEventListener(videoPlayer, "playToEnd", reportPlaybackEnd);
+  useEventListener(videoPlayer, "playingChange", ({ isPlaying: nextIsPlaying }) => {
+    if (nextIsPlaying) {
+      if (pausedRef.current || !playbackAttempts.isActive()) {
+        safelyPausePlayer(videoPlayer);
+        setIsPlaying(false);
+        return;
+      }
+      playbackAttempts.markStarted();
+      clearPlayRetry();
+    }
+    setIsPlaying(nextIsPlaying);
+  });
+  useEventListener(videoPlayer, "timeUpdate", ({ currentTime }) => {
+    if (Number.isFinite(currentTime) && currentTime >= 0) {
+      if (currentTime > 0 && playbackAttempts.isActive()) {
+        playbackAttempts.markStarted();
+      }
+      setPlaybackProgressSeconds(currentTime);
+    }
+  });
   useEventListener(videoPlayer, "statusChange", ({ status }) => {
     if (status === "error") {
-      onError();
+      reportPlaybackError();
+      return;
+    }
+
+    if (status === "readyToPlay") {
+      startPendingPlayback(true);
     }
   });
 
   useEffect(() => {
-    setVideoPlaybackRate(videoPlayer, playbackSpeed);
-  }, [playbackSpeed, videoPlayer]);
+    clearPlayRetry();
+    playbackAttempts.resetSource();
+    setActivePlaybackAttempt(null);
+    setIsPlaying(false);
+    setPlaybackProgressSeconds(0);
+  }, [clearPlayRetry, playbackAttempts, uri, videoPlayer]);
 
   useEffect(() => {
-    if (playSignal <= 0) {
+    if (!playRequestActive) {
+      playbackAttempts.cancel();
+      setActivePlaybackAttempt(null);
+      clearPlayRetry();
       return;
     }
 
-    replayVideo();
-  }, [playSignal, replayVideo]);
+    if (playSignal <= 0 || lastHandledPlaySignalRef.current === playSignal) {
+      return;
+    }
+
+    lastHandledPlaySignalRef.current = playSignal;
+    beginPlaybackAttemptRef.current();
+  }, [clearPlayRetry, playRequestActive, playbackAttempts, playSignal]);
+
+  useEffect(() => {
+    if (!paused && isPlaying) {
+      setVideoPlaybackRate(videoPlayer, playbackSpeed);
+    }
+  }, [isPlaying, paused, playbackSpeed, videoPlayer]);
 
   useEffect(() => {
     if (paused) {
+      playbackAttempts.cancel();
+      clearPlayRetry();
       safelyPausePlayer(videoPlayer);
+      setActivePlaybackAttempt(null);
+      setIsPlaying(false);
     }
-  }, [paused, videoPlayer]);
+  }, [clearPlayRetry, paused, playbackAttempts, videoPlayer]);
 
   useEffect(() => {
     return () => {
-      clearOverlayTimer();
+      clearPlayRetry();
     };
-  }, [clearOverlayTimer]);
+  }, [clearPlayRetry]);
 
   return (
     <MediaContainer size="large" style={styles.videoPressable}>
@@ -477,12 +760,13 @@ const MouthVideoPlayer = forwardRef<
         style={styles.video}
       />
       <Pressable
-        accessibilityLabel={isPlayOverlayVisible ? "Phát khẩu hình" : "Hiện nút phát khẩu hình"}
+        accessibilityLabel={isPlaying ? "Video khẩu hình đang phát" : "Phát khẩu hình"}
         accessibilityRole="button"
-        onPress={isPlayOverlayVisible ? replayVideo : showPlayOverlay}
+        disabled={isPlaying}
+        onPress={replayVideo}
         style={styles.videoTapLayer}
       >
-        {isPlayOverlayVisible ? (
+        {!isPlaying ? (
           <View style={styles.playOverlay}>
             <Play color={colors.onPrimary} fill={colors.mediaOverlayLight} size={30} />
           </View>
@@ -536,27 +820,6 @@ function safelyReplayAudioFromStart(
     void player.seekTo(0).then(playIfCurrent).catch(playIfCurrent);
   } catch {
     playIfCurrent();
-  }
-}
-
-function safelyReplayVideoFromStart(player: {
-  currentTime: number;
-  pause: () => void;
-  play: () => void;
-  replay: () => void;
-}): void {
-  safelyPausePlayer(player);
-
-  try {
-    player.currentTime = 0;
-    safelyPlayPlayer(player);
-  } catch {
-    try {
-      player.replay();
-      safelyPlayPlayer(player);
-    } catch {
-      // The video shared object may already be released on native teardown.
-    }
   }
 }
 

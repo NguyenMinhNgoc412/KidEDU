@@ -11,9 +11,51 @@ import {
   type LearningSampleCompletion
 } from "@/features/learning/LearningMediaPlayer";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
+import { useLearningSessionGate } from "@/features/session/useLearningSessionGate";
 import { colors, radii, spacing } from "@/theme";
 
 export function LearningItemView({
+  item,
+  onReplay,
+  onSampleCompleted,
+  onExit,
+  onContinue,
+  playbackSpeed
+}: {
+  item: LearningItem;
+  onReplay?: () => void;
+  onSampleCompleted?: (completion: LearningSampleCompletion) => void;
+  onExit?: () => void;
+  onContinue?: () => void;
+  playbackSpeed?: PlaybackSpeed;
+}) {
+  const sessionGate = useLearningSessionGate();
+
+  if (sessionGate !== "active") {
+    return (
+      <Card>
+        <AppText align="center" color="muted">
+          {sessionGate === "blocked"
+            ? "Đang xử lý dữ liệu. Hãy thử mở bài học lại sau khi hoàn tất."
+            : "Đang chuẩn bị bài học"}
+        </AppText>
+      </Card>
+    );
+  }
+
+  return (
+    <ActiveLearningItemView
+      item={item}
+      onContinue={onContinue}
+      onExit={onExit}
+      onReplay={onReplay}
+      onSampleCompleted={onSampleCompleted}
+      playbackSpeed={playbackSpeed}
+    />
+  );
+}
+
+function ActiveLearningItemView({
   item,
   onReplay,
   onSampleCompleted,

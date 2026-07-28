@@ -28,13 +28,39 @@ describe("mediaResolver", () => {
     expect(getContentStatusLabel(item)).toBe("Cần bổ sung");
   });
 
-  it("allows text-only active items into Auto Play with missing-content labels", () => {
+  it("keeps text-only active items out of Auto Play with missing-content labels", () => {
     const item = makeItem([]);
 
     const resolved = resolveLearningItemMedia(item);
 
+    expect(resolved.isPlayableInAutoPlay).toBe(false);
+    expect(resolved.needsContentLabel).toBe(true);
+  });
+
+  it("uses default fallback and warns when active custom media is broken", () => {
+    const brokenCustom = makeMedia("mouth_video", "custom", 100);
+    brokenCustom.asset.status = "missing";
+    const item = makeItem([
+      brokenCustom,
+      makeMedia("mouth_video", "default", 10)
+    ]);
+
+    const resolved = resolveLearningItemMedia(item);
+
+    expect(resolved.byRole.mouth_video?.asset.source).toBe("default");
+    expect(resolved.brokenCustomRoles).toEqual(["mouth_video"]);
+    expect(resolved.fallbackRoles).toEqual(["mouth_video"]);
     expect(resolved.isPlayableInAutoPlay).toBe(true);
     expect(resolved.needsContentLabel).toBe(true);
+  });
+
+  it("does not report ordinary bundled content as a fallback", () => {
+    const item = makeItem([makeMedia("illustration", "default", 10)]);
+
+    const resolved = resolveLearningItemMedia(item);
+
+    expect(resolved.fallbackRoles).toEqual([]);
+    expect(resolved.brokenCustomRoles).toEqual([]);
   });
 });
 

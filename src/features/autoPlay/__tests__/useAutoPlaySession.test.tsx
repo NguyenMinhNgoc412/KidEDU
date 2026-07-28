@@ -7,6 +7,7 @@ import { useAutoPlaySession } from "../useAutoPlaySession";
 const mockUseKidEduRepository = jest.fn<KidEduRepository, []>();
 const mockInvalidateQueries = jest.fn().mockResolvedValue(undefined);
 const mockQueryClient = { invalidateQueries: mockInvalidateQueries };
+let mockAppStateListener: ((state: "active" | "background" | "inactive") => void) | null = null;
 
 jest.mock("@/data/KidEduDataProvider", () => ({
   useKidEduRepository: () => mockUseKidEduRepository()
@@ -18,17 +19,34 @@ jest.mock("@tanstack/react-query", () => ({
 
 jest.mock("react-native", () => ({
   AppState: {
-    addEventListener: jest.fn(() => ({ remove: jest.fn() }))
+    addEventListener: jest.fn(
+      (
+        _eventName: string,
+        listener: (state: "active" | "background" | "inactive") => void
+      ) => {
+        mockAppStateListener = listener;
+        return { remove: jest.fn() };
+      }
+    )
   }
 }));
 
 jest.mock("react-native-web/dist/exports/AppState", () => ({
-  addEventListener: jest.fn(() => ({ remove: jest.fn() }))
+  addEventListener: jest.fn(
+    (
+      _eventName: string,
+      listener: (state: "active" | "background" | "inactive") => void
+    ) => {
+      mockAppStateListener = listener;
+      return { remove: jest.fn() };
+    }
+  )
 }));
 
 describe("useAutoPlaySession lifecycle", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAppStateListener = null;
   });
 
   afterEach(() => {
@@ -161,6 +179,65 @@ describe("useAutoPlaySession lifecycle", () => {
 
     await unmount();
   });
+
+  it("ignores inactive state and keeps a background pause until the user resumes", async () => {
+    const repository = makeRepository(["session-app-state"]);
+    mockUseKidEduRepository.mockReturnValue(repository);
+
+    const { result, unmount } = await renderHook(() => useAutoPlaySession(deck, settings));
+
+    await waitFor(() => expect(mockAppStateListener).not.toBeNull());
+
+    await act(() => mockAppStateListener?.("inactive"));
+    expect(result.current.state.phase).toBe("attention");
+
+    await act(() => mockAppStateListener?.("background"));
+    expect(result.current.state.phase).toBe("paused");
+    expect(result.current.state.previousPhase).toBe("attention");
+
+    await act(() => mockAppStateListener?.("active"));
+    expect(result.current.state.phase).toBe("paused");
+    expect(result.current.state.previousPhase).toBe("attention");
+
+    await act(() => result.current.resume());
+    expect(result.current.state.phase).toBe("attention");
+    expect(result.current.state.previousPhase).toBeNull();
+
+    await unmount();
+  });
+
+  it("does not auto-resume a pause requested by the user", async () => {
+    const repository = makeRepository(["session-manual-pause"]);
+    mockUseKidEduRepository.mockReturnValue(repository);
+
+    const { result, unmount } = await renderHook(() => useAutoPlaySession(deck, settings));
+
+    await waitFor(() => expect(mockAppStateListener).not.toBeNull());
+    await act(() => result.current.pause());
+    expect(result.current.state.phase).toBe("paused");
+
+    await act(() => mockAppStateListener?.("background"));
+    await act(() => mockAppStateListener?.("active"));
+    expect(result.current.state.phase).toBe("paused");
+
+    await unmount();
+  });
+
+  it("does not auto-resume after a short native background transition", async () => {
+    const repository = makeRepository(["session-transient-background"]);
+    mockUseKidEduRepository.mockReturnValue(repository);
+
+    const { result, unmount } = await renderHook(() => useAutoPlaySession(deck, settings));
+
+    await waitFor(() => expect(mockAppStateListener).not.toBeNull());
+    await act(() => mockAppStateListener?.("background"));
+    expect(result.current.state.phase).toBe("paused");
+
+    await act(() => mockAppStateListener?.("active"));
+
+    expect(result.current.state.phase).toBe("paused");
+    await unmount();
+  });
 });
 
 const deck: DeckDetail = {
@@ -178,7 +255,28 @@ const deck: DeckDetail = {
       status: "active",
       learningStatus: "new",
       note: null,
-      media: []
+      media: [
+        {
+          id: "mapping-illustration",
+          learningItemId: "item-1",
+          mediaAssetId: "asset-illustration",
+          role: "illustration",
+          priority: 10,
+          isActive: true,
+          asset: {
+            id: "asset-illustration",
+            type: "image",
+            source: "default",
+            uri: "asset://default/item-1/illustration",
+            thumbnailAssetId: null,
+            thumbnailUri: null,
+            durationMs: null,
+            sizeBytes: null,
+            mimeType: "image/webp",
+            status: "active"
+          }
+        }
+      ]
     }
   ]
 };

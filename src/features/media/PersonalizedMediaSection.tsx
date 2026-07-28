@@ -42,6 +42,7 @@ import {
   stageRecordedAudioForPreview,
   type StagedMediaImport
 } from "./mediaImportService";
+import { isLearningSessionActive } from "@/features/session/learningOperationCoordinator";
 import {
   ensureAudioRecordingPermission,
   ensureMediaLibraryPermission,
@@ -73,8 +74,12 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
   const hasStagedMedia = Object.keys(stagedByRole).length > 0;
 
   useEffect(() => {
-    void cleanupTempMediaImports();
-    void cleanupOrphanedMediaFiles(repository);
+    if (!isLearningSessionActive()) {
+      void cleanupTempMediaImports();
+    }
+    void cleanupOrphanedMediaFiles(repository, {
+      isPlaybackActive: isLearningSessionActive
+    });
   }, [repository]);
 
   useEffect(() => {

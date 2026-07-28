@@ -21,9 +21,37 @@ import {
   resolveBundledDefaultMediaUri
 } from "@/features/media/bundledMediaAssetResolver";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
+import { useLearningSessionGate } from "@/features/session/useLearningSessionGate";
 import { colors, radii, spacing } from "@/theme";
 
 export function AutoPlaySessionView({
+  deck,
+  settings,
+  onExitToHome
+}: {
+  deck: DeckDetail;
+  settings: LearningSettings;
+  onExitToHome: () => void;
+}) {
+  const sessionGate = useLearningSessionGate();
+
+  if (sessionGate !== "active") {
+    return (
+      <StateMessage
+        title={sessionGate === "blocked" ? "Chưa thể bắt đầu bộ học" : "Đang chuẩn bị bộ học"}
+        message={
+          sessionGate === "blocked"
+            ? "KidEDU đang xử lý dữ liệu. Hãy thử mở lại bộ học sau khi hoàn tất."
+            : undefined
+        }
+      />
+    );
+  }
+
+  return <ActiveAutoPlaySessionView deck={deck} settings={settings} onExitToHome={onExitToHome} />;
+}
+
+function ActiveAutoPlaySessionView({
   deck,
   settings,
   onExitToHome
@@ -108,8 +136,6 @@ export function AutoPlaySessionView({
     session.state.phase === "sample"
       ? `${currentItem.id}:${session.state.itemIndex}:${session.state.loopIndex}:${session.state.replayNonce}:sample`
       : null;
-  const mediaPlaybackKey = `${currentItem.id}:${session.state.itemIndex}:${session.state.loopIndex}:${session.state.replayNonce}`;
-
   function exit() {
     session.exit();
     onExitToHome();
@@ -154,11 +180,12 @@ export function AutoPlaySessionView({
       </View>
 
       <LearningMediaPlayer
-        key={mediaPlaybackKey}
         autoPlayKey={sampleAutoPlayKey}
         illustration={resolved.byRole.illustration}
+        manageAppStateExternally
         mouthVideo={resolved.byRole.mouth_video}
         onAutoPlaySampleEnd={session.completeCurrentSample}
+        onRequestResume={isPaused ? session.resume : undefined}
         paused={session.state.phase !== "sample"}
         playbackSpeed={settings.playbackSpeed}
         pronunciationAudio={resolved.byRole.pronunciation_audio}

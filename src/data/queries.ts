@@ -138,6 +138,7 @@ export function useUpdateLearningItemMutation(itemId: string) {
       await queryClient.invalidateQueries({ queryKey: queryKeys.learningItem(itemId) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.decks });
       await queryClient.invalidateQueries({ queryKey: queryKeys.childDecks });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.deckDetails });
     }
   });
 }
@@ -154,6 +155,7 @@ export function useArchiveLearningItemMutation() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.learningItem(itemId) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.decks });
       await queryClient.invalidateQueries({ queryKey: queryKeys.childDecks });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.deckDetails });
     }
   });
 }

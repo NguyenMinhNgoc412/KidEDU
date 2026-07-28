@@ -126,11 +126,11 @@ describe("autoPlayEngine", () => {
     expect(state.loopIndex).toBe(2);
   });
 
-  it("keeps active text-only items in the Auto Play item list", () => {
+  it("keeps text-only and hidden items out of the Auto Play item list", () => {
     const textOnlyItem = makeLearningItem({ id: "item-text-only", status: "active" });
     const hiddenItem = makeLearningItem({ id: "item-hidden", status: "hidden" });
 
-    expect(getAutoPlayItems([hiddenItem, textOnlyItem])).toEqual([textOnlyItem]);
+    expect(getAutoPlayItems([hiddenItem, textOnlyItem])).toEqual([]);
   });
 
   it("pauses, resumes, and replays without changing the item index", () => {
