@@ -51,11 +51,11 @@ Luôn đọc theo thứ tự:
 - `06-tech-local-data-media-sot.md` nếu làm database, file local, media import hoặc media resolver;
 - `07-tech-performance-cache-memory-sot.md` nếu làm lazy load, cache, playback, list performance hoặc quản lý bộ nhớ.
 
-### 2.4. Khi giao task cho Codex
+### 2.4. Khi giao task cho AI Agent
 
 Đọc thêm:
 
-- `08-codex-task-splitting-sot.md`
+- `08-AI Agent-task-splitting-sot.md`
 
 File này chỉ dùng để chia task và viết prompt implement. Nó không được dùng để thay đổi nghiệp vụ hoặc kiến trúc.
 
@@ -69,7 +69,7 @@ Sau khi đọc các file bắt buộc ở mục 2.1, đọc thêm theo thứ t�
 
 `09-design-system-sot.md` là Source of Truth cho visual direction, màu sắc, typography, spacing, shape, component style và nguyên tắc phân biệt Child Mode với Parent Zone.
 
-Ảnh trong `screenshots/` là reference bắt buộc khi code giao diện. Codex/dev phải mở và quan sát ảnh tương ứng với màn hình hoặc chức năng đang sửa để match layout, hierarchy, component state, spacing, màu sắc và hành vi hiển thị.
+Ảnh trong `screenshots/` là reference bắt buộc khi code giao diện. AI Agent/dev phải mở và quan sát ảnh tương ứng với màn hình hoặc chức năng đang sửa để match layout, hierarchy, component state, spacing, màu sắc và hành vi hiển thị.
 
 Các ảnh tham chiếu hiện có:
 
@@ -94,7 +94,7 @@ Các ảnh tham chiếu hiện có:
 | `05-tech-mobile-stack-sot.md` | Tech stack mobile đã chốt | Khi setup dependency hoặc chọn library |
 | `06-tech-local-data-media-sot.md` | Local data, media storage, schema, media pipeline | Khi làm database, file local hoặc media upload |
 | `07-tech-performance-cache-memory-sot.md` | Lazy load, state management, cache, memory management | Khi làm list, media playback, autoplay hoặc tối ưu app |
-| `08-codex-task-splitting-sot.md` | Cách chia task cho Codex | Khi bắt đầu một đợt implement |
+| `08-AI Agent-task-splitting-sot.md` | Cách chia task cho AI Agent | Khi bắt đầu một đợt implement |
 | `09-design-system-sot.md` | Design system, visual direction, màu sắc, typography, spacing, shape, component style | Khi làm bất kỳ task giao diện/UI/UX nào |
 
 ---
@@ -135,7 +135,7 @@ File kỹ thuật **không tự thêm feature mới** ngoài file nghiệp vụ.
 3. Các file `03` đến `07` quyết định chi tiết trong phạm vi của mình.
 4. `09-design-system-sot.md` quyết định visual system và UI implementation style trong phạm vi giao diện.
 5. Ảnh trong `screenshots/` quyết định hình tham chiếu cụ thể cho layout/component/state của màn hình tương ứng.
-6. `08-codex-task-splitting-sot.md` chỉ dùng để chia việc, không được thay đổi nghiệp vụ.
+6. `08-AI Agent-task-splitting-sot.md` chỉ dùng để chia việc, không được thay đổi nghiệp vụ.
 7. `README.md` quyết định cách đọc, cách dùng và danh sách tài liệu trong bộ SOT.
 8. `CHANGELOG.md` chỉ ghi lịch sử thay đổi, không thay thế nội dung SOT chính.
 
@@ -168,7 +168,7 @@ Khi thay đổi tài liệu SOT:
 
 ---
 
-## 8. Quy tắc cho Codex/dev
+## 8. Quy tắc cho AI Agent/dev
 
 1. Trước khi implement task, đọc `README.md`, `01`, `02` và file chi tiết liên quan.
 2. Không tự thêm business idea mới.

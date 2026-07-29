@@ -21,7 +21,7 @@ export const colors = {
   yellow: "#FFCA98",
   blue: "#5A5E43",
   sage: "#A3B18A",
-  danger: "#B43B3B",
+  danger: "#BA1A1A",
   dangerSoft: "#FFF1F0",
   infoSoft: "#ECF6FF",
   successSoft: "#F1F8E8",

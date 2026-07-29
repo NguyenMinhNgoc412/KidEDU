@@ -1,10 +1,10 @@
-# AGENTS.md — Hướng dẫn cho Codex khi làm việc với KidEDU
+# AGENTS.md — Hướng dẫn cho AI Agent khi làm việc với KidEDU
 
 ## 1. Vai trò của file này
 
-File này là hướng dẫn bắt buộc cho Codex/dev agent khi đọc tài liệu, chia task và implement trong dự án KidEDU.
+File này là hướng dẫn bắt buộc cho AI Agent/dev agent khi đọc tài liệu, chia task và implement trong dự án KidEDU.
 
-`README.md` là entry point và Source of Truth chính về cách đọc bộ tài liệu SOT. Trước khi làm bất kỳ task nào, Codex phải tuân thủ thứ tự đọc và ranh giới được mô tả trong file này.
+`README.md` là entry point và Source of Truth chính về cách đọc bộ tài liệu SOT. Trước khi làm bất kỳ task nào, AI Agent phải tuân thủ thứ tự đọc và ranh giới được mô tả trong file này.
 
 ---
 
@@ -24,7 +24,7 @@ Trọng tâm MVP là trải nghiệm học đơn giản, ít thao tác cho trẻ
 
 ## 3. Thứ tự đọc tài liệu bắt buộc
 
-Khi bắt đầu bất kỳ task nào, Codex phải đọc theo thứ tự:
+Khi bắt đầu bất kỳ task nào, AI Agent bắt buộc phải sử dụng công cụ đọc file (File-read/Search tools) để nạp nội dung theo thứ tự sau:
 
 1. `README.md`
 2. `01-kidedu-business-sot.md`
@@ -32,7 +32,7 @@ Khi bắt đầu bất kỳ task nào, Codex phải đọc theo thứ tự:
 4. File chi tiết liên quan trực tiếp tới task
 5. `CHANGELOG.md` nếu cần kiểm tra lịch sử thay đổi gần đây
 
-Riêng với task giao diện/UI/UX, sau bước 3 Codex phải đọc `09-design-system-sot.md` trước, sau đó mở ảnh liên quan trong thư mục `screenshots/`, rồi mới đọc tiếp file chi tiết nghiệp vụ/kỹ thuật của màn hình hoặc chức năng đang làm.
+Riêng với task giao diện/UI/UX, sau bước 3 AI Agent phải đọc `09-design-system-sot.md` trước, sau đó mở ảnh liên quan trong thư mục `screenshots/`, rồi mới đọc tiếp file chi tiết nghiệp vụ/kỹ thuật của màn hình hoặc chức năng đang làm.
 
 Không bắt đầu implement chỉ dựa trên prompt task nếu chưa đọc các file SOT bắt buộc.
 
@@ -55,11 +55,11 @@ Không bắt đầu implement chỉ dựa trên prompt task nếu chưa đọc c
 - `06-tech-local-data-media-sot.md` nếu làm database, local file, media import, media resolver hoặc media pipeline.
 - `07-tech-performance-cache-memory-sot.md` nếu làm lazy load, cache, playback, list performance hoặc quản lý bộ nhớ.
 
-### 4.3. Task chia việc cho Codex
+### 4.3. Task chia việc cho AI Agent
 
 Đọc thêm:
 
-- `08-codex-task-splitting-sot.md`
+- `08-Agent-task-splitting-sot.md`
 
 File `08` chỉ dùng để chia task và viết prompt implement. Không dùng file này để thay đổi nghiệp vụ hoặc kiến trúc.
 
@@ -75,6 +75,7 @@ Quy tắc bắt buộc:
 - Nếu làm màn Child Mode, danh sách từ, màn học, upload media hoặc Parent Zone, phải mở ảnh tương ứng trong `screenshots/` trước khi sửa UI.
 - Khi ảnh và code hiện tại khác nhau, ưu tiên bám `09-design-system-sot.md` và ảnh reference, miễn là không mâu thuẫn với nghiệp vụ trong `01`/`03`/`04`.
 - Không tự sáng tạo phong cách giao diện mới nếu chưa có trong `09` hoặc ảnh reference.
+- Nếu hệ thống môi trường hiện tại không cho phép AI tự động đọc file ảnh local, AI Agent phải chủ động yêu cầu user upload/cung cấp ảnh screenshot đó vào khung chat trước khi tiến hành code UI. Tuyệt đối không tự tưởng tượng ra giao diện nếu chưa nhìn thấy reference.
 
 Ảnh tham chiếu hiện có:
 
@@ -95,17 +96,17 @@ Khi các tài liệu có dấu hiệu mâu thuẫn, áp dụng thứ tự ưu ti
 3. Các file `03` đến `07` quyết định chi tiết trong phạm vi của từng file.
 4. `09-design-system-sot.md` quyết định design system, visual direction, component style, typography, spacing và shape cho giao diện.
 5. Ảnh trong `screenshots/` quyết định reference cụ thể cho layout/component/state của màn hình tương ứng.
-6. `08-codex-task-splitting-sot.md` chỉ dùng để chia việc, không thay đổi nghiệp vụ.
+6. `08-Agent-task-splitting-sot.md` chỉ dùng để chia việc, không thay đổi nghiệp vụ.
 7. `README.md` quyết định cách đọc, cách dùng và danh sách tài liệu SOT.
 8. `CHANGELOG.md` chỉ ghi lịch sử thay đổi, không thay thế nội dung SOT chính.
 
-Nếu vẫn chưa rõ, Codex phải dừng ở mức phân tích, ghi rõ mâu thuẫn và đề xuất hướng xử lý để owner duyệt.
+Nếu vẫn chưa rõ, AI Agent phải dừng ở mức phân tích, ghi rõ mâu thuẫn và đề xuất hướng xử lý để owner duyệt.
 
 ---
 
 ## 6. Ranh giới MVP đã chốt
 
-Codex không được tự ý thay đổi các quyết định sau:
+AI Agent không được tự ý thay đổi các quyết định sau:
 
 1. KidEDU MVP là mobile app.
 2. MVP ưu tiên offline/local-first.
@@ -120,9 +121,9 @@ Codex không được tự ý thay đổi các quyết định sau:
 
 ---
 
-## 7. Những việc Codex không được tự làm
+## 7. Những việc AI Agent không được tự làm
 
-Codex không được tự ý:
+AI Agent không được tự ý:
 
 - thêm backend, cloud sync, tài khoản online hoặc login online vào MVP;
 - thêm AI scoring/chấm phát âm nếu chưa được duyệt;
@@ -134,7 +135,7 @@ Codex không được tự ý:
 - gom nhiều phạm vi lớn vào một task implement;
 - bỏ qua kiểm tra performance/memory khi xử lý video, ảnh, audio, list, autoplay hoặc cache.
 
-Nếu phát hiện cần thay đổi nghiệp vụ hoặc kiến trúc, Codex chỉ được ghi đề xuất gồm:
+Nếu phát hiện cần thay đổi nghiệp vụ hoặc kiến trúc, AI Agent chỉ được ghi đề xuất gồm:
 
 - ý tưởng thay đổi;
 - lý do;
@@ -166,25 +167,25 @@ Mỗi task implement phải:
 
 ## 9. Checklist trước khi sửa code
 
-Trước khi sửa code, Codex phải tự kiểm tra:
+Trước khi sửa code, AI Agent phải tự kiểm tra:
 
 - Đã đọc `README.md`, `01-kidedu-business-sot.md`, `02-kidedu-mobile-architecture-sot.md` chưa?
 - Task này thuộc file chi tiết nào trong `03` đến `07`?
 - Nếu là task giao diện, đã đọc `09-design-system-sot.md` và mở ảnh liên quan trong `screenshots/` chưa?
-- Có cần đọc `08-codex-task-splitting-sot.md` để chia nhỏ task không?
+- Có cần đọc `08-Agent-task-splitting-sot.md` để chia nhỏ task không?
 - Có cần đọc `CHANGELOG.md` để kiểm tra quyết định mới gần đây không?
 - Task có đụng tới backend, login online, cloud sync hoặc AI scoring không?
 - Task có đụng tới media/video/ảnh/audio/cache/list/autoplay không?
 - Có acceptance criteria rõ ràng chưa?
 - Có rủi ro mâu thuẫn giữa nghiệp vụ và kỹ thuật không?
 
-Nếu thiếu thông tin quan trọng, Codex phải ghi rõ giả định thay vì tự quyết định ngầm.
+Nếu thiếu thông tin quan trọng, AI Agent phải ghi rõ giả định thay vì tự quyết định ngầm.
 
 ---
 
 ## 10. Checklist sau khi sửa code
 
-Sau khi sửa code, Codex phải báo cáo:
+Sau khi sửa code, AI Agent phải báo cáo:
 
 - file đã thay đổi;
 - hành vi đã implement;
@@ -211,7 +212,7 @@ Khi cần sửa tài liệu SOT:
 
 ## 12. Cách phản hồi khi hoàn thành task
 
-Khi trả kết quả, Codex nên dùng format ngắn gọn:
+Khi trả kết quả, AI Agent nên dùng format ngắn gọn:
 
 ```md
 ## Done

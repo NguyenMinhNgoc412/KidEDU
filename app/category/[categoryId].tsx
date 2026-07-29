@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing[16]
   },
   listGap: {
-    height: spacing[14]
+    height: spacing[16]
   },
   wordRow: {
     alignItems: "center",
