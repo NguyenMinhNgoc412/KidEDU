@@ -1,5 +1,4 @@
 import { Home, RotateCcw, X } from "lucide-react-native";
-import type { ReactNode } from "react";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 
@@ -149,4 +148,3 @@ const styles = StyleSheet.create({
     padding: spacing[12]
   }
 });
-

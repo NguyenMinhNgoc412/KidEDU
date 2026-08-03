@@ -23,6 +23,68 @@ interface LearningItemRecord {
   status: EntityStatus;
 }
 
+class FakeDeckDetailDatabase {
+  readonly detailQueries: string[] = [];
+
+  async getFirstAsync<T>(sql: string): Promise<T | null> {
+    if (!sql.includes("FROM decks")) {
+      throw new Error(`Unexpected first query: ${sql}`);
+    }
+
+    return {
+      id: "deck-1",
+      title: "Gia dinh",
+      description: null,
+      status: "active",
+      item_count: 2
+    } as T;
+  }
+
+  async getAllAsync<T>(sql: string): Promise<T[]> {
+    if (sql.includes("FROM learning_item_media")) {
+      return [];
+    }
+
+    if (!sql.includes("FROM deck_items")) {
+      throw new Error(`Unexpected query: ${sql}`);
+    }
+
+    this.detailQueries.push(sql);
+    const excludesArchived = sql.includes("li.status != 'archived'");
+    const items = [
+      {
+        id: "item-active",
+        title: "Ba",
+        category_id: "cat-family",
+        category_name: "Gia dinh",
+        status: "active",
+        learning_status: "new",
+        note: null
+      },
+      {
+        id: "item-hidden",
+        title: "Me",
+        category_id: "cat-family",
+        category_name: "Gia dinh",
+        status: "hidden",
+        learning_status: "new",
+        note: null
+      },
+      {
+        id: "item-archived",
+        title: "Ong",
+        category_id: "cat-family",
+        category_name: "Gia dinh",
+        status: "archived",
+        learning_status: "new",
+        note: null
+      }
+    ];
+
+    return items.filter((item) => !excludesArchived || item.status !== "archived") as T[];
+  }
+}
+
 class FakeDeckDatabase {
   private readonly decks: DeckRecord[] = [];
   private readonly deckItems: DeckItemRecord[] = [];
@@ -88,6 +150,19 @@ class FakeDeckDatabase {
 }
 
 describe("SQLiteKidEduRepository decks", () => {
+  it("keeps hidden items in deck detail so parent edits do not remove them", async () => {
+    const db = new FakeDeckDetailDatabase();
+    const repository = new SQLiteKidEduRepository(db as unknown as KidEduDatabase);
+
+    const detail = await repository.getDeckDetail("deck-1");
+
+    expect(detail?.items.map((item) => ({ id: item.id, status: item.status }))).toEqual([
+      { id: "item-active", status: "active" },
+      { id: "item-hidden", status: "hidden" }
+    ]);
+    expect(db.detailQueries[0]).toContain("li.status != 'archived'");
+  });
+
   it("lists a newly created active deck for the child learning screen", async () => {
     const db = new FakeDeckDatabase([{ id: "item-text-only", status: "active" }]);
     const repository = new SQLiteKidEduRepository(db as unknown as KidEduDatabase);

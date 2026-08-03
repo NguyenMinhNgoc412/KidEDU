@@ -693,7 +693,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
        FROM deck_items di
        JOIN learning_items li ON li.id = di.learning_item_id
        JOIN categories c ON c.id = li.category_id
-       WHERE di.deck_id = ? AND li.status = 'active'
+       WHERE di.deck_id = ? AND li.status != 'archived'
        ORDER BY di.sort_order ASC`,
       [deckId]
     );
@@ -829,6 +829,19 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     );
 
     return sessionId;
+  }
+
+  async recoverActivePracticeSessions(): Promise<void> {
+    const now = new Date().toISOString();
+
+    await this.runWrite((db) =>
+      db.runAsync(
+        `UPDATE practice_sessions
+         SET status = 'interrupted', ended_at = ?
+         WHERE status = 'active'`,
+        [now]
+      )
+    );
   }
 
   async recordPracticeEvent(input: {

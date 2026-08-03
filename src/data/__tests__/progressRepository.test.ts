@@ -3,10 +3,13 @@ import { SQLiteKidEduRepository } from "@/data/repository";
 
 class TransactionGuardProgressDatabase {
   maxActiveWrites = 0;
+  readonly writeCalls: Array<{ sql: string; params: unknown[] }> = [];
   private activeWrites = 0;
   private transactionDepth = 0;
 
-  async runAsync(): Promise<void> {
+  async runAsync(sql = "", params: unknown[] = []): Promise<void> {
+    this.writeCalls.push({ sql, params });
+
     if (this.transactionDepth > 0) {
       await Promise.resolve();
       return;
@@ -50,6 +53,20 @@ class TransactionGuardProgressDatabase {
 }
 
 describe("SQLiteKidEduRepository progress writes", () => {
+  it("marks unfinished sessions as interrupted before the app exposes learning data", async () => {
+    const db = new TransactionGuardProgressDatabase();
+    const repository = new SQLiteKidEduRepository(db as unknown as KidEduDatabase);
+
+    await repository.recoverActivePracticeSessions();
+
+    expect(db.writeCalls).toHaveLength(1);
+    expect(db.writeCalls[0]?.sql.replace(/\s+/g, " ").trim()).toBe(
+      "UPDATE practice_sessions SET status = 'interrupted', ended_at = ? WHERE status = 'active'"
+    );
+    expect(db.writeCalls[0]?.params).toHaveLength(1);
+    expect(db.writeCalls[0]?.params[0]).toEqual(expect.any(String));
+  });
+
   it("serializes concurrent session and progress writes so SQLite is not locked", async () => {
     const db = new TransactionGuardProgressDatabase();
     const repository = new SQLiteKidEduRepository(db as unknown as KidEduDatabase);

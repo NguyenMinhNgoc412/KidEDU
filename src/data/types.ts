@@ -198,6 +198,7 @@ export interface KidEduRepository {
   getLearningSettings(): Promise<LearningSettings>;
   updateLearningSettings(settings: LearningSettings): Promise<void>;
   startPracticeSession(input: { mode: PracticeMode; deckId?: string | null }): Promise<string>;
+  recoverActivePracticeSessions(): Promise<void>;
   recordPracticeEvent(input: {
     sessionId: string;
     learningItemId: string;

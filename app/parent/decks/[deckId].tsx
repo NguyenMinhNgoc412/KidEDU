@@ -25,7 +25,7 @@ export default function ParentDeckDetailScreen() {
   const params = useLocalSearchParams<{ deckId: string }>();
   const deckId = params.deckId;
   const deckQuery = useDeckDetailQuery(deckId);
-  const itemsQuery = useLearningItemsQuery({ childOnly: true });
+  const itemsQuery = useLearningItemsQuery();
   const updateMutation = useUpdateDeckMutation(deckId);
   const archiveMutation = useArchiveDeckMutation();
   const [title, setTitle] = useState("");

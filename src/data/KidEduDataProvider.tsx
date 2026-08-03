@@ -26,6 +26,8 @@ export function KidEduDataProvider({ children }: { children: ReactNode }) {
         const db = await openKidEduDatabase();
         const nextRepository = new SQLiteKidEduRepository(db);
 
+        await nextRepository.recoverActivePracticeSessions();
+
         try {
           await cleanupOrphanedMediaFiles(nextRepository, {
             isPlaybackActive: isLearningSessionActive
