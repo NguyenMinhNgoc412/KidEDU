@@ -16,6 +16,7 @@ KidEDU là mobile app MVP hỗ trợ trẻ chậm nói luyện phát âm tại n
 - hình ảnh hoặc ảnh động minh họa;
 - âm thanh phát âm rõ ràng;
 - bộ thẻ học tự chạy như playlist;
+- mini test và mini-game ngắn sau khi học xong bộ;
 - nội dung cá nhân hóa do phụ huynh tự thêm.
 
 Trọng tâm MVP là trải nghiệm học đơn giản, ít thao tác cho trẻ, ưu tiên offline/local-first và không phụ thuộc backend.
@@ -46,6 +47,8 @@ Không bắt đầu implement chỉ dựa trên prompt task nếu chưa đọc c
 
 - `03-business-auto-play-deck-sot.md` nếu làm chế độ bộ thẻ tự chạy, màn hình tự học, playlist hoặc autoplay.
 - `04-business-parent-content-management-sot.md` nếu làm khu phụ huynh, quản lý thẻ, bộ học hoặc nội dung cá nhân hóa.
+- `10-minigame-discussion.md` nếu làm ghép hình hoặc lật thẻ.
+- `11-minitest-discussion.md` nếu làm mini test nghe và chọn hình.
 
 ### 4.2. Task kỹ thuật / implementation
 
@@ -75,6 +78,7 @@ Quy tắc bắt buộc:
 - Nếu làm màn Child Mode, danh sách từ, màn học, upload media hoặc Parent Zone, phải mở ảnh tương ứng trong `screenshots/` trước khi sửa UI.
 - Khi ảnh và code hiện tại khác nhau, ưu tiên bám `09-design-system-sot.md` và ảnh reference, miễn là không mâu thuẫn với nghiệp vụ trong `01`/`03`/`04`.
 - Không tự sáng tạo phong cách giao diện mới nếu chưa có trong `09` hoặc ảnh reference.
+- Mini test/mini-game hiện chưa có screenshot reference riêng: bắt buộc dùng `09` cùng `10`/`11`, tạo screenshot kiểm chứng và xin owner review thay vì tự thêm mechanic/visual ngoài đặc tả.
 - Nếu hệ thống môi trường hiện tại không cho phép AI tự động đọc file ảnh local, AI Agent phải chủ động yêu cầu user upload/cung cấp ảnh screenshot đó vào khung chat trước khi tiến hành code UI. Tuyệt đối không tự tưởng tượng ra giao diện nếu chưa nhìn thấy reference.
 
 Ảnh tham chiếu hiện có:
@@ -93,7 +97,7 @@ Khi các tài liệu có dấu hiệu mâu thuẫn, áp dụng thứ tự ưu ti
 
 1. `01-kidedu-business-sot.md` quyết định sản phẩm làm gì.
 2. `02-kidedu-mobile-architecture-sot.md` quyết định kiến trúc tổng quan.
-3. Các file `03` đến `07` quyết định chi tiết trong phạm vi của từng file.
+3. Các file `03` đến `07` và đặc tả đã duyệt `10`/`11` quyết định chi tiết trong phạm vi của từng file.
 4. `09-design-system-sot.md` quyết định design system, visual direction, component style, typography, spacing và shape cho giao diện.
 5. Ảnh trong `screenshots/` quyết định reference cụ thể cho layout/component/state của màn hình tương ứng.
 6. `08-Agent-task-splitting-sot.md` chỉ dùng để chia việc, không thay đổi nghiệp vụ.
@@ -118,6 +122,7 @@ AI Agent không được tự ý thay đổi các quyết định sau:
 8. Trẻ ít thao tác nhất có thể; app phải tự phát và tự chuyển bài trong chế độ luyện tự động.
 9. Nội dung ảnh động và âm thanh phải thu hút nhưng không gây quá tải giác quan.
 10. Khu phụ huynh phải có Parent Gate đơn giản.
+11. Beta có mini test 2/4/6 hình theo tuổi, ghép hình 2–4 mảnh và lật thẻ 2–5 cặp theo các đặc tả `10`/`11`; không có điểm hoặc AI chấm phát âm.
 
 ---
 
@@ -170,7 +175,7 @@ Mỗi task implement phải:
 Trước khi sửa code, AI Agent phải tự kiểm tra:
 
 - Đã đọc `README.md`, `01-kidedu-business-sot.md`, `02-kidedu-mobile-architecture-sot.md` chưa?
-- Task này thuộc file chi tiết nào trong `03` đến `07`?
+- Task này thuộc file chi tiết nào trong `03` đến `07`, `10` hoặc `11`?
 - Nếu là task giao diện, đã đọc `09-design-system-sot.md` và mở ảnh liên quan trong `screenshots/` chưa?
 - Có cần đọc `08-Agent-task-splitting-sot.md` để chia nhỏ task không?
 - Có cần đọc `CHANGELOG.md` để kiểm tra quyết định mới gần đây không?
@@ -216,18 +221,23 @@ Khi trả kết quả, AI Agent nên dùng format ngắn gọn:
 
 ```md
 ## Done
+
 - ...
 
 ## Files changed
+
 - `path/to/file`
 
 ## Tests
+
 - `command` — result
 
 ## Notes / Risks
+
 - ...
 
 ## SOT updates
+
 - Không cần cập nhật / Đã cập nhật `...` / Cần owner duyệt trước khi cập nhật
 ```
 

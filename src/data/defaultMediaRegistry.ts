@@ -34,6 +34,25 @@ export interface BundledDefaultMediaDefinition {
   videoMetadata?: BundledDefaultVideoMetadata;
 }
 
+function bundledIllustration(
+  itemId: string,
+  module: BundledAssetModule
+): BundledDefaultMediaDefinition {
+  return {
+    itemId,
+    role: "illustration",
+    type: "image",
+    asset: {
+      key: `${itemId}-illustration-v1`,
+      module,
+      mimeType: "image/jpeg"
+    }
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+export const bundledCelebrationSoundModule = require("../../assets/default-media/sounds/kidedu-congratulations.mp3");
+
 /**
  * Add default media here only after the real file exists under assets/default-media.
  * Metro requires every require(...) path to be a static literal, for example:
@@ -66,6 +85,27 @@ export interface BundledDefaultMediaDefinition {
 export const bundledDefaultMedia: readonly BundledDefaultMediaDefinition[] = [
   {
     itemId: "item-ba",
+    role: "illustration",
+    type: "image",
+    asset: {
+      key: "item-ba-illustration-v1",
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      module: require("../../assets/default-media/item-ba/mouth-video-thumbnail-v1.jpg"),
+      mimeType: "image/jpeg"
+    }
+  },
+  {
+    itemId: "item-ba",
+    role: "sfx",
+    type: "audio",
+    asset: {
+      key: "item-ba-celebration-sfx-v1",
+      module: bundledCelebrationSoundModule,
+      mimeType: "audio/mpeg"
+    }
+  },
+  {
+    itemId: "item-ba",
     role: "mouth_video",
     type: "video",
     durationMs: 10_006,
@@ -88,6 +128,152 @@ export const bundledDefaultMedia: readonly BundledDefaultMediaDefinition[] = [
       mimeType: "image/jpeg"
     }
   },
+  {
+    itemId: "item-me",
+    role: "illustration",
+    type: "image",
+    asset: {
+      key: "item-me-illustration-v1",
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      module: require("../../assets/default-media/item-me/mouth-video-thumbnail-v1.jpg"),
+      mimeType: "image/jpeg"
+    }
+  },
+  bundledIllustration(
+    "item-ong",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-ong/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-ba-noi",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-ba-noi/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-an",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-an/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-uong",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-uong/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-ngu",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-ngu/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-dau",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-dau/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-be",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-be/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-nua",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-nua/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-khong",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-khong/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-bong",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-bong/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-xe",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-xe/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-ly",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-ly/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-sua",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-sua/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-banh",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-banh/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-gau",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-gau/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-meo",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-meo/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-cho",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-cho/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-ca",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-ca/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-ga",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-ga/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-chim",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-chim/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-di",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-di/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-ngoi",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-ngoi/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-dung",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-dung/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-lay",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-lay/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-dua",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-dua/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-mo",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-mo/illustration-v1.jpg")
+  ),
+  bundledIllustration(
+    "item-dong",
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("../../assets/default-media/item-dong/illustration-v1.jpg")
+  ),
   {
     itemId: "item-me",
     role: "mouth_video",

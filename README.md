@@ -16,6 +16,7 @@ KidEDU là ứng dụng di động hỗ trợ trẻ chậm nói luyện phát â
 - Theo dõi tiến độ luyện tập cơ bản và điều chỉnh tốc độ/lặp lại của bộ học.
 - Dữ liệu và media được lưu trên thiết bị; không cần tài khoản, backend hay đồng bộ đám mây.
 - Sao lưu, khôi phục dữ liệu local và các công cụ kiểm soát dữ liệu riêng tư dành cho phụ huynh.
+- Ôn tập cuối bộ bằng mini test 2/4/6 hình theo tuổi, ghép hình tăng 2–4 mảnh và lật thẻ tăng 2–5 cặp.
 
 ## Công nghệ
 
@@ -163,15 +164,15 @@ pnpm test
 
 ## Lệnh thường dùng
 
-| Lệnh | Mục đích |
-| --- | --- |
-| `pnpm start` | Khởi động Expo development server |
-| `pnpm android` | Mở app trên Android Emulator/thiết bị Android |
-| `pnpm ios` | Mở app trên iOS Simulator (macOS) |
-| `pnpm doctor` | Kiểm tra tương thích dependency Expo |
-| `pnpm check` | Chạy kiểm tra media, typecheck, lint và test |
-| `pnpm build:android:preview` | Tạo APK Android để cài thử nội bộ |
-| `pnpm build:ios:preview` | Tạo bản dành cho iOS Simulator |
+| Lệnh                         | Mục đích                                      |
+| ---------------------------- | --------------------------------------------- |
+| `pnpm start`                 | Khởi động Expo development server             |
+| `pnpm android`               | Mở app trên Android Emulator/thiết bị Android |
+| `pnpm ios`                   | Mở app trên iOS Simulator (macOS)             |
+| `pnpm doctor`                | Kiểm tra tương thích dependency Expo          |
+| `pnpm check`                 | Chạy kiểm tra media, typecheck, lint và test  |
+| `pnpm build:android:preview` | Tạo APK Android để cài thử nội bộ             |
+| `pnpm build:ios:preview`     | Tạo bản dành cho iOS Simulator                |
 
 ## Tài liệu dự án
 

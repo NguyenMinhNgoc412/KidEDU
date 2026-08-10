@@ -48,14 +48,19 @@ export default function AutoPlayScreen() {
   return (
     <Screen scroll={false}>
       {isPreparing ? <StateMessage title="Đang chuẩn bị bộ học" /> : null}
-      {settingsError ? <StateMessage title="Chưa tải được cài đặt" message="Quay lại và thử mở bộ học lần nữa." /> : null}
-      {!isPreparing && !settingsError && !deckQuery.data ? <StateMessage title="Không tìm thấy bộ học" /> : null}
+      {settingsError ? (
+        <StateMessage title="Chưa tải được cài đặt" message="Quay lại và thử mở bộ học lần nữa." />
+      ) : null}
+      {!isPreparing && !settingsError && !deckQuery.data ? (
+        <StateMessage title="Không tìm thấy bộ học" />
+      ) : null}
       {!isPreparing && !settingsError && deckQuery.data && freshSettings ? (
         <AutoPlaySessionView
           key={sessionKey}
           deck={deckQuery.data}
           settings={freshSettings}
-          onExitToHome={() => router.replace("/")}
+          onOpenGames={() => router.replace(`/games/${deckId}`)}
+          onExitToHome={() => router.replace("/decks")}
         />
       ) : null}
     </Screen>

@@ -5,30 +5,32 @@ import {
   type BundledDefaultMediaDefinition,
   validateBundledDefaultMediaDefinitions
 } from "@/data/defaultMediaRegistry";
+import { seedLearningItems } from "@/data/seedData";
 
 describe("defaultMediaRegistry", () => {
   it("keeps the production registry structurally valid", () => {
     expect(validateBundledDefaultMediaDefinitions(bundledDefaultMedia)).toEqual([]);
   });
 
-  it("bundles the test mouth videos for ba and mẹ", () => {
+  it("bundles an illustration for every seed item and mouth videos for ba and mẹ", () => {
+    const illustrationItemIds = bundledDefaultMedia
+      .filter(({ role }) => role === "illustration")
+      .map(({ itemId }) => itemId)
+      .sort();
+
+    expect(illustrationItemIds).toEqual(seedLearningItems.map(({ id }) => id).sort());
     expect(
-      bundledDefaultMedia.map(({ itemId, role, durationMs, videoMetadata }) => ({
-        itemId,
-        role,
-        durationMs,
-        videoMetadata
-      }))
+      bundledDefaultMedia
+        .filter(({ role }) => role === "mouth_video")
+        .map(({ itemId, durationMs, videoMetadata }) => ({ itemId, durationMs, videoMetadata }))
     ).toEqual([
       {
         itemId: "item-ba",
-        role: "mouth_video",
         durationMs: 10_006,
         videoMetadata: { codec: "h264", width: 1280, height: 720 }
       },
       {
         itemId: "item-me",
-        role: "mouth_video",
         durationMs: 10_006,
         videoMetadata: { codec: "h264", width: 1280, height: 720 }
       }

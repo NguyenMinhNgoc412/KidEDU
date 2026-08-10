@@ -2,7 +2,7 @@
 
 **Trạng thái:** SOT kỹ thuật chi tiết  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-27  
+**Ngày cập nhật:** 2026-08-06
 **Phạm vi:** Local database, file storage, media pipeline, backup/restore và privacy data controls local  
 **Liên quan:** `02-kidedu-mobile-architecture-sot.md`, `05-tech-mobile-stack-sot.md`, `07-tech-performance-cache-memory-sot.md`
 
@@ -52,13 +52,14 @@ File media gồm:
 
 Dùng cho hồ sơ trẻ. MVP có thể tạo một child mặc định.
 
-| Field             | Ý nghĩa             |
-| ----------------- | ------------------- |
-| `id`              | ID hồ sơ trẻ        |
-| `name`            | Tên trẻ             |
-| `avatar_asset_id` | Ảnh đại diện nếu có |
-| `created_at`      | Ngày tạo            |
-| `updated_at`      | Ngày cập nhật       |
+| Field             | Ý nghĩa                                                              |
+| ----------------- | -------------------------------------------------------------------- |
+| `id`              | ID hồ sơ trẻ                                                         |
+| `name`            | Tên trẻ                                                              |
+| `avatar_asset_id` | Ảnh đại diện nếu có                                                  |
+| `age_years`       | Tuổi nguyên không âm; nullable, thiếu tuổi thì mini test dùng 2 hình |
+| `created_at`      | Ngày tạo                                                             |
+| `updated_at`      | Ngày cập nhật                                                        |
 
 ### 3.2. `categories`
 
@@ -90,15 +91,16 @@ Thẻ học.
 
 Mapping media theo từng thẻ.
 
-| Field              | Ý nghĩa                                             |
-| ------------------ | --------------------------------------------------- |
-| `id`               | ID mapping                                          |
-| `learning_item_id` | Thẻ học                                             |
-| `media_asset_id`   | Media asset                                         |
-| `role`             | illustration, mouth_video, pronunciation_audio, sfx |
-| `priority`         | custom ưu tiên hơn default                          |
-| `is_active`        | Có đang dùng hay không                              |
-| `created_at`       | Ngày tạo                                            |
+| Field                 | Ý nghĩa                                                |
+| --------------------- | ------------------------------------------------------ |
+| `id`                  | ID mapping                                             |
+| `learning_item_id`    | Thẻ học                                                |
+| `media_asset_id`      | Media asset                                            |
+| `role`                | illustration, mouth_video, pronunciation_audio, sfx    |
+| `priority`            | custom ưu tiên hơn default                             |
+| `is_active`           | Có đang dùng hay không                                 |
+| `puzzle_template_key` | Mẫu cắt ghép hình tùy chọn; null dùng fallback an toàn |
+| `created_at`          | Ngày tạo                                               |
 
 ### 3.5. `media_assets`
 
@@ -146,15 +148,15 @@ Thứ tự thẻ trong bộ.
 
 Phiên học.
 
-| Field        | Ý nghĩa                         |
-| ------------ | ------------------------------- |
-| `id`         | ID phiên                        |
-| `child_id`   | Hồ sơ trẻ                       |
-| `mode`       | single_item hoặc auto_play_deck |
-| `deck_id`    | Bộ học nếu có                   |
-| `started_at` | Bắt đầu                         |
-| `ended_at`   | Kết thúc                        |
-| `status`     | completed/cancelled/interrupted |
+| Field        | Ý nghĩa                                                              |
+| ------------ | -------------------------------------------------------------------- |
+| `id`         | ID phiên                                                             |
+| `child_id`   | Hồ sơ trẻ                                                            |
+| `mode`       | single_item, auto_play_deck, mini_test, puzzle_game hoặc memory_game |
+| `deck_id`    | Bộ học nếu có                                                        |
+| `started_at` | Bắt đầu                                                              |
+| `ended_at`   | Kết thúc                                                             |
+| `status`     | completed/cancelled/interrupted                                      |
 
 ### 3.9. `practice_events`
 
@@ -167,6 +169,8 @@ Event trong phiên học.
 | `learning_item_id` | Thẻ                                       |
 | `event_type`       | viewed, replayed, completed_item, skipped |
 | `created_at`       | Thời điểm                                 |
+
+Mini test không ghi event cho đáp án, số lần sai hoặc phát lại. Trạng thái “đã làm mini test” của một bộ được suy ra từ `practice_sessions` có `mode = mini_test`, đúng `child_id`/`deck_id` và `status = completed`; phiên đóng giữa lượt là `cancelled` và không tính đã làm.
 
 ### 3.10. `learning_progress`
 
@@ -209,6 +213,12 @@ Service resolve media phải trả về:
 - thông tin media thiếu;
 - cảnh báo nếu có file custom hỏng/missing;
 - fallback đã dùng nếu có.
+
+Review resolver chỉ dùng audio/hình local đã resolve. Từ mục tiêu mini test cần cả `pronunciation_audio` và `illustration`; hình nhiễu có thể lấy từ learning item khác ngoài bộ nhưng phải là ảnh local hợp lệ, khác đáp án và không trùng trong câu. Ghép hình đọc `puzzle_template_key` của illustration đang được resolve; nếu thiếu hoặc không hợp lệ thì dùng template an toàn mặc định cho số mảnh hiện tại.
+
+### 4.1. Migration cho review activities
+
+Trước khi implement đặc tả `10`/`11`, schema cần migration forward-only bổ sung `children.age_years` nullable và `learning_item_media.puzzle_template_key` nullable. Không tạo bảng mới: hai cột nằm trong các bảng đã thuộc snapshot 11 bảng, vì vậy backup manifest/validator phải được version hóa để chấp nhận dữ liệu mới và vẫn xử lý backup cũ thiếu hai field bằng giá trị `null`.
 
 ---
 

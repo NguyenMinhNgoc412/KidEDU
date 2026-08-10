@@ -2,7 +2,7 @@
 
 **Trạng thái:** Source of Truth chính cho kiến trúc tổng quan  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-21  
+**Ngày cập nhật:** 2026-08-06
 **Phạm vi:** Mobile app MVP / Phase 0–1  
 **Ghi chú:** File này chỉ mô tả architecture ở mức tổng quan. Tech stack chi tiết nằm ở `05-tech-mobile-stack-sot.md`. Data/media chi tiết nằm ở `06-tech-local-data-media-sot.md`. Performance/cache/memory nằm ở `07-tech-performance-cache-memory-sot.md`.
 
@@ -19,6 +19,7 @@ Mobile App
   ├── App Shell & Navigation
   ├── Child Learning Experience
   ├── Auto Play Deck Experience
+  ├── Review Activities (Mini Test & Mini-games)
   ├── Parent Area
   ├── Content Management
   ├── Progress Tracking
@@ -79,6 +80,7 @@ Mỗi feature lớn có module riêng:
 | `learning` | Màn hình học từng thẻ                                                                              |
 | `deck`     | Danh sách bộ học, chi tiết bộ học, sắp xếp thẻ trong bộ                                            |
 | `autoPlay` | Phiên học tự chạy theo bộ                                                                          |
+| `review`   | Mini test theo tuổi, ghép hình và lật thẻ sau bộ; điều phối câu hỏi/cấp và phản hồi sensory-safe   |
 | `parent`   | Khu phụ huynh, Parent Gate, dashboard quản lý                                                      |
 | `media`    | Chọn, xem trước, thay, xóa nội dung ảnh/video/audio                                                |
 | `progress` | Ghi nhận và hiển thị tiến độ cơ bản                                                                |
@@ -95,6 +97,7 @@ Chịu trách nhiệm xử lý logic dùng chung:
 - validate dữ liệu trước khi lưu;
 - xử lý lifecycle phát video/audio;
 - ghi nhận tiến độ;
+- tạo câu mini test theo tuổi, chọn hình nhiễu local và điều phối phiên mini-game theo đặc tả `10`/`11`;
 - kiểm tra quyền vào khu phụ huynh;
 - cleanup dữ liệu/media không còn dùng;
 - tạo logical snapshot, kiểm tra version/checksum và điều phối restore có rollback.
@@ -107,6 +110,7 @@ Chịu trách nhiệm:
 - đọc/ghi metadata nội dung học;
 - đọc/ghi bộ học;
 - đọc/ghi tiến độ;
+- đọc tuổi hồ sơ và ghi trạng thái mini test đã làm/chưa làm ở cấp bộ mà không lưu đáp án từng câu;
 - đọc/ghi cài đặt;
 - quản lý mapping giữa bản ghi nội dung và file media trên thiết bị;
 - export/import logical snapshot bằng transaction, không thay thế trực tiếp file SQLite.
@@ -308,6 +312,7 @@ Dành cho trẻ:
 
 - màn hình học từng thẻ;
 - màn hình học theo bộ tự chạy;
+- mini test và menu mini-game sau khi hoàn thành bộ;
 - danh sách bộ học đơn giản nếu cần;
 - nút lớn, ít chữ, ít thao tác.
 
@@ -337,6 +342,7 @@ Child zone không được lẫn thao tác xóa/sửa nội dung.
 | Bộ học                   | `deck`                       | Auto Play dùng deck làm input                                           |
 | Media asset              | `media`                      | Bao gồm default/custom/generated                                        |
 | Phiên học                | `autoPlay` / `learning`      | Dùng để ghi nhận progress                                               |
+| Phiên ôn tập cuối bộ     | `review`                     | Mini test/mini-game local; không lưu điểm hoặc đáp án chi tiết          |
 | Tiến độ                  | `progress`                   | Không chứa AI scoring                                                   |
 | Cài đặt                  | `settings`                   | Tốc độ học, lặp vòng, âm thanh                                          |
 | Tệp sao lưu local        | `backup`                     | Snapshot có version, metadata và media dùng đường dẫn tương đối         |
@@ -384,6 +390,8 @@ Backup cần unit test cho format/version/checksum, integration test cho replace
 
 Privacy/data controls cần unit test cho phạm vi từng mutation và rollback, test permission mapping không hiện prompt, component/hook test cho confirm/mutex/cache refresh, cùng manual device test cho trang cài đặt hệ thống và xóa file thật.
 
+Review activities cần unit test cho số lựa chọn 2/4/6 theo tuổi, chọn câu/hình nhiễu, tiến trình cấp game và trạng thái hoàn thành; component/device test phải kiểm tra khóa chạm khi audio đang phát, drag/drop không bị scroll chiếm gesture, audio không chồng và layout tối đa 6 hình trên thiết bị nhỏ.
+
 Chi tiết tooling nằm trong `05-tech-mobile-stack-sot.md`.
 
 ---
@@ -398,4 +406,6 @@ Khi implement, đọc thêm:
 - Tech stack: `05-tech-mobile-stack-sot.md`
 - Local data/media: `06-tech-local-data-media-sot.md`
 - Lazy load/cache/memory: `07-tech-performance-cache-memory-sot.md`
-- Chia task Codex: `08-codex-task-splitting-sot.md`
+- Chia task Codex: `08-Agent-task-splitting-sot.md`
+- Mini-game đã duyệt: `10-minigame-discussion.md`
+- Mini test đã duyệt: `11-minitest-discussion.md`

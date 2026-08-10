@@ -12,7 +12,7 @@ export type MediaSource = "default" | "custom" | "generated";
 
 export type MediaStatus = "active" | "missing" | "deleted" | "processing" | "failed";
 
-export type PracticeMode = "single_item" | "auto_play_deck";
+export type PracticeMode = "single_item" | "auto_play_deck" | "puzzle_game" | "memory_game";
 
 export type PracticeSessionStatus = "active" | "completed" | "cancelled" | "interrupted";
 

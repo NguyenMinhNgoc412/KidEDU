@@ -2,7 +2,7 @@
 
 **Trạng thái:** Hướng dẫn chia task implement  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-21  
+**Ngày cập nhật:** 2026-08-06
 **Phạm vi:** Mobile app MVP / Phase 0–1
 
 ---
@@ -15,6 +15,8 @@ Mỗi task Codex phải:
 2. Đọc `01-kidedu-business-sot.md` để hiểu nghiệp vụ.
 3. Đọc `02-kidedu-mobile-architecture-sot.md` để hiểu kiến trúc tổng quan.
 4. Đọc file chi tiết liên quan tới task.
+   - Mini-game: `10-minigame-discussion.md`.
+   - Mini test: `11-minitest-discussion.md`.
 5. Không tự thêm feature mới.
 6. Nếu cần thay đổi SOT, ghi rõ file nào cần sửa và lý do.
 7. Kết thúc task phải có checklist test hoặc cách verify.
@@ -35,6 +37,8 @@ Mapping ảnh reference:
 | Child study / màn học từng thẻ / autoplay card | `screenshots/03-child-study-screen.JPG` |
 | Parent create item / media upload              | `screenshots/04-media-upload.JPG`       |
 | Parent word list / quản lý từ                  | `screenshots/05-parent-word-list.JPG`   |
+
+Hiện chưa có screenshot riêng cho mini test/mini-game. Task UI review phải bám `09` cùng đặc tả `10`/`11`, tạo screenshot kiểm chứng mới và không tự thêm visual/game mechanic ngoài hai đặc tả.
 
 ---
 
@@ -302,7 +306,7 @@ Acceptance:
 Đọc:
 
 - `05-tech-mobile-stack-sot.md`
-- `08-codex-task-splitting-sot.md`
+- `08-Agent-task-splitting-sot.md`
 
 Output:
 
@@ -425,6 +429,39 @@ Acceptance:
 - DB failure rollback và không xóa file cũ; file cleanup chỉ chạy sau commit.
 - Tệp backup ngoài app và permission hệ điều hành không bị tuyên bố là đã xóa/reset.
 - Không có backend, analytics/telemetry, cloud sync hoặc tài khoản online.
+
+---
+
+### T-014 — Review activities Beta rework
+
+Không gom toàn bộ vào một task code. Chia theo thứ tự:
+
+1. `T-014A` — migration + repository contract cho `age_years`, `puzzle_template_key` và trạng thái mini test completed theo bộ;
+2. `T-014B` — ghép hình theo đặc tả `10`;
+3. `T-014C` — lật thẻ theo đặc tả `10`;
+4. `T-014D` — mini test 2/4/6 hình theo đặc tả `11`;
+5. `T-014E` — popup cuối bộ, navigation, backup compatibility và device hardening.
+
+Đọc:
+
+- `01-kidedu-business-sot.md`
+- `02-kidedu-mobile-architecture-sot.md`
+- `03-business-auto-play-deck-sot.md`
+- `04-business-parent-content-management-sot.md`
+- `06-tech-local-data-media-sot.md`
+- `07-tech-performance-cache-memory-sot.md`
+- `09-design-system-sot.md`
+- `10-minigame-discussion.md`
+- `11-minitest-discussion.md`
+
+Acceptance chung:
+
+- Không giữ UI/cơ chế cũ nếu khác đặc tả đã duyệt.
+- Mọi media dùng offline/local; hình nhiễu ngoài bộ vẫn phải là asset local hợp lệ.
+- Không lưu đáp án/số lần sai/phát lại của mini test; chỉ completed session mới tạo trạng thái đã làm.
+- Backup cũ restore được với field mới mặc định `null`; backup mới round-trip giữ tuổi và puzzle template.
+- Không có audio overlap, timer/listener/player leak hoặc scroll chiếm drag gesture.
+- Có unit/component test và device smoke cho 2/4/6 hình, layout nhỏ, drag/drop, animation biến mất, background/unmount audio và navigation.
 
 ---
 

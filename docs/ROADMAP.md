@@ -2,6 +2,7 @@
 
 - **Trạng thái:** Kế hoạch triển khai dẫn xuất từ SOT, không thay thế SOT
 - **Baseline:** 2026-07-23
+- **Cập nhật phạm vi Beta:** 2026-08-05
 - **Mốc code được audit:** `afc6774`
 - **Mô hình thực hiện:** Một người phát triển, Android-first, local-first
 - **Các mốc:** MVP → Beta → v1.0 → v2.0
@@ -77,12 +78,12 @@ thay vì xây lại architecture.
 
 ## 3. Tổng quan bốn mốc
 
-| Mốc | Mục tiêu | Thời lượng solo tham chiếu | Kết quả |
-|---|---|---:|---|
-| MVP | MVP Candidate để test nội bộ | 8–10 tuần | Signed internal build, core flow dùng được offline |
-| Beta | Test kín với người dùng thật | Thêm 4–6 tuần | Beta ổn định, đủ content phát hành, không còn lỗi nghiêm trọng |
-| v1.0 | Phát hành Android production | Thêm 2–4 tuần + review ngoài | Store-ready release và quy trình hotfix |
-| v2.0 | Mở rộng có chọn lọc | 3–6 tháng sau v1.0 | Một hướng mở rộng lớn, vẫn kiểm soát được với dự án solo |
+| Mốc  | Mục tiêu                     |   Thời lượng solo tham chiếu | Kết quả                                                        |
+| ---- | ---------------------------- | ---------------------------: | -------------------------------------------------------------- |
+| MVP  | MVP Candidate để test nội bộ |                    8–10 tuần | Signed internal build, core flow dùng được offline             |
+| Beta | Test kín với người dùng thật |                Thêm 4–6 tuần | Beta ổn định, đủ content phát hành, không còn lỗi nghiêm trọng |
+| v1.0 | Phát hành Android production | Thêm 2–4 tuần + review ngoài | Store-ready release và quy trình hotfix                        |
+| v2.0 | Mở rộng có chọn lọc          |           3–6 tháng sau v1.0 | Một hướng mở rộng lớn, vẫn kiểm soát được với dự án solo       |
 
 Ước lượng từ hiện tại tới bản sẵn sàng submit v1.0 là khoảng 14–20 tuần nếu một người tự
 làm cả code, QA, content và release. Thời gian duyệt hoặc yêu cầu kiểm thử của store là
@@ -153,18 +154,18 @@ MVP/Phase 0–1 trong SOT đã đạt release acceptance; việc đó được k
 Đây là lịch mặc định. Mốc 8 tuần chỉ khả thi khi golden content, Android device và signed
 build sẵn sàng sớm; không đạt 8 tuần bằng cách bỏ qua backup/privacy/device gate.
 
-| Tuần | Trọng tâm duy nhất | Output |
-|---:|---|---|
-| 1 | Scope freeze và baseline build | Quyết định, CI, signed preview, device/performance/store constraints |
-| 2 | Golden content + readiness | Deck 4–6 thẻ thật, media/binary budget, ẩn seed chưa sẵn sàng |
-| 3 | Data integrity | Status/progress thống nhất, hidden deck item an toàn, migration test |
-| 4 | Native media | Picker, camera, mic, thumbnail, fallback và cleanup trên device |
-| 5 | Auto Play + progress | Timeline, lifecycle, stale-session recovery và soak ngắn |
-| 6 | Backup | Service tests, native round-trip, low-space và rollback |
-| 7 | Privacy | Permission refresh, summary semantics và ba destructive actions |
-| 8 | UI + accessibility | Visual pass, contrast, touch target, TalkBack và text scaling |
-| 9 | E2E + performance | Maestro, device matrix, Auto Play/media soak và regression |
-| 10 | Buffer và MVP cut | Sửa lỗi, known issues và signed internal candidate |
+| Tuần | Trọng tâm duy nhất             | Output                                                               |
+| ---: | ------------------------------ | -------------------------------------------------------------------- |
+|    1 | Scope freeze và baseline build | Quyết định, CI, signed preview, device/performance/store constraints |
+|    2 | Golden content + readiness     | Deck 4–6 thẻ thật, media/binary budget, ẩn seed chưa sẵn sàng        |
+|    3 | Data integrity                 | Status/progress thống nhất, hidden deck item an toàn, migration test |
+|    4 | Native media                   | Picker, camera, mic, thumbnail, fallback và cleanup trên device      |
+|    5 | Auto Play + progress           | Timeline, lifecycle, stale-session recovery và soak ngắn             |
+|    6 | Backup                         | Service tests, native round-trip, low-space và rollback              |
+|    7 | Privacy                        | Permission refresh, summary semantics và ba destructive actions      |
+|    8 | UI + accessibility             | Visual pass, contrast, touch target, TalkBack và text scaling        |
+|    9 | E2E + performance              | Maestro, device matrix, Auto Play/media soak và regression           |
+|   10 | Buffer và MVP cut              | Sửa lỗi, known issues và signed internal candidate                   |
 
 Đây là các theme tuần, không phải lý do chạy nhiều risk song song. Trong từng tuần vẫn
 giữ WIP bằng một. Nếu hoàn thành sớm, dùng thời gian dư cho content và test; không kéo
@@ -230,6 +231,18 @@ owner phải chọn một trong hai hướng:
 
 Không được mặc định thay đổi bộ học mẫu chỉ bằng roadmap.
 
+#### Hoạt động cuối bộ đã duyệt cho Beta
+
+Beta bổ sung ba hoạt động local-first dùng nội dung của bộ vừa học:
+
+1. Mini test nghe và chọn hình.
+2. Ghép hình hoàn chỉnh.
+3. Lật thẻ tìm cặp.
+
+Mini test hiển thị 2/4/6 hình theo tuổi, có tối đa 5 câu ngẫu nhiên và chỉ ghi trạng thái đã làm/chưa làm ở cấp bộ. Ghép hình tự tăng 2–4 mảnh; lật thẻ tự tăng 2–5 cặp. Cả ba không thu âm, không dùng AI chấm phát âm, không có điểm tổng hoặc trạng thái đạt/rớt.
+
+Trước khi implement lại review activities phải có migration forward-only cho tuổi hồ sơ và puzzle template, backup compatibility cho field nullable mới, rồi tách implementation theo `T-014A` đến `T-014E` trong file `08`.
+
 #### Native hardening
 
 - Test nhiều Android device/vendor.
@@ -271,6 +284,7 @@ Không được mặc định thay đổi bộ học mẫu chỉ bằng roadmap.
   trong release scope.
 - Privacy policy, content/license register và store declarations đã có bản draft khớp
   với binary.
+- Mini test, ghép hình và lật thẻ hoạt động offline trên signed Beta build; từ mục tiêu/audio thuộc đúng bộ, hình nhiễu ngoài bộ vẫn là asset local hợp lệ, và không gây regression Auto Play/progress/privacy.
 - Các issue Beta được phân loại:
   - phải sửa trước v1.0;
   - có thể hoãn;
@@ -278,8 +292,7 @@ Không được mặc định thay đổi bộ học mẫu chỉ bằng roadmap.
 
 ### Thời lượng
 
-4–6 tuần sau MVP Candidate. Nếu store yêu cầu thời gian closed testing dài hơn, kéo dài
-Beta thay vì rút ngắn regression.
+4–6 tuần sau MVP Candidate là baseline trước khi bổ sung ba hoạt động cuối bộ. Phải re-baseline sau khi có task breakdown/estimate; không được rút ngắn regression, device test hoặc accessibility pass để giữ mốc cũ. Nếu store yêu cầu thời gian closed testing dài hơn, kéo dài Beta.
 
 ---
 
@@ -340,7 +353,7 @@ release.
 Ưu tiên tiếp tục local-first:
 
 1. Nâng cấp Auto Play:
-   - ôn cuối bộ;
+   - mở rộng loại mini test/game sau khi có dữ liệu Beta;
    - đảo thứ tự khi ôn;
    - trải nghiệm lặp lại tốt hơn.
 2. Nhiều hồ sơ trẻ trên cùng thiết bị.
@@ -445,16 +458,19 @@ Một task chỉ Done khi:
 ### Làm trong Beta
 
 1. Hoàn thiện content cho đủ 5 nhóm.
-2. Mở rộng automated/component tests theo rủi ro.
-3. Chạy device/vendor/low-storage/background matrix.
-4. Accessibility và sensory-safety pass.
-5. Closed testing và sửa toàn bộ P0/P1.
-6. Chuẩn bị store/privacy/release package.
+2. Implement mini test nghe và chọn hình theo bộ.
+3. Implement ghép hình hoàn chỉnh và lật thẻ tìm cặp.
+4. Migration tuổi hồ sơ + puzzle template, backup compatibility và trạng thái mini test đã làm/chưa làm.
+5. Mở rộng automated/component tests theo rủi ro.
+6. Chạy device/vendor/low-storage/background matrix.
+7. Accessibility và sensory-safety pass.
+8. Closed testing và sửa toàn bộ P0/P1.
+9. Chuẩn bị store/privacy/release package.
 
 ### Chỉ làm sau v1.0
 
 - Multi-profile.
-- Auto Play review modes.
+- Các loại mini test/game khác ngoài ba hoạt động Beta đã duyệt.
 - Content pack nâng cao.
 - Mọi proposal backend/cloud/expert/AI.
 
@@ -491,8 +507,10 @@ nhật đúng SOT và `CHANGELOG.md` sau khi được duyệt.
 - `docs/05-tech-mobile-stack-sot.md`
 - `docs/06-tech-local-data-media-sot.md`
 - `docs/07-tech-performance-cache-memory-sot.md`
-- `docs/08-codex-task-splitting-sot.md`
+- `docs/08-Agent-task-splitting-sot.md`
 - `docs/09-design-system-sot.md`
+- `docs/10-minigame-discussion.md`
+- `docs/11-minitest-discussion.md`
 - `docs/CHANGELOG.md`
 - `maestro/README.md`
 

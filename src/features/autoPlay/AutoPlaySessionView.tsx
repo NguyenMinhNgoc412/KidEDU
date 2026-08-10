@@ -22,16 +22,19 @@ import {
   resolveBundledDefaultMediaUri
 } from "@/features/media/bundledMediaAssetResolver";
 import { resolveLearningItemMedia } from "@/features/media/mediaResolver";
+import { createMiniTestQuestions } from "@/features/review/miniTestQuestions";
 import { useLearningSessionGate } from "@/features/session/useLearningSessionGate";
 import { colors, radii, spacing } from "@/theme";
 
 export function AutoPlaySessionView({
   deck,
   settings,
+  onOpenGames,
   onExitToHome
 }: {
   deck: DeckDetail;
   settings: LearningSettings;
+  onOpenGames: () => void;
   onExitToHome: () => void;
 }) {
   const sessionGate = useLearningSessionGate();
@@ -49,16 +52,25 @@ export function AutoPlaySessionView({
     );
   }
 
-  return <ActiveAutoPlaySessionView deck={deck} settings={settings} onExitToHome={onExitToHome} />;
+  return (
+    <ActiveAutoPlaySessionView
+      deck={deck}
+      settings={settings}
+      onOpenGames={onOpenGames}
+      onExitToHome={onExitToHome}
+    />
+  );
 }
 
 function ActiveAutoPlaySessionView({
   deck,
   settings,
+  onOpenGames,
   onExitToHome
 }: {
   deck: DeckDetail;
   settings: LearningSettings;
+  onOpenGames: () => void;
   onExitToHome: () => void;
 }) {
   const session = useAutoPlaySession(deck, settings);
@@ -96,6 +108,7 @@ function ActiveAutoPlaySessionView({
 
   if (session.state.phase === "completed") {
     const isEmpty = session.state.completedReason === "no_valid_items";
+    const canStartMiniTest = createMiniTestQuestions(session.playableItems).length > 0;
 
     return (
       <View style={styles.completed}>
@@ -107,17 +120,20 @@ function ActiveAutoPlaySessionView({
               : `${session.playableItems.length} thẻ đã được phát.`
           }
         />
-        <KidButton
-          icon={<RotateCcw color={colors.onPrimary} size={22} />}
-          label="Học lại"
-          onPress={session.restart}
-        />
-        <KidButton
-          icon={<X color={colors.primary} size={22} />}
-          label="Về danh sách"
-          onPress={onExitToHome}
-          variant="plain"
-        />
+        {!isEmpty ? (
+          <Card style={styles.completionCard} variant="surface">
+            <KidButton label="Học bộ tiếp" onPress={onExitToHome} variant="plain" />
+            <KidButton disabled label="Mini test" onPress={() => undefined} variant="plain" />
+            {!canStartMiniTest ? (
+              <AppText align="center" color="muted" variant="caption">
+                Mini test cần ít nhất hai thẻ có ảnh và âm phát âm.
+              </AppText>
+            ) : null}
+            <KidButton label="Trò chơi" onPress={onOpenGames} variant="secondary" />
+          </Card>
+        ) : (
+          <KidButton label="Về danh sách" onPress={onExitToHome} variant="plain" />
+        )}
       </View>
     );
   }
@@ -232,6 +248,10 @@ const styles = StyleSheet.create({
   },
   completed: {
     gap: spacing[14]
+  },
+  completionCard: {
+    gap: spacing[10],
+    padding: spacing[16]
   },
   topBar: {
     alignItems: "center",

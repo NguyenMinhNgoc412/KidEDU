@@ -2,8 +2,8 @@
 
 **Trạng thái:** Source of Truth chính của dự án  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-04  
-**Phạm vi:** Mobile app MVP / Phase 0–1  
+**Ngày cập nhật:** 2026-08-06
+**Phạm vi:** Mobile app MVP / Phase 0–1 và các mở rộng Beta đã duyệt
 **Ngôn ngữ:** Tiếng Việt
 
 ---
@@ -18,6 +18,7 @@ KidEDU là ứng dụng mobile hỗ trợ trẻ chậm nói luyện phát âm t�
 - hình ảnh hoặc ảnh động minh họa;
 - âm thanh phát âm rõ ràng;
 - bộ thẻ học tự chạy như playlist;
+- ôn tập cuối bộ và mini-game ngắn theo bộ học trong Beta;
 - nội dung cá nhân hóa do phụ huynh tự thêm.
 
 README này là **file phải đọc đầu tiên** trước khi đọc các file SOT còn lại.
@@ -42,6 +43,10 @@ Luôn đọc theo thứ tự:
 
 - `03-business-auto-play-deck-sot.md` nếu làm chế độ bộ thẻ tự chạy;
 - `04-business-parent-content-management-sot.md` nếu làm khu phụ huynh, quản lý thẻ, bộ học hoặc nội dung cá nhân hóa.
+- `10-minigame-discussion.md` khi làm hoặc kiểm thử ghép hình/lật thẻ theo đặc tả đã duyệt;
+- `11-minitest-discussion.md` khi làm hoặc kiểm thử mini test theo đặc tả đã duyệt.
+
+File `10` và `11` đã được owner duyệt và đồng bộ vào các SOT liên quan. Khi thay đổi mini-game/mini test phải đọc đúng file chi tiết, cập nhật SOT chính và chờ owner duyệt nếu thay đổi nghiệp vụ.
 
 ### 2.3. Khi làm task kỹ thuật
 
@@ -55,7 +60,7 @@ Luôn đọc theo thứ tự:
 
 Đọc thêm:
 
-- `08-AI Agent-task-splitting-sot.md`
+- `08-Agent-task-splitting-sot.md`
 
 File này chỉ dùng để chia task và viết prompt implement. Nó không được dùng để thay đổi nghiệp vụ hoặc kiến trúc.
 
@@ -83,19 +88,23 @@ Các ảnh tham chiếu hiện có:
 
 ## 3. Danh sách tài liệu SOT
 
-| File | Vai trò | Khi nào cần đọc |
-|---|---|---|
-| `README.md` | Entry point, quy tắc đọc, bản đồ tài liệu, quyết định đã chốt | Luôn đọc đầu tiên |
-| `CHANGELOG.md` | Lịch sử thay đổi SOT theo version/ngày | Khi cần kiểm tra tài liệu đã đổi gì |
-| `01-kidedu-business-sot.md` | Mô tả sản phẩm, feature, nghiệp vụ bằng ngôn ngữ business | Khi làm bất kỳ feature nào |
-| `02-kidedu-mobile-architecture-sot.md` | Thiết kế tổng quan mobile architecture | Khi setup hoặc thay đổi kiến trúc app |
-| `03-business-auto-play-deck-sot.md` | Nghiệp vụ chi tiết chế độ bộ thẻ tự chạy | Khi làm màn hình tự học, playlist, autoplay |
-| `04-business-parent-content-management-sot.md` | Nghiệp vụ khu phụ huynh, quản lý thẻ/bộ học/nội dung cá nhân hóa | Khi làm parent area hoặc quản lý nội dung |
-| `05-tech-mobile-stack-sot.md` | Tech stack mobile đã chốt | Khi setup dependency hoặc chọn library |
-| `06-tech-local-data-media-sot.md` | Local data, media storage, schema, media pipeline | Khi làm database, file local hoặc media upload |
-| `07-tech-performance-cache-memory-sot.md` | Lazy load, state management, cache, memory management | Khi làm list, media playback, autoplay hoặc tối ưu app |
-| `08-AI Agent-task-splitting-sot.md` | Cách chia task cho AI Agent | Khi bắt đầu một đợt implement |
-| `09-design-system-sot.md` | Design system, visual direction, màu sắc, typography, spacing, shape, component style | Khi làm bất kỳ task giao diện/UI/UX nào |
+| File                                           | Vai trò                                                                               | Khi nào cần đọc                                                       |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `README.md`                                    | Entry point, quy tắc đọc, bản đồ tài liệu, quyết định đã chốt                         | Luôn đọc đầu tiên                                                     |
+| `CHANGELOG.md`                                 | Lịch sử thay đổi SOT theo version/ngày                                                | Khi cần kiểm tra tài liệu đã đổi gì                                   |
+| `01-kidedu-business-sot.md`                    | Mô tả sản phẩm, feature, nghiệp vụ bằng ngôn ngữ business                             | Khi làm bất kỳ feature nào                                            |
+| `02-kidedu-mobile-architecture-sot.md`         | Thiết kế tổng quan mobile architecture                                                | Khi setup hoặc thay đổi kiến trúc app                                 |
+| `03-business-auto-play-deck-sot.md`            | Nghiệp vụ chi tiết bộ thẻ tự chạy, ôn tập cuối bộ và game theo bộ                     | Khi làm màn hình tự học, playlist, autoplay hoặc hoạt động sau bộ học |
+| `04-business-parent-content-management-sot.md` | Nghiệp vụ khu phụ huynh, quản lý thẻ/bộ học/nội dung cá nhân hóa                      | Khi làm parent area hoặc quản lý nội dung                             |
+| `05-tech-mobile-stack-sot.md`                  | Tech stack mobile đã chốt                                                             | Khi setup dependency hoặc chọn library                                |
+| `06-tech-local-data-media-sot.md`              | Local data, media storage, schema, media pipeline                                     | Khi làm database, file local hoặc media upload                        |
+| `07-tech-performance-cache-memory-sot.md`      | Lazy load, state management, cache, memory management                                 | Khi làm list, media playback, autoplay hoặc tối ưu app                |
+| `08-Agent-task-splitting-sot.md`               | Cách chia task cho AI Agent                                                           | Khi bắt đầu một đợt implement                                         |
+| `09-design-system-sot.md`                      | Design system, visual direction, màu sắc, typography, spacing, shape, component style | Khi làm bất kỳ task giao diện/UI/UX nào                               |
+| `10-minigame-discussion.md`                    | Đặc tả nghiệp vụ mini-game đã được owner duyệt                                        | Khi làm, kiểm thử hoặc thay đổi ghép hình/lật thẻ                     |
+| `11-minitest-discussion.md`                    | Đặc tả nghiệp vụ mini test đã được owner duyệt                                        | Khi làm, kiểm thử hoặc thay đổi mini test                             |
+
+Mini test/mini-game chưa có screenshot reference riêng. Task UI phải dùng `09` cùng `10`/`11`, tạo screenshot kiểm chứng để owner review và không tự thêm mechanic/visual ngoài đặc tả.
 
 ---
 
@@ -133,11 +142,12 @@ File kỹ thuật **không tự thêm feature mới** ngoài file nghiệp vụ.
 1. `01-kidedu-business-sot.md` quyết định sản phẩm làm gì.
 2. `02-kidedu-mobile-architecture-sot.md` quyết định kiến trúc tổng quan.
 3. Các file `03` đến `07` quyết định chi tiết trong phạm vi của mình.
-4. `09-design-system-sot.md` quyết định visual system và UI implementation style trong phạm vi giao diện.
-5. Ảnh trong `screenshots/` quyết định hình tham chiếu cụ thể cho layout/component/state của màn hình tương ứng.
-6. `08-AI Agent-task-splitting-sot.md` chỉ dùng để chia việc, không được thay đổi nghiệp vụ.
-7. `README.md` quyết định cách đọc, cách dùng và danh sách tài liệu trong bộ SOT.
-8. `CHANGELOG.md` chỉ ghi lịch sử thay đổi, không thay thế nội dung SOT chính.
+4. `10-minigame-discussion.md` và `11-minitest-discussion.md` quyết định chi tiết nghiệp vụ review activities đã được owner duyệt.
+5. `09-design-system-sot.md` quyết định visual system và UI implementation style trong phạm vi giao diện.
+6. Ảnh trong `screenshots/` quyết định hình tham chiếu cụ thể cho layout/component/state của màn hình tương ứng.
+7. `08-Agent-task-splitting-sot.md` chỉ dùng để chia việc, không được thay đổi nghiệp vụ.
+8. `README.md` quyết định cách đọc, cách dùng và danh sách tài liệu trong bộ SOT.
+9. `CHANGELOG.md` chỉ ghi lịch sử thay đổi, không thay thế nội dung SOT chính.
 
 ---
 
@@ -153,6 +163,7 @@ File kỹ thuật **không tự thêm feature mới** ngoài file nghiệp vụ.
 8. Trẻ ít thao tác nhất có thể; app phải tự phát và tự chuyển bài trong chế độ luyện tự động.
 9. Nội dung ảnh động và âm thanh phải thu hút nhưng không gây quá tải giác quan.
 10. Khu phụ huynh phải có Parent Gate đơn giản.
+11. Beta có ba hoạt động theo bộ đã duyệt: mini test nghe và chọn hình, ghép hình hoàn chỉnh và lật thẻ tìm cặp; không có AI chấm phát âm.
 
 ---
 

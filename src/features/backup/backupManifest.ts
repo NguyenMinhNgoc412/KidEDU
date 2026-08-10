@@ -93,7 +93,7 @@ const mediaRoleSchema = z.enum(["illustration", "mouth_video", "pronunciation_au
 const mediaTypeSchema = z.enum(["image", "animated_image", "video", "audio", "thumbnail"]);
 const mediaSourceSchema = z.enum(["default", "custom", "generated"]);
 const mediaStatusSchema = z.enum(["active", "missing", "deleted", "processing", "failed"]);
-const practiceModeSchema = z.enum(["single_item", "auto_play_deck"]);
+const practiceModeSchema = z.enum(["single_item", "auto_play_deck", "puzzle_game", "memory_game"]);
 const practiceSessionStatusSchema = z.enum(["active", "completed", "cancelled", "interrupted"]);
 const practiceEventTypeSchema = z.enum(["viewed", "replayed", "completed_item", "skipped"]);
 

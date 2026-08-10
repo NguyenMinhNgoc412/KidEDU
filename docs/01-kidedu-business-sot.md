@@ -2,8 +2,8 @@
 
 **Trạng thái:** Source of Truth chính cho nghiệp vụ  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-21  
-**Phạm vi:** MVP / Phase 0–1  
+**Ngày cập nhật:** 2026-08-06
+**Phạm vi:** MVP / Phase 0–1 và Beta
 **Ngôn ngữ:** Tiếng Việt  
 **Ghi chú:** File này chỉ mô tả sản phẩm theo ngôn ngữ business/nghiệp vụ. Không mô tả framework, database, thư viện hoặc cách implement.
 
@@ -104,7 +104,7 @@ Có thể mở rộng ở phase sau để:
 1. **Trẻ ít thao tác nhất có thể.** Ứng dụng phải hỗ trợ chế độ tự chạy theo bộ thẻ.
 2. **Phụ huynh kiểm soát nội dung.** Trẻ không tự thêm, sửa hoặc xóa nội dung.
 3. **Nội dung cá nhân hóa là điểm khác biệt chính.** Phụ huynh có thể dùng video/ảnh/audio của người thân để tăng sự gần gũi.
-4. **Không chấm phát âm tự động ở MVP.** App không kết luận trẻ phát âm đúng/sai bằng AI trong giai đoạn đầu.
+4. **Không chấm phát âm tự động ở MVP/Beta.** App không kết luận trẻ phát âm đúng/sai bằng AI. Mini test Beta chỉ được so sánh lựa chọn hình của trẻ với đáp án cố định, không được suy diễn thành điểm phát âm hoặc đánh giá y khoa.
 5. **Không gây quá tải giác quan.** Ảnh động và âm thanh phải hỗ trợ tập trung, không được lấn át khẩu hình và âm phát âm.
 6. **Mỗi bài học phải ngắn.** Một thẻ học nên tập trung vào một từ hoặc một cụm từ ngắn.
 7. **Phải có cách quay về nội dung mặc định.** Nếu phụ huynh xóa nội dung cá nhân hóa, app dùng lại nội dung mặc định nếu có.
@@ -210,6 +210,16 @@ Có thể ghi nhận:
 - trạng thái do phụ huynh đánh dấu: mới, đang luyện, đã quen;
 - nhận xét ngắn của phụ huynh nếu cần.
 
+### 5.8. Ôn tập và game theo bộ trong Beta
+
+Sau khi hoàn thành một bộ học, trẻ có thể củng cố các từ vừa học bằng ba hoạt động đã duyệt:
+
+1. **Mini test nghe và chọn hình:** app phát audio của từ mục tiêu rồi cho trẻ chọn trong 2, 4 hoặc 6 hình theo tuổi; không dùng video và không chấm điểm.
+2. **Ghép hình hoàn chỉnh:** trẻ kéo mảnh vào khung qua các màn tự tăng 2, 3 rồi tối đa 4 mảnh, dùng các hình khác nhau được chọn từ bộ.
+3. **Lật thẻ tìm cặp:** trẻ chơi các màn tự tăng từ 2 đến tối đa 5 cặp; cặp đúng thu nhỏ, mờ dần rồi biến mất.
+
+Từ mục tiêu/audio mini test và toàn bộ hình của hai mini-game phải thuộc đúng bộ học, ưu tiên media cá nhân hóa hợp lệ rồi mới fallback về media mặc định. Riêng hình nhiễu mini test được lấy từ hình local hợp lệ ngoài bộ khi cần đủ số lựa chọn theo tuổi. Các hoạt động không được dùng để kết luận trẻ biết hoặc chưa biết một từ.
+
 ---
 
 ## 6. Feature list MVP / Phase 0–1
@@ -232,10 +242,12 @@ Có thể ghi nhận:
 | BIZ-014 | Chuyên gia giao bài                | Chuyên gia tạo lộ trình từ xa                                                                        | Sau MVP |
 | BIZ-015 | AI chấm phát âm                    | App tự phân tích phát âm của trẻ                                                                     | Sau MVP |
 | BIZ-016 | Quyền riêng tư & kiểm soát dữ liệu | Minh bạch dữ liệu local, trạng thái quyền thiết bị và cho phụ huynh xóa dữ liệu theo phạm vi         | Có (P1) |
+| BIZ-017 | Mini test cuối bộ                  | Phát mẫu của từ và cho trẻ chọn hình tương ứng để ôn lại các từ vừa học                              |    Beta |
+| BIZ-018 | Mini-game theo bộ học              | Củng cố nội dung bằng ghép hình hoàn chỉnh và lật thẻ tìm cặp                                        |    Beta |
 
 ---
 
-## 7. Scope MVP / Phase 0–1 đã chốt
+## 7. Scope MVP / Phase 0–1 và Beta đã chốt
 
 ### 7.1. Bắt buộc có trong Phase 0–1
 
@@ -259,11 +271,20 @@ Có thể ghi nhận:
 
 1. Âm thanh khen ngắn sau mỗi thẻ hoặc cuối bộ.
 2. Âm thanh minh họa nhẹ cho một số thẻ phù hợp.
-3. Chế độ ôn lại cuối bộ.
-4. Cho phép đảo thứ tự thẻ khi ôn tập.
-5. Cho phép phụ huynh ghi chú riêng cho từng thẻ.
+3. Cho phép đảo thứ tự thẻ khi ôn tập.
+4. Cho phép phụ huynh ghi chú riêng cho từng thẻ.
 
-### 7.3. Chưa làm trong Phase 0–1
+### 7.3. Phạm vi Beta đã duyệt
+
+1. Sau khi hoàn thành bộ học, app hiện ba lựa chọn: về chọn bộ học, mini test hoặc trò chơi.
+2. Mini test nghe và chọn hình chỉ phát audio mẫu sau khi hoàn thành bộ học; số hình là 2/4/6 theo tuổi của trẻ.
+3. Game ghép hình tự tăng theo màn 2 → 3 → 4 mảnh, dùng tối đa ba hình khác nhau chọn ngẫu nhiên trong bộ và giảm số màn nếu bộ có ít hình hơn.
+4. Game lật thẻ tự tăng từ 2 đến tối đa 5 cặp, dừng ở cấp cao nhất tương ứng số hình hợp lệ trong bộ.
+5. Phản hồi đúng/sai của câu chọn hình phải nhẹ nhàng, không có trạng thái đạt/rớt.
+6. Ghép hình và lật thẻ chỉ ghi nhận việc tham gia/hoàn thành, không tính thành điểm ngôn ngữ.
+7. Toàn bộ hoạt động hoạt động offline, không thu âm và không dùng AI chấm phát âm.
+
+### 7.4. Chưa làm trong Phase 0–1/Beta
 
 1. Đăng nhập online.
 2. Đồng bộ nhiều thiết bị.
@@ -353,6 +374,18 @@ Chi tiết nghiệp vụ nằm trong `04-business-parent-content-management-sot.
 7. Sau khi hoàn tất, app làm mới dữ liệu hiển thị và không còn dùng file đã bị gỡ khỏi dữ liệu local.
 
 Việc xóa dữ liệu trong app không thể thu hồi tệp backup mà phụ huynh đã chủ động lưu hoặc chia sẻ ra ngoài vùng lưu trữ của KidEDU. Chi tiết nghiệp vụ nằm trong `04-business-parent-content-management-sot.md`.
+
+### 8.8. Trẻ ôn tập và chơi sau bộ học
+
+1. Trẻ hoàn thành một phiên học theo bộ không bị thoát giữa chừng.
+2. Nếu phụ huynh đã bật mini test cuối bộ, app bắt đầu phần nghe và chọn hình bằng các thẻ đủ điều kiện trong bộ vừa học; nếu tắt, app kết thúc phiên như bình thường.
+3. Hình xuất hiện đồng thời khi audio bắt đầu nhưng chỉ nhận lựa chọn sau khi audio phát xong; câu hỏi không hiển thị chữ/tên từ.
+4. Nếu trẻ chọn chưa đúng, hình vừa chọn rung ngang nhẹ rồi cho thử lại; không có chữ hoặc âm báo lỗi. Nếu đúng, hình nổi/phóng nhẹ, phát âm thanh chúc mừng rồi tự chuyển câu.
+5. Mỗi lượt có tối đa 5 câu ngẫu nhiên, giảm theo số thẻ hợp lệ; mini test chỉ mở khi bộ có ít nhất 2 thẻ có cả hình và audio local.
+6. Khi mini test kết thúc, app chúc mừng rồi hiển thị “Làm lại”, “Trò chơi” và “Học tiếp”.
+7. App chỉ lưu bộ đã học và mini test đã làm/chưa làm; không lưu đáp án, số lần sai/phát lại, điểm tổng, trạng thái đạt/rớt hoặc tự đánh dấu thẻ là “Đã quen”.
+
+Chi tiết nghiệp vụ nằm trong `03-business-auto-play-deck-sot.md`.
 
 ---
 
@@ -467,7 +500,7 @@ Sau khi feature lõi ổn định, BIZ-012 được thực hiện ở P1 và ph�
 
 Thứ tự ưu tiên mở rộng đề xuất:
 
-1. Nâng cấp trải nghiệm bộ học tự chạy.
+1. Hoàn thiện mini test nghe và chọn hình, ghép hình hoàn chỉnh và lật thẻ tìm cặp cho Beta.
 2. Hoàn thiện sao lưu và khôi phục local ở P1.
 3. Hoàn thiện quyền riêng tư và kiểm soát dữ liệu local ở P1.
 4. Thêm nhiều hồ sơ trẻ.

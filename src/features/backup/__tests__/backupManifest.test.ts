@@ -14,6 +14,16 @@ describe("KidEDU backup manifest", () => {
     expect(validateKidEduBackupManifest(manifest)).toEqual(manifest);
   });
 
+  it.each(["puzzle_game", "memory_game"] as const)(
+    "accepts %s sessions in portable backups",
+    (mode) => {
+      const manifest = makeManifest();
+      manifest.data.practice_sessions[0]!.mode = mode;
+
+      expect(validateKidEduBackupManifest(manifest)).toEqual(manifest);
+    }
+  );
+
   it("reports a newer format as incompatible instead of corrupt", () => {
     const manifest: Record<string, unknown> = { ...makeManifest(), formatVersion: 2 };
 

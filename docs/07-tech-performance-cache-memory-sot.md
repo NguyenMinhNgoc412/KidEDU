@@ -2,7 +2,7 @@
 
 **Trạng thái:** SOT kỹ thuật chi tiết  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-21  
+**Ngày cập nhật:** 2026-08-06
 **Phạm vi:** Lazy loading, state management, cache strategy, quản lý bộ nhớ cho media, backup/restore và data cleanup  
 **Liên quan:** `02-kidedu-mobile-architecture-sot.md`, `05-tech-mobile-stack-sot.md`, `06-tech-local-data-media-sot.md`
 
@@ -133,6 +133,8 @@ Ví dụ:
 - List chỉ dùng thumbnail.
 - Ảnh lớn chỉ hiển thị ở màn học/preview.
 - Ảnh phụ huynh upload nên resize trước khi lưu nếu quá lớn.
+- Mini test chỉ resolve/render đúng 2, 4 hoặc 6 ảnh của câu hiện tại; không preload toàn bộ ảnh local chỉ vì hình nhiễu có thể đến từ bộ khác.
+- Có thể chuẩn bị metadata/URI cho câu kế tiếp nhưng không decode đồng thời toàn bộ ảnh của lượt.
 
 ### 4.3. Video cache/preload
 
@@ -178,6 +180,8 @@ Bắt buộc:
 3. Không dùng ảnh full-resolution làm thumbnail.
 4. Không chạy nhiều ảnh động nặng cùng lúc.
 5. Với ảnh động, ưu tiên file nhẹ và duration ngắn.
+6. Ghép hình dùng crop/mask từ một ảnh nguồn của màn hiện tại; không tạo và giữ nhiều file bitmap mảnh ghép trên disk hoặc trong memory.
+7. Khi sang câu/màn, giải phóng reference ảnh/mask không còn dùng; lật thẻ tối đa 10 mặt trước nhưng chỉ dùng tối đa 5 source image khác nhau.
 
 ### 5.3. Audio memory
 
@@ -187,8 +191,16 @@ Bắt buộc:
 2. Release audio object khi rời màn hình.
 3. Không loop âm thanh nền trong MVP.
 4. Âm thanh khen/SFX phải ngắn.
+5. Review chỉ có một audio player hiệu lực; audio câu hỏi, âm khen và âm hoàn thành nối tiếp, không chồng nhau.
+6. Không gọi method trên audio shared object sau khi hook/player đã bị giải phóng; cleanup hủy listener/timer và để owner lifecycle release player.
 
-### 5.4. JS memory
+### 5.4. Review gesture và animation
+
+1. Animation rung, phóng nhẹ, mờ/thu nhỏ và hình nổi lên dùng transform/opacity, thời lượng ngắn và không giữ timer sau unmount.
+2. Drag/drop ghép hình nằm trong vùng không scroll hoặc khóa quyền gesture phù hợp; board và khay mảnh cùng nằm trọn màn hình.
+3. Khi route background/unmount, hủy transition pending và không phát âm thanh hoàn thành muộn.
+
+### 5.5. JS memory
 
 Bắt buộc:
 

@@ -2,8 +2,8 @@
 
 **Trạng thái:** SOT nghiệp vụ chi tiết  
 **Dự án:** KidEDU  
-**Ngày cập nhật:** 2026-07-27  
-**Phạm vi:** Khu phụ huynh, quản lý thẻ học, bộ học, nội dung cá nhân hóa, sao lưu/khôi phục và kiểm soát dữ liệu local  
+**Ngày cập nhật:** 2026-08-06
+**Phạm vi:** Khu phụ huynh, quản lý thẻ/bộ, nội dung cá nhân hóa, hoạt động cuối bộ, sao lưu/khôi phục và kiểm soát dữ liệu local
 **Ghi chú:** File này mô tả nghiệp vụ. Không mô tả framework, database hoặc code.
 
 ---
@@ -22,6 +22,7 @@ Phụ huynh có thể:
 - sắp xếp thẻ trong bộ học;
 - xem tiến độ cơ bản;
 - cấu hình tốc độ học;
+- bật/tắt mini test cuối bộ và xem trạng thái đã làm/chưa làm theo bộ;
 - sao lưu và khôi phục dữ liệu local.
 - xem cách KidEDU lưu dữ liệu và trạng thái quyền thiết bị;
 - xóa lịch sử học, media cá nhân hóa hoặc đặt lại toàn bộ app.
@@ -228,14 +229,17 @@ Khi xóa bộ học:
 
 Phụ huynh có thể cấu hình:
 
-| Cài đặt           | Ý nghĩa                                      |
-| ----------------- | -------------------------------------------- |
-| Tốc độ học        | Chậm, bình thường, nhanh                     |
-| Số vòng lặp       | 1 vòng, 3 vòng, lặp liên tục                 |
-| Âm thanh khen     | Bật/tắt                                      |
-| Âm thanh minh họa | Bật/tắt                                      |
-| Tự chuyển bài     | Bật/tắt trong một số mode                    |
-| Hiển thị chữ      | Bật/tắt hoặc chọn kích thước nếu cần sau MVP |
+- tuổi của hồ sơ trẻ để mini test chọn mức 2/4/6 hình; để trống thì dùng mặc định 2 hình;
+
+| Cài đặt           | Ý nghĩa                                                         |
+| ----------------- | --------------------------------------------------------------- |
+| Tốc độ học        | Chậm, bình thường, nhanh                                        |
+| Số vòng lặp       | 1 vòng, 3 vòng, lặp liên tục                                    |
+| Âm thanh khen     | Bật/tắt                                                         |
+| Âm thanh minh họa | Bật/tắt                                                         |
+| Tự chuyển bài     | Bật/tắt trong một số mode                                       |
+| Hiển thị chữ      | Bật/tắt hoặc chọn kích thước nếu cần sau MVP                    |
+| Mini test cuối bộ | Bật/tắt phần nghe và chọn hình sau khi hoàn thành bộ trong Beta |
 
 MVP chỉ cần những cài đặt thật sự ảnh hưởng đến phiên học.
 
@@ -250,8 +254,10 @@ Khu phụ huynh có thể hiển thị:
 - số lượt học;
 - ngày học gần nhất;
 - trạng thái phụ huynh đánh dấu.
+- bộ đã học và mini test đã làm/chưa làm;
+- mini-game theo bộ đã bắt đầu/hoàn thành.
 
-Không hiển thị điểm phát âm tự động ở MVP.
+Không hiển thị lựa chọn từng câu, số lần sai/phát lại, điểm tổng, đạt/rớt hoặc điểm phát âm tự động. Trạng thái mini test không phải đánh giá khả năng ngôn ngữ hay phát âm.
 
 ---
 
@@ -267,6 +273,7 @@ Tệp sao lưu gồm:
 - chủ đề, thẻ học và bộ học;
 - media cá nhân hóa và mapping liên quan;
 - phiên học và tiến độ cơ bản;
+- lịch sử mini test và mini-game theo bộ nếu đã được ghi nhận;
 - cài đặt học.
 
 Nội dung mặc định đã đóng gói trong app không cần được nhân bản nếu có thể khôi phục lại từ chính phiên bản app đích.
@@ -359,6 +366,7 @@ Trạng thái phải dùng từ dễ hiểu như đã cho phép, giới hạn, c
 Khi phụ huynh xác nhận xóa lịch sử học:
 
 - xóa các phiên học, sự kiện học, lượt luyện, lần học gần nhất và trạng thái tiến độ đã đánh dấu;
+- xóa trạng thái mini test đã làm/chưa làm và lịch sử mini-game theo bộ;
 - đưa trạng thái học của thẻ về “mới”;
 - giữ nguyên thẻ, bộ học, media cá nhân hóa và cài đặt học.
 
@@ -444,3 +452,6 @@ Tính năng khu phụ huynh đạt khi:
 29. Thao tác lỗi không để dữ liệu ở trạng thái ghi một phần hoặc xóa file còn được metadata hiện tại tham chiếu.
 30. Sau thao tác thành công, query/UI được làm mới và không còn dùng media đã xóa.
 31. Xóa/reset trong app không tuyên bố xóa tệp backup ngoài app hoặc tự thu hồi quyền do hệ điều hành quản lý.
+32. Phụ huynh bật/tắt được mini test cuối bộ trong Beta.
+33. Khu phụ huynh chỉ hiển thị bộ đã học và mini test đã làm/chưa làm, không hiển thị chi tiết lựa chọn, điểm phát âm hoặc đạt/rớt.
+34. Xóa lịch sử học cũng xóa lịch sử mini test và mini-game nhưng giữ nguyên thẻ, bộ, media và cài đặt.
