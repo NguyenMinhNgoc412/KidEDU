@@ -52,7 +52,7 @@ describe("migrateKidEduDatabase", () => {
 
     expect(db.execSql).toContain(createSchemaSql);
     expect(db.currentVersion).toBe(schemaVersion);
-    expect(db.transactionCount).toBe(1);
+    expect(db.transactionCount).toBe(2);
   });
 
   it("does not rerun schema migrations when the local database is already current", async () => {

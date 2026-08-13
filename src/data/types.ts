@@ -51,6 +51,7 @@ export interface LearningItemMedia {
   role: MediaRole;
   priority: number;
   isActive: boolean;
+  puzzleTemplateKey?: string | null;
   asset: MediaAsset;
 }
 

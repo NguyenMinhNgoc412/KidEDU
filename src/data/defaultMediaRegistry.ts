@@ -32,6 +32,7 @@ export interface BundledDefaultMediaDefinition {
   durationMs?: number;
   sizeBytes?: number;
   videoMetadata?: BundledDefaultVideoMetadata;
+  puzzleTemplateKey?: "safe-columns" | "safe-rows" | "safe-grid";
 }
 
 function bundledIllustration(
@@ -42,6 +43,7 @@ function bundledIllustration(
     itemId,
     role: "illustration",
     type: "image",
+    puzzleTemplateKey: "safe-columns",
     asset: {
       key: `${itemId}-illustration-v1`,
       module,
@@ -87,6 +89,7 @@ export const bundledDefaultMedia: readonly BundledDefaultMediaDefinition[] = [
     itemId: "item-ba",
     role: "illustration",
     type: "image",
+    puzzleTemplateKey: "safe-columns",
     asset: {
       key: "item-ba-illustration-v1",
       // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -132,6 +135,7 @@ export const bundledDefaultMedia: readonly BundledDefaultMediaDefinition[] = [
     itemId: "item-me",
     role: "illustration",
     type: "image",
+    puzzleTemplateKey: "safe-columns",
     asset: {
       key: "item-me-illustration-v1",
       // eslint-disable-next-line @typescript-eslint/no-require-imports

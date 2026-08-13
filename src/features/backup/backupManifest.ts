@@ -150,6 +150,7 @@ const learningItemMediaSchema: z.ZodType<BackupLearningItemMediaRow> = z.strictO
   role: mediaRoleSchema,
   priority: z.number().int().safe(),
   is_active: booleanIntegerSchema,
+  puzzle_template_key: z.string().max(128).nullable().optional().default(null),
   created_at: timestampSchema
 });
 
@@ -312,7 +313,7 @@ function assertCompatibleVersion(value: unknown): void {
   }
 
   const data = value.data;
-  if (isRecord(data) && data.schemaVersion !== schemaVersion) {
+  if (isRecord(data) && (typeof data.schemaVersion !== "number" || data.schemaVersion > schemaVersion)) {
     throw new BackupManifestError(
       "incompatible_version",
       `Unsupported KidEDU database schema version: ${String(data.schemaVersion)}`
@@ -322,7 +323,7 @@ function assertCompatibleVersion(value: unknown): void {
 
 function validateManifestRelationships(manifest: KidEduBackupManifest): void {
   const { data } = manifest;
-  if (data.schemaVersion !== schemaVersion || data.createdAt !== manifest.createdAt) {
+  if (data.schemaVersion > schemaVersion || data.createdAt !== manifest.createdAt) {
     invalid("Backup timestamps or database schema do not match.");
   }
 

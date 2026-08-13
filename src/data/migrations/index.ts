@@ -1,6 +1,7 @@
 import { schemaVersion } from "../schema";
 
 import { initialLocalFirstSchemaMigration } from "./001-initial-local-first-schema";
+import { addPuzzleTemplateKeyMigration } from "./002-add-puzzle-template-key";
 import type { MigrationDatabase, SchemaMigration } from "./types";
 
 export type { MigrationBindParams, MigrationBindValue, MigrationDatabase, SchemaMigration } from "./types";
@@ -17,7 +18,8 @@ CREATE TABLE IF NOT EXISTS schema_versions (
 `;
 
 export const schemaMigrations: SchemaMigration[] = [
-  initialLocalFirstSchemaMigration
+  initialLocalFirstSchemaMigration,
+  addPuzzleTemplateKeyMigration
 ];
 
 export async function migrateKidEduDatabase(

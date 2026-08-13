@@ -137,15 +137,23 @@ export async function seedKidEduDatabaseInTransaction(
 
       await db.runAsync(
         `INSERT INTO learning_item_media
-          (id, learning_item_id, media_asset_id, role, priority, is_active, created_at)
-         VALUES (?, ?, ?, ?, 10, 1, ?)
+          (id, learning_item_id, media_asset_id, role, priority, is_active, puzzle_template_key, created_at)
+         VALUES (?, ?, ?, ?, 10, 1, ?, ?)
          ON CONFLICT(id) DO UPDATE SET
            learning_item_id = excluded.learning_item_id,
            media_asset_id = excluded.media_asset_id,
            role = excluded.role,
            priority = excluded.priority,
-           is_active = 1`,
-        [mappingId, item.id, assetId, definition.role, now]
+           is_active = 1,
+           puzzle_template_key = excluded.puzzle_template_key`,
+        [
+          mappingId,
+          item.id,
+          assetId,
+          definition.role,
+          definition.role === "illustration" ? definition.puzzleTemplateKey ?? null : null,
+          now
+        ]
       );
     }
   }

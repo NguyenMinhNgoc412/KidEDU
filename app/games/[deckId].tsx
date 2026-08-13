@@ -1,9 +1,10 @@
-import { useAudioPlayer } from "expo-audio";
+import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import {
   Animated,
+  AppState,
   PanResponder,
   Pressable,
   StyleSheet,
@@ -49,6 +50,8 @@ export default function GamesScreen() {
   const query = useDeckDetailQuery(deckId);
   const [mode, setMode] = useState<GameMode>("menu");
   const items = query.data?.items ?? [];
+  const canPlayPuzzle = createPuzzleRounds(items).length > 0;
+  const canPlayMemory = createMemoryLevels(items).length > 0;
 
   if (query.isLoading) {
     return (
@@ -83,13 +86,29 @@ export default function GamesScreen() {
         <AppText align="center" color="muted" variant="body">
           Chọn một trò chơi với hình trong bộ {query.data.title}.
         </AppText>
-        <KidButton label="Ghép hình" onPress={() => setMode("puzzle")} size="lg" />
         <KidButton
+          disabled={!canPlayPuzzle}
+          label="Ghép hình"
+          onPress={() => setMode("puzzle")}
+          size="lg"
+        />
+        {!canPlayPuzzle ? (
+          <AppText align="center" color="muted" variant="label">
+            Cần ít nhất một hình minh họa để ghép hình.
+          </AppText>
+        ) : null}
+        <KidButton
+          disabled={!canPlayMemory}
           label="Lật thẻ"
           onPress={() => setMode("memory")}
           size="lg"
           variant="secondary"
         />
+        {!canPlayMemory ? (
+          <AppText align="center" color="muted" variant="label">
+            Cần ít nhất hai hình minh họa để lật thẻ.
+          </AppText>
+        ) : null}
         <KidButton label="Học bộ tiếp" onPress={() => router.replace("/decks")} variant="plain" />
       </View>
     </Screen>
@@ -204,12 +223,12 @@ function PuzzleRound({
   total: number;
 }) {
   const { height, width } = useWindowDimensions();
-  const template = getPuzzleTemplate(pieceCount);
+  const illustration = resolveLearningItemMedia(item).byRole.illustration;
+  const template = getPuzzleTemplate(pieceCount, illustration?.puzzleTemplateKey);
   const boardSize = Math.max(144, Math.min(width - spacing[48], (height - 320) / 2, 300));
   const boardContentSize = boardSize - puzzleBoardBorderWidth * 2;
   const pieceWidth = boardContentSize / template.columns;
   const pieceHeight = boardContentSize / template.rows;
-  const illustration = resolveLearningItemMedia(item).byRole.illustration;
   const uri = useDisplayMediaUri(illustration?.asset.uri ?? null);
   const boardRef = useRef<View | null>(null);
   const boardOrigin = useRef<Point | null>(null);
@@ -484,16 +503,22 @@ function MemoryGame({
   const [matchedIds, setMatchedIds] = useState<string[]>([]);
   const [isResolving, setIsResolving] = useState(false);
   const [completionState, setCompletionState] = useState<"playing" | "finished">("playing");
+  const [celebrationPhase, setCelebrationPhase] = useState<
+    "pair" | "last_pair" | "completion" | null
+  >(null);
   const mismatchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const celebrationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const celebrationStartedRef = useRef(false);
   const { complete: completeSession, restart: restartSession } = useMiniGameSession(
     "memory_game",
     deckId
   );
   const celebrationPlayer = useAudioPlayer(bundledCelebrationSoundModule, { updateInterval: 500 });
+  const celebrationStatus = useAudioPlayerStatus(celebrationPlayer);
   const complete = completionState === "finished";
 
-  const playCelebration = useCallback(() => {
+  const playCelebration = useCallback((phase: Exclude<typeof celebrationPhase, null>) => {
+    celebrationStartedRef.current = false;
+    setCelebrationPhase(phase);
     celebrationPlayer.volume = 0.35;
     celebrationPlayer.pause();
     void celebrationPlayer
@@ -502,22 +527,21 @@ function MemoryGame({
       .finally(() => celebrationPlayer.play());
   }, [celebrationPlayer]);
 
-  const celebrationDurationMs = useCallback(() => {
-    const durationMs = Math.ceil(celebrationPlayer.duration * 1000);
-    return Number.isFinite(durationMs) && durationMs > 0 ? durationMs + 120 : 700;
-  }, [celebrationPlayer.duration]);
+  const cancelPendingInteraction = useCallback(() => {
+    if (mismatchTimeout.current) {
+      clearTimeout(mismatchTimeout.current);
+      mismatchTimeout.current = null;
+    }
+    celebrationStartedRef.current = false;
+    celebrationPlayer.pause();
+    setCelebrationPhase(null);
+    setOpenIds([]);
+    setIsResolving(false);
+  }, [celebrationPlayer]);
 
   const resetLevel = useCallback(
     (nextLevelIndex: number, startNewSession = false) => {
-      if (mismatchTimeout.current) {
-        clearTimeout(mismatchTimeout.current);
-        mismatchTimeout.current = null;
-      }
-      if (celebrationTimeout.current) {
-        clearTimeout(celebrationTimeout.current);
-        celebrationTimeout.current = null;
-      }
-      celebrationPlayer.pause();
+      cancelPendingInteraction();
       void celebrationPlayer.seekTo(0).catch(() => undefined);
       setLevelIndex(nextLevelIndex);
       setRoundKey((current) => current + 1);
@@ -529,19 +553,51 @@ function MemoryGame({
         restartSession();
       }
     },
-    [celebrationPlayer, restartSession]
+    [cancelPendingInteraction, celebrationPlayer, restartSession]
   );
 
   useEffect(() => {
     return () => {
-      if (mismatchTimeout.current) {
-        clearTimeout(mismatchTimeout.current);
-      }
-      if (celebrationTimeout.current) {
-        clearTimeout(celebrationTimeout.current);
-      }
+      cancelPendingInteraction();
     };
-  }, []);
+  }, [cancelPendingInteraction]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "background" || nextState === "inactive") {
+        cancelPendingInteraction();
+      }
+    });
+
+    return () => subscription.remove();
+  }, [cancelPendingInteraction]);
+
+  useEffect(() => {
+    if (!celebrationPhase) {
+      return;
+    }
+
+    if (celebrationStatus.playing) {
+      celebrationStartedRef.current = true;
+    }
+
+    if (!celebrationStatus.didJustFinish || !celebrationStartedRef.current) {
+      return;
+    }
+
+    celebrationStartedRef.current = false;
+    if (celebrationPhase === "last_pair") {
+      playCelebration("completion");
+      return;
+    }
+
+    setCelebrationPhase(null);
+    setIsResolving(false);
+    if (celebrationPhase === "completion") {
+      completeSession();
+      setCompletionState("finished");
+    }
+  }, [celebrationPhase, celebrationStatus.didJustFinish, celebrationStatus.playing, completeSession, playCelebration]);
 
   function flipCard(cardId: string) {
     if (
@@ -567,20 +623,7 @@ function MemoryGame({
       setIsResolving(true);
       setMatchedIds((current) => [...current, ...nextOpen]);
       setOpenIds([]);
-      playCelebration();
-      celebrationTimeout.current = setTimeout(() => {
-        if (isLastPair) {
-          playCelebration();
-          celebrationTimeout.current = setTimeout(() => {
-            completeSession();
-            setCompletionState("finished");
-            setIsResolving(false);
-          }, celebrationDurationMs());
-          return;
-        }
-
-        setIsResolving(false);
-      }, celebrationDurationMs());
+      playCelebration(isLastPair ? "last_pair" : "pair");
       return;
     }
 

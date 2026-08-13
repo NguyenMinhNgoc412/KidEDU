@@ -26,6 +26,7 @@ function makeItem(id: string, withIllustration = true): LearningItem {
             role: "illustration",
             priority: 10,
             isActive: true,
+            puzzleTemplateKey: null,
             asset: {
               id: `${id}-image`,
               type: "image",
@@ -105,5 +106,10 @@ describe("mini games", () => {
     expect(isPuzzleDropInsideTarget({ x: 171, y: 191 }, origin, 3, 150, 150, template)).toBe(true);
     expect(isPuzzleDropInsideTarget({ x: 169, y: 191 }, origin, 3, 150, 150, template)).toBe(false);
     expect(isPuzzleDropInsideTarget({ x: 171, y: 189 }, origin, 3, 150, 150, template)).toBe(false);
+  });
+
+  it("uses a valid per-illustration template and safely falls back when it is incompatible", () => {
+    expect(getPuzzleTemplate(3, "safe-rows")).toEqual({ columns: 1, pieceCount: 3, rows: 3 });
+    expect(getPuzzleTemplate(3, "safe-grid")).toEqual({ columns: 3, pieceCount: 3, rows: 1 });
   });
 });

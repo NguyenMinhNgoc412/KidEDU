@@ -156,6 +156,7 @@ function makeSnapshot(uri: string, size: number): BackupDatabaseSnapshot {
         role: "mouth_video",
         priority: 100,
         is_active: 1,
+        puzzle_template_key: null,
         created_at: now
       }
     ],

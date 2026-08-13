@@ -68,6 +68,7 @@ interface LearningItemMediaRow {
   role: MediaRole;
   priority: number;
   is_active: number;
+  puzzle_template_key: string | null;
   asset_id: string;
   type: MediaType;
   source: MediaSource;
@@ -209,7 +210,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
         BackupDatabaseSnapshot["learning_item_media"][number]
       >(
         `SELECT lim.id, lim.learning_item_id, lim.media_asset_id, lim.role,
-                lim.priority, lim.is_active, lim.created_at
+                lim.priority, lim.is_active, lim.puzzle_template_key, lim.created_at
          FROM learning_item_media lim
          JOIN media_assets ma ON ma.id = lim.media_asset_id
          WHERE ma.source = 'default'
@@ -277,9 +278,9 @@ export class SQLiteKidEduRepository implements KidEduRepository {
   }
 
   async replaceFromBackup(snapshot: BackupDatabaseSnapshot): Promise<string[]> {
-    if (snapshot.schemaVersion !== schemaVersion) {
+    if (snapshot.schemaVersion > schemaVersion) {
       throw new Error(
-        `Unsupported KidEDU backup schema version ${snapshot.schemaVersion}; expected ${schemaVersion}.`
+        `Unsupported KidEDU backup schema version ${snapshot.schemaVersion}; maximum supported version is ${schemaVersion}.`
       );
     }
 
@@ -1059,8 +1060,8 @@ export class SQLiteKidEduRepository implements KidEduRepository {
     for (const mapping of snapshot.learning_item_media) {
       await db.runAsync(
         `INSERT INTO learning_item_media
-          (id, learning_item_id, media_asset_id, role, priority, is_active, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          (id, learning_item_id, media_asset_id, role, priority, is_active, puzzle_template_key, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           mapping.id,
           mapping.learning_item_id,
@@ -1068,6 +1069,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
           mapping.role,
           mapping.priority,
           mapping.is_active,
+          mapping.puzzle_template_key ?? null,
           mapping.created_at
         ]
       );
@@ -1180,6 +1182,7 @@ export class SQLiteKidEduRepository implements KidEduRepository {
       rows.push(
         ...(await this.db.getAllAsync<LearningItemMediaRow>(
           `SELECT lim.id, lim.learning_item_id, lim.media_asset_id, lim.role, lim.priority, lim.is_active,
+                  lim.puzzle_template_key,
                   ma.id AS asset_id, ma.type, ma.source, ma.uri, ma.thumbnail_asset_id,
                   thumb.uri AS thumbnail_uri, ma.duration_ms,
                   ma.size_bytes, ma.mime_type, ma.status AS asset_status
@@ -1370,6 +1373,7 @@ function mapLearningItemMediaRow(row: LearningItemMediaRow): LearningItemMedia {
     role: row.role,
     priority: row.priority,
     isActive: row.is_active === 1,
+    puzzleTemplateKey: row.puzzle_template_key,
     asset
   };
 }

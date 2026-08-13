@@ -14,6 +14,8 @@ export interface PuzzleTemplate {
   rows: number;
 }
 
+export type PuzzleTemplateKey = "safe-columns" | "safe-rows" | "safe-grid";
+
 export interface MemoryCard {
   id: string;
   item: LearningItem;
@@ -77,7 +79,18 @@ export function hasIllustration(item: LearningItem): boolean {
 }
 
 /** Safe fallback templates preserve the complete image without cropping any area away. */
-export function getPuzzleTemplate(pieceCount: PuzzlePieceCount): PuzzleTemplate {
+export function getPuzzleTemplate(
+  pieceCount: PuzzlePieceCount,
+  templateKey: string | null = null
+): PuzzleTemplate {
+  if (templateKey === "safe-rows") {
+    return { columns: 1, pieceCount, rows: pieceCount };
+  }
+
+  if (templateKey === "safe-grid" && pieceCount === 4) {
+    return { columns: 2, pieceCount, rows: 2 };
+  }
+
   switch (pieceCount) {
     case 2:
       return { columns: 2, pieceCount, rows: 1 };

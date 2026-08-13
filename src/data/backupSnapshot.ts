@@ -57,6 +57,7 @@ export interface BackupLearningItemMediaRow {
   role: MediaRole;
   priority: number;
   is_active: number;
+  puzzle_template_key?: string | null;
   created_at: string;
 }
 
