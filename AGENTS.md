@@ -190,8 +190,13 @@ Sau khi sửa code, AI Agent phải báo cáo:
 - file đã thay đổi;
 - hành vi đã implement;
 - cách test hoặc lệnh test đã chạy;
+- dò tìm bug có thể phát sinh sau khi hoàn thành task;
+- nếu phát hiện bug, phải xác định nguyên nhân gốc, đưa ra giải pháp xử lý và giải thích vì sao chọn giải pháp đó;
+- nếu không phát hiện bug, phải ghi rõ đã rà soát các rủi ro/bề mặt ảnh hưởng chính và kết quả kiểm tra;
 - rủi ro còn lại, nếu có;
 - SOT nào cần cập nhật, nếu có thay đổi hành vi, kiến trúc, tech stack hoặc cách chia task.
+
+Việc dò tìm bug sau mỗi task là bắt buộc, kể cả khi test hiện tại đều pass. AI Agent cần kiểm tra các luồng bị ảnh hưởng, trường hợp biên và hồi quy có khả năng xảy ra. Khi có bug, không chỉ mô tả triệu chứng mà phải truy nguyên nguyên nhân, nêu giải pháp và giải thích lý do giải pháp đó phù hợp với phạm vi, kiến trúc và yêu cầu của task.
 
 Nếu có thay đổi quyết định sản phẩm, kiến trúc, tech stack hoặc cách chia task, phải cập nhật đúng file SOT liên quan và `CHANGELOG.md`.
 

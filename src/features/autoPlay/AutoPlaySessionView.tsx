@@ -28,10 +28,20 @@ import { colors, radii, spacing } from "@/theme";
 export function AutoPlaySessionView({
   deck,
   settings,
+<<<<<<< Updated upstream
+=======
+  onOpenMiniTest,
+  onOpenGames,
+>>>>>>> Stashed changes
   onExitToHome
 }: {
   deck: DeckDetail;
   settings: LearningSettings;
+<<<<<<< Updated upstream
+=======
+  onOpenMiniTest: () => void;
+  onOpenGames: () => void;
+>>>>>>> Stashed changes
   onExitToHome: () => void;
 }) {
   const sessionGate = useLearningSessionGate();
@@ -49,16 +59,38 @@ export function AutoPlaySessionView({
     );
   }
 
+<<<<<<< Updated upstream
   return <ActiveAutoPlaySessionView deck={deck} settings={settings} onExitToHome={onExitToHome} />;
+=======
+  return (
+    <ActiveAutoPlaySessionView
+      deck={deck}
+      settings={settings}
+      onOpenMiniTest={onOpenMiniTest}
+      onOpenGames={onOpenGames}
+      onExitToHome={onExitToHome}
+    />
+  );
+>>>>>>> Stashed changes
 }
 
 function ActiveAutoPlaySessionView({
   deck,
   settings,
+<<<<<<< Updated upstream
+=======
+  onOpenMiniTest,
+  onOpenGames,
+>>>>>>> Stashed changes
   onExitToHome
 }: {
   deck: DeckDetail;
   settings: LearningSettings;
+<<<<<<< Updated upstream
+=======
+  onOpenMiniTest: () => void;
+  onOpenGames: () => void;
+>>>>>>> Stashed changes
   onExitToHome: () => void;
 }) {
   const session = useAutoPlaySession(deck, settings);
@@ -107,6 +139,7 @@ function ActiveAutoPlaySessionView({
               : `${session.playableItems.length} thẻ đã được phát.`
           }
         />
+<<<<<<< Updated upstream
         <KidButton
           icon={<RotateCcw color={colors.onPrimary} size={22} />}
           label="Học lại"
@@ -118,6 +151,27 @@ function ActiveAutoPlaySessionView({
           onPress={onExitToHome}
           variant="plain"
         />
+=======
+        {!isEmpty ? (
+          <Card style={styles.completionCard} variant="surface">
+            <KidButton label="Học bộ tiếp" onPress={onExitToHome} variant="plain" />
+            <KidButton
+              disabled={!canStartMiniTest}
+              label="Mini test"
+              onPress={onOpenMiniTest}
+              variant="plain"
+            />
+            {!canStartMiniTest ? (
+              <AppText align="center" color="muted" variant="caption">
+                Mini test cần ít nhất hai thẻ có ảnh và âm phát âm.
+              </AppText>
+            ) : null}
+            <KidButton label="Trò chơi" onPress={onOpenGames} variant="secondary" />
+          </Card>
+        ) : (
+          <KidButton label="Về danh sách" onPress={onExitToHome} variant="plain" />
+        )}
+>>>>>>> Stashed changes
       </View>
     );
   }
@@ -154,7 +208,7 @@ function ActiveAutoPlaySessionView({
       </View>
 
       <Pressable
-        accessibilityLabel={isPaused ? "Tiếp tục" : "Tạm dừng"}
+        accessibilityLabel={isPaused ? "Tiếp tục bộ học" : "Tạm dừng bộ học"}
         accessibilityRole="button"
         onPress={isPaused ? session.resume : session.pause}
         style={({ pressed }) => [styles.pausePill, pressed ? styles.pressed : null]}
@@ -165,13 +219,13 @@ function ActiveAutoPlaySessionView({
           <Pause color={colors.onPrimary} size={20} />
         )}
         <AppText color="onPrimary" variant="labelStrong">
-          {isPaused ? "Tiếp tục" : "Tạm dừng"}
+          {isPaused ? "Tiếp tục bộ học" : "Tạm dừng bộ học"}
         </AppText>
       </Pressable>
 
       <View style={styles.wordBlock}>
         <Card padding="none" style={styles.wordPill} variant="subtle">
-          <AppText align="center" color="primary" variant="learningTitle">
+          <AppText align="center" color="onPrimary" variant="deckTitle">
             {currentItem.title.toLocaleUpperCase("vi-VN")}
           </AppText>
         </Card>
@@ -252,7 +306,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     minHeight: 48,
     paddingHorizontal: spacing[26],
-    shadowColor: colors.sage,
+    elevation: 3,
+    shadowColor: colors.primaryDark,
     shadowOffset: { height: spacing[8], width: spacing.none },
     shadowOpacity: 0.12,
     shadowRadius: spacing[14]
@@ -262,16 +317,27 @@ const styles = StyleSheet.create({
     gap: spacing[7]
   },
   wordPill: {
-    paddingHorizontal: spacing[28],
-    paddingVertical: spacing[12]
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+    borderWidth: 1,
+    minWidth: 132,
+    paddingHorizontal: spacing[24],
+    paddingVertical: spacing[10]
   },
   controls: {
     backgroundColor: colors.surfaceLowest,
+    borderColor: colors.borderSubtle,
     borderRadius: radii.xl,
+    borderWidth: 1,
+    elevation: 2,
     flexDirection: "row",
     gap: spacing[10],
     justifyContent: "space-between",
-    padding: spacing[12]
+    padding: spacing[12],
+    shadowColor: colors.primaryDark,
+    shadowOffset: { height: 5, width: 0 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12
   },
   pressed: {
     opacity: 0.82

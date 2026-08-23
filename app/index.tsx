@@ -1,8 +1,8 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import {
   BookOpen,
+  ChartNoAxesColumn,
   Clapperboard,
-  LockKeyhole,
   PawPrint,
   PersonStanding,
   Sparkles,
@@ -10,44 +10,60 @@ import {
   UsersRound
 } from "lucide-react-native";
 import { useCallback, type ReactNode } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
 import { PressableCard } from "@/components/Card";
 import { KidButton } from "@/components/KidButton";
+import { MobileTabBar } from "@/components/MobileTabBar";
 import { Screen } from "@/components/Screen";
 import { StateMessage } from "@/components/StateMessage";
-import { useCategoriesQuery, useDecksQuery, useLearningItemsQuery } from "@/data/queries";
+import { useCategoriesQuery, useDecksQuery } from "@/data/queries";
 import type { Category } from "@/data/types";
-import { categoryTileColors, colors, spacing } from "@/theme";
+import {
+  categoryTileColors,
+  categoryTileForegroundColors,
+  colors,
+  radii,
+  spacing
+} from "@/theme";
 
 export default function ChildHomeScreen() {
   const router = useRouter();
   const categoriesQuery = useCategoriesQuery();
   const decksQuery = useDecksQuery({ childOnly: true });
-  const itemsQuery = useLearningItemsQuery({ childOnly: true });
   const refetchDecks = decksQuery.refetch;
-  const refetchItems = itemsQuery.refetch;
   const categories = categoriesQuery.data ?? [];
   const decks = decksQuery.data ?? [];
-  const items = itemsQuery.data ?? [];
 
   useFocusEffect(
     useCallback(() => {
       void refetchDecks();
-      void refetchItems();
-    }, [refetchDecks, refetchItems])
+    }, [refetchDecks])
   );
 
   return (
-    <Screen>
-      <View style={styles.childHero}>
+    <Screen scroll={false}>
+      <View style={styles.brandBar}>
+        <View style={styles.brandMark}>
+          <Sparkles color={colors.primary} size={18} strokeWidth={2.5} />
+        </View>
+        <AppText color="primary" variant="bodyStrong">
+          KidEDU
+        </AppText>
+      </View>
+      <ScrollView
+        contentContainerStyle={styles.childHero}
+        showsVerticalScrollIndicator={false}
+        style={styles.mainScroll}
+      >
         <AppText align="center" variant="sectionTitle">
           Bé chọn gì nào?
         </AppText>
-        {categoriesQuery.isLoading || itemsQuery.isLoading ? (
-          <StateMessage title="Đang tải nhóm học" />
-        ) : null}
+        <AppText align="center" color="muted" style={styles.heroSubtitle} variant="label">
+          Chạm vào một nhóm để bắt đầu học
+        </AppText>
+        {categoriesQuery.isLoading ? <StateMessage title="Đang tải nhóm học" /> : null}
         {!categoriesQuery.isLoading && categories.length === 0 ? (
           <StateMessage
             title="Chưa có nhóm học"
@@ -59,8 +75,17 @@ export default function ChildHomeScreen() {
               <CategoryTile
                 key={category.id}
                 category={category}
-                count={items.filter((item) => item.categoryId === category.id).length}
-                icon={getCategoryIcon(category.name)}
+                foreground={
+                  categoryTileForegroundColors[
+                    index % categoryTileForegroundColors.length
+                  ] ?? categoryTileForegroundColors[0]
+                }
+                icon={getCategoryIcon(
+                  category.name,
+                  categoryTileForegroundColors[
+                    index % categoryTileForegroundColors.length
+                  ] ?? categoryTileForegroundColors[0]
+                )}
                 tone={
                   categoryTileColors[index % categoryTileColors.length] ?? categoryTileColors[0]
                 }
@@ -71,6 +96,7 @@ export default function ChildHomeScreen() {
         )}
         {decks.length > 0 ? (
           <KidButton
+            fullWidth
             icon={<Clapperboard color={colors.onPrimary} size={22} />}
             label="Học tự động"
             onPress={() => router.push("/decks")}
@@ -78,26 +104,40 @@ export default function ChildHomeScreen() {
             variant="secondary"
           />
         ) : null}
-        <KidButton
-          icon={<LockKeyhole color={colors.primary} size={20} />}
-          label="Khu vực Phụ huynh"
-          onPress={() => router.push("/parent-gate")}
-          variant="plain"
-        />
-      </View>
+      </ScrollView>
+      <MobileTabBar
+        items={[
+          {
+            active: true,
+            icon: <BookOpen color={colors.secondary} size={21} strokeWidth={2.3} />,
+            label: "Học",
+            onPress: () => undefined
+          },
+          {
+            icon: <ChartNoAxesColumn color={colors.muted} size={21} strokeWidth={2.3} />,
+            label: "Tiến độ",
+            onPress: () => router.push("/parent-gate")
+          },
+          {
+            icon: <UsersRound color={colors.muted} size={21} strokeWidth={2.3} />,
+            label: "Bố mẹ",
+            onPress: () => router.push("/parent-gate")
+          }
+        ]}
+      />
     </Screen>
   );
 }
 
 function CategoryTile({
   category,
-  count,
+  foreground,
   icon,
   tone,
   onPress
 }: {
   category: Category;
-  count: number;
+  foreground: string;
   icon: ReactNode;
   tone: string;
   onPress: () => void;
@@ -110,19 +150,21 @@ function CategoryTile({
       style={[styles.categoryTile, { backgroundColor: tone }]}
     >
       <View style={styles.categoryIcon}>{icon}</View>
-      <AppText align="center" numberOfLines={2} style={styles.categoryTitle} variant="bodyStrong">
+      <AppText
+        align="center"
+        numberOfLines={2}
+        style={[styles.categoryTitle, { color: foreground }]}
+        variant="bodyStrong"
+      >
         {category.name}
-      </AppText>
-      <AppText align="center" color="muted" variant="caption">
-        {count} từ
       </AppText>
     </PressableCard>
   );
 }
 
-function getCategoryIcon(name: string) {
+function getCategoryIcon(name: string, color: string) {
   const normalized = name.toLocaleLowerCase("vi-VN");
-  const iconProps = { color: colors.text, size: 34, strokeWidth: 2.4 };
+  const iconProps = { color, size: 36, strokeWidth: 2.6 };
 
   if (normalized.includes("gia")) {
     return <UsersRound {...iconProps} />;
@@ -148,39 +190,57 @@ function getCategoryIcon(name: string) {
 }
 
 const styles = StyleSheet.create({
+  brandBar: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing[8],
+    minHeight: 38
+  },
+  brandMark: {
+    alignItems: "center",
+    backgroundColor: colors.primarySoft,
+    borderRadius: radii.full,
+    height: 32,
+    justifyContent: "center",
+    width: 32
+  },
   childHero: {
     alignItems: "center",
-    flex: 1,
-    gap: spacing[20],
-    justifyContent: "center",
-    minHeight: 560
+    flexGrow: 1,
+    gap: spacing[14],
+    justifyContent: "flex-start",
+    paddingTop: spacing[4]
+  },
+  mainScroll: {
+    flex: 1
   },
   categoryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing[16],
-    justifyContent: "center",
+    justifyContent: "space-between",
+    rowGap: spacing[12],
     width: "100%"
   },
   categoryTile: {
     alignItems: "center",
     gap: spacing[8],
     justifyContent: "center",
-    minHeight: 128,
-    padding: spacing[14],
-    shadowColor: colors.sage,
-    shadowOffset: { height: spacing[8], width: spacing.none },
-    shadowOpacity: 0.1,
-    shadowRadius: spacing[18],
-    width: "44%"
+    borderColor: "rgba(255, 255, 255, 0.72)",
+    borderWidth: 2,
+    minHeight: 120,
+    padding: spacing[12],
+    width: "48%"
   },
   categoryIcon: {
     alignItems: "center",
-    height: 40,
+    height: 52,
     justifyContent: "center",
-    width: 48
+    width: 52
   },
   categoryTitle: {
-    minHeight: 44
+    minHeight: 22
+  },
+  heroSubtitle: {
+    marginBottom: spacing[4]
   }
 });

@@ -46,7 +46,7 @@ export default function AutoPlayScreen() {
     : "preparing";
 
   return (
-    <Screen scroll={false}>
+    <Screen>
       {isPreparing ? <StateMessage title="Đang chuẩn bị bộ học" /> : null}
       {settingsError ? <StateMessage title="Chưa tải được cài đặt" message="Quay lại và thử mở bộ học lần nữa." /> : null}
       {!isPreparing && !settingsError && !deckQuery.data ? <StateMessage title="Không tìm thấy bộ học" /> : null}
@@ -55,7 +55,13 @@ export default function AutoPlayScreen() {
           key={sessionKey}
           deck={deckQuery.data}
           settings={freshSettings}
+<<<<<<< Updated upstream
           onExitToHome={() => router.replace("/")}
+=======
+          onOpenMiniTest={() => router.replace(`/mini-test/${deckId}`)}
+          onOpenGames={() => router.replace(`/games/${deckId}`)}
+          onExitToHome={() => router.replace("/decks")}
+>>>>>>> Stashed changes
         />
       ) : null}
     </Screen>

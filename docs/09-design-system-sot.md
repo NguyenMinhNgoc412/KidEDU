@@ -1,6 +1,7 @@
 ---
 name: Gentle Growth
 colors:
+<<<<<<< Updated upstream
   surface: '#fdfae8'
   surface-dim: '#dddac9'
   surface-bright: '#fdfae8'
@@ -52,6 +53,59 @@ colors:
   warm-terracotta: '#BC6C25'
   sage-green: '#A3B18A'
   muted-stone: '#606C38'
+=======
+  surface: "#fffdf2"
+  surface-dim: "#dde8ce"
+  surface-bright: "#fffdf2"
+  surface-container-lowest: "#ffffff"
+  surface-container-low: "#f4f8e8"
+  surface-container: "#eaf3db"
+  surface-container-high: "#e4edd8"
+  surface-container-highest: "#dde8ce"
+  on-surface: "#253126"
+  on-surface-variant: "#66705c"
+  inverse-surface: "#313125"
+  inverse-on-surface: "#f4f1df"
+  outline: "#78836f"
+  outline-variant: "#d9dfc9"
+  surface-tint: "#4f7654"
+  primary: "#4f7654"
+  on-primary: "#ffffff"
+  primary-container: "#d9ebcb"
+  on-primary-container: "#1d3a24"
+  inverse-primary: "#bacda3"
+  secondary: "#98572e"
+  on-secondary: "#ffffff"
+  secondary-container: "#ffe0c2"
+  on-secondary-container: "#7a532a"
+  tertiary: "#5a5e43"
+  on-tertiary: "#ffffff"
+  tertiary-container: "#73775a"
+  on-tertiary-container: "#fcffe0"
+  error: "#ba1a1a"
+  on-error: "#ffffff"
+  error-container: "#ffdad6"
+  on-error-container: "#93000a"
+  primary-fixed: "#d9ebcb"
+  primary-fixed-dim: "#b9d7aa"
+  on-primary-fixed: "#111f05"
+  on-primary-fixed-variant: "#3c4c2b"
+  secondary-fixed: "#ffe0c2"
+  secondary-fixed-dim: "#ffc698"
+  on-secondary-fixed: "#2c1600"
+  on-secondary-fixed-variant: "#623f18"
+  tertiary-fixed: "#e1e6c2"
+  tertiary-fixed-dim: "#c5c9a7"
+  on-tertiary-fixed: "#1a1d07"
+  on-tertiary-fixed-variant: "#45492f"
+  background: "#fffdf2"
+  on-background: "#253126"
+  surface-variant: "#dde8ce"
+  soft-cream: "#FFF1D6"
+  warm-terracotta: "#E47D45"
+  sage-green: "#91B984"
+  muted-stone: "#66705C"
+>>>>>>> Stashed changes
 typography:
   headline-lg:
     fontFamily: Plus Jakarta Sans
@@ -116,15 +170,21 @@ The aesthetic is characterized by:
 - **Warmth & Safety:** Utilizing soft, organic curves and a muted, earthy palette to evoke a sense of home and comfort rather than a clinical or high-energy gaming environment.
 - **Haptic Trust:** UI elements use subtle depth and large hit targets to accommodate developing motor skills and reduce frustration.
 - **Narrative Distinction:** The "Child Mode" is immersive and focused, while the "Parent Zone" is structured and administrative, yet they share the same calming visual DNA.
+- **Fresh Child Accents:** Cyan, sunny yellow, pink, leaf green and warm orange may distinguish child categories and actions. Use them as bounded tile backgrounds with generous neutral space so the interface feels cheerful without becoming visually noisy.
 
 ## Colors
 
+<<<<<<< Updated upstream
 The palette avoids "vibrating" or high-saturation colors that could trigger sensory overload. 
+=======
+The palette avoids "vibrating" or high-saturation colors that could trigger sensory overload. It should still feel fresh and child-friendly through brighter pastel surfaces, clean white layers and clearer green/terracotta accents.
+>>>>>>> Stashed changes
 
 - **Primary (Sage):** Used for progress indicators and success states. It represents growth and calm.
 - **Secondary (Terracotta):** Reserved for interactive elements that require attention but remain warm.
 - **Neutral (Warm Cream/Beige):** This is the foundation of the UI, replacing harsh whites to reduce screen glare and eye strain.
 - **Named Colors:** These earth-toned variations are used to distinguish different categories (e.g., "Family" vs. "Actions") without resorting to aggressive primary colors.
+- **Category Accents:** Use cyan `#22B8CE`, sunny yellow `#F6D957`, pink `#F064A6`, leaf green `#5CC765`, and warm orange `#F5A24B` as a rotating Child Mode tile palette. White or dark ink is selected per tile to preserve text/icon contrast.
 
 ## Typography
 
@@ -183,3 +243,16 @@ The shape language is extremely rounded to communicate safety and friendliness.
 
 ### Lists
 - Spaced widely (16px gap) with rounded separators to ensure each list item is a distinct "touch target."
+
+### Mobile Navigation
+
+- Child Home and Parent Home use a three-item bottom navigation surface with large touch targets: “Học”, “Tiến độ”, and “Bố mẹ”.
+- Child Mode routes that expose parent information must still pass through Parent Gate.
+- Parent Home uses a compact native-style settings list with icon containers and chevrons instead of a dashboard grid of equally weighted buttons.
+
+### Learning Media
+
+- Single-item Learning and Auto Play show the illustration slot and mouth-video slot as two separate stacked sections on mobile; choosing video must not hide the illustration.
+- The illustration slot may render a static illustration temporarily and later render a suitable short animated/GIF illustration through the same media role and layout.
+- The entire mouth-video frame is the play/pause touch target. Do not place a persistent Play/Pause button or icon over the mouth because it obstructs articulation; accessibility labels still expose the current action.
+- Auto Play’s session pause remains a separate labeled control (“Tạm dừng bộ học”) and must not be coupled to tapping the mouth video.

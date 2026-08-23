@@ -78,7 +78,7 @@ function ActiveLearningItemView({
     <View style={styles.container}>
       <View style={styles.wordBlock}>
         <Card padding="none" style={styles.wordPill} variant="subtle">
-          <AppText align="center" color="primary" variant="learningTitle">
+          <AppText align="center" color="onPrimary" variant="deckTitle">
             {item.title.toLocaleUpperCase("vi-VN")}
           </AppText>
         </Card>
@@ -135,16 +135,27 @@ const styles = StyleSheet.create({
     paddingTop: spacing[4]
   },
   wordPill: {
-    paddingHorizontal: spacing[28],
-    paddingVertical: spacing[14]
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+    borderWidth: 1,
+    minWidth: 132,
+    paddingHorizontal: spacing[24],
+    paddingVertical: spacing[10]
   },
   controls: {
     backgroundColor: colors.surfaceLowest,
+    borderColor: colors.borderSubtle,
     borderRadius: radii.xl,
+    borderWidth: 1,
+    elevation: 2,
     flexDirection: "row",
     gap: spacing[10],
     justifyContent: "space-between",
     marginTop: spacing[6],
-    padding: spacing[12]
+    padding: spacing[12],
+    shadowColor: colors.primaryDark,
+    shadowOffset: { height: 5, width: 0 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12
   }
 });

@@ -1,5 +1,6 @@
 import { Mic2, Play, Volume2 } from "lucide-react-native";
 import { StyleSheet } from "react-native";
+import type { StyleProp, ViewStyle } from "react-native";
 
 import type { LearningItemMedia, MediaRole } from "@/data/types";
 import { useDisplayMediaUri } from "@/features/media/useDisplayMediaUri";
@@ -13,13 +14,15 @@ export function MediaPlaceholder({
   media,
   fallbackLabel,
   large = false,
-  compact = false
+  compact = false,
+  style
 }: {
   role: MediaRole;
   media?: LearningItemMedia;
   fallbackLabel?: string;
   large?: boolean;
   compact?: boolean;
+  style?: StyleProp<ViewStyle>;
 }) {
   const displayUri = useDisplayMediaUri(media?.asset.thumbnailUri ?? media?.asset.uri ?? null);
   const canRenderImage =
@@ -29,7 +32,9 @@ export function MediaPlaceholder({
     !displayUri.startsWith("data:");
 
   if (canRenderImage) {
-    return <MediaContainer size={getContainerSize({ large, compact })} uri={displayUri} />;
+    return (
+      <MediaContainer size={getContainerSize({ large, compact })} style={style} uri={displayUri} />
+    );
   }
 
   const iconColor =
@@ -41,7 +46,7 @@ export function MediaPlaceholder({
   const label = fallbackLabel ?? roleLabel[role];
 
   return (
-    <MediaContainer size={getContainerSize({ large, compact })}>
+    <MediaContainer size={getContainerSize({ large, compact })} style={style}>
       {role === "mouth_video" ? <Play color={iconColor} size={large ? 42 : 28} /> : null}
       {role === "pronunciation_audio" ? <Volume2 color={iconColor} size={large ? 42 : 28} /> : null}
       {role === "illustration" ? <Mic2 color={iconColor} size={large ? 42 : 28} /> : null}

@@ -58,7 +58,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     alignItems: "center",
+    backgroundColor: colors.surfaceLowest,
     borderRadius: radii.full,
+    borderColor: colors.borderSoft,
+    borderWidth: 1,
+    elevation: 1,
     height: 42,
     justifyContent: "center",
     width: 42

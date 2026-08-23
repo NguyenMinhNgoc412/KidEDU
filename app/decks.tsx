@@ -87,7 +87,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     alignItems: "center",
+    backgroundColor: colors.surfaceLowest,
     borderRadius: radii.full,
+    borderColor: colors.borderSoft,
+    borderWidth: 1,
+    elevation: 1,
     height: 42,
     justifyContent: "center",
     width: 42
@@ -103,8 +107,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing[12],
     justifyContent: "space-between",
-    minHeight: 92,
-    padding: spacing[14]
+    minHeight: 104,
+    padding: spacing[16]
   },
   deckText: {
     flex: 1,

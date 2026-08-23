@@ -21,6 +21,7 @@ export function Screen({
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           {content}
         </ScrollView>
@@ -42,11 +43,13 @@ const styles = StyleSheet.create({
   content: {
     alignSelf: "center",
     flex: 1,
-    gap: spacing[16],
+    gap: spacing[18],
     maxWidth: 560,
     width: "100%"
   },
   padded: {
-    padding: spacing[24]
+    paddingBottom: spacing[32],
+    paddingHorizontal: spacing[24],
+    paddingTop: spacing[18]
   }
 });

@@ -84,7 +84,11 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.regular,
     fontSize: fontSizes[16],
     minHeight: spacing[56],
-    paddingHorizontal: spacing[16]
+    paddingHorizontal: spacing[16],
+    shadowColor: colors.primaryDark,
+    shadowOffset: { height: 3, width: 0 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8
   },
   inputError: {
     borderColor: colors.danger
@@ -97,13 +101,17 @@ const styles = StyleSheet.create({
   searchBox: {
     alignItems: "center",
     backgroundColor: colors.surfaceInput,
-    borderColor: colors.border,
+    borderColor: colors.borderSoft,
     borderRadius: radii.full,
     borderWidth: 1,
     flexDirection: "row",
     gap: spacing[8],
     minHeight: 46,
-    paddingHorizontal: spacing[14]
+    paddingHorizontal: spacing[14],
+    shadowColor: colors.primaryDark,
+    shadowOffset: { height: 3, width: 0 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8
   },
   searchInput: {
     color: colors.text,

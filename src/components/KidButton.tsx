@@ -61,11 +61,12 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     borderRadius: radii.full,
+    elevation: 3,
     justifyContent: "center",
-    shadowColor: colors.sage,
-    shadowOffset: { height: spacing[8], width: spacing.none },
-    shadowOpacity: 0.12,
-    shadowRadius: spacing[14]
+    shadowColor: colors.primaryDark,
+    shadowOffset: { height: spacing[6], width: spacing.none },
+    shadowOpacity: 0.15,
+    shadowRadius: spacing[12]
   },
   inner: {
     alignItems: "center",
@@ -87,7 +88,8 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   pressed: {
-    opacity: 0.82
+    opacity: 0.92,
+    transform: [{ scale: 0.97 }, { translateY: 1 }]
   },
   disabled: {
     opacity: 0.45
@@ -120,8 +122,8 @@ const variantStyles = StyleSheet.create({
     backgroundColor: colors.coral
   },
   plain: {
-    backgroundColor: colors.surfaceAlt,
-    borderColor: colors.border,
+    backgroundColor: colors.surfaceLowest,
+    borderColor: colors.borderSoft,
     borderWidth: 1
   },
   danger: {

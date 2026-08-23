@@ -44,14 +44,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     aspectRatio: 1.3,
     backgroundColor: colors.surfaceContainer,
-    borderColor: colors.border,
+    borderColor: colors.borderSoft,
     borderRadius: radii.lg,
     borderWidth: 1,
+    elevation: 2,
     gap: spacing[6],
     justifyContent: "center",
     minHeight: 112,
     overflow: "hidden",
-    padding: spacing[12]
+    padding: spacing[12],
+    shadowColor: colors.primaryDark,
+    shadowOffset: { height: 6, width: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 14
   }
 });
 

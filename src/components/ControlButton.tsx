@@ -40,22 +40,32 @@ export function ControlButton({
 const styles = StyleSheet.create({
   controlButton: {
     alignItems: "center",
+    borderColor: colors.borderSubtle,
     borderRadius: radii.xl,
+    borderWidth: 1,
+    elevation: 1,
     flex: 1,
     gap: spacing[6],
     justifyContent: "center",
     minHeight: 82,
-    padding: spacing[8]
+    padding: spacing[8],
+    shadowColor: colors.primaryDark,
+    shadowOffset: { height: 3, width: 0 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8
   },
   controlIcon: {
     alignItems: "center",
+    backgroundColor: colors.surfaceLowest,
     borderRadius: radii.full,
+    elevation: 1,
     height: 42,
     justifyContent: "center",
     width: 42
   },
   pressed: {
-    opacity: 0.82
+    opacity: 0.9,
+    transform: [{ scale: 0.96 }]
   }
 });
 

@@ -118,7 +118,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     alignItems: "center",
+    backgroundColor: colors.surfaceLowest,
     borderRadius: radii.full,
+    borderColor: colors.borderSoft,
+    borderWidth: 1,
+    elevation: 1,
     height: 42,
     justifyContent: "center",
     width: 42
@@ -143,8 +147,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     gap: spacing[14],
-    minHeight: 82,
-    padding: spacing[10]
+    minHeight: 88,
+    padding: spacing[12]
   },
   preview: {
     height: 58,
@@ -156,14 +160,14 @@ const styles = StyleSheet.create({
   statusIcon: {
     alignItems: "center",
     borderRadius: radii.full,
-    height: 34,
+    height: 38,
     justifyContent: "center",
-    width: 34
+    width: 38
   },
   starIcon: {
     backgroundColor: colors.starSoft
   },
   playIcon: {
-    backgroundColor: colors.surfaceContainer
+    backgroundColor: colors.primarySoft
   }
 });
