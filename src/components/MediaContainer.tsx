@@ -42,6 +42,7 @@ export function MediaContainer({
 const styles = StyleSheet.create({
   frame: {
     alignItems: "center",
+    alignSelf: "stretch",
     aspectRatio: 1.3,
     backgroundColor: colors.surfaceContainer,
     borderColor: colors.borderSoft,
@@ -56,7 +57,8 @@ const styles = StyleSheet.create({
     shadowColor: colors.primaryDark,
     shadowOffset: { height: 6, width: 0 },
     shadowOpacity: 0.1,
-    shadowRadius: 14
+    shadowRadius: 14,
+    width: "100%"
   }
 });
 

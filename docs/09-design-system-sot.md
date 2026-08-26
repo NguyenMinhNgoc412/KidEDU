@@ -246,7 +246,8 @@ The shape language is extremely rounded to communicate safety and friendliness.
 
 ### Mobile Navigation
 
-- Child Home and Parent Home use a three-item bottom navigation surface with large touch targets: “Học”, “Tiến độ”, and “Bố mẹ”.
+- Child Home and Parent Home use a two-item bottom navigation surface with large touch targets: “Học” and “Phụ huynh”.
+- “Tiến độ” remains available from Parent Home after Parent Gate; it is not a top-level bottom-navigation item.
 - Child Mode routes that expose parent information must still pass through Parent Gate.
 - Parent Home uses a compact native-style settings list with icon containers and chevrons instead of a dashboard grid of equally weighted buttons.
 

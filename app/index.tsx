@@ -1,7 +1,6 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import {
   BookOpen,
-  ChartNoAxesColumn,
   Clapperboard,
   PawPrint,
   PersonStanding,
@@ -114,13 +113,8 @@ export default function ChildHomeScreen() {
             onPress: () => undefined
           },
           {
-            icon: <ChartNoAxesColumn color={colors.muted} size={21} strokeWidth={2.3} />,
-            label: "Tiến độ",
-            onPress: () => router.push("/parent-gate")
-          },
-          {
             icon: <UsersRound color={colors.muted} size={21} strokeWidth={2.3} />,
-            label: "Bố mẹ",
+            label: "Phụ huynh",
             onPress: () => router.push("/parent-gate")
           }
         ]}

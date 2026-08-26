@@ -25,6 +25,14 @@ const registeredFiles = new Set();
 let totalBytes = 0;
 let videoCount = 0;
 
+if (registry.bundledCelebrationSoundModule) {
+  const soundPath = path.join(defaultMediaRoot, "sounds", "kidedu-congratulations.mp3");
+  if (fs.existsSync(soundPath)) {
+    registeredFiles.add("sounds/kidedu-congratulations.mp3");
+    totalBytes += fs.statSync(soundPath).size;
+  }
+}
+
 for (const definition of definitions) {
   if (definition.role === "mouth_video") {
     videoCount += 1;

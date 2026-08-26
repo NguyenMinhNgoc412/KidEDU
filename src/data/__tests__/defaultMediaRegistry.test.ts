@@ -13,12 +13,14 @@ describe("defaultMediaRegistry", () => {
 
   it("bundles the test mouth videos for ba and mẹ", () => {
     expect(
-      bundledDefaultMedia.map(({ itemId, role, durationMs, videoMetadata }) => ({
-        itemId,
-        role,
-        durationMs,
-        videoMetadata
-      }))
+      bundledDefaultMedia
+        .filter((item) => item.role === "mouth_video")
+        .map(({ itemId, role, durationMs, videoMetadata }) => ({
+          itemId,
+          role,
+          durationMs,
+          videoMetadata
+        }))
     ).toEqual([
       {
         itemId: "item-ba",

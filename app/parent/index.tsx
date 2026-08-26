@@ -116,14 +116,9 @@ export default function ParentHomeScreen() {
             onPress: exitParentArea
           },
           {
-            icon: <ChartNoAxesColumn color={colors.muted} size={21} strokeWidth={2.3} />,
-            label: "Tiến độ",
-            onPress: () => router.push("/parent/progress")
-          },
-          {
             active: true,
             icon: <ShieldCheck color={colors.secondary} size={21} strokeWidth={2.3} />,
-            label: "Bố mẹ",
+            label: "Phụ huynh",
             onPress: () => undefined
           }
         ]}

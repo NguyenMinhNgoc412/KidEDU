@@ -12,11 +12,7 @@ export type MediaSource = "default" | "custom" | "generated";
 
 export type MediaStatus = "active" | "missing" | "deleted" | "processing" | "failed";
 
-<<<<<<< Updated upstream
-export type PracticeMode = "single_item" | "auto_play_deck";
-=======
 export type PracticeMode = "single_item" | "auto_play_deck" | "mini_test" | "puzzle_game" | "memory_game";
->>>>>>> Stashed changes
 
 export type PracticeSessionStatus = "active" | "completed" | "cancelled" | "interrupted";
 

@@ -5,6 +5,8 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
 import { Card } from "@/components/Card";
+import { CelebrationView } from "@/components/CelebrationView";
+import { ChildProgressIndicator } from "@/components/ChildProgressIndicator";
 import { ControlButton } from "@/components/ControlButton";
 import { KidButton } from "@/components/KidButton";
 import { StateMessage } from "@/components/StateMessage";
@@ -28,20 +30,10 @@ import { colors, radii, spacing } from "@/theme";
 export function AutoPlaySessionView({
   deck,
   settings,
-<<<<<<< Updated upstream
-=======
-  onOpenMiniTest,
-  onOpenGames,
->>>>>>> Stashed changes
   onExitToHome
 }: {
   deck: DeckDetail;
   settings: LearningSettings;
-<<<<<<< Updated upstream
-=======
-  onOpenMiniTest: () => void;
-  onOpenGames: () => void;
->>>>>>> Stashed changes
   onExitToHome: () => void;
 }) {
   const sessionGate = useLearningSessionGate();
@@ -59,38 +51,16 @@ export function AutoPlaySessionView({
     );
   }
 
-<<<<<<< Updated upstream
   return <ActiveAutoPlaySessionView deck={deck} settings={settings} onExitToHome={onExitToHome} />;
-=======
-  return (
-    <ActiveAutoPlaySessionView
-      deck={deck}
-      settings={settings}
-      onOpenMiniTest={onOpenMiniTest}
-      onOpenGames={onOpenGames}
-      onExitToHome={onExitToHome}
-    />
-  );
->>>>>>> Stashed changes
 }
 
 function ActiveAutoPlaySessionView({
   deck,
   settings,
-<<<<<<< Updated upstream
-=======
-  onOpenMiniTest,
-  onOpenGames,
->>>>>>> Stashed changes
   onExitToHome
 }: {
   deck: DeckDetail;
   settings: LearningSettings;
-<<<<<<< Updated upstream
-=======
-  onOpenMiniTest: () => void;
-  onOpenGames: () => void;
->>>>>>> Stashed changes
   onExitToHome: () => void;
 }) {
   const session = useAutoPlaySession(deck, settings);
@@ -129,49 +99,33 @@ function ActiveAutoPlaySessionView({
   if (session.state.phase === "completed") {
     const isEmpty = session.state.completedReason === "no_valid_items";
 
+    if (isEmpty) {
+      return (
+        <View style={styles.completed}>
+          <StateMessage
+            title="Chưa có thẻ trong bộ"
+            message="Phụ huynh hãy thêm ít nhất một thẻ trước khi bắt đầu."
+          />
+          <KidButton
+            icon={<X color={colors.primary} size={22} />}
+            label="Về danh sách"
+            onPress={onExitToHome}
+            variant="plain"
+          />
+        </View>
+      );
+    }
+
     return (
       <View style={styles.completed}>
-        <StateMessage
-          title={isEmpty ? "Chưa có thẻ trong bộ" : "Con đã học xong bộ này"}
-          message={
-            isEmpty
-              ? "Phụ huynh hãy thêm ít nhất một thẻ trước khi bắt đầu."
-              : `${session.playableItems.length} thẻ đã được phát.`
-          }
+        <CelebrationView
+          exitLabel="Về danh sách"
+          onExit={onExitToHome}
+          onRestart={session.restart}
+          restartLabel="Học lại"
+          title="Bé giỏi quá! 🌟"
+          totalItems={session.playableItems.length}
         />
-<<<<<<< Updated upstream
-        <KidButton
-          icon={<RotateCcw color={colors.onPrimary} size={22} />}
-          label="Học lại"
-          onPress={session.restart}
-        />
-        <KidButton
-          icon={<X color={colors.primary} size={22} />}
-          label="Về danh sách"
-          onPress={onExitToHome}
-          variant="plain"
-        />
-=======
-        {!isEmpty ? (
-          <Card style={styles.completionCard} variant="surface">
-            <KidButton label="Học bộ tiếp" onPress={onExitToHome} variant="plain" />
-            <KidButton
-              disabled={!canStartMiniTest}
-              label="Mini test"
-              onPress={onOpenMiniTest}
-              variant="plain"
-            />
-            {!canStartMiniTest ? (
-              <AppText align="center" color="muted" variant="caption">
-                Mini test cần ít nhất hai thẻ có ảnh và âm phát âm.
-              </AppText>
-            ) : null}
-            <KidButton label="Trò chơi" onPress={onOpenGames} variant="secondary" />
-          </Card>
-        ) : (
-          <KidButton label="Về danh sách" onPress={onExitToHome} variant="plain" />
-        )}
->>>>>>> Stashed changes
       </View>
     );
   }
@@ -206,6 +160,13 @@ function ActiveAutoPlaySessionView({
           {progressLabel} · {loopLabel}
         </AppText>
       </View>
+
+      <ChildProgressIndicator
+        currentIndex={session.state.itemIndex}
+        loopIndex={session.state.loopIndex}
+        total={session.playableItems.length}
+        totalLoops={settings.loopCount}
+      />
 
       <Pressable
         accessibilityLabel={isPaused ? "Tiếp tục bộ học" : "Tạm dừng bộ học"}
@@ -282,16 +243,22 @@ function ActiveAutoPlaySessionView({
 
 const styles = StyleSheet.create({
   container: {
-    gap: spacing[12]
+    alignSelf: "stretch",
+    gap: spacing[8],
+    width: "100%"
   },
   completed: {
-    gap: spacing[14]
+    alignSelf: "stretch",
+    gap: spacing[12],
+    width: "100%"
   },
   topBar: {
     alignItems: "center",
+    alignSelf: "stretch",
     flexDirection: "row",
     gap: spacing[12],
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    width: "100%"
   },
   deckTitle: {
     flex: 1
@@ -304,8 +271,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing[8],
     justifyContent: "center",
-    minHeight: 48,
-    paddingHorizontal: spacing[26],
+    minHeight: 44,
+    paddingHorizontal: spacing[20],
     elevation: 3,
     shadowColor: colors.primaryDark,
     shadowOffset: { height: spacing[8], width: spacing.none },
@@ -314,30 +281,34 @@ const styles = StyleSheet.create({
   },
   wordBlock: {
     alignItems: "center",
-    gap: spacing[7]
+    alignSelf: "stretch",
+    gap: spacing[4],
+    width: "100%"
   },
   wordPill: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
     borderWidth: 1,
-    minWidth: 132,
-    paddingHorizontal: spacing[24],
-    paddingVertical: spacing[10]
+    minWidth: 120,
+    paddingHorizontal: spacing[20],
+    paddingVertical: spacing[6]
   },
   controls: {
+    alignSelf: "stretch",
     backgroundColor: colors.surfaceLowest,
     borderColor: colors.borderSubtle,
     borderRadius: radii.xl,
     borderWidth: 1,
     elevation: 2,
     flexDirection: "row",
-    gap: spacing[10],
+    gap: spacing[8],
     justifyContent: "space-between",
-    padding: spacing[12],
+    padding: spacing[10],
     shadowColor: colors.primaryDark,
-    shadowOffset: { height: 5, width: 0 },
+    shadowOffset: { height: 4, width: 0 },
     shadowOpacity: 0.08,
-    shadowRadius: 12
+    shadowRadius: 10,
+    width: "100%"
   },
   pressed: {
     opacity: 0.82

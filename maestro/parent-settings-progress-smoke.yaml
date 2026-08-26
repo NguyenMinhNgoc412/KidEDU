@@ -2,7 +2,7 @@ appId: ${APP_ID}
 ---
 - launchApp
 - assertVisible: "Bé chọn gì nào?"
-- tapOn: "Khu vực Phụ huynh"
+- tapOn: "Phụ huynh"
 - assertVisible: "3 + 5 = ?"
 - tapOn: "Câu trả lời"
 - inputText: "8"

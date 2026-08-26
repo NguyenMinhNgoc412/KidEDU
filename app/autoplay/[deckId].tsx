@@ -55,13 +55,7 @@ export default function AutoPlayScreen() {
           key={sessionKey}
           deck={deckQuery.data}
           settings={freshSettings}
-<<<<<<< Updated upstream
           onExitToHome={() => router.replace("/")}
-=======
-          onOpenMiniTest={() => router.replace(`/mini-test/${deckId}`)}
-          onOpenGames={() => router.replace(`/games/${deckId}`)}
-          onExitToHome={() => router.replace("/decks")}
->>>>>>> Stashed changes
         />
       ) : null}
     </Screen>

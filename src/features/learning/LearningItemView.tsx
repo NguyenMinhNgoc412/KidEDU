@@ -127,35 +127,41 @@ function ActiveLearningItemView({
 
 const styles = StyleSheet.create({
   container: {
-    gap: spacing[14]
+    alignSelf: "stretch",
+    gap: spacing[10],
+    width: "100%"
   },
   wordBlock: {
     alignItems: "center",
-    gap: spacing[8],
-    paddingTop: spacing[4]
+    alignSelf: "stretch",
+    gap: spacing[4],
+    paddingTop: 0,
+    width: "100%"
   },
   wordPill: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
     borderWidth: 1,
-    minWidth: 132,
-    paddingHorizontal: spacing[24],
-    paddingVertical: spacing[10]
+    minWidth: 120,
+    paddingHorizontal: spacing[20],
+    paddingVertical: spacing[6]
   },
   controls: {
+    alignSelf: "stretch",
     backgroundColor: colors.surfaceLowest,
     borderColor: colors.borderSubtle,
     borderRadius: radii.xl,
     borderWidth: 1,
     elevation: 2,
     flexDirection: "row",
-    gap: spacing[10],
+    gap: spacing[8],
     justifyContent: "space-between",
-    marginTop: spacing[6],
-    padding: spacing[12],
+    marginTop: spacing[2],
+    padding: spacing[10],
     shadowColor: colors.primaryDark,
-    shadowOffset: { height: 5, width: 0 },
+    shadowOffset: { height: 4, width: 0 },
     shadowOpacity: 0.08,
-    shadowRadius: 12
+    shadowRadius: 10,
+    width: "100%"
   }
 });

@@ -12,6 +12,21 @@ Format dùng theo hướng đơn giản:
 
 ---
 
+## [0.6.8] — 2026-08-27
+
+### Changed
+
+- Rút gọn bottom navigation của Child Home và Parent Home còn hai mục “Học” và “Phụ huynh”.
+- Bỏ “Tiến độ” khỏi bottom navigation; chức năng này vẫn nằm trong Parent Home sau Parent Gate.
+
+### Affected files
+
+- `09-design-system-sot.md`
+
+### Reason
+
+Owner yêu cầu thanh điều hướng chỉ còn lối vào khu học và khu phụ huynh, tránh đặt tiến độ thành một vùng điều hướng cấp cao riêng.
+
 <<<<<<< Updated upstream
 =======
 ## [0.6.7] — 2026-08-23
