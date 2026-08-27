@@ -156,7 +156,7 @@ function ActiveAutoPlaySessionView({
         <AppText align="center" style={styles.deckTitle} variant="bodyStrong">
           {deck.title}
         </AppText>
-        <AppText color="muted" variant="caption">
+        <AppText align="center" color="muted" variant="caption">
           {progressLabel} · {loopLabel}
         </AppText>
       </View>
@@ -255,13 +255,12 @@ const styles = StyleSheet.create({
   topBar: {
     alignItems: "center",
     alignSelf: "stretch",
-    flexDirection: "row",
-    gap: spacing[12],
-    justifyContent: "space-between",
+    gap: spacing[2],
+    justifyContent: "center",
     width: "100%"
   },
   deckTitle: {
-    flex: 1
+    width: "100%"
   },
   pausePill: {
     alignItems: "center",

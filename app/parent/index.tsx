@@ -31,7 +31,26 @@ export default function ParentHomeScreen() {
   }
 
   return (
-    <Screen scroll={false}>
+    <Screen
+      bottomBar={
+        <MobileTabBar
+          items={[
+            {
+              icon: <BookOpen color={colors.muted} size={21} strokeWidth={2.3} />,
+              label: "Học",
+              onPress: exitParentArea
+            },
+            {
+              active: true,
+              icon: <ShieldCheck color={colors.secondary} size={21} strokeWidth={2.3} />,
+              label: "Phụ huynh",
+              onPress: () => undefined
+            }
+          ]}
+        />
+      }
+      scroll={false}
+    >
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -107,22 +126,6 @@ export default function ParentHomeScreen() {
           />
         </Card>
       </ScrollView>
-
-      <MobileTabBar
-        items={[
-          {
-            icon: <BookOpen color={colors.muted} size={21} strokeWidth={2.3} />,
-            label: "Học",
-            onPress: exitParentArea
-          },
-          {
-            active: true,
-            icon: <ShieldCheck color={colors.secondary} size={21} strokeWidth={2.3} />,
-            label: "Phụ huynh",
-            onPress: () => undefined
-          }
-        ]}
-      />
     </Screen>
   );
 }

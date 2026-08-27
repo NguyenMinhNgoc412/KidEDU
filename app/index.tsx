@@ -42,7 +42,26 @@ export default function ChildHomeScreen() {
   );
 
   return (
-    <Screen scroll={false}>
+    <Screen
+      bottomBar={
+        <MobileTabBar
+          items={[
+            {
+              active: true,
+              icon: <BookOpen color={colors.secondary} size={21} strokeWidth={2.3} />,
+              label: "Học",
+              onPress: () => undefined
+            },
+            {
+              icon: <UsersRound color={colors.muted} size={21} strokeWidth={2.3} />,
+              label: "Phụ huynh",
+              onPress: () => router.push("/parent-gate")
+            }
+          ]}
+        />
+      }
+      scroll={false}
+    >
       <View style={styles.brandBar}>
         <View style={styles.brandMark}>
           <Sparkles color={colors.primary} size={18} strokeWidth={2.5} />
@@ -104,21 +123,6 @@ export default function ChildHomeScreen() {
           />
         ) : null}
       </ScrollView>
-      <MobileTabBar
-        items={[
-          {
-            active: true,
-            icon: <BookOpen color={colors.secondary} size={21} strokeWidth={2.3} />,
-            label: "Học",
-            onPress: () => undefined
-          },
-          {
-            icon: <UsersRound color={colors.muted} size={21} strokeWidth={2.3} />,
-            label: "Phụ huynh",
-            onPress: () => router.push("/parent-gate")
-          }
-        ]}
-      />
     </Screen>
   );
 }

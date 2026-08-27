@@ -32,6 +32,7 @@ export default function LearningItemScreen() {
         <AppText align="center" style={styles.title} variant="cardTitle">
           {itemQuery.data?.categoryName ?? "Thẻ học"}
         </AppText>
+        <View aria-hidden style={styles.backPlaceholder} />
       </View>
       {itemQuery.isLoading ? <StateMessage title="Đang tải thẻ học" /> : null}
       {!itemQuery.isLoading && !itemQuery.data ? <StateMessage title="Không tìm thấy thẻ" /> : null}
@@ -65,6 +66,9 @@ const styles = StyleSheet.create({
     elevation: 1,
     height: 42,
     justifyContent: "center",
+    width: 42
+  },
+  backPlaceholder: {
     width: 42
   },
   title: {

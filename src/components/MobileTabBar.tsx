@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors, radii, spacing } from "@/theme";
 
@@ -13,52 +14,62 @@ export interface MobileTabItem {
 }
 
 export function MobileTabBar({ items }: { items: MobileTabItem[] }) {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, spacing[8]);
+
   return (
-    <View style={styles.container}>
-      {items.map((item) => (
-        <Pressable
-          key={item.label}
-          accessibilityLabel={item.label}
-          accessibilityRole="tab"
-          accessibilityState={{ selected: Boolean(item.active) }}
-          onPress={item.onPress}
-          style={({ pressed }) => [
-            styles.item,
-            item.active ? styles.itemActive : null,
-            pressed ? styles.pressed : null
-          ]}
-        >
-          <View style={styles.icon}>{item.icon}</View>
-          <AppText
-            align="center"
-            color={item.active ? "secondary" : "muted"}
-            variant="caption"
+    <View style={[styles.wrapper, { paddingBottom: bottomInset }]}>
+      <View style={styles.container}>
+        {items.map((item) => (
+          <Pressable
+            key={item.label}
+            accessibilityLabel={item.label}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: Boolean(item.active) }}
+            onPress={item.onPress}
+            style={({ pressed }) => [
+              styles.item,
+              item.active ? styles.itemActive : null,
+              pressed ? styles.pressed : null
+            ]}
           >
-            {item.label}
-          </AppText>
-        </Pressable>
-      ))}
+            <View style={styles.icon}>{item.icon}</View>
+            <AppText
+              align="center"
+              color={item.active ? "secondary" : "muted"}
+              variant="caption"
+            >
+              {item.label}
+            </AppText>
+          </Pressable>
+        ))}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    backgroundColor: colors.surfaceLowest,
+    borderTopColor: colors.borderSubtle,
+    borderTopWidth: 1,
+    elevation: 8,
+    paddingHorizontal: spacing[16],
+    paddingTop: spacing[8],
+    shadowColor: colors.primaryDark,
+    shadowOffset: { height: -2, width: 0 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    width: "100%"
+  },
   container: {
     alignItems: "center",
-    backgroundColor: colors.surfaceLowest,
-    borderColor: colors.borderSubtle,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    elevation: 5,
+    alignSelf: "center",
     flexDirection: "row",
-    gap: spacing[4],
+    gap: spacing[8],
     justifyContent: "space-around",
-    minHeight: 74,
-    padding: spacing[6],
-    shadowColor: colors.primaryDark,
-    shadowOffset: { height: -3, width: 0 },
-    shadowOpacity: 0.1,
-    shadowRadius: 14
+    maxWidth: 460,
+    width: "100%"
   },
   icon: {
     alignItems: "center",
@@ -72,8 +83,9 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing[4],
     justifyContent: "center",
-    minHeight: 58,
-    paddingHorizontal: spacing[6]
+    minHeight: 48,
+    paddingHorizontal: spacing[8],
+    paddingVertical: spacing[4]
   },
   itemActive: {
     backgroundColor: colors.secondarySoft

@@ -1,33 +1,55 @@
 import { type ReactNode } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, type Edge } from "react-native-safe-area-context";
 
 import { colors, spacing } from "@/theme";
 
 export function Screen({
   children,
   scroll = true,
-  padded = true
+  padded = true,
+  edges,
+  bottomBar
 }: {
   children: ReactNode;
   scroll?: boolean;
   padded?: boolean;
+  edges?: readonly Edge[];
+  bottomBar?: ReactNode;
 }) {
-  const content = <View style={[styles.content, padded ? styles.padded : null]}>{children}</View>;
+  const defaultEdges: readonly Edge[] = bottomBar
+    ? ["top", "left", "right"]
+    : ["top", "left", "right", "bottom"];
+  const safeEdges = edges ?? defaultEdges;
+
+  const content = (
+    <View
+      style={[
+        styles.content,
+        padded ? styles.padded : null,
+        bottomBar && padded ? styles.paddedWithBottomBar : null
+      ]}
+    >
+      {children}
+    </View>
+  );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {scroll ? (
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {content}
-        </ScrollView>
-      ) : (
-        content
-      )}
+    <SafeAreaView edges={safeEdges} style={styles.safeArea}>
+      <View style={styles.container}>
+        {scroll ? (
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {content}
+          </ScrollView>
+        ) : (
+          content
+        )}
+        {bottomBar}
+      </View>
     </SafeAreaView>
   );
 }
@@ -36,6 +58,10 @@ const styles = StyleSheet.create({
   safeArea: {
     backgroundColor: colors.background,
     flex: 1
+  },
+  container: {
+    flex: 1,
+    width: "100%"
   },
   scrollContent: {
     flexGrow: 1
@@ -51,5 +77,8 @@ const styles = StyleSheet.create({
     paddingBottom: spacing[24],
     paddingHorizontal: spacing[18],
     paddingTop: spacing[12]
+  },
+  paddedWithBottomBar: {
+    paddingBottom: spacing[8]
   }
 });
