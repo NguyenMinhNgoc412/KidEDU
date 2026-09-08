@@ -1,10 +1,14 @@
 # KidEDU
 
+> **Documentation transition:** Code hiện tại vẫn là baseline card/deck local-first. Target product cho Store Release v1.0 nằm tại [`docs-v2/README.md`](./docs-v2/README.md), với Product Brief, PRD và Technical Architecture mới. Nội dung legacy bên dưới chỉ mô tả trạng thái code hiện tại, không được dùng để thay đổi requirement v2.
+
+> **Build transition:** Các lệnh EAS bên dưới mô tả code baseline hiện tại. Target v2 giữ Expo SDK miễn phí và dùng EAS Free chỉ để build/submit iOS do owner không có Mac; Android build local, không dùng EAS Update/OTA hoặc paid plan mặc định.
+
 KidEDU là ứng dụng di động hỗ trợ trẻ chậm nói luyện phát âm tại nhà. Ứng dụng ưu tiên trải nghiệm trực quan, ít thao tác và hoạt động local-first để trẻ vẫn có thể học khi không có kết nối mạng.
 
 > KidEDU là công cụ hỗ trợ luyện tập tại nhà, không thay thế đánh giá hoặc can thiệp của chuyên gia âm ngữ trị liệu.
 
-## Tính năng MVP
+## Tính năng của code baseline hiện tại
 
 - Học từng thẻ với hình minh họa, video khẩu hình và âm thanh phát âm mẫu.
 - Học theo bộ thẻ tự chạy: app phát mẫu, dừng cho trẻ nói theo, rồi tự chuyển thẻ tiếp theo.
@@ -98,7 +102,7 @@ pnpm ios
 
 > iOS Simulator chỉ chạy trên macOS. Việc cài bản độc lập lên iPhone cần tài khoản Apple Developer và được phân phối qua TestFlight/App Store.
 
-## Tạo bản MVP để cài thử
+## Tạo bản cài thử cho code baseline hiện tại
 
 Cài EAS CLI và đăng nhập Expo một lần trên máy build:
 
@@ -163,16 +167,16 @@ pnpm test
 
 ## Lệnh thường dùng
 
-| Lệnh | Mục đích |
-| --- | --- |
-| `pnpm start` | Khởi động Expo development server |
-| `pnpm android` | Mở app trên Android Emulator/thiết bị Android |
-| `pnpm ios` | Mở app trên iOS Simulator (macOS) |
-| `pnpm doctor` | Kiểm tra tương thích dependency Expo |
-| `pnpm check` | Chạy kiểm tra media, typecheck, lint và test |
-| `pnpm build:android:preview` | Tạo APK Android để cài thử nội bộ |
-| `pnpm build:ios:preview` | Tạo bản dành cho iOS Simulator |
+| Lệnh                         | Mục đích                                      |
+| ---------------------------- | --------------------------------------------- |
+| `pnpm start`                 | Khởi động Expo development server             |
+| `pnpm android`               | Mở app trên Android Emulator/thiết bị Android |
+| `pnpm ios`                   | Mở app trên iOS Simulator (macOS)             |
+| `pnpm doctor`                | Kiểm tra tương thích dependency Expo          |
+| `pnpm check`                 | Chạy kiểm tra media, typecheck, lint và test  |
+| `pnpm build:android:preview` | Tạo APK Android để cài thử nội bộ             |
+| `pnpm build:ios:preview`     | Tạo bản dành cho iOS Simulator                |
 
 ## Tài liệu dự án
 
-Tài liệu Source of Truth của KidEDU nằm trong thư mục [`docs`](docs/README.md). Các tài liệu này mô tả phạm vi MVP, kiến trúc local-first, quản lý media và quy tắc triển khai.
+Target Source of Truth cho Store Release v1.0 nằm trong [`docs-v2`](docs-v2/README.md). Thư mục [`docs`](docs/README.md) là tài liệu legacy mô tả code local-first hiện tại, chỉ dùng để so sánh/refactor và không override v2.

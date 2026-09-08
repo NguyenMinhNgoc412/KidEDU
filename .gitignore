@@ -19,3 +19,6 @@ android/
 *.mobileprovision
 *.provisionprofile
 *.cer
+
+# Private research inputs containing child/intervention PII
+docs-v2/giao-trinh/

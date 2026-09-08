@@ -1,239 +1,140 @@
-# AGENTS.md — Hướng dẫn cho AI Agent khi làm việc với KidEDU
+# AGENTS.md — KidEDU Engineering Instructions
 
-## 1. Vai trò của file này
+## 1. Authority
 
-File này là hướng dẫn bắt buộc cho AI Agent/dev agent khi đọc tài liệu, chia task và implement trong dự án KidEDU.
+`docs-v2` là target documentation cho Store Release v1.0. `docs` là legacy baseline chỉ dùng để hiểu/so sánh code hiện tại; không được dùng để override requirement hoặc architecture v2.
 
-`README.md` là entry point và Source of Truth chính về cách đọc bộ tài liệu SOT. Trước khi làm bất kỳ task nào, AI Agent phải tuân thủ thứ tự đọc và ranh giới được mô tả trong file này.
+Ba SOT phải đọc theo thứ tự:
 
----
+1. `docs-v2/01-product-brief-sot.md` — why/product boundary;
+2. `docs-v2/02-product-requirements-sot.md` — what/acceptance;
+3. `docs-v2/03-technical-architecture-sot.md` — system architecture/constraints.
 
-## 2. Tổng quan dự án
+Sau đó đọc detailed spec liên quan và `docs-v2/CHANGELOG.md`. Tài liệu `In review` chưa tự động cho phép implementation; task implement phải dựa phạm vi đã được owner duyệt hoặc yêu cầu trực tiếp.
 
-KidEDU là mobile app MVP hỗ trợ trẻ chậm nói luyện phát âm tại nhà bằng:
+Thứ tự ưu tiên:
 
-- video hoặc animation khẩu hình miệng;
-- hình ảnh hoặc ảnh động minh họa;
-- âm thanh phát âm rõ ràng;
-- bộ thẻ học tự chạy như playlist;
-- nội dung cá nhân hóa do phụ huynh tự thêm.
-
-Trọng tâm MVP là trải nghiệm học đơn giản, ít thao tác cho trẻ, ưu tiên offline/local-first và không phụ thuộc backend.
-
----
-
-## 3. Thứ tự đọc tài liệu bắt buộc
-
-Khi bắt đầu bất kỳ task nào, AI Agent bắt buộc phải sử dụng công cụ đọc file (File-read/Search tools) để nạp nội dung theo thứ tự sau:
-
-1. `README.md`
-2. `01-kidedu-business-sot.md`
-3. `02-kidedu-mobile-architecture-sot.md`
-4. File chi tiết liên quan trực tiếp tới task
-5. `CHANGELOG.md` nếu cần kiểm tra lịch sử thay đổi gần đây
-
-Riêng với task giao diện/UI/UX, sau bước 3 AI Agent phải đọc `09-design-system-sot.md` trước, sau đó mở ảnh liên quan trong thư mục `screenshots/`, rồi mới đọc tiếp file chi tiết nghiệp vụ/kỹ thuật của màn hình hoặc chức năng đang làm.
-
-Không bắt đầu implement chỉ dựa trên prompt task nếu chưa đọc các file SOT bắt buộc.
-
----
-
-## 4. File cần đọc theo loại task
-
-### 4.1. Task nghiệp vụ / product behavior
-
-Đọc thêm:
-
-- `03-business-auto-play-deck-sot.md` nếu làm chế độ bộ thẻ tự chạy, màn hình tự học, playlist hoặc autoplay.
-- `04-business-parent-content-management-sot.md` nếu làm khu phụ huynh, quản lý thẻ, bộ học hoặc nội dung cá nhân hóa.
-
-### 4.2. Task kỹ thuật / implementation
-
-Đọc thêm:
-
-- `05-tech-mobile-stack-sot.md` nếu setup app, dependency, framework hoặc library.
-- `06-tech-local-data-media-sot.md` nếu làm database, local file, media import, media resolver hoặc media pipeline.
-- `07-tech-performance-cache-memory-sot.md` nếu làm lazy load, cache, playback, list performance hoặc quản lý bộ nhớ.
-
-### 4.3. Task chia việc cho AI Agent
-
-Đọc thêm:
-
-- `08-Agent-task-splitting-sot.md`
-
-File `08` chỉ dùng để chia task và viết prompt implement. Không dùng file này để thay đổi nghiệp vụ hoặc kiến trúc.
-
-### 4.4. Task giao diện / UI / UX
-
-Đọc thêm:
-
-- `09-design-system-sot.md` trước khi code bất kỳ UI nào.
-- Ảnh tham chiếu liên quan trong thư mục `screenshots/`.
-
-Quy tắc bắt buộc:
-
-- Nếu làm màn Child Mode, danh sách từ, màn học, upload media hoặc Parent Zone, phải mở ảnh tương ứng trong `screenshots/` trước khi sửa UI.
-- Khi ảnh và code hiện tại khác nhau, ưu tiên bám `09-design-system-sot.md` và ảnh reference, miễn là không mâu thuẫn với nghiệp vụ trong `01`/`03`/`04`.
-- Không tự sáng tạo phong cách giao diện mới nếu chưa có trong `09` hoặc ảnh reference.
-- Nếu hệ thống môi trường hiện tại không cho phép AI tự động đọc file ảnh local, AI Agent phải chủ động yêu cầu user upload/cung cấp ảnh screenshot đó vào khung chat trước khi tiến hành code UI. Tuyệt đối không tự tưởng tượng ra giao diện nếu chưa nhìn thấy reference.
-
-Ảnh tham chiếu hiện có:
-
-- `screenshots/01-home-childmode.JPG` — màn chọn nhóm ở Child Mode.
-- `screenshots/02-Child-Word-List.JPG` — danh sách từ trong Child Mode.
-- `screenshots/03-child-study-screen.JPG` — màn học/thẻ đang phát.
-- `screenshots/04-media-upload.JPG` — form thêm thẻ và upload media.
-- `screenshots/05-parent-word-list.JPG` — danh sách/quản lý từ ở Parent Zone.
-
----
-
-## 5. Quy tắc ưu tiên khi tài liệu mâu thuẫn
-
-Khi các tài liệu có dấu hiệu mâu thuẫn, áp dụng thứ tự ưu tiên sau:
-
-1. `01-kidedu-business-sot.md` quyết định sản phẩm làm gì.
-2. `02-kidedu-mobile-architecture-sot.md` quyết định kiến trúc tổng quan.
-3. Các file `03` đến `07` quyết định chi tiết trong phạm vi của từng file.
-4. `09-design-system-sot.md` quyết định design system, visual direction, component style, typography, spacing và shape cho giao diện.
-5. Ảnh trong `screenshots/` quyết định reference cụ thể cho layout/component/state của màn hình tương ứng.
-6. `08-Agent-task-splitting-sot.md` chỉ dùng để chia việc, không thay đổi nghiệp vụ.
-7. `README.md` quyết định cách đọc, cách dùng và danh sách tài liệu SOT.
-8. `CHANGELOG.md` chỉ ghi lịch sử thay đổi, không thay thế nội dung SOT chính.
-
-Nếu vẫn chưa rõ, AI Agent phải dừng ở mức phân tích, ghi rõ mâu thuẫn và đề xuất hướng xử lý để owner duyệt.
-
----
-
-## 6. Ranh giới MVP đã chốt
-
-AI Agent không được tự ý thay đổi các quyết định sau:
-
-1. KidEDU MVP là mobile app.
-2. MVP ưu tiên offline/local-first.
-3. MVP không có backend.
-4. MVP không có đăng nhập online.
-5. MVP không có AI chấm phát âm.
-6. Trẻ học bằng thẻ học và bộ thẻ tự chạy.
-7. Phụ huynh có thể cá nhân hóa nội dung bằng video/ảnh/audio của người thân.
-8. Trẻ ít thao tác nhất có thể; app phải tự phát và tự chuyển bài trong chế độ luyện tự động.
-9. Nội dung ảnh động và âm thanh phải thu hút nhưng không gây quá tải giác quan.
-10. Khu phụ huynh phải có Parent Gate đơn giản.
-
----
-
-## 7. Những việc AI Agent không được tự làm
-
-AI Agent không được tự ý:
-
-- thêm backend, cloud sync, tài khoản online hoặc login online vào MVP;
-- thêm AI scoring/chấm phát âm nếu chưa được duyệt;
-- mở rộng feature ngoài phạm vi file nghiệp vụ;
-- đổi tech stack, database, framework hoặc library lớn nếu chưa có quyết định trong SOT;
-- duplicate nội dung chi tiết giữa nhiều file SOT;
-- sửa file nghiệp vụ để hợp thức hóa một quyết định kỹ thuật;
-- sửa file kỹ thuật để thêm feature chưa được mô tả trong nghiệp vụ;
-- gom nhiều phạm vi lớn vào một task implement;
-- bỏ qua kiểm tra performance/memory khi xử lý video, ảnh, audio, list, autoplay hoặc cache.
-
-Nếu phát hiện cần thay đổi nghiệp vụ hoặc kiến trúc, AI Agent chỉ được ghi đề xuất gồm:
-
-- ý tưởng thay đổi;
-- lý do;
-- phạm vi ảnh hưởng;
-- rủi ro;
-- file SOT cần cập nhật;
-- câu hỏi cần owner duyệt.
-
-Không implement thay đổi đó trước khi được duyệt.
-
----
-
-## 8. Nguyên tắc implement
-
-Mỗi task implement phải:
-
-- có phạm vi nhỏ, rõ ràng và test được;
-- bám đúng nghiệp vụ đã có trong SOT;
-- không thêm business idea mới;
-- không đổi architecture nếu task không yêu cầu;
-- giữ code đơn giản, dễ đọc, phù hợp mobile MVP;
-- tách phần business logic, data/media logic và UI theo architecture đã chốt;
-- với UI, bám `09-design-system-sot.md` và ảnh trong `screenshots/` thay vì tự tạo phong cách mới;
-- ưu tiên local-first/offline behavior;
-- xử lý lỗi theo hướng an toàn, dễ hiểu cho phụ huynh và không làm trẻ bị kẹt luồng học;
-- cân nhắc performance, cache, memory với mọi phần có media hoặc list.
-
----
-
-## 9. Checklist trước khi sửa code
-
-Trước khi sửa code, AI Agent phải tự kiểm tra:
-
-- Đã đọc `README.md`, `01-kidedu-business-sot.md`, `02-kidedu-mobile-architecture-sot.md` chưa?
-- Task này thuộc file chi tiết nào trong `03` đến `07`?
-- Nếu là task giao diện, đã đọc `09-design-system-sot.md` và mở ảnh liên quan trong `screenshots/` chưa?
-- Có cần đọc `08-Agent-task-splitting-sot.md` để chia nhỏ task không?
-- Có cần đọc `CHANGELOG.md` để kiểm tra quyết định mới gần đây không?
-- Task có đụng tới backend, login online, cloud sync hoặc AI scoring không?
-- Task có đụng tới media/video/ảnh/audio/cache/list/autoplay không?
-- Có acceptance criteria rõ ràng chưa?
-- Có rủi ro mâu thuẫn giữa nghiệp vụ và kỹ thuật không?
-
-Nếu thiếu thông tin quan trọng, AI Agent phải ghi rõ giả định thay vì tự quyết định ngầm.
-
----
-
-## 10. Checklist sau khi sửa code
-
-Sau khi sửa code, AI Agent phải báo cáo:
-
-- file đã thay đổi;
-- hành vi đã implement;
-- cách test hoặc lệnh test đã chạy;
-- dò tìm bug có thể phát sinh sau khi hoàn thành task;
-- nếu phát hiện bug, phải xác định nguyên nhân gốc, đưa ra giải pháp xử lý và giải thích vì sao chọn giải pháp đó;
-- nếu không phát hiện bug, phải ghi rõ đã rà soát các rủi ro/bề mặt ảnh hưởng chính và kết quả kiểm tra;
-- rủi ro còn lại, nếu có;
-- SOT nào cần cập nhật, nếu có thay đổi hành vi, kiến trúc, tech stack hoặc cách chia task.
-
-Việc dò tìm bug sau mỗi task là bắt buộc, kể cả khi test hiện tại đều pass. AI Agent cần kiểm tra các luồng bị ảnh hưởng, trường hợp biên và hồi quy có khả năng xảy ra. Khi có bug, không chỉ mô tả triệu chứng mà phải truy nguyên nguyên nhân, nêu giải pháp và giải thích lý do giải pháp đó phù hợp với phạm vi, kiến trúc và yêu cầu của task.
-
-Nếu có thay đổi quyết định sản phẩm, kiến trúc, tech stack hoặc cách chia task, phải cập nhật đúng file SOT liên quan và `CHANGELOG.md`.
-
----
-
-## 11. Quy tắc cập nhật SOT
-
-Khi cần sửa tài liệu SOT:
-
-1. Chỉ sửa file đúng phạm vi.
-2. Không thêm feature hoặc tech decision mới nếu chưa được duyệt.
-3. Nếu thêm, xóa hoặc đổi tên file SOT, phải cập nhật `README.md`.
-4. Nếu thay đổi quyết định sản phẩm, kiến trúc, tech stack hoặc cách chia task, phải cập nhật `CHANGELOG.md`.
-5. Không duplicate nội dung chi tiết giữa nhiều file.
-6. README chỉ là bản đồ và quy tắc đọc, không thay thế các file chi tiết.
-
----
-
-## 12. Cách phản hồi khi hoàn thành task
-
-Khi trả kết quả, AI Agent nên dùng format ngắn gọn:
-
-```md
-## Done
-- ...
-
-## Files changed
-- `path/to/file`
-
-## Tests
-- `command` — result
-
-## Notes / Risks
-- ...
-
-## SOT updates
-- Không cần cập nhật / Đã cập nhật `...` / Cần owner duyệt trước khi cập nhật
+```text
+Product Brief → PRD → Technical Architecture → detailed specs/ADR
+→ delivery/task → code → legacy docs/screenshots
 ```
 
-Không viết báo cáo dài nếu task nhỏ. Không che giấu phần chưa làm được hoặc chưa test được.
+Nếu mâu thuẫn, dừng ở phân tích, chỉ rõ ID/file và xin owner quyết định nếu thay đổi có ảnh hưởng scope/architecture.
+
+## 2. Product invariants
+
+- Store Release v1.0, không gọi là MVP.
+- Focus hỗ trợ phụ huynh luyện ngôn ngữ/giao tiếp tiếng Việt cho trẻ chậm nói.
+- Không chẩn đoán, điều trị, thay chuyên gia hoặc AI chấm phát âm trong v1.
+- Learning progression/activity theo PRD, không thu hẹp về card/flashcard.
+- Parent-guided transfer và family media là capability cốt lõi.
+- AI Custom Library là `Post-release`; không implement, provision provider/queue hoặc đưa vào release gate v1 nếu chưa có SOT change được owner duyệt.
+- Subscription/trial; không third-party ads hoặc permanent free learning tier v1.
+- Parent login/backend bắt buộc; không quảng bá offline mode.
+- Prepared lesson chạy local; không API trong activity loop.
+- Premium cache không đồng nghĩa quyền; entitlement server-authoritative và content mã hóa.
+- Dữ liệu gia đình không bị khóa chỉ vì subscription hết hạn.
+
+## 3. Architecture invariants
+
+- Mobile client-heavy cho learning domain nhưng không tự quyết identity/authorization/entitlement/key.
+- App server riêng: Docker, Node.js/TypeScript, NestJS/Fastify, Prisma.
+- Mobile chỉ gọi versioned app-server API; không truy cập PostgreSQL hoặc object storage bằng privileged credential.
+- Baseline production ban đầu là Cloud Run `min-instances=0` chạy OCI image NestJS/Fastify; Supabase Free cung cấp PostgreSQL + Auth và R2 cung cấp object storage.
+- Mobile không dùng Supabase Data API/Storage trực tiếp; Cloud Run app server là application boundary duy nhất và runtime database dùng Supavisor transaction pooler với connection/max-instance budget.
+- Supabase Free không có SLA/automatic backup: daily verified logical dump phải lưu mã hóa ngoài Supabase tại R2; cảnh báo quota và restore drill là release gate.
+- R2 private là runtime origin cho production pack/media/backup; Google Drive 5 TB chỉ source/master/archive, không là entitlement boundary hoặc family-media origin.
+- Supabase Authentication cho parent identity; app server verify JWT/JWKS rồi map provider subject sang internal account ID. Firebase chỉ dùng Crashlytics.
+- OCI image, PostgreSQL dump/migration và provider adapters phải portable để chuyển Cloud Run sang VPS và Supabase sang PostgreSQL khác mà không đổi mobile contract.
+- Apple/Google store là billing authority; backend tích hợp trực tiếp server API/notification, chuẩn hóa entitlement và làm activation authority.
+- Progressive signed/encrypted lesson packs, atomic generation sync và durable local cache.
+- Notification v1 chỉ local trên device; không FCM/APNs app push, push-token/backend notification module.
+- Mobile crash dùng CrashReporter → Firebase Crashlytics; backend Pino/OpenTelemetry → Cloud Logging/Error Reporting; không Sentry baseline.
+- Expo SDK được giữ; EAS Free chỉ build/submit iOS vì owner không có Mac, không EAS Update/OTA hoặc paid plan mặc định.
+- Provider SDK/DTO nằm sau Identity/Billing/ObjectStorage/KeyManagement/Telemetry adapters; domain lưu internal ID/object key, không signed URL/provider UID.
+- Default media: Veo candidate mouth video, human-reviewed Vietnamese audio, Reanimated/SVG + Lottie; FFmpeg normalize, AI không auto-publish.
+- Không microservice, Kubernetes, Redis/Kafka mặc định khi chưa có ADR/số đo.
+
+## 4. Detailed spec routing
+
+### Product behavior
+
+- curriculum/plan: `docs-v2/product/01-curriculum-learning-plan-spec.md`
+- activities/session: `docs-v2/product/02-learning-activity-spec.md`
+- family media: `docs-v2/product/03-parent-family-media-spec.md`
+- progress: `docs-v2/product/04-progress-observation-spec.md`
+- subscription: `docs-v2/product/05-subscription-access-spec.md`
+- default media production: `docs-v2/product/06-content-media-production-spec.md`
+- AI custom library (`Post-release`): `docs-v2/product/07-ai-custom-library-spec.md`
+
+### Design/UI
+
+Đọc lần lượt:
+
+1. `docs-v2/design/01-information-architecture-user-flows.md`;
+2. `docs-v2/design/02-design-system.md`;
+3. `docs-v2/design/03-wireframes.md`;
+4. `docs-v2/design/04-accessibility-child-safety.md`;
+5. screenshot liên quan trong `screenshots/` và component hiện có.
+
+Reuse Gentle Growth visual/component foundation nhưng không giữ IA/domain card/category-centric khi trái v2. Không tự sáng tạo style mới khi design spec đã có.
+
+### Technical
+
+- mobile: `docs-v2/architecture/01-mobile-architecture.md`
+- backend/Docker: `docs-v2/architecture/02-backend-architecture.md`
+- data: `docs-v2/architecture/03-data-model-and-migrations.md`
+- sync/pack: `docs-v2/architecture/04-sync-manifest-pack-protocol.md`
+- media/security: `docs-v2/architecture/05-media-storage-and-content-security.md`
+- entitlement: `docs-v2/architecture/06-entitlement-activation-security.md`
+- operations: `docs-v2/architecture/07-operations-observability-backup.md`
+- threat model: `docs-v2/architecture/08-threat-model.md`
+- notifications: `docs-v2/architecture/09-notification-architecture.md`
+- provider portability/evolution: `docs-v2/architecture/10-portability-and-evolution.md`
+- initial platform deployment: `docs-v2/architecture/11-initial-platform-deployment.md`
+- AI custom generation (`Post-release`): `docs-v2/architecture/12-ai-custom-library-generation.md`
+- contracts: `docs-v2/contracts/`
+- roadmap/test/release/task/cost: `docs-v2/delivery/`
+
+## 5. Research privacy
+
+`docs-v2/giao-trinh/` chứa PII của trẻ/chuyên viên và đã bị ignore. Không đọc/chép dữ liệu nhận dạng vào code, test, log, prompt artifact hoặc tài liệu commit. Chỉ dùng insight đã ẩn danh. Không đưa file này vào Git/build/CI.
+
+## 6. Implementation rules
+
+- Mỗi task có `Implements: PRD-..., TA-ADR-...`, dependency, acceptance, tests, migration/rollback và out-of-scope.
+- Không dùng code hiện tại để hợp thức hóa requirement legacy.
+- Giữ thay đổi nhỏ theo boundary; không gom schema + toàn backend + nhiều activity/UI vào một task.
+- Route/screen không truy cập API/SQLite/file trực tiếp.
+- Không share Prisma model với mobile; dùng OpenAPI/generated client và content schema versioned.
+- Mutation progress commit SQLite + outbox atomically; content sync dùng generation/staging.
+- Entitlement guard ở server/repository/loader/resolver/decrypt boundary, không chỉ paywall UI.
+- Không log token/key/receipt/signed URL/PII/family media.
+- File/media replace: stage → validate/preview → atomic commit → cleanup.
+- Account switch phải đóng session/player và purge/isolate token/key/cache/data namespace.
+- Không thêm dependency/service lớn nếu capability có trong baseline stack; thay stack cần ADR/owner approval.
+
+## 7. UI implementation rules
+
+- Mở screenshot thật trước khi sửa screen liên quan.
+- Reuse `AppText`, `Screen`, cards/buttons, media containers, tab bar và theme khi phù hợp.
+- Target child touch ≥56px; parent ≥44px; accessible name/state và không chỉ dùng màu.
+- Mouth video không bị overlay control cố định; foreground không tự phát media.
+- Child Mode không purchase/delete/external link/judgement score.
+- Hỗ trợ large text, screen reader, reduce motion và sensory settings.
+
+## 8. Verification
+
+Chạy kiểm tra theo rủi ro:
+
+- docs: Prettier, link/reference/contradiction scan;
+- mobile: typecheck, lint, Jest/RNTL, Maestro/device khi native/lifecycle;
+- backend: unit, Supertest, Testcontainers, OpenAPI/migration/security;
+- content: schema/fixture/signature/readiness + human QA;
+- release: sandbox subscription, process kill, low storage, account switch, expiry/refund, backup/restore.
+
+Sau task báo file, behavior, test đã chạy, bug/risk đã rà soát, migration/rollback và SOT/changelog impact. Không nói pass nếu chưa chạy.
+
+## 9. Documentation changes
+
+Sửa file sở hữu trước. Detailed spec tham chiếu ID thay vì copy rule. Thêm/xóa/đổi file phải cập nhật `docs-v2/README.md`; thay product/architecture/stack phải cập nhật `docs-v2/CHANGELOG.md` và ADR khi có trade-off. Không sửa `docs/` legacy.
