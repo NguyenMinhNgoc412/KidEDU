@@ -1,4 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react-native";
+import type { ReactNode } from "react";
+import { MediaAccountContext } from "../MediaAccountBoundary";
 
 import { useDisplayMedia, useDisplayMediaUri } from "../useDisplayMediaUri";
 
@@ -22,6 +24,25 @@ jest.mock("@/features/media/webMediaStore", () => ({
 describe("useDisplayMediaUri", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it("account switch rejects a previously ready account-scoped URI immediately", async () => {
+    const first = "10000000-0000-4000-8000-000000000010";
+    let activeAccount = first;
+    const uri = `file:///documents/media/accounts/${first}/images/photo.jpg`;
+    function wrapper({ children }: { children: ReactNode }) {
+      return (
+        <MediaAccountContext.Provider value={activeAccount}>
+          {children}
+        </MediaAccountContext.Provider>
+      );
+    }
+    const view = await renderHook(() => useDisplayMedia(uri), { wrapper });
+    expect(view.result.current).toEqual({ status: "ready", uri });
+    activeAccount = "20000000-0000-4000-8000-000000000010";
+    await view.rerender(undefined);
+    expect(view.result.current).toEqual({ status: "unavailable", uri: null });
+    await view.unmount();
   });
 
   it("keeps a preloaded bundled URI stable instead of clearing it during the effect", async () => {

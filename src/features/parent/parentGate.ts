@@ -19,16 +19,9 @@ export const useParentGateStore = create<ParentGateState>((set) => ({
   lock: () => set({ isUnlocked: false })
 }));
 
-export function createParentGateChallenge(nowMs?: number): ParentGateChallenge {
-  if (nowMs === undefined) {
-    return {
-      left: 3,
-      right: 5,
-      prompt: "3 + 5 = ?",
-      answer: 8
-    };
-  }
+export const parentGateHoldDurationMs = 1500;
 
+export function createParentGateChallenge(nowMs: number = Date.now()): ParentGateChallenge {
   const left = 2 + (nowMs % 5);
   const right = 3 + (Math.floor(nowMs / 10) % 6);
 
@@ -41,5 +34,6 @@ export function createParentGateChallenge(nowMs?: number): ParentGateChallenge {
 }
 
 export function isParentGateAnswerCorrect(input: string, challenge: ParentGateChallenge): boolean {
-  return Number.parseInt(input.trim(), 10) === challenge.answer;
+  const value = input.trim();
+  return /^\d+$/.test(value) && Number(value) === challenge.answer;
 }

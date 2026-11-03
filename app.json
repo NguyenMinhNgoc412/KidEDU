@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "scheme": "kidedu",
     "icon": "./assets/icon.png",
-    "jsEngine": "hermes",
     "userInterfaceStyle": "light",
     "plugins": [
       "expo-router",
@@ -35,7 +34,12 @@
         }
       ],
       "expo-sqlite",
-      "expo-video"
+      "expo-video",
+      "expo-secure-store",
+      "expo-font",
+      "expo-image",
+      "expo-sharing",
+      "expo-status-bar"
     ],
     "ios": {
       "bundleIdentifier": "com.kidedu.mobile",

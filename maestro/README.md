@@ -1,5 +1,7 @@
 # KidEDU Maestro & Device Smoke Checklist
 
+> **Current v2 status (2026-10-12):** The flows/checklists below are historical legacy coverage, not executed proof for Store Release v1.0. They assume home entry before parent login and require updating for the current login-first app. Android/iPhone native verification is still pending; see [platform audit](../docs-v2/delivery/09-android-ios-test-audit-2026-10-12.md). Do not use the historical “Có” entries as evidence of a device pass.
+
 Các flow trong thư mục này là smoke test cho MVP local-first. Chúng kiểm tra luồng chính ổn định trên build đã cài vào device/simulator, nhưng không thay thế unit test, integration test hoặc manual device smoke cho media native.
 
 ## Cách chạy Maestro

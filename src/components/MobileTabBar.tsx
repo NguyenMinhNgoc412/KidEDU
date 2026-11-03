@@ -34,11 +34,7 @@ export function MobileTabBar({ items }: { items: MobileTabItem[] }) {
             ]}
           >
             <View style={styles.icon}>{item.icon}</View>
-            <AppText
-              align="center"
-              color={item.active ? "secondary" : "muted"}
-              variant="caption"
-            >
+            <AppText align="center" color={item.active ? "secondary" : "muted"} variant="caption">
               {item.label}
             </AppText>
           </Pressable>
@@ -83,7 +79,7 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing[4],
     justifyContent: "center",
-    minHeight: 48,
+    minHeight: 56,
     paddingHorizontal: spacing[8],
     paddingVertical: spacing[4]
   },
@@ -91,7 +87,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondarySoft
   },
   pressed: {
-    opacity: 0.78,
-    transform: [{ scale: 0.96 }]
+    opacity: 0.78
   }
 });

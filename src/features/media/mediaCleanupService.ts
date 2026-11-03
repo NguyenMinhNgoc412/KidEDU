@@ -3,6 +3,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import type { KidEduRepository } from "@/data/types";
 
 import { cleanupMediaFiles } from "./mediaImportService";
+import { accountMediaDirectory, mediaUriAllowedForAccount } from "./accountMediaScope";
 
 export interface MediaCleanupResult {
   deletedAssetCount: number;
@@ -31,6 +32,7 @@ export async function cleanupOrphanedMediaFiles(
   options?: {
     fileAdapter?: MediaCleanupFileAdapter;
     isPlaybackActive?: () => boolean;
+    accountId?: string;
   }
 ): Promise<MediaCleanupResult> {
   if (options?.isPlaybackActive?.()) {
@@ -52,6 +54,7 @@ export async function cleanupOrphanedMediaFiles(
   const orphanUris: string[] = [];
 
   for (const record of records) {
+    if (options?.accountId && !mediaUriAllowedForAccount(record.uri, options.accountId)) continue;
     const exists = await fileAdapter.fileExists(record.uri);
 
     if (record.isReferencedByActiveMedia) {
@@ -92,14 +95,20 @@ export async function cleanupUnreferencedManagedMediaFiles(
   options?: {
     storageAdapter?: ManagedMediaStorageAdapter;
     isPlaybackActive?: () => boolean;
+    accountId?: string;
   }
 ): Promise<ManagedMediaSweepResult> {
   if (options?.isPlaybackActive?.()) {
     return { deletedFileCount: 0, skipped: true };
   }
 
+  // A per-account DB cannot decide whether files from other namespaces are orphaned.
+  if (!options?.storageAdapter && !options?.accountId)
+    return { deletedFileCount: 0, skipped: true };
+
   try {
-    const storageAdapter = options?.storageAdapter ?? defaultManagedMediaStorageAdapter;
+    const storageAdapter =
+      options?.storageAdapter ?? managedMediaStorageForAccount(options!.accountId!);
     const [records, managedFileUris] = await Promise.all([
       repository.listMediaFilesForCleanup(),
       storageAdapter.listManagedFileUris()
@@ -112,7 +121,10 @@ export async function cleanupUnreferencedManagedMediaFiles(
     const orphanUris = [
       ...new Set(
         managedFileUris.filter(
-          (uri) => uri.startsWith("file://") && !referencedUris.has(normalizeFileUri(uri))
+          (uri) =>
+            uri.startsWith("file://") &&
+            (!options?.accountId || mediaUriAllowedForAccount(uri, options.accountId)) &&
+            !referencedUris.has(normalizeFileUri(uri))
         )
       )
     ];
@@ -143,45 +155,24 @@ const defaultFileAdapter: MediaCleanupFileAdapter = {
   }
 };
 
-const defaultManagedMediaStorageAdapter: ManagedMediaStorageAdapter = {
-  async listManagedFileUris() {
-    const roots = getManagedMediaRoots();
-    const files: string[] = [];
+function managedMediaStorageForAccount(accountId: string): ManagedMediaStorageAdapter {
+  return {
+    async listManagedFileUris() {
+      const roots = FileSystem.documentDirectory
+        ? [accountMediaDirectory(FileSystem.documentDirectory, accountId)]
+        : [];
+      const files: string[] = [];
 
-    for (const root of roots) {
-      files.push(...(await listFilesRecursively(root)));
+      for (const root of roots) {
+        files.push(...(await listFilesRecursively(root)));
+      }
+
+      return files;
+    },
+    async deleteFiles(uris) {
+      await cleanupMediaFiles(uris);
     }
-
-    return files;
-  },
-  async deleteFiles(uris) {
-    await cleanupMediaFiles(uris);
-  }
-};
-
-function getManagedMediaRoots(): string[] {
-  const documentRoot = FileSystem.documentDirectory;
-  const cacheRoot = FileSystem.cacheDirectory;
-  const roots: string[] = [];
-
-  if (documentRoot) {
-    roots.push(
-      `${documentRoot}media/images/custom/`,
-      `${documentRoot}media/images/generated/`,
-      `${documentRoot}media/videos/custom/`,
-      `${documentRoot}media/videos/generated/`,
-      `${documentRoot}media/audio/custom/`,
-      `${documentRoot}media/audio/generated/`,
-      `${documentRoot}media/thumbnails/`,
-      `${documentRoot}media/restores/`
-    );
-  }
-
-  if (cacheRoot) {
-    roots.push(`${cacheRoot}kidedu/imports/`, `${cacheRoot}kidedu/backups/`);
-  }
-
-  return roots;
+  };
 }
 
 async function listFilesRecursively(directoryUri: string): Promise<string[]> {

@@ -150,9 +150,10 @@ describe("mediaImportService", () => {
       idempotent: true
     });
 
-    const saved = await mediaImportService.commitStagedMediaToAppStorage(staged);
+    const accountId = "10000000-0000-4000-8000-000000000010";
+    const saved = await mediaImportService.commitStagedMediaToAppStorage(staged, accountId);
 
-    expect(saved.uri).toMatch(/^file:\/\/\/documents\/media\/audio\/custom\//);
+    expect(saved.uri).toContain(`file:///documents/media/accounts/${accountId}/audio/`);
     expect(FileSystem.copyAsync).toHaveBeenNthCalledWith(2, {
       from: staged.uri,
       to: saved.uri

@@ -6,6 +6,8 @@ import {
   resolveBundledDefaultMediaUri
 } from "@/features/media/bundledMediaAssetResolver";
 import { getWebMediaObjectUrl, isWebMediaUri } from "@/features/media/webMediaStore";
+import { useMediaAccountId } from "./MediaAccountBoundary";
+import { mediaUriAllowedForAccount } from "./accountMediaScope";
 
 export type DisplayMediaResolutionStatus = "ready" | "resolving" | "unavailable";
 
@@ -19,6 +21,9 @@ interface DisplayMediaResolutionState extends DisplayMediaResolution {
 }
 
 export function useDisplayMedia(uri: string | null): DisplayMediaResolution {
+  const accountId = useMediaAccountId();
+  const permitted = mediaUriAllowedForAccount(uri, accountId);
+  uri = permitted ? uri : null;
   const [resolved, setResolved] = useState<DisplayMediaResolutionState>(() =>
     getImmediateDisplayMediaResolution(uri)
   );

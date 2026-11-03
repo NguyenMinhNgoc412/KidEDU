@@ -55,6 +55,43 @@ Trạng thái hợp lệ:
 
 ## 5. Cấu trúc tài liệu hiện tại
 
+Owner input: [Thông tin cần bổ sung](./delivery/07-owner-input-checklist.md).
+Review: [Đối chiếu SOT và UI ngày 2026-10-12](./delivery/08-sot-ui-review-2026-10-12.md).
+Local expiry fix: [C10 — Local entitlement expiry timer](./delivery/tasks/C10-local-entitlement-expiry-timer.md).
+
+Review fixes: [C11 — Child safety/UI](./delivery/tasks/C11-child-safety-ui-fixes.md), [C12 — Auth refresh](./delivery/tasks/C12-auth-refresh-lifecycle.md), [C13 — Android local build](./delivery/tasks/C13-local-android-build.md), [C14 — Today/production containment](./delivery/tasks/C14-today-plan-production-containment.md).
+
+Continued review handling: [C15 — Prepared lesson/local observation slice](./delivery/tasks/C15-prepared-lesson-local-observation-slice.md), [C16 — Account media storage boundary](./delivery/tasks/C16-account-media-storage-boundary.md).
+
+Mobile SDK upgrade: [C20 — Expo SDK 58](./delivery/tasks/C20-expo-sdk-58.md); baseline trước: [C17 — Expo SDK 57](./delivery/tasks/C17-expo-sdk-57.md).
+
+Device login setup: [C18 — Expo Go LAN login](./delivery/tasks/C18-expo-go-lan-login.md).
+
+Login recovery: [C21 — Request timeout and local connectivity](./delivery/tasks/C21-login-request-timeout.md).
+
+Animated illustration review: [C22 — Semantic illustration candidates](./delivery/tasks/C22-semantic-illustration-candidates.md).
+
+Learning illustration integration: [C23 — Animated illustrations in the learning player](./delivery/tasks/C23-learning-illustration-runtime.md).
+
+Integrated learning interface: [C24 — Guided learning UI](./delivery/tasks/C24-integrated-learning-ui.md).
+
+Parent lesson selection: [C25 — Choose a sample lesson](./delivery/tasks/C25-parent-lesson-selection.md).
+
+Platform test audit: [Android/iOS results](./delivery/09-android-ios-test-audit-2026-10-12.md), [C19](./delivery/tasks/C19-android-ios-test-audit.md).
+
+Backend foundation/CI slice: [A02 — Backend skeleton and CI gate](./delivery/tasks/A02-backend-skeleton-ci.md).
+Identity data slice: [A03 — Identity and family data baseline](./delivery/tasks/A03-identity-data-baseline.md).
+Identity API slice: [A04 — Verified identity and first family API](./delivery/tasks/A04-identity-family-api.md).
+Local plan/observation API slice: [C04 — Local plan and observation API](./delivery/tasks/C04-local-plan-observation-api.md).
+Local entitlement read slice: [C02 — Local entitlement projection and read API](./delivery/tasks/C02-local-entitlement-projection.md).
+Local object storage adapter: [C05 — Local object storage adapter](./delivery/tasks/C05-local-object-storage-adapter.md).
+Local parent login: [C06 — Parent login from app start](./delivery/tasks/C06-local-parent-login.md).
+Account isolation and local learning gate: [C07 — Account isolation and local learning gate](./delivery/tasks/C07-account-isolation-learning-guard.md).
+Testable v2 frontend slice: [C08 — Testable v2 frontend slice](./delivery/tasks/C08-testable-v2-frontend.md).
+Local full-access test account: [C09 — Local full-access test account](./delivery/tasks/C09-local-full-access-fixture.md).
+Frontend/API contract probe: [A05 — Local frontend/API contract probe](./delivery/tasks/A05-local-frontend-api-contract.md).
+Local API run instructions: [apps/api/README.md](../apps/api/README.md).
+
 ```text
 docs-v2/
 ├─ README.md
@@ -95,7 +132,14 @@ docs-v2/
 │  ├─ 02-test-strategy.md
 │  ├─ 03-release-checklist.md
 │  ├─ 04-task-breakdown.md
-│  └─ 05-cost-model.md
+│  ├─ 05-cost-model.md
+│  ├─ 06-phase-0-proof-register.md
+│  └─ tasks/
+│     ├─ B01-target-contract.md
+│     ├─ B01-activity-contract.md
+│     ├─ B01-lesson-contract.md
+│     ├─ B01-graph-validation.md
+│     └─ P0-11-critical-flow-prototype.md
 ├─ decisions/
 │  ├─ ADR-0001-server-authoritative-local-runtime.md
 │  ├─ ADR-0002-docker-app-server.md

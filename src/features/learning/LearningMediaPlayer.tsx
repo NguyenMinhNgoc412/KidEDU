@@ -1,6 +1,7 @@
 import { useEventListener } from "expo";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useVideoPlayer, VideoView } from "expo-video";
+import { useFocusEffect } from "expo-router";
 import { Play, Volume2 } from "lucide-react-native";
 import type { ReactNode } from "react";
 import {
@@ -12,12 +13,14 @@ import {
   useRef,
   useState
 } from "react";
-import { Animated, AppState, Pressable, StyleSheet, View } from "react-native";
+import { AppState, Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
 import { MediaContainer } from "@/components/MediaContainer";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import type { LearningItemMedia, PlaybackSpeed } from "@/data/types";
+import { resolveIllustrationAnimation } from "@/data/illustrationAnimations";
+import { SemanticIllustration } from "./SemanticIllustration";
 import type { ActiveLearningMediaRole } from "@/features/learning/learningMediaStage";
 import {
   mediaResolveTimeoutMs,
@@ -40,6 +43,7 @@ interface MouthVideoPlayerHandle {
 export type LearningSampleCompletion = "played" | "unavailable";
 
 export function LearningMediaPlayer({
+  learningItemId,
   illustration,
   mouthVideo,
   pronunciationAudio,
@@ -50,6 +54,7 @@ export function LearningMediaPlayer({
   paused = false,
   playbackSpeed = 1
 }: {
+  learningItemId?: string;
   illustration?: LearningItemMedia;
   mouthVideo?: LearningItemMedia;
   pronunciationAudio?: LearningItemMedia;
@@ -69,6 +74,15 @@ export function LearningMediaPlayer({
   const [feedback, setFeedback] = useState<string | null>(null);
   const [audioPlaybackAttempt, setAudioPlaybackAttempt] = useState(0);
   const [isLocallyPaused, setIsLocallyPaused] = useState(false);
+  const [isScreenFocused, setIsScreenFocused] = useState(true);
+  const [mouthPlaybackBusy, setMouthPlaybackBusy] = useState(false);
+  const animation = resolveIllustrationAnimation(
+    illustration?.learningItemId ?? learningItemId,
+    illustration
+  );
+  const illustrationIdentity = `${animation?.itemId ?? "none"}:${autoPlayKey ?? "manual"}`;
+  const [completedIllustration, setCompletedIllustration] = useState<string | null>(null);
+  const illustrationSettled = !animation || completedIllustration === illustrationIdentity;
   const [mediaPreparationTimeoutKey, setMediaPreparationTimeoutKey] = useState<string | null>(null);
   const [videoPlayRequest, setVideoPlayRequest] = useState<{
     scope: string | null;
@@ -81,7 +95,7 @@ export function LearningMediaPlayer({
   const audioPlaybackRequestRef = useRef(0);
   const audioStartedRequestRef = useRef<number | null>(null);
   const shouldPlayFollowUpAudioRef = useRef(false);
-  const playbackPaused = paused || isLocallyPaused;
+  const playbackPaused = paused || isLocallyPaused || !isScreenFocused;
   const wasPausedRef = useRef(playbackPaused);
 
   const playableVideoUri = isPlayableMediaUri(videoResolution.uri) ? videoResolution.uri : null;
@@ -131,7 +145,13 @@ export function LearningMediaPlayer({
     [autoPlayKey, onAutoPlaySampleEnd, playbackPaused]
   );
 
+  const completeIllustration = useCallback(() => {
+    setCompletedIllustration(illustrationIdentity);
+    if (!hasLogicalSampleMedia) completeAutoPlaySample();
+  }, [illustrationIdentity, hasLogicalSampleMedia, completeAutoPlaySample]);
+
   const pauseAll = useCallback(() => {
+    setMouthPlaybackBusy(false);
     audioPlaybackRequestRef.current += 1;
     audioStartedRequestRef.current = null;
     shouldPlayFollowUpAudioRef.current = false;
@@ -140,6 +160,15 @@ export function LearningMediaPlayer({
   }, [audioPlayer]);
   const pauseAllRef = useRef(pauseAll);
   pauseAllRef.current = pauseAll;
+  useFocusEffect(
+    useCallback(() => {
+      setIsScreenFocused(true);
+      return () => {
+        pauseAllRef.current();
+        setIsScreenFocused(false);
+      };
+    }, [])
+  );
   const requestResume = useCallback(() => {
     setIsLocallyPaused(false);
     onRequestResume?.();
@@ -148,6 +177,7 @@ export function LearningMediaPlayer({
     if (!videoPlaybackScope) {
       return;
     }
+    setMouthPlaybackBusy(true);
 
     setVideoPlayRequest((current) => ({
       scope: videoPlaybackScope,
@@ -195,6 +225,9 @@ export function LearningMediaPlayer({
         return;
       }
 
+      setCompletedIllustration(illustrationIdentity);
+      lastAutoPlayKeyRef.current = mediaPlaybackIdentity;
+
       if (!playableAudioUri) {
         setActiveRole("pronunciation_audio");
         setFeedback("Chưa có âm phát âm để phát.");
@@ -216,7 +249,15 @@ export function LearningMediaPlayer({
         () => audioPlaybackRequestRef.current === playbackRequest
       );
     },
-    [audioPlayer, autoPlayKey, playbackPaused, playableAudioUri, requestResume]
+    [
+      audioPlayer,
+      autoPlayKey,
+      playbackPaused,
+      playableAudioUri,
+      requestResume,
+      illustrationIdentity,
+      mediaPlaybackIdentity
+    ]
   );
 
   const playMouthVideo = useCallback(() => {
@@ -226,6 +267,9 @@ export function LearningMediaPlayer({
       requestResume();
       return;
     }
+
+    setCompletedIllustration(illustrationIdentity);
+    lastAutoPlayKeyRef.current = mediaPlaybackIdentity;
 
     if (!playableVideoUri) {
       setActiveRole("mouth_video");
@@ -237,7 +281,15 @@ export function LearningMediaPlayer({
     setActiveRole("mouth_video");
     setFeedback(null);
     requestMouthVideoPlayback();
-  }, [audioPlayer, playbackPaused, playableVideoUri, requestMouthVideoPlayback, requestResume]);
+  }, [
+    audioPlayer,
+    playbackPaused,
+    playableVideoUri,
+    requestMouthVideoPlayback,
+    requestResume,
+    illustrationIdentity,
+    mediaPlaybackIdentity
+  ]);
 
   const playQueuedFollowUpAudio = useCallback(() => {
     if (!shouldPlayFollowUpAudioRef.current || !playableAudioUri || playbackPaused) {
@@ -248,6 +300,7 @@ export function LearningMediaPlayer({
   }, [playbackPaused, playableAudioUri, playAudio]);
 
   const handleMouthVideoEnd = useCallback(() => {
+    setMouthPlaybackBusy(false);
     if (shouldPlayFollowUpAudioRef.current && playableAudioUri) {
       playQueuedFollowUpAudio();
       return;
@@ -263,6 +316,7 @@ export function LearningMediaPlayer({
   }, []);
 
   const handleMouthVideoError = useCallback(() => {
+    setMouthPlaybackBusy(false);
     safelyPausePlayer(mouthVideoPlayerRef.current);
 
     if (shouldPlayFollowUpAudioRef.current && playableAudioUri) {
@@ -402,7 +456,13 @@ export function LearningMediaPlayer({
   }, []);
 
   useEffect(() => {
-    if (!autoPlayKey || playbackPaused || !isSampleMediaReady || !hasPlayableSampleMedia) {
+    if (
+      !autoPlayKey ||
+      playbackPaused ||
+      !illustrationSettled ||
+      !isSampleMediaReady ||
+      !hasPlayableSampleMedia
+    ) {
       return;
     }
 
@@ -414,6 +474,7 @@ export function LearningMediaPlayer({
     playSample();
   }, [
     autoPlayKey,
+    illustrationSettled,
     hasPlayableSampleMedia,
     isSampleMediaReady,
     mediaPlaybackIdentity,
@@ -421,16 +482,41 @@ export function LearningMediaPlayer({
     playSample
   ]);
 
+  useEffect(() => {
+    if (animation && illustrationSettled && !hasLogicalSampleMedia) completeAutoPlaySample();
+  }, [animation, illustrationSettled, hasLogicalSampleMedia, completeAutoPlaySample]);
+
   return (
     <View style={styles.container}>
       <View style={styles.illustrationSection}>
-        <InteractiveIllustrationSlot
-          illustration={illustration}
-          illustrationUri={playableIllustrationVideoUri}
-          isVideo={Boolean(playableIllustrationVideoUri)}
-          onPress={() => playAudio()}
-          paused={playbackPaused}
-        />
+        {animation ? (
+          <SemanticIllustration
+            key={illustrationIdentity}
+            animation={animation}
+            paused={playbackPaused || illustrationSettled}
+            disabled={
+              playbackPaused ||
+              (illustrationSettled && Boolean(audioStatus.playing || mouthPlaybackBusy))
+            }
+            onComplete={completeIllustration}
+            onReplay={() => setCompletedIllustration(null)}
+            fallback={
+              <MediaPlaceholder
+                media={illustration}
+                role="illustration"
+                style={styles.illustrationMedia}
+              />
+            }
+          />
+        ) : (
+          <InteractiveIllustrationSlot
+            illustration={illustration}
+            illustrationUri={playableIllustrationVideoUri}
+            isVideo={Boolean(playableIllustrationVideoUri)}
+            onPress={() => playAudio()}
+            paused={playbackPaused}
+          />
+        )}
       </View>
 
       <View style={styles.mediaSection}>
@@ -966,34 +1052,14 @@ function InteractiveIllustrationSlot({
   paused: boolean;
   onPress?: () => void;
 }) {
-  const bounceAnim = useRef(new Animated.Value(1)).current;
-
   const handlePress = () => {
-    Animated.sequence([
-      Animated.timing(bounceAnim, {
-        toValue: 0.94,
-        duration: 90,
-        useNativeDriver: true
-      }),
-      Animated.spring(bounceAnim, {
-        toValue: 1,
-        friction: 4,
-        tension: 50,
-        useNativeDriver: true
-      })
-    ]).start();
-
     onPress?.();
   };
 
   return (
-    <Animated.View style={{ transform: [{ scale: bounceAnim }] }}>
+    <View>
       {isVideo && illustrationUri ? (
-        <IllustrationVideoPlayer
-          onPress={handlePress}
-          paused={paused}
-          uri={illustrationUri}
-        />
+        <IllustrationVideoPlayer onPress={handlePress} paused={paused} uri={illustrationUri} />
       ) : (
         <Pressable
           accessibilityLabel="Chạm để nghe âm thanh"
@@ -1008,7 +1074,7 @@ function InteractiveIllustrationSlot({
           />
         </Pressable>
       )}
-    </Animated.View>
+    </View>
   );
 }
 
@@ -1036,10 +1102,10 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     aspectRatio: 1,
     borderRadius: radii.xl,
-    height: 130,
+    height: 156,
     minHeight: 0,
     padding: spacing[8],
-    width: 130
+    width: 156
   },
   illustrationVideoFrame: {
     alignItems: "center",
@@ -1050,7 +1116,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.xl,
     borderWidth: 1,
     elevation: 2,
-    height: 130,
+    height: 156,
     justifyContent: "center",
     minHeight: 0,
     overflow: "hidden",
@@ -1058,7 +1124,7 @@ const styles = StyleSheet.create({
     shadowOffset: { height: 4, width: 0 },
     shadowOpacity: 0.08,
     shadowRadius: 10,
-    width: 130
+    width: 156
   },
   videoPressable: {
     alignSelf: "stretch",
@@ -1106,7 +1172,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing[8],
     justifyContent: "center",
-    minHeight: 54,
+    minHeight: 56,
     paddingHorizontal: spacing[12],
     shadowColor: colors.primaryDark,
     shadowOffset: { height: 3, width: 0 },

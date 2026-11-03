@@ -17,7 +17,7 @@ describe("learning settings mapping", () => {
   it("maps loop count back to the matching loop mode", () => {
     expect(getLoopModeForCount(1)).toBe("once");
     expect(getLoopModeForCount(3)).toBe("three_times");
-    expect(getLoopModeForCount(null)).toBe("continuous");
+    expect(getLoopModeForCount(null)).toBe("once");
   });
 
   it("uses defaults only when canonical values are missing or invalid", () => {
@@ -25,7 +25,7 @@ describe("learning settings mapping", () => {
     expect(normalizePlaybackSpeed("0.85", "normal")).toBe(0.85);
     expect(normalizePlaybackSpeed("2", "normal")).toBe(1);
     expect(normalizeLoopCount(undefined, "three_times")).toBe(3);
-    expect(normalizeLoopCount("null", "once")).toBeNull();
+    expect(normalizeLoopCount("null", "once")).toBe(1);
     expect(normalizeLoopCount("7", "once")).toBe(1);
   });
 

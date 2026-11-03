@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useKidEduRepository } from "@/data/KidEduDataProvider";
 import { queryKeys } from "@/data/queries";
 import type { MediaRole } from "@/data/types";
+import { useEffect, useRef } from "react";
+import { useMediaAccountId } from "./MediaAccountBoundary";
 
 import {
   cleanupMediaFiles,
@@ -13,13 +15,23 @@ import {
 export function useSaveStagedMediaMutation(learningItemId: string) {
   const repository = useKidEduRepository();
   const queryClient = useQueryClient();
+  const accountId = useMediaAccountId();
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   return useMutation({
     mutationFn: async (staged: StagedMediaImport) => {
       let savedMedia: Awaited<ReturnType<typeof commitStagedMediaToAppStorage>> | null = null;
 
       try {
-        savedMedia = await commitStagedMediaToAppStorage(staged);
+        if (!accountId || !mounted.current) throw new Error("MEDIA_ACCOUNT_REQUIRED");
+        savedMedia = await commitStagedMediaToAppStorage(staged, accountId);
+        if (!mounted.current) throw new Error("MEDIA_ACCOUNT_CLOSED");
         const replacedUris = await repository.upsertCustomMediaForItem({
           learningItemId,
           role: staged.role,

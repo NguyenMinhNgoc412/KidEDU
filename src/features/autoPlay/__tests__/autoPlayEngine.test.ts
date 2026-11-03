@@ -151,11 +151,11 @@ describe("autoPlayEngine", () => {
     expect(replayed.replayNonce).toBe(1);
   });
 
-  it("uses null loop limit for continuous play", () => {
-    expect(getLoopLimit("continuous")).toBeNull();
+  it("bounds legacy continuous play to one loop", () => {
+    expect(getLoopLimit("continuous")).toBe(1);
   });
 
-  it("keeps canonical null loop count as continuous play", () => {
+  it("finishes a legacy null loop count after one loop", () => {
     const settings: LearningSettings = {
       ...baseSettings,
       loopMode: "once",
@@ -168,8 +168,8 @@ describe("autoPlayEngine", () => {
       state = advanceAutoPlayState(state, settings, 1);
     }
 
-    expect(state.phase).not.toBe("completed");
-    expect(state.loopIndex).toBe(2);
+    expect(state.phase).toBe("completed");
+    expect(state.loopIndex).toBe(0);
   });
 
   it("keeps child speaking and card handoff timings fixed across speed presets", () => {
@@ -263,7 +263,7 @@ describe("autoPlayEngine", () => {
         { ...baseSettings, loopMode: "continuous", loopCount: null },
         2
       )
-    ).toBe(0);
+    ).toBeNull();
   });
 });
 

@@ -1,0 +1,16 @@
+node_modules
+**/node_modules
+.git
+.github
+.expo
+dist
+**/dist
+apps/api/generated
+coverage
+.env*
+!.env.example
+docs
+docs-v2
+screenshots
+assets
+content-candidates

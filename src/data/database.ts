@@ -9,19 +9,49 @@ export type KidEduDatabase = SQLite.SQLiteDatabase;
 export { seedKidEduDatabaseInTransaction } from "./seedDatabase";
 export type { SeedKidEduDatabaseOptions } from "./seedDatabase";
 
-let openDatabasePromise: Promise<KidEduDatabase> | null = null;
+const accountDatabases = new Map<string, Promise<KidEduDatabase>>();
+const closingDatabases = new Map<string, Promise<void>>();
 
-export function openKidEduDatabase(): Promise<KidEduDatabase> {
-  openDatabasePromise ??= initializeKidEduDatabase().catch((error: unknown) => {
-    openDatabasePromise = null;
+export function openKidEduDatabase(accountId: string): Promise<KidEduDatabase> {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(accountId)) {
+    throw new Error("Invalid account namespace");
+  }
+  const existing = accountDatabases.get(accountId);
+  if (existing) return existing;
+  const pending = (async () => {
+    await closingDatabases.get(accountId);
+    return initializeKidEduDatabase(accountId);
+  })().catch((error: unknown) => {
+    if (accountDatabases.get(accountId) === pending) accountDatabases.delete(accountId);
     throw error;
   });
-
-  return openDatabasePromise;
+  accountDatabases.set(accountId, pending);
+  return pending;
 }
 
-async function initializeKidEduDatabase(): Promise<KidEduDatabase> {
-  const db = await SQLite.openDatabaseAsync("kidedu.db");
+export async function closeKidEduDatabase(accountId: string): Promise<void> {
+  const pending = accountDatabases.get(accountId);
+  if (!pending) return closingDatabases.get(accountId);
+  accountDatabases.delete(accountId);
+  const closing = (async () => {
+    try {
+      const db = await pending;
+      await db.closeAsync();
+    } catch {
+      // Opening may already have failed; the namespace is still released.
+    }
+  })();
+  closingDatabases.set(accountId, closing);
+  try {
+    await closing;
+  } finally {
+    if (closingDatabases.get(accountId) === closing) closingDatabases.delete(accountId);
+  }
+}
+
+async function initializeKidEduDatabase(accountId: string): Promise<KidEduDatabase> {
+  // Keep the pre-account legacy database quarantined; it has no trustworthy owner.
+  const db = await SQLite.openDatabaseAsync(`kidedu-${accountId.toLowerCase()}.db`);
   await configureKidEduDatabase(db);
   await migrateKidEduDatabase(db);
   await seedKidEduDatabase(db);

@@ -54,9 +54,11 @@ import {
   useSaveStagedMediaMutation
 } from "./useMediaPersonalization";
 import { useDisplayMediaUri } from "./useDisplayMediaUri";
+import { useMediaAccountId } from "./MediaAccountBoundary";
 
 export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
   const repository = useKidEduRepository();
+  const accountId = useMediaAccountId();
   const resolved = resolveLearningItemMedia(item);
   const saveMediaMutation = useSaveStagedMediaMutation(item.id);
   const deleteMediaMutation = useDeleteCustomMediaMutation(item.id);
@@ -78,9 +80,10 @@ export function PersonalizedMediaSection({ item }: { item: LearningItem }) {
       void cleanupTempMediaImports();
     }
     void cleanupOrphanedMediaFiles(repository, {
-      isPlaybackActive: isLearningSessionActive
+      isPlaybackActive: isLearningSessionActive,
+      accountId: accountId ?? undefined
     });
-  }, [repository]);
+  }, [repository, accountId]);
 
   useEffect(() => {
     isMountedRef.current = true;

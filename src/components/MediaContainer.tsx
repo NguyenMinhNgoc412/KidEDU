@@ -1,4 +1,4 @@
-import { Image, type ImageContentFit } from "expo-image";
+import { Image, type ImageContentFit, type ImageProps } from "expo-image";
 import type { ReactNode } from "react";
 import { StyleSheet, View, type ViewProps } from "react-native";
 
@@ -9,6 +9,7 @@ type MediaContainerSize = "compact" | "default" | "large";
 export function MediaContainer({
   children,
   uri,
+  source,
   size = "default",
   contentFit = "cover",
   style,
@@ -16,17 +17,18 @@ export function MediaContainer({
 }: ViewProps & {
   children?: ReactNode;
   uri?: string;
+  source?: ImageProps["source"];
   size?: MediaContainerSize;
   contentFit?: ImageContentFit;
 }) {
   const frameStyle = [styles.frame, sizeStyles[size], style];
 
-  if (uri) {
+  if (uri || source) {
     return (
       <Image
         cachePolicy="memory-disk"
         contentFit={contentFit}
-        source={{ uri }}
+        source={source ?? { uri }}
         style={frameStyle}
       />
     );

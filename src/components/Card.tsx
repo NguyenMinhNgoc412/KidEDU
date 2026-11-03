@@ -52,7 +52,7 @@ export function PressableCard({
         variantStyles[variant],
         paddingStyles[padding],
         typeof style === "function" ? style({ pressed }) : style,
-        pressed ? pressedStyle ?? styles.pressed : null
+        pressed ? (pressedStyle ?? styles.pressed) : null
       ]}
     >
       {children}
@@ -72,8 +72,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12
   },
   pressed: {
-    opacity: 0.9,
-    transform: [{ scale: 0.975 }, { translateY: 1 }]
+    opacity: 0.9
   }
 });
 

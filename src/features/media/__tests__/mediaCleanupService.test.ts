@@ -50,6 +50,30 @@ describe("cleanupOrphanedMediaFiles", () => {
 });
 
 describe("cleanupUnreferencedManagedMediaFiles", () => {
+  it("does not sweep global media from an account-specific database", async () => {
+    const repository = { listMediaFilesForCleanup: jest.fn() } as unknown as KidEduRepository;
+    await expect(cleanupUnreferencedManagedMediaFiles(repository)).resolves.toEqual({
+      deletedFileCount: 0,
+      skipped: true
+    });
+    expect(repository.listMediaFilesForCleanup).not.toHaveBeenCalled();
+  });
+
+  it("preserves other account files even if a storage adapter lists them", async () => {
+    const first = "10000000-0000-4000-8000-000000000010";
+    const second = "20000000-0000-4000-8000-000000000010";
+    const own = `file:///documents/media/accounts/${first}/audio/old.m4a`;
+    const foreign = `file:///documents/media/accounts/${second}/audio/voice.m4a`;
+    const repository = {
+      listMediaFilesForCleanup: jest.fn(async () => [])
+    } as unknown as KidEduRepository;
+    const deleteFiles = jest.fn(async () => undefined);
+    await cleanupUnreferencedManagedMediaFiles(repository, {
+      accountId: first,
+      storageAdapter: { listManagedFileUris: async () => [own, foreign], deleteFiles }
+    });
+    expect(deleteFiles).toHaveBeenCalledWith([own]);
+  });
   it("deletes only app-owned files that no active DB media references", async () => {
     const records: MediaFileCleanupRecord[] = [
       makeRecord("active-photo", "file:///media/images/custom/photo.jpg", true),

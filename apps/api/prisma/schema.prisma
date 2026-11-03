@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_POOL_URL")
+  directUrl = env("DATABASE_MIGRATION_URL")
+}
+
+enum FamilyRole {
+  owner
+  caregiver
+}
+
+enum EntitlementState {
+  trial_active
+  active
+  grace_period
+  billing_retry
+  canceled_active
+  expired
+  refunded
+  revoked
+  account_hold
+}
+
+model Account {
+  id          String                    @id @default(uuid()) @db.Uuid
+  createdAt   DateTime                  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt   DateTime?                 @map("deleted_at") @db.Timestamptz(3)
+  identities  AuthIdentity[]
+  memberships FamilyMember[]
+  consents    ConsentRecord[]
+  entitlement Entitlement?
+  corrections ObservationSupersession[]
+
+  @@map("accounts")
+}
+
+model Entitlement {
+  accountId                String           @id @map("account_id") @db.Uuid
+  state                    EntitlementState
+  effectiveUntil           DateTime?        @map("effective_until") @db.Timestamptz(3)
+  capabilities             String[]         @default([])
+  billingRetryAllowsAccess Boolean          @default(false) @map("billing_retry_allows_access")
+  source                   String           @db.VarChar(40)
+  version                  Int              @default(1)
+  updatedAt                DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+  account                  Account          @relation(fields: [accountId], references: [id], onDelete: Restrict)
+
+  @@index([state, effectiveUntil])
+  @@map("entitlements")
+}
+
+model AuthIdentity {
+  id        String   @id @default(uuid()) @db.Uuid
+  accountId String   @map("account_id") @db.Uuid
+  provider  String   @db.VarChar(40)
+  subject   String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, subject])
+  @@index([accountId])
+  @@map("auth_identities")
+}
+
+model Family {
+  id        String         @id @default(uuid()) @db.Uuid
+  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt DateTime?      @map("deleted_at") @db.Timestamptz(3)
+  members   FamilyMember[]
+  children  ChildProfile[]
+
+  @@map("families")
+}
+
+model FamilyMember {
+  id        String     @id @default(uuid()) @db.Uuid
+  familyId  String     @map("family_id") @db.Uuid
+  accountId String     @map("account_id") @db.Uuid
+  role      FamilyRole
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  family    Family     @relation(fields: [familyId], references: [id], onDelete: Restrict)
+  account   Account    @relation(fields: [accountId], references: [id], onDelete: Restrict)
+
+  @@unique([familyId, accountId])
+  @@index([accountId])
+  @@map("family_members")
+}
+
+model ConsentRecord {
+  id              String    @id @default(uuid()) @db.Uuid
+  accountId       String    @map("account_id") @db.Uuid
+  documentVersion String    @map("document_version") @db.VarChar(80)
+  scope           String    @db.VarChar(80)
+  grantedAt       DateTime  @default(now()) @map("granted_at") @db.Timestamptz(3)
+  revokedAt       DateTime? @map("revoked_at") @db.Timestamptz(3)
+  account         Account   @relation(fields: [accountId], references: [id], onDelete: Restrict)
+
+  @@index([accountId, scope, grantedAt])
+  @@map("consent_records")
+}
+
+model ChildProfile {
+  id           String        @id @default(uuid()) @db.Uuid
+  familyId     String        @map("family_id") @db.Uuid
+  displayName  String        @map("display_name") @db.VarChar(80)
+  birthYear    Int?          @map("birth_year") @db.SmallInt
+  birthMonth   Int?          @map("birth_month") @db.SmallInt
+  version      Int           @default(1)
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt    DateTime?     @map("deleted_at") @db.Timestamptz(3)
+  family       Family        @relation(fields: [familyId], references: [id], onDelete: Restrict)
+  plan         LearningPlan?
+  observations Observation[]
+
+  @@index([familyId, deletedAt])
+  @@map("child_profiles")
+}
+
+model LearningPlan {
+  childId   String       @id @map("child_id") @db.Uuid
+  revision  Int          @default(1)
+  document  Json
+  updatedAt DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  child     ChildProfile @relation(fields: [childId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@map("learning_plans")
+}
+
+model Observation {
+  id             String                   @id @default(uuid()) @db.Uuid
+  eventId        String                   @unique @map("event_id") @db.VarChar(100)
+  childId        String                   @map("child_id") @db.Uuid
+  goalId         String                   @map("goal_id") @db.VarChar(100)
+  targetId       String                   @map("target_id") @db.VarChar(100)
+  activityType   String                   @map("activity_type") @db.VarChar(40)
+  contentVersion Int                      @map("content_version")
+  result         String                   @db.VarChar(20)
+  promptLevel    Int?                     @map("prompt_level")
+  context        String                   @db.VarChar(20)
+  sessionId      String                   @map("session_id") @db.VarChar(100)
+  occurredAt     DateTime                 @map("occurred_at") @db.Timestamptz(3)
+  receivedAt     DateTime                 @default(now()) @map("received_at") @db.Timestamptz(3)
+  child          ChildProfile             @relation(fields: [childId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  supersededBy   ObservationSupersession? @relation("OriginalObservation")
+  supersedes     ObservationSupersession? @relation("ReplacementObservation")
+
+  @@index([childId, receivedAt, id])
+  @@map("observations")
+}
+
+model ObservationSupersession {
+  id                       String      @id @default(uuid()) @db.Uuid
+  originalObservationId    String      @unique @map("original_observation_id") @db.Uuid
+  replacementObservationId String      @unique @map("replacement_observation_id") @db.Uuid
+  accountId                String      @map("account_id") @db.Uuid
+  createdAt                DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  original                 Observation @relation("OriginalObservation", fields: [originalObservationId], references: [id], onDelete: Restrict)
+  replacement              Observation @relation("ReplacementObservation", fields: [replacementObservationId], references: [id], onDelete: Restrict)
+  account                  Account     @relation(fields: [accountId], references: [id], onDelete: Restrict)
+
+  @@index([accountId, createdAt])
+  @@map("observation_supersessions")
+}

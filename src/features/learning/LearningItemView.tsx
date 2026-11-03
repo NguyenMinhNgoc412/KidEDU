@@ -88,6 +88,7 @@ function ActiveLearningItemView({
       </View>
 
       <LearningMediaPlayer
+        learningItemId={item.id}
         key={`${item.id}:${sampleRequestCount}`}
         autoPlayKey={`${item.id}:${sampleRequestCount}`}
         illustration={resolved.byRole.illustration}

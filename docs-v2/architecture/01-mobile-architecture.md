@@ -5,7 +5,7 @@
 | Trạng thái | `In review`                                                          |
 | Owner      | Mobile                                                               |
 | Implements | `TA-ADR-002..010`, `TA-ADR-014..017`, `TA-ADR-021..024`, `PRD-NFR-*` |
-| Cập nhật   | 2026-09-08                                                           |
+| Cập nhật   | 2026-10-30                                                           |
 
 ## 1. Stack
 
@@ -14,6 +14,8 @@ React Native + Expo Development Build, TypeScript strict, Expo Router, TanStack 
 Supabase client trên mobile chỉ được dùng cho Auth session. Route/screen/repository không gọi Supabase Data API, Realtime hoặc Storage; application data luôn qua generated KidEDU API client để giữ authorization và khả năng migrate provider.
 
 Expo Go không phải target production. SDK/native dependencies được nâng cùng một compatibility matrix và runtime version.
+
+Theo yêu cầu trực tiếp của owner ngày 2026-10-30, baseline dependency hiện tại là Expo SDK 58 (`expo ~58.0.21`), React Native 0.88.1 và React 19.3.0. Expo modules, Router, Reanimated/Worklets và Jest dùng compatibility matrix của SDK 58. Đây là lựa chọn SDK cho implementation; native crypto/IAP và device/release proof vẫn cần hoàn thành riêng. Sau upgrade phải tạo lại native build từ source/config, không dùng binary SDK 57 với JavaScript SDK 58.
 
 EAS là build executor, không sở hữu product runtime. `app.config`, config plugins, native/prebuild policy, lockfile và build scripts phải version-control; Apple signing/App Store Connect account thuộc owner. Cùng source/config phải tái lập được trên local Mac hoặc macOS CI khác nếu rời EAS.
 

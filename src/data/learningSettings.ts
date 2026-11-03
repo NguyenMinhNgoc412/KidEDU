@@ -9,7 +9,8 @@ export const playbackSpeedsByPreset: Record<SpeedPreset, PlaybackSpeed> = {
 export const loopCountsByMode: Record<LoopMode, number | null> = {
   once: 1,
   three_times: 3,
-  continuous: null
+  // Retained for old backups; continuous playback now safely runs once.
+  continuous: 1
 };
 
 export const defaultLearningSettings: LearningSettings = {
@@ -30,23 +31,31 @@ export function normalizeSpeedPreset(value: string | null | undefined): SpeedPre
 }
 
 export function normalizeLoopMode(value: string | null | undefined): LoopMode {
-  if (value === "three_times" || value === "continuous") {
+  if (value === "three_times") {
     return value;
   }
 
   return "once";
 }
 
-export function normalizePlaybackSpeed(value: string | number | null | undefined, fallbackPreset: SpeedPreset): PlaybackSpeed {
+export function normalizePlaybackSpeed(
+  value: string | number | null | undefined,
+  fallbackPreset: SpeedPreset
+): PlaybackSpeed {
   const numericValue = typeof value === "number" ? value : Number(value);
-  const supportedSpeed = Object.values(playbackSpeedsByPreset).find((speed) => speed === numericValue);
+  const supportedSpeed = Object.values(playbackSpeedsByPreset).find(
+    (speed) => speed === numericValue
+  );
 
   return supportedSpeed ?? playbackSpeedsByPreset[fallbackPreset];
 }
 
-export function normalizeLoopCount(value: string | number | null | undefined, fallbackLoopMode: LoopMode): number | null {
+export function normalizeLoopCount(
+  value: string | number | null | undefined,
+  fallbackLoopMode: LoopMode
+): number | null {
   if (value === null || value === "null") {
-    return null;
+    return 1;
   }
 
   const numericValue = typeof value === "number" ? value : Number(value);
@@ -72,7 +81,7 @@ export function getSpeedPresetForPlaybackSpeed(playbackSpeed: PlaybackSpeed): Sp
 
 export function getLoopModeForCount(loopCount: number | null): LoopMode {
   if (loopCount === null) {
-    return "continuous";
+    return "once";
   }
 
   if (loopCount === 3) {

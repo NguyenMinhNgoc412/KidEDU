@@ -99,6 +99,7 @@ export default function ParentSettingsScreen() {
             <KidButton
               key={choice.value}
               label={choice.label}
+              selected={getSpeedPresetForPlaybackSpeed(draft.playbackSpeed) === choice.value}
               onPress={() => updateSpeedPreset(choice.value)}
               variant={
                 getSpeedPresetForPlaybackSpeed(draft.playbackSpeed) === choice.value
@@ -115,6 +116,7 @@ export default function ParentSettingsScreen() {
             <KidButton
               key={choice.value}
               label={choice.label}
+              selected={getLoopModeForCount(draft.loopCount) === choice.value}
               onPress={() => updateLoopMode(choice.value)}
               variant={getLoopModeForCount(draft.loopCount) === choice.value ? "primary" : "plain"}
             />
@@ -125,11 +127,13 @@ export default function ParentSettingsScreen() {
         <View style={styles.choiceWrap}>
           <KidButton
             label={draft.reinforcementEnabled ? "Khen: bật" : "Khen: tắt"}
+            selected={draft.reinforcementEnabled}
             onPress={() => updateDraft({ reinforcementEnabled: !draft.reinforcementEnabled })}
             variant={draft.reinforcementEnabled ? "primary" : "plain"}
           />
           <KidButton
             label={draft.sfxEnabled ? "Minh họa: bật" : "Minh họa: tắt"}
+            selected={draft.sfxEnabled}
             onPress={() => updateDraft({ sfxEnabled: !draft.sfxEnabled })}
             variant={draft.sfxEnabled ? "primary" : "plain"}
           />
@@ -171,8 +175,7 @@ const speedChoices: Array<{ label: string; value: SpeedPreset }> = [
 
 const loopChoices: Array<{ label: string; value: LoopMode }> = [
   { label: "1 vòng", value: "once" },
-  { label: "3 vòng", value: "three_times" },
-  { label: "Lặp liên tục", value: "continuous" }
+  { label: "3 vòng", value: "three_times" }
 ];
 
 const styles = StyleSheet.create({

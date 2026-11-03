@@ -12,6 +12,8 @@ import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AppProviders } from "@/providers/AppProviders";
+import { useAuth } from "@/features/auth/AuthProvider";
+import { useLearningAccess } from "@/features/entitlement/LearningAccessProvider";
 import { fontFamilies } from "@/theme";
 
 export default function RootLayout() {
@@ -30,8 +32,35 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppProviders>
         <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false }} />
+        <AuthenticatedStack />
       </AppProviders>
     </GestureHandlerRootView>
+  );
+}
+
+function AuthenticatedStack() {
+  const { ready, session } = useAuth();
+  const { status } = useLearningAccess();
+  if (!ready) return null;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={!session}>
+        <Stack.Screen name="login" />
+      </Stack.Protected>
+      <Stack.Protected guard={Boolean(session)}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="parent-gate" />
+        <Stack.Screen name="parent" />
+        <Stack.Screen name="prototype" />
+      </Stack.Protected>
+      <Stack.Protected guard={Boolean(session) && status === "allowed"}>
+        <Stack.Screen name="lesson-session" />
+        <Stack.Screen name="decks" />
+        <Stack.Screen name="category/[categoryId]" />
+        <Stack.Screen name="learning/[itemId]" />
+        <Stack.Screen name="autoplay/[deckId]" />
+        <Stack.Screen name="mini-test/[deckId]" />
+      </Stack.Protected>
+    </Stack>
   );
 }

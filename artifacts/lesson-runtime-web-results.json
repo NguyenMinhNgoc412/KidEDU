@@ -1,0 +1,32 @@
+{
+  "evidence": "Chromium + real Expo SQLite; API intercepted synthetic fixture, not backend/native proof",
+  "results": [
+    {
+      "width": 320,
+      "restoredFromSQLite": true,
+      "noActivityNetwork": true,
+      "observations": 2,
+      "duplicateRetryStable": true,
+      "parentHistory": true,
+      "pageErrors": []
+    },
+    {
+      "width": 390,
+      "restoredFromSQLite": true,
+      "noActivityNetwork": true,
+      "observations": 2,
+      "duplicateRetryStable": true,
+      "parentHistory": true,
+      "pageErrors": []
+    },
+    {
+      "width": 768,
+      "restoredFromSQLite": true,
+      "noActivityNetwork": true,
+      "observations": 2,
+      "duplicateRetryStable": true,
+      "parentHistory": true,
+      "pageErrors": []
+    }
+  ]
+}

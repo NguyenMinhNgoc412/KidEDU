@@ -16,7 +16,8 @@ export function KidButton({
   size = "md",
   fullWidth = false,
   disabled = false,
-  accessibilityLabel
+  accessibilityLabel,
+  selected
 }: {
   label: string;
   onPress?: () => void;
@@ -26,11 +27,13 @@ export function KidButton({
   fullWidth?: boolean;
   disabled?: boolean;
   accessibilityLabel?: string;
+  selected?: boolean;
 }) {
   return (
     <Pressable
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityRole="button"
+      accessibilityState={{ disabled, ...(selected === undefined ? {} : { selected }) }}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
@@ -47,7 +50,6 @@ export function KidButton({
         <AppText
           color={variant === "plain" ? "primary" : "onPrimary"}
           style={styles.label}
-          numberOfLines={2}
           variant="button"
         >
           {label}
@@ -88,8 +90,7 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   pressed: {
-    opacity: 0.92,
-    transform: [{ scale: 0.97 }, { translateY: 1 }]
+    opacity: 0.92
   },
   disabled: {
     opacity: 0.45
@@ -119,7 +120,7 @@ const variantStyles = StyleSheet.create({
     backgroundColor: colors.primary
   },
   secondary: {
-    backgroundColor: colors.coral
+    backgroundColor: colors.secondary
   },
   plain: {
     backgroundColor: colors.surfaceLowest,

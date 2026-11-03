@@ -2,7 +2,7 @@
 
 > **Documentation transition:** Code hiện tại vẫn là baseline card/deck local-first. Target product cho Store Release v1.0 nằm tại [`docs-v2/README.md`](./docs-v2/README.md), với Product Brief, PRD và Technical Architecture mới. Nội dung legacy bên dưới chỉ mô tả trạng thái code hiện tại, không được dùng để thay đổi requirement v2.
 
-> **Build transition:** Các lệnh EAS bên dưới mô tả code baseline hiện tại. Target v2 giữ Expo SDK miễn phí và dùng EAS Free chỉ để build/submit iOS do owner không có Mac; Android build local, không dùng EAS Update/OTA hoặc paid plan mặc định.
+> **Build baseline v2:** Giữ Expo SDK miễn phí; dùng EAS Free chỉ để build/submit iOS do owner không có Mac. Android build local bằng Gradle, không dùng EAS Update/OTA hoặc paid plan mặc định.
 
 KidEDU là ứng dụng di động hỗ trợ trẻ chậm nói luyện phát âm tại nhà. Ứng dụng ưu tiên trải nghiệm trực quan, ít thao tác và hoạt động local-first để trẻ vẫn có thể học khi không có kết nối mạng.
 
@@ -23,7 +23,7 @@ KidEDU là ứng dụng di động hỗ trợ trẻ chậm nói luyện phát â
 
 ## Công nghệ
 
-- React Native, Expo và TypeScript
+- React Native 0.88.1, Expo SDK 58 và TypeScript
 - Expo Router
 - SQLite và local file storage
 - Expo Video/Audio/Image cho nội dung học
@@ -31,7 +31,7 @@ KidEDU là ứng dụng di động hỗ trợ trẻ chậm nói luyện phát â
 
 ## Yêu cầu môi trường
 
-- Node.js bản LTS (khuyến nghị Node.js 20 trở lên)
+- Node.js 22.22 trở lên; CI dùng Node 22, test SQLite thật dùng module `node:sqlite` (môi trường local đã kiểm chứng: 22.22.0).
 - Corepack hoặc pnpm `10.14.0`
 - Android Studio + Android Emulator để chạy Android giả lập, hoặc điện thoại Android có Expo Go
 - Xcode + iOS Simulator để chạy iOS giả lập (chỉ có trên macOS), hoặc iPhone có Expo Go để chạy development
@@ -110,27 +110,29 @@ Cài EAS CLI và đăng nhập Expo một lần trên máy build:
 pnpm dlx eas-cli login
 ```
 
-### Android: APK nội bộ
+### Android: build local bằng Gradle
 
-Lệnh sau tạo bản preview dạng APK để tải về và cài trực tiếp lên điện thoại Android:
+Cần Java và Android SDK trên máy build. Không dùng EAS cho Android.
 
 ```bash
 pnpm build:android:preview
 ```
 
-Khi build hoàn tất, mở đường dẫn EAS được trả về, tải file APK về điện thoại, cho phép cài ứng dụng từ nguồn này nếu Android yêu cầu, rồi mở KidEDU.
+Script chạy Expo prebuild rồi Gradle `assembleDebug`; APK nằm tại
+`android/app/build/outputs/apk/debug/app-debug.apk`.
 
-Tạo bản production:
+Production yêu cầu bốn biến môi trường: `KIDEDU_ANDROID_KEYSTORE`
+(đường dẫn keystore), `KIDEDU_ANDROID_STORE_PASSWORD`,
+`KIDEDU_ANDROID_KEY_ALIAS`, `KIDEDU_ANDROID_KEY_PASSWORD`.
+Không commit keystore hoặc mật khẩu vào repository.
 
 ```bash
 pnpm build:android:production
 ```
 
-Gửi bản production lên Google Play (sau khi đã cấu hình thông tin phát hành trên EAS):
-
-```bash
-pnpm submit:android
-```
+AAB đã ký nằm tại `android/app/build/outputs/bundle/release/app-release.aab`.
+Upload AAB qua Google Play Console. Script dừng nếu thiếu cấu hình ký;
+kiểm tra cấu hình không thay thế build thật hoặc kiểm thử trên thiết bị.
 
 ### iOS: Simulator và TestFlight
 

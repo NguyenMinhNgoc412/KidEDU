@@ -29,6 +29,8 @@
 
 Gate bảo vệ purchase, account, external link, media/delete và Parent Zone. Không dùng câu toán gây loại trừ không cần thiết; ưu tiên hold gesture + instruction hoặc cơ chế store-compliant đã usability test. Gate không thay authentication cho thao tác server nhạy cảm.
 
+Implementation local C11 dùng hold 1,5 giây, hủy khi thả sớm/rời foreground và khóa gate khi app inactive/background. Đây là tham số implementation cần native usability QA, không là xác nhận store compliance hay quyết định TTL mới; xem [C11](../delivery/tasks/C11-child-safety-ui-fixes.md).
+
 ## 4. Child privacy/safety
 
 - Không quảng cáo, tracking hành vi để quảng cáo hoặc social sharing.

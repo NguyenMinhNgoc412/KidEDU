@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 import type { StyleProp, ViewStyle } from "react-native";
 
 import type { LearningItemMedia, MediaRole } from "@/data/types";
+import { getBundledDefaultMediaFile } from "@/data/defaultMediaRegistry";
 import { useDisplayMediaUri } from "@/features/media/useDisplayMediaUri";
 import { colors } from "@/theme";
 
@@ -24,16 +25,23 @@ export function MediaPlaceholder({
   compact?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
-  const displayUri = useDisplayMediaUri(media?.asset.thumbnailUri ?? media?.asset.uri ?? null);
+  const sourceUri = media?.asset.thumbnailUri ?? media?.asset.uri ?? null;
+  const bundledFile =
+    media?.asset.source === "default" ? getBundledDefaultMediaFile(sourceUri) : null;
+  const displayUri = useDisplayMediaUri(bundledFile ? null : sourceUri);
   const canRenderImage =
     (role === "illustration" || Boolean(media?.asset.thumbnailUri)) &&
-    displayUri &&
-    !displayUri.startsWith("seed://") &&
-    !displayUri.startsWith("data:");
+    (bundledFile ||
+      (displayUri && !displayUri.startsWith("seed://") && !displayUri.startsWith("data:")));
 
   if (canRenderImage) {
     return (
-      <MediaContainer size={getContainerSize({ large, compact })} style={style} uri={displayUri} />
+      <MediaContainer
+        size={getContainerSize({ large, compact })}
+        style={style}
+        uri={displayUri ?? undefined}
+        source={bundledFile?.module}
+      />
     );
   }
 

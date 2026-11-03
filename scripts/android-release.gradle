@@ -1,0 +1,16 @@
+// Signing stays in environment variables; never print credentials or check them into native code.
+gradle.beforeProject { project ->
+    if (project.path == ':app') {
+        project.plugins.withId('com.android.application') {
+            // Run after the generated DSL, before AGP freezes the variants.
+            project.extensions.getByName('androidComponents').finalizeDsl { android ->
+                def signing = android.signingConfigs.findByName('kideduRelease') ?: android.signingConfigs.create('kideduRelease')
+                signing.storeFile = new File(System.getenv('KIDEDU_ANDROID_KEYSTORE')).getAbsoluteFile()
+                signing.storePassword = System.getenv('KIDEDU_ANDROID_STORE_PASSWORD')
+                signing.keyAlias = System.getenv('KIDEDU_ANDROID_KEY_ALIAS')
+                signing.keyPassword = System.getenv('KIDEDU_ANDROID_KEY_PASSWORD')
+                android.buildTypes.getByName('release').signingConfig = signing
+            }
+        }
+    }
+}

@@ -7,6 +7,32 @@ interface WebMediaRecord {
   blob: Blob;
   createdAt: number;
   mimeType: string | null;
+  accountId?: string;
+}
+
+export async function assignWebMediaToAccount(uri: string, accountId: string): Promise<string> {
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(accountId) ||
+    !isWebMediaUri(uri)
+  )
+    throw new Error("INVALID_MEDIA_NAMESPACE");
+  const database = await openWebMediaDatabase();
+  try {
+    const record = await runStoreRequest<WebMediaRecord | undefined>(
+      database,
+      "readonly",
+      (store) => store.get(uri.slice(webMediaScheme.length))
+    );
+    if (!record || (record.accountId && record.accountId !== accountId.toLowerCase()))
+      throw new Error("MEDIA_NOT_OWNED");
+    const id = `${accountId.toLowerCase()}/web-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    await runStoreRequest(database, "readwrite", (store) =>
+      store.put({ ...record, id, accountId: accountId.toLowerCase() })
+    );
+    return `${webMediaScheme}${id}`;
+  } finally {
+    database.close();
+  }
 }
 
 export function isWebMediaUri(uri: string | null | undefined): uri is string {

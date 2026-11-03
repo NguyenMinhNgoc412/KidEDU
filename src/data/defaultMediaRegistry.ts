@@ -5,9 +5,7 @@ export const bundledDefaultMediaScheme = "bundle://default/";
 // This sound is a standalone bundled effect used by the review flow, not a
 // learning-item media mapping.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-export const bundledCelebrationSoundModule = require(
-  "../../assets/default-media/sounds/kidedu-congratulations.mp3"
-);
+export const bundledCelebrationSoundModule = require("../../assets/default-media/sounds/kidedu-congratulations.mp3");
 
 export type BundledAssetModule = number | string;
 
@@ -42,6 +40,28 @@ export interface BundledDefaultMediaDefinition {
 }
 
 export const bundledDefaultMedia: readonly BundledDefaultMediaDefinition[] = [
+  {
+    itemId: "item-ba",
+    role: "illustration",
+    type: "image",
+    asset: {
+      key: "item-ba-illustration-v2",
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      module: require("../../assets/default-media/item-ba/illustration-v2.jpg"),
+      mimeType: "image/jpeg"
+    }
+  },
+  {
+    itemId: "item-me",
+    role: "illustration",
+    type: "image",
+    asset: {
+      key: "item-me-illustration-v2",
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      module: require("../../assets/default-media/item-me/illustration-v2.jpg"),
+      mimeType: "image/jpeg"
+    }
+  },
   {
     itemId: "item-ba",
     role: "mouth_video",
@@ -508,6 +528,18 @@ export function getBundledDefaultMediaKey(uri: string): string | null {
   } catch {
     return null;
   }
+}
+
+/** Images can be handed directly to Expo Image without async URI downloading. */
+export function getBundledDefaultMediaFile(uri: string | null): BundledDefaultMediaFile | null {
+  if (!uri) return null;
+  const key = getBundledDefaultMediaKey(uri);
+  if (!key) return null;
+  for (const definition of bundledDefaultMedia) {
+    if (definition.asset.key === key) return definition.asset;
+    if (definition.thumbnail?.key === key) return definition.thumbnail;
+  }
+  return null;
 }
 
 export function buildBundledFileMap(

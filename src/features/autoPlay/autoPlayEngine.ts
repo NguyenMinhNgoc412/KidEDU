@@ -75,21 +75,21 @@ export function createInitialAutoPlayState(itemCount: number): AutoPlayState {
   };
 }
 
-export function getLoopLimit(loopMode: LoopMode): number | null {
+export function getLoopLimit(loopMode: LoopMode): number {
   if (loopMode === "continuous") {
-    return null;
+    return 1;
   }
 
   return loopMode === "three_times" ? 3 : 1;
 }
 
-export function getLoopLimitForSettings(settings: LearningSettings): number | null {
+export function getLoopLimitForSettings(settings: LearningSettings): number {
   if (settings.loopCount === null) {
-    return null;
+    return 1;
   }
 
   if (typeof settings.loopCount === "number") {
-    return settings.loopCount;
+    return settings.loopCount === 3 ? 3 : 1;
   }
 
   return getLoopLimit(settings.loopMode);
@@ -110,7 +110,7 @@ export function getNextAutoPlayItemIndex(
   }
 
   const loopLimit = getLoopLimitForSettings(settings);
-  return loopLimit === null || state.loopIndex + 1 < loopLimit ? 0 : null;
+  return state.loopIndex + 1 < loopLimit ? 0 : null;
 }
 
 export function getPhaseDurationMs(phase: AutoPlayPhase, preset: SpeedPreset): number | null {
@@ -177,7 +177,7 @@ function advanceToNextAutoPlayItem(
   const loopLimit = getLoopLimitForSettings(settings);
   const nextLoopIndex = state.loopIndex + 1;
 
-  if (loopLimit === null || nextLoopIndex < loopLimit) {
+  if (nextLoopIndex < loopLimit) {
     return { ...state, itemIndex: 0, loopIndex: nextLoopIndex, phase: "attention" };
   }
 

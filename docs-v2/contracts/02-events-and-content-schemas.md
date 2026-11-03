@@ -5,11 +5,13 @@
 | Trạng thái | `In review`                                                          |
 | Owner      | Mobile + Backend + Content Pipeline                                  |
 | Implements | `TA-ADR-005`, `TA-ADR-014`, `TA-ADR-024`, `PRD-CONT-*`, `PRD-PROG-*` |
-| Cập nhật   | 2026-09-08                                                           |
+| Cập nhật   | 2026-09-29                                                           |
 
 ## 1. Versioning
 
 Schemas viết bằng JSON Schema/Zod, có `$id`, `schemaVersion`, canonical fixtures và compatibility tests. Network event/content record không dùng TypeScript type riêng lẻ làm contract duy nhất.
+
+Owner giữ taxonomy contract v1 hiện tại và sẽ bổ sung sau nếu cần. `targetType` v1 gồm `person`, `object`, `action`, `attribute`, `phrase`, `sentence`. `activityType` v1 gồm `word_model`, `recognition`, `naming`, `cloze_tail`, `functional_sentence`, `yes_no`, `visual_qa`, `command`, `functional_communication`, `parent_transfer`. Loại mới hoặc thay đổi meaning của loại hiện có cần schema version mới và compatibility review; published record không bị diễn giải lại âm thầm. Đây là quyết định cho enum contract, không chốt corpus depth hay content QA còn mở.
 
 ## 2. Sync event envelope
 

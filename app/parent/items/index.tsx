@@ -2,7 +2,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Edit3, Layers3, Plus, Trash2 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Alert, StyleSheet, View, type TextInput } from "react-native";
+import { Alert, StyleSheet, View, type TextInputInstance } from "react-native";
 
 import { AppText } from "@/components/AppText";
 import { Badge } from "@/components/Badge";
@@ -41,7 +41,7 @@ export default function ParentItemsScreen() {
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [search, setSearch] = useState("");
-  const titleInputRef = useRef<TextInput>(null);
+  const titleInputRef = useRef<TextInputInstance>(null);
 
   const items = useMemo(() => {
     if (instantItems.length === 0) {

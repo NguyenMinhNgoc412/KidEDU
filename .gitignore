@@ -3,6 +3,7 @@ node_modules/
 .expo/
 dist/
 coverage/
+apps/api/generated/
 *.log
 pnpm-debug.log*
 ios/
@@ -22,3 +23,9 @@ android/
 
 # Private research inputs containing child/intervention PII
 docs-v2/giao-trinh/
+
+# Expo SDK upgrade verification outputs
+/artifacts/expo57-export/
+/artifacts/expo57-api-client.ts
+/artifacts/sdk58-export/
+/artifacts/sdk58-api-generated.ts

@@ -1,0 +1,427 @@
+openapi: 3.1.0
+info:
+  title: KidEDU local learning API
+  version: 0.1.0
+servers:
+  - url: /v1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Subscription:
+      type: object
+      required:
+        [
+          state,
+          version,
+          effectiveUntil,
+          accessUntil,
+          learningAllowed,
+          allowedCapabilities,
+          familyDataAllowed,
+          serverTime
+        ]
+      properties:
+        state:
+          type: string
+          enum:
+            [
+              none,
+              trial_active,
+              active,
+              grace_period,
+              billing_retry,
+              canceled_active,
+              expired,
+              refunded,
+              revoked,
+              account_hold
+            ]
+        version: { type: integer }
+        effectiveUntil: { type: [string, "null"], format: date-time }
+        accessUntil: { type: [string, "null"], format: date-time }
+        learningAllowed: { type: boolean }
+        allowedCapabilities: { type: array, items: { type: string } }
+        familyDataAllowed: { type: boolean, enum: [true] }
+        serverTime: { type: string, format: date-time }
+    Me:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string, format: uuid }
+    Family:
+      type: object
+      required: [id, role]
+      properties:
+        id: { type: string, format: uuid }
+        role: { type: string, enum: [owner, caregiver] }
+    Child:
+      type: object
+      required: [id, familyId, displayName, version]
+      properties:
+        id: { type: string, format: uuid }
+        familyId: { type: string, format: uuid }
+        displayName: { type: string }
+        birthYear: { type: [integer, "null"] }
+        birthMonth: { type: [integer, "null"] }
+        version: { type: integer }
+    PlanDocument:
+      type: object
+      required: [schemaVersion, contentReleaseId, goalIds, items]
+      properties:
+        schemaVersion: { type: integer, enum: [1] }
+        contentReleaseId: { type: string }
+        goalIds: { type: array, items: { type: string } }
+        items:
+          type: array
+          items:
+            type: object
+            required: [lessonId, lessonVersion]
+            properties:
+              lessonId: { type: string }
+              lessonVersion: { type: integer }
+    Plan:
+      type: object
+      required: [revision, document]
+      properties:
+        revision: { type: integer }
+        document:
+          oneOf:
+            - $ref: "#/components/schemas/PlanDocument"
+            - type: "null"
+        updatedAt: { type: string, format: date-time }
+    ObservationEvent:
+      type: object
+      required: [schemaVersion, eventId, eventType, childId, occurredAt, payload]
+      properties:
+        schemaVersion: { type: integer, enum: [1] }
+        eventId: { type: string }
+        eventType: { type: string, enum: [observation.recorded] }
+        childId: { type: string, format: uuid }
+        occurredAt: { type: string, format: date-time }
+        payload:
+          type: object
+          required:
+            [
+              goalId,
+              targetId,
+              activityType,
+              contentVersion,
+              result,
+              promptLevel,
+              context,
+              sessionId
+            ]
+          properties:
+            goalId: { type: string }
+            targetId: { type: string }
+            activityType:
+              type: string
+              enum:
+                [
+                  word_model,
+                  recognition,
+                  naming,
+                  cloze_tail,
+                  functional_sentence,
+                  yes_no,
+                  visual_qa,
+                  command,
+                  functional_communication,
+                  parent_transfer
+                ]
+            contentVersion: { type: integer }
+            result: { type: string, enum: [independent, supported, not_yet, not_observed] }
+            promptLevel: { type: [integer, "null"] }
+            context: { type: string, enum: [in_app, parent_guided] }
+            sessionId: { type: string }
+    Observation:
+      type: object
+      required:
+        [
+          id,
+          eventId,
+          goalId,
+          targetId,
+          activityType,
+          contentVersion,
+          result,
+          promptLevel,
+          context,
+          sessionId,
+          occurredAt,
+          receivedAt,
+          supersededById,
+          supersedesId
+        ]
+      properties:
+        id: { type: string, format: uuid }
+        eventId: { type: string }
+        goalId: { type: string }
+        targetId: { type: string }
+        activityType: { type: string }
+        contentVersion: { type: integer }
+        result: { type: string, enum: [independent, supported, not_yet, not_observed] }
+        promptLevel: { type: [integer, "null"] }
+        context: { type: string, enum: [in_app, parent_guided] }
+        sessionId: { type: string }
+        occurredAt: { type: string, format: date-time }
+        receivedAt: { type: string, format: date-time }
+        supersededById: { type: [string, "null"], format: uuid }
+        supersedesId: { type: [string, "null"], format: uuid }
+security:
+  - bearerAuth: []
+paths:
+  /observations/{observationId}:supersede:
+    parameters:
+      - name: observationId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      operationId: supersedeObservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [eventId, result, promptLevel]
+              properties:
+                eventId: { type: string }
+                result: { type: string, enum: [independent, supported, not_yet, not_observed] }
+                promptLevel: { type: [integer, "null"] }
+      responses:
+        "201":
+          description: Correction appended
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, observationId, supersedesId]
+                properties:
+                  status: { type: string, enum: [accepted, duplicate] }
+                  observationId: { type: string, format: uuid }
+                  supersedesId: { type: string, format: uuid }
+  /subscription:
+    get:
+      operationId: getSubscription
+      responses:
+        "200":
+          description: Server evaluated access for the authenticated account
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Subscription" }
+  /me:
+    get:
+      operationId: getMe
+      responses:
+        "200":
+          description: Internal account identity for the verified bearer token
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Me" }
+  /families:
+    get:
+      operationId: listFamilies
+      responses:
+        "200":
+          description: Families for the authenticated account
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Family" } }
+    post:
+      operationId: createFamily
+      responses:
+        "201":
+          description: New family
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id]
+                properties:
+                  id: { type: string, format: uuid }
+  /consents:
+    post:
+      operationId: recordConsent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [scope, documentVersion, action, attestsGuardian]
+              properties:
+                scope: { type: string, enum: [child_profile] }
+                documentVersion: { type: string }
+                action: { type: string, enum: [grant, revoke] }
+                attestsGuardian: { type: boolean, enum: [true] }
+      responses:
+        "201":
+          description: Consent record
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, documentVersion, grantedAt]
+                properties:
+                  id: { type: string, format: uuid }
+                  documentVersion: { type: string }
+                  grantedAt: { type: string, format: date-time }
+  /children:
+    get:
+      operationId: listChildren
+      responses:
+        "200":
+          description: Children in the account families
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Child" } }
+    post:
+      operationId: createChild
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [familyId, displayName]
+              properties:
+                familyId: { type: string, format: uuid }
+                displayName: { type: string }
+                birthYear: { type: integer }
+                birthMonth: { type: integer }
+      responses:
+        "201":
+          description: New child profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Child" }
+  /children/{childId}:
+    parameters:
+      - name: childId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getChild
+      responses:
+        "200":
+          description: Child profile in an account family
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Child" }
+    patch:
+      operationId: updateChild
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expectedVersion]
+              properties:
+                expectedVersion: { type: integer, minimum: 1 }
+                displayName: { type: string }
+                birthYear: { type: [integer, "null"] }
+                birthMonth: { type: [integer, "null"] }
+      responses:
+        "200":
+          description: Updated child profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Child" }
+        "409":
+          description: Profile version changed
+  /children/{childId}/plan:
+    parameters:
+      - name: childId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getPlan
+      responses:
+        "200":
+          description: Current plan or empty plan
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Plan" }
+    put:
+      operationId: savePlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expectedRevision, document]
+              properties:
+                expectedRevision: { type: integer }
+                document: { $ref: "#/components/schemas/PlanDocument" }
+      responses:
+        "200":
+          description: Saved plan
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Plan" }
+  /children/{childId}/events:batch:
+    post:
+      operationId: ingestEvents
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [events]
+              properties:
+                events: { type: array, items: { $ref: "#/components/schemas/ObservationEvent" } }
+      responses:
+        "201":
+          description: Item results
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [results]
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      required: [eventId, status]
+                      properties:
+                        eventId: { type: [string, "null"] }
+                        status: { type: string, enum: [accepted, duplicate, rejected] }
+                        code: { type: string }
+  /children/{childId}/observations:
+    get:
+      operationId: listObservations
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: cursor
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Observation page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [observations, nextCursor]
+                properties:
+                  observations: { type: array, items: { $ref: "#/components/schemas/Observation" } }
+                  nextCursor: { type: [string, "null"] }

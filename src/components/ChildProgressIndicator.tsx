@@ -1,6 +1,5 @@
 import { Star } from "lucide-react-native";
-import { useEffect, useRef } from "react";
-import { Animated, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { colors, radii, spacing } from "@/theme";
 
@@ -31,67 +30,31 @@ export function ChildProgressIndicator({
   return (
     <View style={styles.container}>
       {items.map((item) => (
-        <ProgressDot
-          key={item.id}
-          isCompleted={item.isCompleted}
-          isCurrent={item.isCurrent}
-        />
+        <ProgressDot key={item.id} isCompleted={item.isCompleted} isCurrent={item.isCurrent} />
       ))}
     </View>
   );
 }
 
-function ProgressDot({
-  isCompleted,
-  isCurrent
-}: {
-  isCompleted: boolean;
-  isCurrent: boolean;
-}) {
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    if (isCurrent) {
-      const loop = Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.25,
-            duration: 600,
-            useNativeDriver: true
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 600,
-            useNativeDriver: true
-          })
-        ])
-      );
-      loop.start();
-      return () => loop.stop();
-    } else {
-      pulseAnim.setValue(1);
-    }
-  }, [isCurrent, pulseAnim]);
-
+function ProgressDot({ isCompleted, isCurrent }: { isCompleted: boolean; isCurrent: boolean }) {
   if (isCompleted) {
     return (
       <View style={[styles.dot, styles.completedDot]}>
-        <Star color={colors.celebrationGold} fill={colors.celebrationGold} size={13} strokeWidth={2} />
+        <Star
+          color={colors.celebrationGold}
+          fill={colors.celebrationGold}
+          size={13}
+          strokeWidth={2}
+        />
       </View>
     );
   }
 
   if (isCurrent) {
     return (
-      <Animated.View
-        style={[
-          styles.dot,
-          styles.currentDot,
-          { transform: [{ scale: pulseAnim }] }
-        ]}
-      >
+      <View style={[styles.dot, styles.currentDot]}>
         <Star color={colors.onPrimary} fill={colors.coral} size={15} strokeWidth={2} />
-      </Animated.View>
+      </View>
     );
   }
 

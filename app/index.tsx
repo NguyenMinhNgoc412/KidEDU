@@ -2,6 +2,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import {
   BookOpen,
   Clapperboard,
+  LockKeyhole,
   PawPrint,
   PersonStanding,
   Sparkles,
@@ -18,28 +19,14 @@ import { MobileTabBar } from "@/components/MobileTabBar";
 import { Screen } from "@/components/Screen";
 import { StateMessage } from "@/components/StateMessage";
 import { useCategoriesQuery, useDecksQuery } from "@/data/queries";
+import { useLearningAccess } from "@/features/entitlement/LearningAccessProvider";
+import { TodayPlanCard } from "@/features/learning/TodayPlanCard";
 import type { Category } from "@/data/types";
-import {
-  categoryTileColors,
-  categoryTileForegroundColors,
-  colors,
-  radii,
-  spacing
-} from "@/theme";
+import { categoryTileColors, categoryTileForegroundColors, colors, radii, spacing } from "@/theme";
 
 export default function ChildHomeScreen() {
+  const { status, refresh } = useLearningAccess();
   const router = useRouter();
-  const categoriesQuery = useCategoriesQuery();
-  const decksQuery = useDecksQuery({ childOnly: true });
-  const refetchDecks = decksQuery.refetch;
-  const categories = categoriesQuery.data ?? [];
-  const decks = decksQuery.data ?? [];
-
-  useFocusEffect(
-    useCallback(() => {
-      void refetchDecks();
-    }, [refetchDecks])
-  );
 
   return (
     <Screen
@@ -75,55 +62,105 @@ export default function ChildHomeScreen() {
         showsVerticalScrollIndicator={false}
         style={styles.mainScroll}
       >
-        <AppText align="center" variant="sectionTitle">
-          Bé chọn gì nào?
-        </AppText>
-        <AppText align="center" color="muted" style={styles.heroSubtitle} variant="label">
-          Chạm vào một nhóm để bắt đầu học
-        </AppText>
-        {categoriesQuery.isLoading ? <StateMessage title="Đang tải nhóm học" /> : null}
-        {!categoriesQuery.isLoading && categories.length === 0 ? (
-          <StateMessage
-            title="Chưa có nhóm học"
-            message="Phụ huynh có thể tạo thẻ trong các nhóm mẫu."
-          />
+        <View style={styles.intro}>
+          <AppText variant="screenTitle">Hôm nay mình học gì?</AppText>
+          <AppText color="muted">Cùng người lớn luyện nói qua những điều gần gũi mỗi ngày.</AppText>
+        </View>
+        {status === "allowed" ? (
+          <>
+            <TodayPlanCard />
+            {__DEV__ ? <LegacyLearningChoices /> : null}
+          </>
         ) : (
-          <View style={styles.categoryGrid}>
-            {categories.map((category, index) => (
-              <CategoryTile
-                key={category.id}
-                category={category}
-                foreground={
-                  categoryTileForegroundColors[
-                    index % categoryTileForegroundColors.length
-                  ] ?? categoryTileForegroundColors[0]
-                }
-                icon={getCategoryIcon(
-                  category.name,
-                  categoryTileForegroundColors[
-                    index % categoryTileForegroundColors.length
-                  ] ?? categoryTileForegroundColors[0]
-                )}
-                tone={
-                  categoryTileColors[index % categoryTileColors.length] ?? categoryTileColors[0]
-                }
-                onPress={() => router.push(`/category/${category.id}`)}
+          <>
+            <View style={styles.todayCard}>
+              <View style={styles.todayIcon}>
+                <LockKeyhole color={colors.primary} size={26} />
+              </View>
+              <AppText color="primary" variant="labelStrong">
+                BÀI HÔM NAY
+              </AppText>
+              <AppText variant="cardTitle">
+                {status === "checking" ? "Đang kiểm tra quyền học" : "Nội dung học đang khóa"}
+              </AppText>
+              <AppText color="muted">
+                {status === "error"
+                  ? "Chưa kết nối được với máy chủ. Nhờ phụ huynh kiểm tra mạng."
+                  : "Nhờ phụ huynh xem gói học và chuẩn bị bài cho con. Dữ liệu gia đình vẫn xem được."}
+              </AppText>
+              <KidButton
+                fullWidth
+                label={status === "error" ? "Thử kết nối lại" : "Nhờ phụ huynh mở"}
+                onPress={status === "error" ? refresh : () => router.push("/parent-gate")}
+                size="lg"
               />
-            ))}
-          </View>
+            </View>
+          </>
         )}
-        {decks.length > 0 ? (
-          <KidButton
-            fullWidth
-            icon={<Clapperboard color={colors.onPrimary} size={22} />}
-            label="Học tự động"
-            onPress={() => router.push("/decks")}
-            size="lg"
-            variant="secondary"
-          />
-        ) : null}
       </ScrollView>
     </Screen>
+  );
+}
+
+function LegacyLearningChoices() {
+  const router = useRouter();
+  const categoriesQuery = useCategoriesQuery();
+  const decksQuery = useDecksQuery({ childOnly: true });
+  const refetchDecks = decksQuery.refetch;
+  const categories = categoriesQuery.data ?? [];
+  const decks = decksQuery.data ?? [];
+
+  useFocusEffect(
+    useCallback(() => {
+      void refetchDecks();
+    }, [refetchDecks])
+  );
+
+  return (
+    <>
+      <View style={styles.sectionHeading}>
+        <View style={styles.sectionTitle}>
+          <AppText variant="cardTitle">Luyện thêm</AppText>
+          <AppText color="muted" variant="label">
+            Nội dung có sẵn trên thiết bị
+          </AppText>
+        </View>
+      </View>
+      {categoriesQuery.isLoading ? <StateMessage title="Đang tải nội dung" /> : null}
+      {!categoriesQuery.isLoading && categories.length === 0 ? (
+        <StateMessage title="Chưa có nội dung luyện thêm" />
+      ) : (
+        <View style={styles.categoryGrid}>
+          {categories.map((category, index) => (
+            <CategoryTile
+              key={category.id}
+              category={category}
+              foreground={
+                categoryTileForegroundColors[index % categoryTileForegroundColors.length] ??
+                categoryTileForegroundColors[0]
+              }
+              icon={getCategoryIcon(
+                category.name,
+                categoryTileForegroundColors[index % categoryTileForegroundColors.length] ??
+                  categoryTileForegroundColors[0]
+              )}
+              tone={categoryTileColors[index % categoryTileColors.length] ?? categoryTileColors[0]}
+              onPress={() => router.push(`/category/${category.id}`)}
+            />
+          ))}
+        </View>
+      )}
+      {decks.length > 0 ? (
+        <KidButton
+          fullWidth
+          icon={<Clapperboard color={colors.onPrimary} size={22} />}
+          label="Xem bộ luyện thêm"
+          onPress={() => router.push("/decks")}
+          size="lg"
+          variant="secondary"
+        />
+      ) : null}
+    </>
   );
 }
 
@@ -203,7 +240,7 @@ const styles = StyleSheet.create({
     width: 32
   },
   childHero: {
-    alignItems: "center",
+    alignItems: "stretch",
     flexGrow: 1,
     gap: spacing[14],
     justifyContent: "flex-start",
@@ -238,7 +275,36 @@ const styles = StyleSheet.create({
   categoryTitle: {
     minHeight: 22
   },
-  heroSubtitle: {
-    marginBottom: spacing[4]
+  intro: {
+    alignItems: "flex-start",
+    gap: spacing[6],
+    width: "100%"
+  },
+  todayCard: {
+    backgroundColor: colors.surface,
+    borderColor: colors.borderSoft,
+    borderRadius: radii.xl,
+    borderWidth: 1,
+    gap: spacing[8],
+    padding: spacing[20],
+    width: "100%"
+  },
+  todayIcon: {
+    alignItems: "center",
+    backgroundColor: colors.primarySoft,
+    borderRadius: radii.lg,
+    height: 56,
+    justifyContent: "center",
+    width: 56
+  },
+  sectionHeading: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%"
+  },
+  sectionTitle: {
+    flex: 1,
+    gap: spacing[4]
   }
 });

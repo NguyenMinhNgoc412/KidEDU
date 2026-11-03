@@ -3,6 +3,7 @@ import { forwardRef, type ReactNode } from "react";
 import {
   StyleSheet,
   TextInput,
+  type TextInputInstance,
   type TextInputProps,
   type TextStyle,
   type StyleProp,
@@ -21,7 +22,7 @@ type TextFieldProps = Omit<TextInputProps, "placeholderTextColor" | "style"> & {
   inputStyle?: StyleProp<TextStyle>;
 };
 
-export const TextField = forwardRef<TextInput, TextFieldProps>(function TextField(
+export const TextField = forwardRef<TextInputInstance, TextFieldProps>(function TextField(
   { label, containerStyle, error = false, inputStyle, multiline, ...props },
   ref
 ) {

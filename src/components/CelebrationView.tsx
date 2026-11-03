@@ -1,6 +1,5 @@
 import { Award, RotateCcw, Sparkles, Star, X } from "lucide-react-native";
-import { useEffect, useRef } from "react";
-import { Animated, Easing, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
 import { Card } from "@/components/Card";
@@ -18,7 +17,7 @@ export interface CelebrationViewProps {
 }
 
 export function CelebrationView({
-  title = "Bé giỏi quá! 🌟",
+  title = "Đã xong bài hôm nay",
   message,
   totalItems,
   onRestart,
@@ -26,103 +25,30 @@ export function CelebrationView({
   restartLabel = "Học lại",
   exitLabel = "Chọn bài khác"
 }: CelebrationViewProps) {
-  const scaleAnim = useRef(new Animated.Value(0.4)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-  const floatAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      friction: 5,
-      tension: 40,
-      useNativeDriver: true
-    }).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(rotateAnim, {
-          toValue: 1,
-          duration: 2400,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true
-        }),
-        Animated.timing(rotateAnim, {
-          toValue: -1,
-          duration: 2400,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true
-        }),
-        Animated.timing(rotateAnim, {
-          toValue: 0,
-          duration: 1200,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true
-        })
-      ])
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatAnim, {
-          toValue: -8,
-          duration: 1600,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true
-        }),
-        Animated.timing(floatAnim, {
-          toValue: 0,
-          duration: 1600,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true
-        })
-      ])
-    ).start();
-  }, [floatAnim, rotateAnim, scaleAnim]);
-
-  const rotation = rotateAnim.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: ["-8deg", "0deg", "8deg"]
-  });
-
   const detailMessage =
     message ??
     (typeof totalItems === "number" && totalItems > 0
-      ? `Con đã hoàn thành xuất sắc ${totalItems} từ hôm nay!`
-      : "Con đã hoàn thành xuất sắc bài học hôm nay!");
+      ? `Đã hoàn thành ${totalItems} lượt luyện hôm nay.`
+      : "Cùng con nghỉ một chút và thử lại khi phù hợp.");
 
   return (
     <Card padding="lg" style={styles.card} variant="form">
       <View style={styles.starStage}>
-        <Animated.View
-          style={[styles.floatingStar, styles.floatLeft, { transform: [{ translateY: floatAnim }] }]}
-        >
+        <View style={[styles.floatingStar, styles.floatLeft]}>
           <Star color={colors.celebrationGold} fill={colors.starGlow} size={28} strokeWidth={2} />
-        </Animated.View>
+        </View>
 
-        <Animated.View
-          style={[
-            styles.floatingStar,
-            styles.floatRight,
-            { transform: [{ translateY: floatAnim }] }
-          ]}
-        >
+        <View style={[styles.floatingStar, styles.floatRight]}>
           <Sparkles color={colors.coral} size={32} strokeWidth={2.2} />
-        </Animated.View>
+        </View>
 
-        <Animated.View
-          style={[
-            styles.heroBadge,
-            {
-              transform: [{ scale: scaleAnim }, { rotate: rotation }]
-            }
-          ]}
-        >
+        <View style={[styles.heroBadge]}>
           <View style={styles.heroBadgeGlow}>
             <View style={styles.heroBadgeInner}>
               <Award color={colors.secondary} size={54} strokeWidth={2.4} />
             </View>
           </View>
-        </Animated.View>
+        </View>
       </View>
 
       <View style={styles.textContent}>

@@ -3,10 +3,9 @@ appId: ${APP_ID}
 - launchApp
 - assertVisible: "Bé chọn gì nào?"
 - tapOn: "Phụ huynh"
-- assertVisible: "3 + 5 = ?"
-- tapOn: "Câu trả lời"
-- inputText: "8"
-- tapOn: "Mở"
+- longPressOn:
+    text: "Nhấn giữ để mở khu phụ huynh"
+    duration: 1700
 - assertVisible: "Khu phụ huynh"
 - tapOn: "Quyền riêng tư & dữ liệu"
 - assertVisible: "Dữ liệu được lưu trên thiết bị"

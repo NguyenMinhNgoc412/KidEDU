@@ -196,6 +196,7 @@ function ActiveAutoPlaySessionView({
       </View>
 
       <LearningMediaPlayer
+        learningItemId={currentItem.id}
         autoPlayKey={sampleAutoPlayKey}
         illustration={resolved.byRole.illustration}
         manageAppStateExternally

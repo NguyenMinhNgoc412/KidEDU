@@ -3,7 +3,17 @@ const tseslint = require("typescript-eslint");
 
 module.exports = [
   {
-    ignores: ["node_modules/**", ".expo/**", "dist/**", "coverage/**"]
+    ignores: [
+      "node_modules/**",
+      ".expo/**",
+      "dist/**",
+      "coverage/**",
+      "apps/**",
+      "artifacts/expo57-export/**",
+      "artifacts/expo57-api-client.ts",
+      "artifacts/sdk58-export/**",
+      "artifacts/sdk58-api-generated.ts"
+    ]
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -33,7 +43,7 @@ module.exports = [
     }
   },
   {
-    files: ["scripts/**/*.cjs"],
+    files: ["scripts/**/*.cjs", "artifacts/**/*.cjs"],
     languageOptions: {
       sourceType: "commonjs",
       globals: {
@@ -41,7 +51,10 @@ module.exports = [
         console: "readonly",
         module: "readonly",
         process: "readonly",
-        require: "readonly"
+        require: "readonly",
+        URL: "readonly",
+        document: "readonly",
+        innerWidth: "readonly"
       }
     },
     rules: {

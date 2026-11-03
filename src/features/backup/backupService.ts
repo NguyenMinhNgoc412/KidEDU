@@ -560,7 +560,7 @@ class NativeArchiveFileReader implements ArchiveByteReader {
     try {
       this.handle ??= this.file.open();
       this.handle.offset = offset;
-      const bytes = this.handle.readBytes(length);
+      const bytes = await this.handle.readBytes(length);
       if (offset + bytes.byteLength >= this.size) {
         this.close();
       }
@@ -592,7 +592,7 @@ class NativeArchiveFileWriter implements ArchiveByteWriter {
       throw new Error("Cannot write to a closed KidEDU archive file.");
     }
     this.handle.offset = offset;
-    this.handle.writeBytes(bytes);
+    await this.handle.writeBytes(bytes);
   }
 
   close(): void {

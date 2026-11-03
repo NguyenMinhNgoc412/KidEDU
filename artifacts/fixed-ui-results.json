@@ -1,0 +1,1118 @@
+{
+  "evidence": "Chromium UI with synthetic intercepted API; no backend or native proof",
+  "results": [
+    {
+      "width": 320,
+      "screen": "child-allowed",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh chuẩn bị",
+          "width": 246,
+          "height": 64
+        },
+        {
+          "label": "Mở nhóm Gia đình",
+          "width": 136.3125,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Nhu cầu",
+          "width": 136.3125,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Đồ vật",
+          "width": 136.3125,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Con vật",
+          "width": 136.3125,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Hành động",
+          "width": 136.3125,
+          "height": 120
+        },
+        {
+          "label": "Xem bộ luyện thêm",
+          "width": 284,
+          "height": 64
+        },
+        {
+          "label": "Xem mẫu luồng học v2",
+          "width": 284,
+          "height": 56
+        },
+        {
+          "label": "Học",
+          "width": 140,
+          "height": 56
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 140,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "shortTapRejected": true
+    },
+    {
+      "width": 320,
+      "screen": "parent",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh chuẩn bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Gia đình",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Nhu cầu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Đồ vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Con vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Hành động",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem bộ luyện thêm",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem mẫu luồng học v2",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Về học",
+          "width": 114.640625,
+          "height": 44
+        },
+        {
+          "label": "Xem hồ sơ Bé minh họa",
+          "width": 115.859375,
+          "height": 44
+        },
+        {
+          "label": "Xem hồ sơ Hồ sơ minh họa hai",
+          "width": 158.25,
+          "height": 44
+        },
+        {
+          "label": "Dữ liệu server (local)",
+          "width": 282,
+          "height": 58
+        },
+        {
+          "label": "Media gia đình trên thiết bị",
+          "width": 282,
+          "height": 58
+        },
+        {
+          "label": "Bộ luyện cũ trên thiết bị",
+          "width": 282,
+          "height": 58
+        },
+        {
+          "label": "Tiến độ cũ trên thiết bị",
+          "width": 282,
+          "height": 58
+        },
+        {
+          "label": "Cài đặt",
+          "width": 282,
+          "height": 58
+        },
+        {
+          "label": "Xuất & khôi phục dữ liệu trên thiết bị",
+          "width": 282,
+          "height": 58
+        },
+        {
+          "label": "Quyền riêng tư & dữ liệu",
+          "width": 282,
+          "height": 58
+        },
+        {
+          "label": "Xem bản mẫu",
+          "width": 246,
+          "height": 56
+        },
+        {
+          "label": "Đăng xuất tài khoản",
+          "width": 254,
+          "height": 56
+        },
+        {
+          "label": "Khóa khu phụ huynh",
+          "width": 254,
+          "height": 56
+        },
+        {
+          "label": "Học",
+          "width": 140,
+          "height": 56
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 140,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "screen": "prototype-activity",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh chuẩn bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Gia đình",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Nhu cầu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Đồ vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Con vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Hành động",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem bộ luyện thêm",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem mẫu luồng học v2",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Về học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem hồ sơ Bé minh họa",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem hồ sơ Hồ sơ minh họa hai",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Dữ liệu server (local)",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Media gia đình trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Bộ luyện cũ trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Tiến độ cũ trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Cài đặt",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xuất & khôi phục dữ liệu trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Quyền riêng tư & dữ liệu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem bản mẫu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Đăng xuất tài khoản",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Khóa khu phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem gợi ý",
+          "width": 284,
+          "height": 64
+        },
+        {
+          "label": "Mời phụ huynh ghi nhận",
+          "width": 284,
+          "height": 64
+        },
+        {
+          "label": "Rời mẫu luồng",
+          "width": 284,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "selectedChildPlanPersistsOnToday": true
+    },
+    {
+      "width": 320,
+      "screen": "child-locked",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh mở",
+          "width": 242,
+          "height": 64
+        },
+        {
+          "label": "Học",
+          "width": 140,
+          "height": 56
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 140,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "prototypeCompleted": true,
+      "pageErrors": []
+    },
+    {
+      "width": 390,
+      "screen": "child-allowed",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh chuẩn bị",
+          "width": 316,
+          "height": 64
+        },
+        {
+          "label": "Mở nhóm Gia đình",
+          "width": 169.90625,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Nhu cầu",
+          "width": 169.90625,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Đồ vật",
+          "width": 169.90625,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Con vật",
+          "width": 169.90625,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Hành động",
+          "width": 169.90625,
+          "height": 120
+        },
+        {
+          "label": "Xem bộ luyện thêm",
+          "width": 354,
+          "height": 64
+        },
+        {
+          "label": "Xem mẫu luồng học v2",
+          "width": 354,
+          "height": 56
+        },
+        {
+          "label": "Học",
+          "width": 175,
+          "height": 56
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 175,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "shortTapRejected": true
+    },
+    {
+      "width": 390,
+      "screen": "parent",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh chuẩn bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Gia đình",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Nhu cầu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Đồ vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Con vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Hành động",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem bộ luyện thêm",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem mẫu luồng học v2",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Về học",
+          "width": 114.640625,
+          "height": 44
+        },
+        {
+          "label": "Xem hồ sơ Bé minh họa",
+          "width": 115.859375,
+          "height": 44
+        },
+        {
+          "label": "Xem hồ sơ Hồ sơ minh họa hai",
+          "width": 158.25,
+          "height": 44
+        },
+        {
+          "label": "Dữ liệu server (local)",
+          "width": 352,
+          "height": 58
+        },
+        {
+          "label": "Media gia đình trên thiết bị",
+          "width": 352,
+          "height": 58
+        },
+        {
+          "label": "Bộ luyện cũ trên thiết bị",
+          "width": 352,
+          "height": 58
+        },
+        {
+          "label": "Tiến độ cũ trên thiết bị",
+          "width": 352,
+          "height": 58
+        },
+        {
+          "label": "Cài đặt",
+          "width": 352,
+          "height": 58
+        },
+        {
+          "label": "Xuất & khôi phục dữ liệu trên thiết bị",
+          "width": 352,
+          "height": 58
+        },
+        {
+          "label": "Quyền riêng tư & dữ liệu",
+          "width": 352,
+          "height": 58
+        },
+        {
+          "label": "Xem bản mẫu",
+          "width": 316,
+          "height": 56
+        },
+        {
+          "label": "Đăng xuất tài khoản",
+          "width": 324,
+          "height": 56
+        },
+        {
+          "label": "Khóa khu phụ huynh",
+          "width": 324,
+          "height": 56
+        },
+        {
+          "label": "Học",
+          "width": 175,
+          "height": 56
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 175,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "screen": "prototype-activity",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh chuẩn bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Gia đình",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Nhu cầu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Đồ vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Con vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Hành động",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem bộ luyện thêm",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem mẫu luồng học v2",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Về học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem hồ sơ Bé minh họa",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem hồ sơ Hồ sơ minh họa hai",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Dữ liệu server (local)",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Media gia đình trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Bộ luyện cũ trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Tiến độ cũ trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Cài đặt",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xuất & khôi phục dữ liệu trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Quyền riêng tư & dữ liệu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem bản mẫu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Đăng xuất tài khoản",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Khóa khu phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem gợi ý",
+          "width": 354,
+          "height": 64
+        },
+        {
+          "label": "Mời phụ huynh ghi nhận",
+          "width": 354,
+          "height": 64
+        },
+        {
+          "label": "Rời mẫu luồng",
+          "width": 354,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "selectedChildPlanPersistsOnToday": true
+    },
+    {
+      "width": 390,
+      "screen": "child-locked",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh mở",
+          "width": 312,
+          "height": 64
+        },
+        {
+          "label": "Học",
+          "width": 175,
+          "height": 56
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 175,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "prototypeCompleted": true,
+      "pageErrors": []
+    },
+    {
+      "width": 768,
+      "screen": "child-allowed",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh chuẩn bị",
+          "width": 386,
+          "height": 64
+        },
+        {
+          "label": "Mở nhóm Gia đình",
+          "width": 203.515625,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Nhu cầu",
+          "width": 203.515625,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Đồ vật",
+          "width": 203.515625,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Con vật",
+          "width": 203.515625,
+          "height": 120
+        },
+        {
+          "label": "Mở nhóm Hành động",
+          "width": 203.515625,
+          "height": 120
+        },
+        {
+          "label": "Xem bộ luyện thêm",
+          "width": 424,
+          "height": 64
+        },
+        {
+          "label": "Xem mẫu luồng học v2",
+          "width": 424,
+          "height": 56
+        },
+        {
+          "label": "Học",
+          "width": 226,
+          "height": 56
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 226,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "shortTapRejected": true
+    },
+    {
+      "width": 768,
+      "screen": "parent",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh chuẩn bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Gia đình",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Nhu cầu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Đồ vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Con vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Hành động",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem bộ luyện thêm",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem mẫu luồng học v2",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Về học",
+          "width": 114.640625,
+          "height": 44
+        },
+        {
+          "label": "Xem hồ sơ Bé minh họa",
+          "width": 115.859375,
+          "height": 44
+        },
+        {
+          "label": "Xem hồ sơ Hồ sơ minh họa hai",
+          "width": 158.25,
+          "height": 44
+        },
+        {
+          "label": "Dữ liệu server (local)",
+          "width": 422,
+          "height": 58
+        },
+        {
+          "label": "Media gia đình trên thiết bị",
+          "width": 422,
+          "height": 58
+        },
+        {
+          "label": "Bộ luyện cũ trên thiết bị",
+          "width": 422,
+          "height": 58
+        },
+        {
+          "label": "Tiến độ cũ trên thiết bị",
+          "width": 422,
+          "height": 58
+        },
+        {
+          "label": "Cài đặt",
+          "width": 422,
+          "height": 58
+        },
+        {
+          "label": "Xuất & khôi phục dữ liệu trên thiết bị",
+          "width": 422,
+          "height": 58
+        },
+        {
+          "label": "Quyền riêng tư & dữ liệu",
+          "width": 422,
+          "height": 58
+        },
+        {
+          "label": "Xem bản mẫu",
+          "width": 386,
+          "height": 56
+        },
+        {
+          "label": "Đăng xuất tài khoản",
+          "width": 394,
+          "height": 56
+        },
+        {
+          "label": "Khóa khu phụ huynh",
+          "width": 394,
+          "height": 56
+        },
+        {
+          "label": "Học",
+          "width": 226,
+          "height": 56
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 226,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "screen": "prototype-activity",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh chuẩn bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Gia đình",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Nhu cầu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Đồ vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Con vật",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Mở nhóm Hành động",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem bộ luyện thêm",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem mẫu luồng học v2",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Về học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem hồ sơ Bé minh họa",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem hồ sơ Hồ sơ minh họa hai",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Dữ liệu server (local)",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Media gia đình trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Bộ luyện cũ trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Tiến độ cũ trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Cài đặt",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xuất & khôi phục dữ liệu trên thiết bị",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Quyền riêng tư & dữ liệu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem bản mẫu",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Đăng xuất tài khoản",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Khóa khu phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Học",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 0,
+          "height": 0
+        },
+        {
+          "label": "Xem gợi ý",
+          "width": 424,
+          "height": 64
+        },
+        {
+          "label": "Mời phụ huynh ghi nhận",
+          "width": 424,
+          "height": 64
+        },
+        {
+          "label": "Rời mẫu luồng",
+          "width": 424,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "selectedChildPlanPersistsOnToday": true
+    },
+    {
+      "width": 768,
+      "screen": "child-locked",
+      "overflow": false,
+      "controls": [
+        {
+          "label": "Nhờ phụ huynh mở",
+          "width": 382,
+          "height": 64
+        },
+        {
+          "label": "Học",
+          "width": 226,
+          "height": 56
+        },
+        {
+          "label": "Phụ huynh",
+          "width": 226,
+          "height": 56
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "prototypeCompleted": true,
+      "pageErrors": []
+    }
+  ]
+}

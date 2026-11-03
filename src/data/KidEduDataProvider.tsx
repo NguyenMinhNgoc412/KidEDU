@@ -1,20 +1,21 @@
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
-import {
-  cleanupOrphanedMediaFiles,
-  cleanupUnreferencedManagedMediaFiles
-} from "@/features/media/mediaCleanupService";
-import { isLearningSessionActive } from "@/features/session/learningOperationCoordinator";
 import { colors, fontFamilies, fontSizes, spacing } from "@/theme";
 
-import { openKidEduDatabase } from "./database";
+import { closeKidEduDatabase, openKidEduDatabase } from "./database";
 import { SQLiteKidEduRepository } from "./repository";
 import type { KidEduRepository } from "./types";
 
 const KidEduRepositoryContext = createContext<KidEduRepository | null>(null);
 
-export function KidEduDataProvider({ children }: { children: ReactNode }) {
+export function KidEduDataProvider({
+  accountId,
+  children
+}: {
+  accountId: string;
+  children: ReactNode;
+}) {
   const [repository, setRepository] = useState<KidEduRepository | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,21 +24,10 @@ export function KidEduDataProvider({ children }: { children: ReactNode }) {
 
     async function initDatabase() {
       try {
-        const db = await openKidEduDatabase();
+        const db = await openKidEduDatabase(accountId);
         const nextRepository = new SQLiteKidEduRepository(db);
 
         await nextRepository.recoverActivePracticeSessions();
-
-        try {
-          await cleanupOrphanedMediaFiles(nextRepository, {
-            isPlaybackActive: isLearningSessionActive
-          });
-          await cleanupUnreferencedManagedMediaFiles(nextRepository, {
-            isPlaybackActive: isLearningSessionActive
-          });
-        } catch {
-          // Recovery cleanup is best effort and must not block local learning data from opening.
-        }
 
         if (isMounted) {
           setRepository(nextRepository);
@@ -53,8 +43,9 @@ export function KidEduDataProvider({ children }: { children: ReactNode }) {
 
     return () => {
       isMounted = false;
+      void closeKidEduDatabase(accountId);
     };
-  }, []);
+  }, [accountId]);
 
   const value = useMemo(() => repository, [repository]);
 

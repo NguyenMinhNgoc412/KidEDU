@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KidEDU · 29 hình chuyển động</title>
+    <link rel="stylesheet" href="review.css" />
+  </head>
+  <body>
+    <main>
+      <div class="brand">KidEDU · Gentle Growth</div>
+      <h1>29 từ mẫu, 29 hình chuyển động</h1>
+      <p class="intro">
+        Mỗi từ có một chuyển động minh hoạ ngắn, chạy một lượt khoảng 3 giây rồi dừng. Chọn từng
+        hình để xem; không có âm thanh.
+      </p>
+      <div class="filters">
+        <label
+          >Tìm từ<input
+            id="search"
+            type="search"
+            placeholder="Ví dụ: uống, chim, mở…"
+            autocomplete="off" /></label
+        ><label
+          >Nhóm từ<select id="category">
+            <option value="all">Tất cả nhóm</option>
+            <option value="cat-family">Gia đình</option>
+            <option value="cat-needs">Nhu cầu</option>
+            <option value="cat-objects">Đồ vật</option>
+            <option value="cat-animals">Con vật</option>
+            <option value="cat-actions">Hành động</option>
+          </select></label
+        >
+      </div>
+      <label class="setting"
+        ><input id="static-mode" type="checkbox" /> Giảm chuyển động · chỉ xem ảnh tĩnh</label
+      >
+      <p id="result-count" aria-live="polite">29/29 từ mẫu</p>
+      <div class="grid">
+        <article
+          data-item-id="item-ba"
+          data-title="ba"
+          data-category="cat-family"
+          data-sprite="ba-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Ba vẫy tay chào."></div>
+          <div class="details">
+            <span class="category">Gia đình</span>
+            <h2>ba</h2>
+            <p>Ba vẫy tay chào.</p>
+            <button type="button" aria-label="Xem chuyển động: ba" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-me"
+          data-title="mẹ"
+          data-category="cat-family"
+          data-sprite="me-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Mẹ vẫy tay chào."></div>
+          <div class="details">
+            <span class="category">Gia đình</span>
+            <h2>mẹ</h2>
+            <p>Mẹ vẫy tay chào.</p>
+            <button type="button" aria-label="Xem chuyển động: mẹ" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-ong"
+          data-title="ông"
+          data-category="cat-family"
+          data-sprite="ong-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Ông vẫy tay chào."></div>
+          <div class="details">
+            <span class="category">Gia đình</span>
+            <h2>ông</h2>
+            <p>Ông vẫy tay chào.</p>
+            <button type="button" aria-label="Xem chuyển động: ông" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-ba-noi"
+          data-title="bà"
+          data-category="cat-family"
+          data-sprite="ba-noi-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Bà vẫy tay chào."></div>
+          <div class="details">
+            <span class="category">Gia đình</span>
+            <h2>bà</h2>
+            <p>Bà vẫy tay chào.</p>
+            <button type="button" aria-label="Xem chuyển động: bà" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-an"
+          data-title="ăn"
+          data-category="cat-needs"
+          data-sprite="an-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Bé đưa thìa cơm lên miệng và ăn."></div>
+          <div class="details">
+            <span class="category">Nhu cầu</span>
+            <h2>ăn</h2>
+            <p>Bé đưa thìa cơm lên miệng và ăn.</p>
+            <button type="button" aria-label="Xem chuyển động: ăn" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-uong"
+          data-title="uống"
+          data-category="cat-needs"
+          data-sprite="uong-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Bé nâng ly, uống nước rồi hạ ly."></div>
+          <div class="details">
+            <span class="category">Nhu cầu</span>
+            <h2>uống</h2>
+            <p>Bé nâng ly, uống nước rồi hạ ly.</p>
+            <button type="button" aria-label="Xem chuyển động: uống" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-ngu"
+          data-title="ngủ"
+          data-category="cat-needs"
+          data-sprite="ngu-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Bé ngủ yên, thở nhẹ."></div>
+          <div class="details">
+            <span class="category">Nhu cầu</span>
+            <h2>ngủ</h2>
+            <p>Bé ngủ yên, thở nhẹ.</p>
+            <button type="button" aria-label="Xem chuyển động: ngủ" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-dau"
+          data-title="đau"
+          data-category="cat-needs"
+          data-sprite="dau-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Bé ôm má và thể hiện cảm giác đau nhẹ."></div>
+          <div class="details">
+            <span class="category">Nhu cầu</span>
+            <h2>đau</h2>
+            <p>Bé ôm má và thể hiện cảm giác đau nhẹ.</p>
+            <button type="button" aria-label="Xem chuyển động: đau" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-be"
+          data-title="bế"
+          data-category="cat-needs"
+          data-sprite="be-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Mẹ nâng và bế bé trong vòng tay."></div>
+          <div class="details">
+            <span class="category">Nhu cầu</span>
+            <h2>bế</h2>
+            <p>Mẹ nâng và bế bé trong vòng tay.</p>
+            <button type="button" aria-label="Xem chuyển động: bế" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-nua"
+          data-title="nữa"
+          data-category="cat-needs"
+          data-sprite="nua-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Bé đưa bát rỗng ra xin thêm."></div>
+          <div class="details">
+            <span class="category">Nhu cầu</span>
+            <h2>nữa</h2>
+            <p>Bé đưa bát rỗng ra xin thêm.</p>
+            <button type="button" aria-label="Xem chuyển động: nữa" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-khong"
+          data-title="không"
+          data-category="cat-needs"
+          data-sprite="khong-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Bé giơ lòng bàn tay và lắc đầu từ chối."></div>
+          <div class="details">
+            <span class="category">Nhu cầu</span>
+            <h2>không</h2>
+            <p>Bé giơ lòng bàn tay và lắc đầu từ chối.</p>
+            <button type="button" aria-label="Xem chuyển động: không" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-bong"
+          data-title="bóng"
+          data-category="cat-objects"
+          data-sprite="bong-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Quả bóng lăn một đoạn rồi dừng."></div>
+          <div class="details">
+            <span class="category">Đồ vật</span>
+            <h2>bóng</h2>
+            <p>Quả bóng lăn một đoạn rồi dừng.</p>
+            <button type="button" aria-label="Xem chuyển động: bóng" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-xe"
+          data-title="xe"
+          data-category="cat-objects"
+          data-sprite="xe-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Xe lăn bánh một đoạn rồi dừng."></div>
+          <div class="details">
+            <span class="category">Đồ vật</span>
+            <h2>xe</h2>
+            <p>Xe lăn bánh một đoạn rồi dừng.</p>
+            <button type="button" aria-label="Xem chuyển động: xe" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-ly"
+          data-title="ly"
+          data-category="cat-objects"
+          data-sprite="ly-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Bàn tay nhấc ly lên rồi đặt xuống."></div>
+          <div class="details">
+            <span class="category">Đồ vật</span>
+            <h2>ly</h2>
+            <p>Bàn tay nhấc ly lên rồi đặt xuống.</p>
+            <button type="button" aria-label="Xem chuyển động: ly" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-sua"
+          data-title="sữa"
+          data-category="cat-objects"
+          data-sprite="sua-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Sữa trắng được rót vào ly."></div>
+          <div class="details">
+            <span class="category">Đồ vật</span>
+            <h2>sữa</h2>
+            <p>Sữa trắng được rót vào ly.</p>
+            <button type="button" aria-label="Xem chuyển động: sữa" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-banh"
+          data-title="bánh"
+          data-category="cat-objects"
+          data-sprite="banh-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Bàn tay nhấc chiếc bánh rồi đặt lại."></div>
+          <div class="details">
+            <span class="category">Đồ vật</span>
+            <h2>bánh</h2>
+            <p>Bàn tay nhấc chiếc bánh rồi đặt lại.</p>
+            <button type="button" aria-label="Xem chuyển động: bánh" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-gau"
+          data-title="gấu"
+          data-category="cat-objects"
+          data-sprite="gau-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Gấu bông được ôm nhẹ rồi thả lỏng."></div>
+          <div class="details">
+            <span class="category">Đồ vật</span>
+            <h2>gấu</h2>
+            <p>Gấu bông được ôm nhẹ rồi thả lỏng.</p>
+            <button type="button" aria-label="Xem chuyển động: gấu" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-meo"
+          data-title="mèo"
+          data-category="cat-animals"
+          data-sprite="meo-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Mèo chớp mắt và ve vẩy đuôi."></div>
+          <div class="details">
+            <span class="category">Con vật</span>
+            <h2>mèo</h2>
+            <p>Mèo chớp mắt và ve vẩy đuôi.</p>
+            <button type="button" aria-label="Xem chuyển động: mèo" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-cho"
+          data-title="chó"
+          data-category="cat-animals"
+          data-sprite="cho-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Chó ngồi và vẫy đuôi."></div>
+          <div class="details">
+            <span class="category">Con vật</span>
+            <h2>chó</h2>
+            <p>Chó ngồi và vẫy đuôi.</p>
+            <button type="button" aria-label="Xem chuyển động: chó" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-ca"
+          data-title="cá"
+          data-category="cat-animals"
+          data-sprite="ca-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Cá quẫy đuôi và vây để bơi."></div>
+          <div class="details">
+            <span class="category">Con vật</span>
+            <h2>cá</h2>
+            <p>Cá quẫy đuôi và vây để bơi.</p>
+            <button type="button" aria-label="Xem chuyển động: cá" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-ga"
+          data-title="gà"
+          data-category="cat-animals"
+          data-sprite="ga-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Gà cúi đầu mổ rồi ngẩng lên."></div>
+          <div class="details">
+            <span class="category">Con vật</span>
+            <h2>gà</h2>
+            <p>Gà cúi đầu mổ rồi ngẩng lên.</p>
+            <button type="button" aria-label="Xem chuyển động: gà" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-chim"
+          data-title="chim"
+          data-category="cat-animals"
+          data-sprite="chim-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Chim mở và khép đôi cánh trên cành."></div>
+          <div class="details">
+            <span class="category">Con vật</span>
+            <h2>chim</h2>
+            <p>Chim mở và khép đôi cánh trên cành.</p>
+            <button type="button" aria-label="Xem chuyển động: chim" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-di"
+          data-title="đi"
+          data-category="cat-actions"
+          data-sprite="di-v2-sheet.png"
+          data-rest-frame="0"
+        >
+          <div class="sprite" role="img" aria-label="Bé bước đi, tay và chân luân phiên."></div>
+          <div class="details">
+            <span class="category">Hành động</span>
+            <h2>đi</h2>
+            <p>Bé bước đi, tay và chân luân phiên.</p>
+            <button type="button" aria-label="Xem chuyển động: đi" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-ngoi"
+          data-title="ngồi"
+          data-category="cat-actions"
+          data-sprite="ngoi-v2-sheet.png"
+          data-rest-frame="7"
+        >
+          <div class="sprite" role="img" aria-label="Bé hạ người ngồi xuống ghế."></div>
+          <div class="details">
+            <span class="category">Hành động</span>
+            <h2>ngồi</h2>
+            <p>Bé hạ người ngồi xuống ghế.</p>
+            <button type="button" aria-label="Xem chuyển động: ngồi" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-dung"
+          data-title="đứng"
+          data-category="cat-actions"
+          data-sprite="dung-v2-sheet.png"
+          data-rest-frame="7"
+        >
+          <div class="sprite" role="img" aria-label="Bé từ tư thế ngồi đứng dậy."></div>
+          <div class="details">
+            <span class="category">Hành động</span>
+            <h2>đứng</h2>
+            <p>Bé từ tư thế ngồi đứng dậy.</p>
+            <button type="button" aria-label="Xem chuyển động: đứng" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-lay"
+          data-title="lấy"
+          data-category="cat-actions"
+          data-sprite="lay-v2-sheet.png"
+          data-rest-frame="7"
+        >
+          <div class="sprite" role="img" aria-label="Bé lấy khối đồ chơi từ dưới sàn."></div>
+          <div class="details">
+            <span class="category">Hành động</span>
+            <h2>lấy</h2>
+            <p>Bé lấy khối đồ chơi từ dưới sàn.</p>
+            <button type="button" aria-label="Xem chuyển động: lấy" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-dua"
+          data-title="đưa"
+          data-category="cat-actions"
+          data-sprite="dua-v2-sheet.png"
+          data-rest-frame="7"
+        >
+          <div class="sprite" role="img" aria-label="Bé đưa khối đồ chơi cho người đối diện."></div>
+          <div class="details">
+            <span class="category">Hành động</span>
+            <h2>đưa</h2>
+            <p>Bé đưa khối đồ chơi cho người đối diện.</p>
+            <button type="button" aria-label="Xem chuyển động: đưa" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-mo"
+          data-title="mở"
+          data-category="cat-actions"
+          data-sprite="mo-v2-sheet.png"
+          data-rest-frame="7"
+        >
+          <div class="sprite" role="img" aria-label="Bé mở nắp hộp, kết thúc khi hộp mở."></div>
+          <div class="details">
+            <span class="category">Hành động</span>
+            <h2>mở</h2>
+            <p>Bé mở nắp hộp, kết thúc khi hộp mở.</p>
+            <button type="button" aria-label="Xem chuyển động: mở" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+        <article
+          data-item-id="item-dong"
+          data-title="đóng"
+          data-category="cat-actions"
+          data-sprite="dong-v2-sheet.png"
+          data-rest-frame="7"
+        >
+          <div class="sprite" role="img" aria-label="Bé đóng nắp hộp, kết thúc khi hộp đóng."></div>
+          <div class="details">
+            <span class="category">Hành động</span>
+            <h2>đóng</h2>
+            <p>Bé đóng nắp hộp, kết thúc khi hộp đóng.</p>
+            <button type="button" aria-label="Xem chuyển động: đóng" aria-pressed="false">
+              Xem chuyển động</button
+            ><span class="status" aria-live="polite">Ảnh tĩnh · sẵn sàng xem</span>
+          </div>
+        </article>
+      </div>
+      <p id="empty" hidden>Không có từ phù hợp. Hãy thử tìm từ khác.</p>
+      <p class="notice">
+        Bộ frame đã nối vào màn học mẫu để kiểm tra theo yêu cầu của phụ huynh. Duyệt nội dung cho
+        bản phát hành vẫn cần hoàn tất. Chuyển động dừng trước lượt nghe/nói và khi rời màn hình
+        học.
+      </p>
+    </main>
+    <script src="review.js"></script>
+  </body>
+</html>

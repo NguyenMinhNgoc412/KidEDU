@@ -37,19 +37,13 @@ export const colors = {
   loadingMuted: "#42615F"
 } as const;
 
-export const categoryTileColors = [
-  "#22B8CE",
-  "#F6D957",
-  "#F064A6",
-  "#5CC765",
-  "#F5A24B"
-] as const;
+export const categoryTileColors = ["#22B8CE", "#F6D957", "#F064A6", "#5CC765", "#F5A24B"] as const;
 
 export const categoryTileForegroundColors = [
-  "#FFFFFF",
+  "#253126",
   "#2D321F",
-  "#FFFFFF",
-  "#FFFFFF",
+  "#253126",
+  "#253126",
   "#3E2B16"
 ] as const;
 

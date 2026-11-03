@@ -1,5 +1,38 @@
 # Documentation v2 Changelog
 
+## 2026-10-30
+
+- C25 thêm bộ chọn ba bài trải nghiệm ở khu phụ huynh, lưu lựa chọn theo hồ sơ/account và giữ checkpoint riêng khi đổi bài. SQLite fixture lên v2; không thay kế hoạch server, production corpus hoặc entitlement.
+
+- C24 tích hợp Today → bài học có lưu → ghi nhận → thử trong sinh hoạt thành một luồng giao diện Gentle Growth, bỏ lối vào prototype trùng lặp. Fixture trên LAN riêng cần opt-in development; không thay production readiness, identity hoặc entitlement.
+
+- C23 nối 29 bộ frame mẫu vào learning player, bổ sung ảnh ba/mẹ và hiển thị bundled still trực tiếp. Animation hữu hạn trước canonical speech, có static/reduce-motion/lifecycle fallback; không đổi production entitlement hoặc content publishing gate.
+
+- C21 sửa login treo khi local endpoint không phản hồi: deadline/abort cho identity và app-server request, lỗi an toàn cho retry và regression tests. Không đổi identity authority, API contract hoặc entitlement guard.
+
+- Theo yêu cầu owner, nâng mobile baseline SDK 57 → 58 và đồng bộ Expo/React Native/React/test dependencies theo compatibility matrix chính thức. C20 ghi verification và native rebuild gate; không đổi product scope, provider hoặc architecture invariant.
+
+## 2026-10-12
+
+- C19 kiểm tra tự động sau SDK 57, sửa TypeScript 6 backend test/build compatibility và cấu hình origin cho full-access smoke. Báo cáo tách automated/browser evidence khỏi Android/iPhone native proof; release gate không đổi.
+
+- C18 sửa cấu hình test đăng nhập Expo Go trên thiết bị thật: opt-in LAN bind cho identity/API local và hướng dẫn hai endpoint dùng địa chỉ Wi-Fi máy tính. Không đổi production identity hoặc database schema.
+
+- Theo yêu cầu owner, nâng mobile baseline từ Expo SDK 54 lên SDK 57, đồng bộ React Native/React và Expo native/test dependencies. Ghi compatibility/build gate tại mobile architecture và task C17; không đổi product scope hoặc native crypto/IAP acceptance gate.
+
+- C15 triển khai luồng fixture Today → PreparedLesson → functional communication → SQLite observation/outbox/checkpoint → parent transfer → retry sync/history. Chỉ backend local, không dùng corpus giả làm production Ready; R01 vẫn còn media activities/production loader.
+- C16 tách media mới theo account, chặn URI scoped của account khác và giới hạn orphan sweep. Chưa thay encrypted pack/key policy, không khóa dữ liệu gia đình theo subscription.
+
+- Ghi các sửa lỗi C11–C14 từ review: autoplay hữu hạn, hold Parent Gate/lifecycle, touch target/contrast/selected state, auth refresh, Android local build và Today đọc plan theo hồ sơ. Không đổi SOT hoặc tự chốt TBD.
+- Production learning tạm khóa vì projection chưa thay thế signed activation/encrypted packs; R01/R02 và native/release proof vẫn mở trong báo cáo review.
+
+- Tổng hợp PB/PRD/TA TBD v1 vào owner-input checklist để owner bổ sung sau; giữ nguyên trạng thái SOT và Post-release boundary.
+- Ghi task C10 sửa local entitlement timer cho quyền dài hơn giới hạn timer JavaScript; không thay contract, schema hoặc activation architecture.
+
+## 2026-09-29
+
+- Owner xác nhận giữ taxonomy `targetType` sáu loại và `activityType` mười loại đang dùng trong content contract v1; bổ sung sau phải qua schema version/compatibility review. Quyết định này không đổi trạng thái `In review` của ba SOT hoặc chốt các TBD khác.
+
 ## 2026-09-08
 
 - Giữ tên sản phẩm KidEDU.

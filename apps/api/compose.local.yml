@@ -1,0 +1,109 @@
+services:
+  identity:
+    image: node:22-bookworm-slim@sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c
+    command: ["node", "/fixture/local-identity-fixture.cjs"]
+    volumes:
+      - ./scripts/local-identity-fixture.cjs:/fixture/local-identity-fixture.cjs:ro
+    ports:
+      - "${KIDEDU_LOCAL_BIND_ADDRESS:-127.0.0.1}:3011:3011"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3011/jwks').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_USER: kidedu_local
+      POSTGRES_PASSWORD: local-dev-only
+      POSTGRES_DB: kidedu_local
+    ports:
+      - "127.0.0.1:5439:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kidedu_local -d kidedu_local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - kidedu-local-db:/var/lib/postgresql/data
+
+  migrate:
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    command:
+      - node
+      - node_modules/prisma/build/index.js
+      - migrate
+      - deploy
+      - --schema=prisma/schema.prisma
+    environment:
+      DATABASE_POOL_URL: postgresql://kidedu_local:local-dev-only@postgres:5432/kidedu_local?schema=public
+      DATABASE_MIGRATION_URL: postgresql://kidedu_local:local-dev-only@postgres:5432/kidedu_local?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  seed-full-access:
+    image: postgres:16-bookworm
+    command:
+      [
+        "psql",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-h",
+        "postgres",
+        "-U",
+        "kidedu_local",
+        "-d",
+        "kidedu_local",
+        "-f",
+        "/fixture/local-full-access.sql"
+      ]
+    environment:
+      PGPASSWORD: local-dev-only
+    volumes:
+      - ./scripts/local-full-access.sql:/fixture/local-full-access.sql:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    environment:
+      APP_ENV: local
+      DATABASE_POOL_URL: postgresql://kidedu_local:local-dev-only@postgres:5432/kidedu_local?schema=public
+      SUPABASE_JWKS_URL: http://identity:3011/jwks
+      SUPABASE_JWT_ISSUER: http://identity:3011
+      SUPABASE_JWT_AUDIENCE: authenticated
+      CHILD_PROFILE_CONSENT_VERSION: local-test-v1
+    ports:
+      - "${KIDEDU_LOCAL_BIND_ADDRESS:-127.0.0.1}:3000:3000"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    depends_on:
+      identity:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      seed-full-access:
+        condition: service_completed_successfully
+
+volumes:
+  kidedu-local-db:

@@ -1,7 +1,7 @@
 import { AppState, type AppStateStatus } from "react-native";
 
 interface PrivacyAppStateAdapter {
-  currentState: AppStateStatus | null;
+  currentState: typeof AppState.currentState;
   addEventListener(type: "change", listener: (state: AppStateStatus) => void): { remove(): void };
 }
 

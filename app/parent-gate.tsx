@@ -1,84 +1,50 @@
-import { BlurView } from "expo-blur";
-import { useMemo, useState } from "react";
 import { useRouter } from "expo-router";
-import { Check, Home } from "lucide-react-native";
-import { StyleSheet, View } from "react-native";
+import { AppState, Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
 import { Card } from "@/components/Card";
-import { TextField } from "@/components/Input";
 import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
-import {
-  createParentGateChallenge,
-  isParentGateAnswerCorrect,
-  useParentGateStore
-} from "@/features/parent/parentGate";
-import { colors, fontFamilies, fontSizes, spacing } from "@/theme";
+import { useParentGateStore } from "@/features/parent/parentGate";
+import { useParentHold } from "@/features/parent/useParentHold";
+import { colors, radii, spacing } from "@/theme";
 
 export default function ParentGateScreen() {
   const router = useRouter();
-  const unlock = useParentGateStore((state) => state.unlock);
-  const challenge = useMemo(() => createParentGateChallenge(), []);
-  const [answer, setAnswer] = useState("");
-  const [hasError, setHasError] = useState(false);
+  const hold = useParentHold(openParentArea);
 
-  function submit() {
-    if (isParentGateAnswerCorrect(answer, challenge)) {
-      unlock();
-      router.replace("/parent");
-      return;
-    }
-
-    setHasError(true);
-    setAnswer("");
+  function openParentArea() {
+    if (AppState.currentState && AppState.currentState !== "active") return;
+    useParentGateStore.getState().unlock();
+    router.replace("/parent");
   }
 
   return (
-    <Screen padded={false} scroll={false}>
+    <Screen>
       <View style={styles.backdrop}>
-        <BlurView intensity={20} style={styles.blurLayer} tint="light" />
         <Card padding="lg" style={styles.container} variant="form">
           <AppText align="center" variant="screenTitle">
             Khu phụ huynh
           </AppText>
-          <AppText align="center" color="muted" variant="label">
-            Người lớn trả lời phép tính để mở khu quản lý.
+          <AppText align="center" color="muted">
+            Người lớn nhấn và giữ nút bên dưới để mở khu quản lý.
           </AppText>
-          <AppText align="center" color="primary" variant="learningTitle">
-            {challenge.prompt}
+          <AppText align="center" color="muted" variant="caption">
+            Nếu dùng trình đọc màn hình, chạm hai lần và giữ. Trên máy tính, giữ phím cách.
           </AppText>
-          <TextField
-            accessibilityLabel="Câu trả lời"
-            error={hasError}
-            inputMode="numeric"
-            inputStyle={styles.input}
-            keyboardType="number-pad"
-            onChangeText={(text) => {
-              setAnswer(text);
-              setHasError(false);
-            }}
-            onSubmitEditing={submit}
-            value={answer}
-          />
-          {hasError ? (
-            <AppText align="center" color="danger" variant="labelStrong">
-              Chưa đúng, thử lại nhé.
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Nhấn giữ để mở khu phụ huynh"
+            accessibilityHint="Giữ khoảng hai giây, thả sớm để hủy."
+            onPressIn={hold.begin}
+            onPressOut={hold.end}
+            style={[styles.holdButton, hold.holding ? styles.holding : null]}
+          >
+            <AppText align="center" color="onPrimary" variant="bodyStrong">
+              {hold.holding ? "Tiếp tục giữ…" : "Nhấn giữ để mở"}
             </AppText>
-          ) : null}
-          <View style={styles.actions}>
-            <KidButton
-              icon={<Home color={colors.primary} size={22} />}
-              label="Về học"
-              onPress={() => router.replace("/")}
-              variant="plain"
-            />
-            <KidButton
-              icon={<Check color={colors.onPrimary} size={22} />}
-              label="Mở"
-              onPress={submit}
-            />
-          </View>
+          </Pressable>
+          <KidButton label="Về học" onPress={() => router.replace("/")} variant="plain" />
         </Card>
       </View>
     </Screen>
@@ -86,32 +52,14 @@ export default function ParentGateScreen() {
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
-    alignItems: "center",
-    backgroundColor: colors.surfaceHigh,
-    flex: 1,
-    justifyContent: "center",
-    padding: spacing[24]
-  },
-  blurLayer: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(253, 250, 232, 0.58)"
-  },
-  container: {
-    gap: spacing[16],
-    maxWidth: 420,
-    width: "100%"
-  },
-  input: {
-    fontFamily: fontFamilies.bold,
-    fontSize: fontSizes[28],
+  backdrop: { flex: 1, justifyContent: "center", paddingVertical: spacing[24] },
+  container: { gap: spacing[16], width: "100%" },
+  holdButton: {
+    backgroundColor: colors.primary,
+    borderRadius: radii.full,
     minHeight: 64,
-    textAlign: "center"
+    justifyContent: "center",
+    padding: spacing[16]
   },
-  actions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing[12],
-    justifyContent: "center"
-  }
+  holding: { backgroundColor: colors.primaryDark }
 });
