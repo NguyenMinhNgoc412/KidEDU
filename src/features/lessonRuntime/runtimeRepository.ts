@@ -1,5 +1,12 @@
 import type { LessonEvent, LessonSession } from "./sessionEngine";
+import { sessionActivity, sessionActivityIndex } from "./sessionEngine";
 import { restoreSession } from "./restoreSession";
+import { mediaUriAllowedForAccount } from "@/features/media/accountMediaScope";
+import {
+  localActivityAssetSchema,
+  type LocalActivityAsset,
+  type LocalActivityAssets
+} from "@/features/practice/activityMedia";
 
 export interface RuntimeDatabase {
   execAsync(sql: string): Promise<void>;
@@ -66,7 +73,7 @@ export class LessonRuntimeRepository {
         "SELECT version FROM runtime_meta WHERE id=1",
         []
       );
-      if (row?.version !== 1 && row?.version !== 2) throw new Error("UNSUPPORTED_RUNTIME_SCHEMA");
+      if (![1, 2, 3].includes(row?.version ?? 0)) throw new Error("UNSUPPORTED_RUNTIME_SCHEMA");
       await db.runAsync("INSERT OR IGNORE INTO runtime_account VALUES (1,?)", [this.accountId]);
       const owner = await db.getFirstAsync<{ account_id: string }>(
         "SELECT account_id FROM runtime_account WHERE id=1",
@@ -79,9 +86,76 @@ export class LessonRuntimeRepository {
         CREATE UNIQUE INDEX IF NOT EXISTS one_open_generation_per_child
           ON lesson_sessions(child_id,generation) WHERE phase != 'finished';
         CREATE TABLE IF NOT EXISTS lesson_selection (child_id TEXT PRIMARY KEY, lesson_id TEXT NOT NULL);
-        UPDATE runtime_meta SET version=2 WHERE id=1;
+        CREATE TABLE IF NOT EXISTS practice_media_bindings (
+          child_id TEXT NOT NULL, lesson_id TEXT NOT NULL, target_id TEXT NOT NULL,
+          activity_type TEXT NOT NULL, asset_id TEXT NOT NULL, document TEXT NOT NULL,
+          PRIMARY KEY(child_id,lesson_id,target_id,activity_type,asset_id)
+        );
+        UPDATE runtime_meta SET version=3 WHERE id=1;
       `);
     });
+  }
+  async practiceMedia(
+    childId: string,
+    lessonId: string,
+    targetId: string,
+    activityType: string
+  ): Promise<LocalActivityAssets> {
+    await this.queue;
+    this.assertOpen();
+    const rows = await this.db.getAllAsync<{ asset_id: string; document: string }>(
+      "SELECT asset_id,document FROM practice_media_bindings WHERE child_id=? AND lesson_id=? AND target_id=? AND activity_type=?",
+      [childId, lessonId, targetId, activityType]
+    );
+    return Object.fromEntries(
+      rows.map((row) => [row.asset_id, localActivityAssetSchema.parse(JSON.parse(row.document))])
+    );
+  }
+  async setPracticeMedia(
+    childId: string,
+    lessonId: string,
+    targetId: string,
+    activityType: string,
+    assetId: string,
+    asset: LocalActivityAsset | null
+  ) {
+    if (
+      asset &&
+      (asset.accountId !== this.accountId ||
+        asset.childId !== childId ||
+        !mediaUriAllowedForAccount(asset.uri, this.accountId))
+    )
+      throw new Error("MEDIA_NOT_OWNED");
+    const parsed = asset ? localActivityAssetSchema.parse(asset) : null;
+    return this.write(async (db) => {
+      const previous = await db.getFirstAsync<{ document: string }>(
+        "SELECT document FROM practice_media_bindings WHERE child_id=? AND lesson_id=? AND target_id=? AND activity_type=? AND asset_id=?",
+        [childId, lessonId, targetId, activityType, assetId]
+      );
+      if (parsed)
+        await db.runAsync(
+          "INSERT INTO practice_media_bindings VALUES (?,?,?,?,?,?) ON CONFLICT(child_id,lesson_id,target_id,activity_type,asset_id) DO UPDATE SET document=excluded.document",
+          [childId, lessonId, targetId, activityType, assetId, JSON.stringify(parsed)]
+        );
+      else
+        await db.runAsync(
+          "DELETE FROM practice_media_bindings WHERE child_id=? AND lesson_id=? AND target_id=? AND activity_type=? AND asset_id=?",
+          [childId, lessonId, targetId, activityType, assetId]
+        );
+      return previous ? localActivityAssetSchema.parse(JSON.parse(previous.document)) : null;
+    });
+  }
+  async canRemovePracticeMedia(uri: string) {
+    await this.queue;
+    this.assertOpen();
+    const rows = await this.db.getAllAsync<{ document: string }>(
+      "SELECT document FROM practice_media_bindings UNION ALL SELECT document FROM lesson_sessions",
+      []
+    );
+    return (
+      mediaUriAllowedForAccount(uri, this.accountId) &&
+      !rows.some((row) => row.document.includes(JSON.stringify(uri)))
+    );
   }
   async load(childId: string, generation?: string): Promise<LessonSession | null> {
     await this.queue;
@@ -101,6 +175,34 @@ export class LessonRuntimeRepository {
       [childId]
     );
     return row?.lesson_id ?? null;
+  }
+  async practiceSessions(childId: string): Promise<LessonSession[]> {
+    await this.queue;
+    this.assertOpen();
+    const rows = await this.db.getAllAsync<{ document: string }>(
+      "SELECT document FROM lesson_sessions WHERE child_id=? AND substr(id,1,9)='practice_' ORDER BY rowid DESC LIMIT 30",
+      [childId]
+    );
+    return rows.map((row) => JSON.parse(row.document) as LessonSession);
+  }
+  async stickerCollection(childId: string): Promise<string[]> {
+    await this.queue;
+    this.assertOpen();
+    const rows = await this.db.getAllAsync<{ id: string }>(
+      "SELECT DISTINCT id FROM (SELECT j.value AS id FROM lesson_sessions s, json_each(s.document, '$.gameStickers') j WHERE s.child_id=? AND substr(s.id,1,9)='practice_' UNION ALL SELECT json_extract(j.value, '$.itemId') AS id FROM lesson_sessions s, json_each(s.document, '$.rewardReceipts') j WHERE s.child_id=? AND substr(s.id,1,9)='practice_') WHERE id IS NOT NULL",
+      [childId, childId]
+    );
+    return rows.map(({ id }) => id);
+  }
+  async hasSession(childId: string, sessionId: string) {
+    await this.queue;
+    this.assertOpen();
+    return Boolean(
+      await this.db.getFirstAsync<{ id: string }>(
+        "SELECT id FROM lesson_sessions WHERE child_id=? AND id=?",
+        [childId, sessionId]
+      )
+    );
   }
   async selectLesson(childId: string, lessonId: string) {
     await this.write(async (db) => {
@@ -142,15 +244,19 @@ export class LessonRuntimeRepository {
     if (changed.changes !== 1) throw new Error("STALE_CHECKPOINT");
   }
   async commitObservation(previous: LessonSession, next: LessonSession, event: LessonEvent) {
-    const activity = previous.prepared.activities[previous.index];
+    const activity = sessionActivity(previous);
     if (
       !activity ||
       event.childId !== previous.childId ||
       event.payload.sessionId !== previous.id ||
-      event.eventId !== `${previous.id}:${previous.index}` ||
+      event.eventId !== `${previous.id}:${sessionActivityIndex(previous)}` ||
       next.id !== previous.id ||
       next.childId !== previous.childId ||
-      next.index !== previous.index + 1 ||
+      (previous.course
+        ? next.course?.reviewIndex !== previous.course.reviewIndex + 1 ||
+          next.index !==
+            (next.phase === "finished" ? previous.course.lessonIds.length : previous.index)
+        : next.index !== previous.index + 1) ||
       next.revision !== previous.revision + 1
     )
       throw new Error("INVALID_OBSERVATION_COMMIT");
@@ -161,7 +267,7 @@ export class LessonRuntimeRepository {
         event.childId,
         previous.id,
         activity.id,
-        previous.prepared.lesson.id,
+        previous.course?.lessonIds[previous.course.reviewIndex] ?? previous.prepared.lesson.id,
         previous.prepared.generation,
         JSON.stringify(event)
       ]);

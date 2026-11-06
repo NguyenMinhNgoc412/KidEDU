@@ -6,7 +6,7 @@
 | Mã tài liệu        | `SOT-PRD-02`                                                           |
 | Trạng thái         | `In review`                                                            |
 | Product owner      | Chủ dự án KidEDU                                                       |
-| Cập nhật           | 2026-09-08                                                             |
+| Cập nhật           | 2026-11-05                                                             |
 | Phạm vi            | Store Release v1.0                                                     |
 | Dẫn xuất từ        | [01-product-brief-sot.md](./01-product-brief-sot.md)                   |
 | Được hiện thực bởi | [03-technical-architecture-sot.md](./03-technical-architecture-sot.md) |
@@ -108,7 +108,7 @@ Trước khi tạo hồ sơ trẻ hoặc upload family media, phụ huynh phải
 
 ### `PRD-ACC-003` — Child profile (`Must`)
 
-Phụ huynh tạo, sửa và xóa hồ sơ trẻ gồm tên gọi trong app, năm/tháng sinh ở mức cần thiết, mục tiêu và thiết lập trải nghiệm. Không bắt buộc nhập họ tên pháp lý, chẩn đoán hoặc hồ sơ y tế.
+Phụ huynh tạo, sửa và xóa hồ sơ trẻ gồm tên gọi trong app, năm/tháng sinh ở mức cần thiết, mục tiêu và thiết lập trải nghiệm. Theo C50-D05, khi nhập tên con phụ huynh nhập thêm giới tính phục vụ reward group; không suy diễn từ tên. Hồ sơ cũ thiếu field không tự backfill, giữ inventory cũ và yêu cầu parent bổ sung trước nhận quà mới. Policy sửa giới tính đã nhập còn tại C50-D05. Không bắt buộc nhập họ tên pháp lý, chẩn đoán hoặc hồ sơ y tế.
 
 ### `PRD-ACC-004` — Parent Gate (`Must`)
 
@@ -170,7 +170,7 @@ Mỗi default video, audio, animation hoặc ảnh phải khai báo semantic rol
 
 ## 9. Learning activities v1
 
-Mọi activity phải có mục tiêu, instruction cho phụ huynh, stimulus, prompt strategy, khoảng chờ, cách replay/skip an toàn và observation cuối hoạt động.
+Các activity Tập nói có goal, instruction, stimulus, prompt strategy, khoảng chờ và observation theo rubric. Phụ huynh nhận xét từng bài sau toàn phiên, không chen giữa bài. Game session là luồng riêng theo `PRD-GAME-*` và không có observation; xem `PRD-PROG-005`.
 
 ### `PRD-ACT-001` — Học từ và khẩu hình (`Must`)
 
@@ -260,39 +260,39 @@ Family media private theo family/account, không dùng huấn luyện AI, quản
 
 Local media dùng được trên thiết bị tạo nó. Cloud backup/sync media chỉ hoạt động theo entitlement, consent và quota. Hết subscription không xóa local family media; cloud retention tuân chính sách đã công bố.
 
-## 12. Bộ học tùy chỉnh AI — `Post-release`
+## 12. Bộ học tùy chỉnh thủ công/AI — v1
 
-Toàn bộ nhóm `PRD-CUSTOM-*` dưới đây là thiết kế cho phase sau Store Release v1.0. Chúng không phải `Must`, không tham gia release gate v1 và không cho phép đưa Cloud Tasks, provider AI hoặc generation-credit SKU vào baseline implementation hiện tại.
+Owner phê duyệt 2026-11-05: nhóm `PRD-CUSTOM-*` thuộc Must v1 cho paid. Manual authoring và AI đều có parent preview/approval. Provider/dispatcher, quota và commercial policy phải qua gate C50 trước production; không tự provision theo thiết kế candidate.
 
-### `PRD-CUSTOM-001` — Parent-authored scope (`Post-release`)
+### `PRD-CUSTOM-001` — Parent-authored scope (`Must`)
 
-Trong Parent Mode, subscriber có thể tạo draft bộ học riêng bằng cách nhập/chọn chủ đề, từ, cụm, câu/ngữ cảnh và activity mong muốn. AI có thể đề xuất mở rộng nhưng không tự thêm vào learning plan, không chẩn đoán và không biến input thành nội dung dùng chung cho gia đình khác.
+Trong Parent Mode, subscriber tạo bộ thủ công với nội dung/media của mình hoặc dùng AI hỗ trợ; draft có chủ đề, từ, cụm, câu/ngữ cảnh và activity mong muốn. Manual không gọi provider hoặc tiêu generation quota. AI có thể đề xuất mở rộng nhưng không tự thêm vào learning plan, không chẩn đoán và không biến input thành nội dung dùng chung cho gia đình khác.
 
-### `PRD-CUSTOM-002` — Generated asset bundle (`Post-release`)
+### `PRD-CUSTOM-002` — Generated asset bundle (`Must`)
 
 Server phải tìm/reuse target và asset mặc định đã duyệt khi semantic/locale/role khớp, rồi mới tạo phần còn thiếu hoặc ngữ cảnh riêng. Phần cần tạo gồm structured Vietnamese content, canonical audio candidate, semantic image và allowlisted motion recipe cho từng target phù hợp. Video khẩu hình không được AI-generate mặc định trong custom flow v1; parent có thể quay/import video riêng, còn target không có video dùng audio + ảnh/motion và chỉ tham gia activity đã đạt readiness.
 
-### `PRD-CUSTOM-003` — Asynchronous generation lifecycle (`Post-release`)
+### `PRD-CUSTOM-003` — Asynchronous generation lifecycle (`Must`)
 
 Generation chạy bất đồng bộ trên server với trạng thái, progress và retry có thể phục hồi; app không phải mở liên tục. Client không gọi thẳng provider AI và không chứa provider API key. Khi app đang mở, trạng thái được polling có giới hạn; khi mở/foreground lại, bootstrap/delta lấy trạng thái mới mà không cần remote push.
 
-### `PRD-CUSTOM-004` — Preview and approval (`Post-release`)
+### `PRD-CUSTOM-004` — Preview and approval (`Must`)
 
 Trước khi publish private pack, parent phải preview từng target, nghe audio, xem ảnh/motion, sửa text, regenerate asset lỗi hoặc loại target. Server chạy schema, duplicate, Vietnamese text, technical media và child-safety checks; asset bị provider/safety gate từ chối không được tải xuống như content usable.
 
-### `PRD-CUSTOM-005` — Separate generation fee (`Post-release`)
+### `PRD-CUSTOM-005` — Generation quota and cost (`Must`)
 
-AI custom generation dùng credit/fee riêng ngoài subscription, được mua và xác thực qua Apple/Google store. Trước khi xác nhận, Parent Mode hiển thị target/asset được reuse và output thực sự cần generate, số credit, giới hạn retry và điều kiện hoàn credit. Backend reserve credit khi nhận job và chỉ capture khi output đạt gate/preview-ready theo policy; job lỗi hoặc bị server reject phải release/refund credit idempotently.
+Paid AI có hạn mức do server quản lý; allowance included, phí vượt mức và retry/refund policy là `PRD-TBD-08`. Không mặc định phải mua credit riêng. Hiển thị quota/quote trước confirm; reserve/capture/release idempotent, không thu lại khi retry hệ thống. Chỉ triển khai store add-on nếu owner duyệt policy/SKU.
 
-### `PRD-CUSTOM-006` — Privacy and provider boundary (`Post-release`)
+### `PRD-CUSTOM-006` — Privacy and provider boundary (`Must`)
 
 Prompt gửi provider phải giảm thiểu dữ liệu và không chứa tên/ảnh/audio/video của trẻ, family media, progress, chẩn đoán hoặc note riêng nếu không có requirement/consent riêng. Family media không được dùng làm generative-AI input mặc định. Provider/model/region/data-retention setting phải được inventory và công bố phù hợp privacy policy.
 
-### `PRD-CUSTOM-007` — Ownership, access and deletion (`Post-release`)
+### `PRD-CUSTOM-007` — Ownership, access and deletion (`Must`)
 
 Draft, generated asset và private pack thuộc namespace gia đình, có xem/xóa/export và không được dùng train model hoặc làm default corpus nếu không có consent riêng. Hết subscription không xóa custom data hoặc unused credit ledger, nhưng không mở learning session/giải mã pack khi entitlement không hợp lệ; quy tắc retention và tải dữ liệu phải được công bố.
 
-### `PRD-CUSTOM-008` — Private pack delivery (`Post-release`)
+### `PRD-CUSTOM-008` — Private pack delivery (`Must`)
 
 Sau khi parent duyệt, backend đóng custom content thành versioned, signed, encrypted family-scoped pack và client tải/verify/install bằng cùng atomic protocol với lesson pack. Edit/regenerate tạo version mới; version đang dùng trong learning session không bị mutate giữa phiên.
 
@@ -322,14 +322,16 @@ App có thể đề nghị ôn hoặc tăng mức khó bằng rule có thể gi�
 
 ## 14. Subscription và entitlement
 
-| Capability                                  |        Trial active | Subscriber active |  Expired/no subscription |
-| ------------------------------------------- | ------------------: | ----------------: | -----------------------: |
-| Onboarding và trải nghiệm trong trial scope |                  Có |                Có | Không bắt đầu lesson mới |
-| Full plan/content theo gói                  | Theo giới hạn trial |                Có |                    Không |
-| Dùng premium pack đã cache                  |   Trong entitlement |                Có |                    Không |
-| Xem/export/delete dữ liệu gia đình          |                  Có |                Có |                       Có |
-| Upload/cloud sync family media              |    Theo trial quota |    Theo quota gói |          Dừng upload mới |
-| Account/subscription management             |                  Có |                Có |                       Có |
+| Capability                                     | Free / expired paid         | Active paid       | Trial            |
+| ---------------------------------------------- | --------------------------- | ----------------- | ---------------- |
+| Tập nói basic, không cap lượt/ngày             | Có                          | Có                | Có               |
+| Full catalog                                   | Không                       | Có                | Theo grant       |
+| Tạo bộ thủ công/AI                             | Không                       | Có, AI theo quota | Không            |
+| Ba trò/ngày                                    | Free length                 | Paid length       | Theo grant       |
+| Xem collection/data, export/delete family data | Có                          | Có                | Có               |
+| Cloud media mới                                | Theo quota basic được duyệt | Theo quota paid   | Theo quota trial |
+
+Hết paid không có quyền upload cloud mới mặc định; không xóa local family data. Xem `PRD-SUB-006`.
 
 ### `PRD-SUB-001` — Trial (`Must`)
 
@@ -347,9 +349,9 @@ Khi hết quyền, không được tạo premium session mới hoặc giải mã
 
 Không tích hợp third-party ad SDK trong v1. Promotion của KidEDU chỉ xuất hiện trong Parent Mode và không dùng dữ liệu hành vi của trẻ để nhắm mục tiêu.
 
-### `PRD-SUB-005` — Consumable generation credit (`Post-release`)
+### `PRD-SUB-005` — Generation allowance and optional credit (`Must`)
 
-Requirement này chỉ áp dụng cùng phase `PRD-CUSTOM-*`, không thuộc billing v1. Generation credit là store product/ledger riêng, không được suy ra từ local balance. Purchase, reserve, capture, release/refund, restore/reconcile nếu store hỗ trợ và duplicate/out-of-order event phải được backend xử lý idempotent. Credit không phải entitlement để bypass subscription hoặc giải mã content.
+Server quản lý quota/ledger cho AI theo `PRD-CUSTOM-005`. Nếu owner chọn consumable add-on, Apple/Google xác thực purchase và backend reconcile idempotent; không mở learning quyền premium bằng local balance. Add-on chưa là yêu cầu bắt buộc; policy phải đóng trước AI release.
 
 ## 15. Sync và download behavior nhìn từ người dùng
 
@@ -411,7 +413,7 @@ Parent Mode hỗ trợ screen reader label, dynamic text trong giới hạn layo
 
 ### `PRD-UX-004` — No manipulative engagement (`Must`)
 
-Không streak gây áp lực cho trẻ, loot box, autoplay vô hạn, social comparison hoặc dark pattern subscription.
+Không streak gây áp lực, paid loot box, autoplay vô hạn, social comparison hoặc dark pattern subscription. Ngoại lệ owner duyệt 2026-11-05: bốn hộp quà sưu tập miễn phí theo `PRD-REWARD-001`, không mua lượt, rarity hoặc reroll.
 
 ## 18. Privacy và data control
 
@@ -466,18 +468,22 @@ Không được phát hành public v1.0 nếu còn một trong các điều ki�
 
 Các tài liệu chi tiết dự kiến và requirement owner:
 
-| Nhóm tài liệu                   | Requirement chính                            |
-| ------------------------------- | -------------------------------------------- |
-| Learning plan & curriculum spec | `PRD-PLAN-*`, `PRD-CONT-*`                   |
-| Activity specifications         | `PRD-ACT-*`, `PRD-SES-*`, `PRD-BR-003..006`  |
-| Parent/family media spec        | `PRD-MEDIA-*`, `PRD-PRIV-*`                  |
-| AI custom library spec (future) | `PRD-CUSTOM-*`, `PRD-SUB-005` — post-release |
-| Progress spec                   | `PRD-PROG-*`                                 |
-| Subscription spec               | `PRD-SUB-*`                                  |
-| Sync/download spec              | `PRD-SYNC-*`, `PRD-NFR-001..004`             |
-| Notification spec               | `PRD-NOTIF-*`, `PRD-ACC-*`, `PRD-PRIV-*`     |
-| Design system/UX                | `PRD-UX-*`, `PRD-ACC-004`                    |
-| QA/release plan                 | toàn bộ acceptance criteria và mục 20        |
+| Nhóm tài liệu                   | Requirement chính                           |
+| ------------------------------- | ------------------------------------------- |
+| Learning plan & curriculum spec | `PRD-PLAN-*`, `PRD-CONT-*`                  |
+| Activity specifications         | `PRD-ACT-*`, `PRD-SES-*`, `PRD-BR-003..006` |
+| Parent/family media spec        | `PRD-MEDIA-*`, `PRD-PRIV-*`                 |
+| Custom library spec v1          | `PRD-CUSTOM-*`, `PRD-SUB-005`               |
+| Progress spec                   | `PRD-PROG-*`                                |
+| Subscription spec               | `PRD-SUB-*`                                 |
+| Sync/download spec              | `PRD-SYNC-*`, `PRD-NFR-001..004`            |
+| Notification spec               | `PRD-NOTIF-*`, `PRD-ACC-*`, `PRD-PRIV-*`    |
+| Design system/UX                | `PRD-UX-*`, `PRD-ACC-004`                   |
+| QA/release plan                 | toàn bộ acceptance criteria và mục 20       |
+
+### `PRD-ACT-012` — Bộ từ của bài học qua nhiều trò chơi
+
+Superseded presentation policy bởi `PRD-GAME-001..004`, `PRD-REWARD-001..003` và `PRD-PROG-005` ngày 2026-11-05. Ba trò nằm trong một phiên/ngày, độ dài theo tier, chỉ một quà khi hoàn tất; không nhận xét game. C40–C49 là implementation history, không override C50. Đáp án authored kiểm local, không phải mastery ngôn ngữ.
 
 ## 22. Open decisions
 
@@ -490,7 +496,63 @@ PRD kế thừa toàn bộ `PB-TBD-*` và bổ sung:
 - `PRD-TBD-05`: platform phát hành đồng thời hay Android trước/iOS sau trong cùng release program;
 - `PRD-TBD-06`: policy grace/billing retry hiển thị cho từng store.
 - `PRD-TBD-07`: cadence/default preference cụ thể cho từng loại notification qua usability test.
-- `PRD-TBD-08` (`Post-release`): giới hạn target/job, credit price, retry/regenerate/refund và retention của custom generation;
-- `PRD-TBD-09` (`Post-release`): custom pack có cho phép dùng khi subscription hết hạn hay yêu cầu active subscription.
+- `PRD-TBD-08`: giới hạn target/job, included quota, optional overage fee/SKU, retry/regenerate/refund và retention của AI; gate C50-D03.
+- `PRD-TBD-09`: đóng theo PRD-SUB-006: hết paid khóa private premium learning, giữ xem/export/delete dữ liệu; basic catalog vẫn dùng được.
 
 Các `TBD` phải được đóng trước khi phần liên quan qua release gate; không cản việc thiết kế các invariant không phụ thuộc chúng.
+
+## 23. Owner-approved scope 2026-11-05 — C50
+
+Các requirement dưới đây thuộc `Must` Store Release v1.0. Chúng thay mô hình ba tab, game có review và thưởng từng trò trong C36–C49; không bỏ progression, family media hoặc parent-guided transfer.
+
+### `PRD-NAV-001` — Bốn tab
+
+Tập nói · Trò chơi · Bộ sưu tập · Phụ huynh. Tập nói vào theo chủ đề, vẫn có goal/lesson/progression và nhận xét cuối phiên; sensitive parent actions sau Parent Gate. Không giới hạn số phiên Tập nói/ngày trong content scope được cấp.
+
+### `PRD-GAME-001` — Một phiên/ngày
+
+Mỗi child có một phiên gồm bóng khuyết, nghe rồi chọn, lật thẻ. Dừng thì tiếp tục cùng phiên. Reset 00:00 hằng ngày theo `Asia/Ho_Chi_Minh` kể cả phiên hôm trước chưa xong; không cộng dồn hoặc mở phiên thứ hai sau hoàn tất. Server là authority lượt/ngày, reinstall/device clock/đổi thiết bị không cấp lượt mới. Các thiết bị tiếp tục cùng phiên từ checkpoint đã đồng bộ; không dùng client timestamp để kéo dài ngày chơi. Quà chưa nhận khi reset bị hủy, kể cả completion local chưa sync. Receipt đã xác nhận trước reset vẫn giữ và retry trả receipt cũ. Xử lý thao tác đang chạy/đổi gói tại boundary theo C50-D06; không thay expiry store thành midnight.
+
+### `PRD-GAME-002` — Độ dài theo gói
+
+| Trò           | Free                  | Paid                   |
+| ------------- | --------------------- | ---------------------- |
+| Bóng khuyết   | 2 màn × khoảng 3 hình | 5 màn × khoảng 3 hình  |
+| Nghe rồi chọn | 5 từ, mỗi từ 3 đáp án | 12 từ, mỗi từ 3 đáp án |
+| Lật thẻ       | 5 cặp                 | 5 cặp                  |
+
+Catalog author bảo đảm số lượng/readiness từng gói. Không yêu cầu cùng một bộ năm từ cho mọi trò; có thể reuse từ nhưng phải đủ 12 target cho paid nghe chọn. Không có thưởng giữa round/trò.
+
+### `PRD-GAME-003` — Tương tác và feedback
+
+Bóng khuyết kéo vật vào silhouette tương ứng (assistive alternative bắt buộc); nghe chọn phát tên vật và chạm một trong ba hình; lật hình ghép cặp theo authored rule. Đúng có hiệu ứng nhẹ, sai nghe chọn nhắc lại tên vật cần tìm rồi cho thử lại. Không trừ điểm, phạt, timer gây áp lực, tự chấm phát âm hoặc observation. Tự chuyển sau completion; pause/background dừng media và restore không autoplay.
+
+Owner amendment 2026-11-06: màn chơi cố định, không cuộn khi kéo và không vuốt/system back để thoát; có nút Quay lại Trò chơi rõ ràng, lưu tiến độ khi rời. Hình chọn và mười thẻ dùng diện tích khả dụng, thích ứng cỡ màn hình thay vì giữ ô nhỏ giữa khoảng trống lớn. Cặp sai tự úp sau khoảng nhìn ngắn, không nút úp thủ công; dừng timer khi background/pause, có thời gian dài hơn cho screen reader. Không giảm touch target dưới chuẩn accessibility để nhét nội dung.
+
+### `PRD-GAME-004` — Hết lượt vẫn xem được tab
+
+Tab game luôn vào được; khi hết lượt, nút Vào chơi disabled/mờ, có accessible disabled state và thông báo “Đã hết lượt chơi hôm nay”, kèm lần reset tiếp theo. Không chỉ dùng màu. Phiên dở có Tiếp tục; tab Tập nói/Bộ sưu tập/Phụ huynh vẫn hoạt động theo quyền riêng.
+
+### `PRD-REWARD-001` — Một quà sau đủ ba trò
+
+Hoàn tất đủ ba trò theo gói → chọn Mảnh ghép/Sticker → bốn hộp → chọn một → nhận một món chưa sở hữu. Một receipt/ngày chơi/child, không nhận lại qua resume/retry/multi-device. Candidates và lựa chọn bất biến; random trong toàn pool chưa có thuộc loại/group phù hợp, không cần xong một tranh/chủ đề trước. Không mua hộp/lượt, rarity, reroll hoặc quảng cáo lấy lượt. Chỉ nhận món mới; hết loại nào khóa loại đó và vẫn hiển thị số quà còn lại của từng loại, gồm số 0. Hết cả hai không chặn quyền chơi. Bốn hộp là bốn vị trí lựa chọn, không phải cam kết bốn món khác nhau; pool còn 1–3 món có thể lặp candidate giữa các hộp nhưng chỉ cấp duy nhất một món mới. Quà chưa nhận hết hiệu lực tại reset theo PRD-GAME-001.
+
+Owner amendment 2026-11-06: hoàn tất tự ghi checkpoint/outbox và đồng bộ ở completion boundary, không bấm Lưu lượt chơi hoặc Chơi lại. Chỉ sau server ACK mới tự sang màn nhận quà. Lỗi mạng giữ tiến độ, cho thử kết nối lại, không mở lượt mới hoặc tự cấp quà. Sau receipt được xác nhận, hiện món quà một khoảng ngắn rồi tự về tab Trò chơi; tab giữ trạng thái hết lượt. Background không tiêu thời gian xem quà.
+
+### `PRD-REWARD-002` — Catalog theo giới tính hồ sơ
+
+Group cố định theo giới tính đã nhập; không suy từ tên và không thay bằng sở thích tự chọn. Mỗi nhóm 15–20 tranh, 3–4 chủ đề, 5–6 mảnh/tranh; tổng hai nhóm 30–40 tranh. Bé trai: siêu nhân, máy bay/tên lửa/vũ trụ; bé gái: công chúa, phòng bếp, bác sĩ. Sticker 3–4 chủ đề/group, 15–20 hình/bộ, có đồ vật trong nhà/động vật và siêu nhân/công chúa tương ứng. Chủ đề chung có thể reuse artwork. Asset có rights/provenance/review. Profile nhập giới tính theo PRD-ACC-003; giữ quà cũ, không tự đoán group khi thiếu field.
+
+### `PRD-REWARD-003` — Bộ sưu tập bền vững
+
+Album tranh hiển thị mảnh đã có và tranh hoàn chỉnh; album sticker hiển thị món đã nhận/còn thiếu. Lưu theo account/child, sync và giữ inventory/receipt cũ; hết subscription không khóa xem collection đã nhận. Không có yêu cầu mini-game ghép lại tranh ở C50.
+
+### `PRD-PROG-005` — Chỉ nhận xét Tập nói
+
+Game session không mở review và không tạo observation/negative observation/missing-review reminder. Tập nói vẫn nhận xét từng bài cuối phiên qua Parent Gate; không có nhận xét không phải chưa đạt. Game completion/reward không nâng mastery hoặc tự thay progression. Giữ nguyên lịch sử cũ với nguồn/session kind rõ.
+
+### `PRD-SUB-006` — Basic/free và full/paid
+
+Free lâu dài học năm bộ hiện có: Gia đình (`deck-family`), Nhu cầu cơ bản (`deck-needs`), Đồ vật quen thuộc (`deck-objects`), Con vật (`deck-animals`), Hành động (`deck-actions`); giữ phạm vi target hiện tại, không tự mở nội dung mới vào basic. Đây là mapping từ catalog hiện có, không biến legacy deck thành architecture learning v2 hoặc bỏ goal/progression/transfer. Free và trial không tạo bộ riêng thủ công/AI. Paid mở full + custom authoring. Cả hai một lượt game/ngày theo PRD-GAME-002; Tập nói không cap số lượt. Hết trial/paid về basic; không cấp premium key chỉ vì cached bytes. Account/activation và content publish/readiness vẫn bắt buộc. AI tạo bộ khoảng năm từ theo gợi ý phụ huynh; số từ/job không đồng nghĩa quota generation vô hạn. Quota/pricing/provider AI còn gate D03.
+
+Acceptance chung: server/loader/repository enforce scope; runtime không gọi API mỗi lượt thao tác; atomic local mutation+outbox; test 00:00, race hai thiết bị, process kill, expiry, legacy migration và private data isolation trước release. Task thực thi: [C50](./delivery/tasks/C50-four-tabs-daily-games-freemium-ai.md).

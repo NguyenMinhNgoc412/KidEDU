@@ -9,6 +9,8 @@
       "observations": 2,
       "duplicateRetryStable": true,
       "parentHistory": true,
+      "commandParentGuided": true,
+      "goalFilterAndDeferrableRecommendation": true,
       "pageErrors": []
     },
     {
@@ -19,6 +21,8 @@
       "observations": 2,
       "duplicateRetryStable": true,
       "parentHistory": true,
+      "commandParentGuided": true,
+      "goalFilterAndDeferrableRecommendation": true,
       "pageErrors": []
     },
     {
@@ -29,6 +33,8 @@
       "observations": 2,
       "duplicateRetryStable": true,
       "parentHistory": true,
+      "commandParentGuided": true,
+      "goalFilterAndDeferrableRecommendation": true,
       "pageErrors": []
     }
   ]

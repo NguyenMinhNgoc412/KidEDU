@@ -1,0 +1,1 @@
+{"version":3,"names":["IS_ENV_WITH_LOCAL_ASSETS","exports","getLocalAssets","getManifest2","manifestBaseUrl"],"sources":["PlatformUtils.web.ts"],"sourcesContent":[null],"mappings":";;;;;;;AAAO,MAAMA,wBAAA,GAAAC,OAAA,CAAAD,wBAAA,GAA2B;AAEjC,SAASE,eAAA;EACd,OAAO,CAAC;AACV;AAEO,SAASC,aAAA;EACd,OAAO,CAAC;AACV;AAGO,MAAMC,eAAA,GAAAH,OAAA,CAAAG,eAAA,GAAkB","ignoreList":[]}

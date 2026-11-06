@@ -1,14 +1,20 @@
 # Learning Activity Specification
 
+> C50 target update 2026-11-05 — PRD-GAME-001..004/PRD-PROG-005 thay mọi mô tả game review và một bộ năm từ dùng cho mọi trò. Tập nói giữ parent observation cuối phiên; game không có review, chỉ completion/one reward theo PRD-REWARD-001. Các đoạn C36–C49 dưới đây là lịch sử cho đến khi C50 cutover, không phải acceptance hiện tại.
+
 | Thuộc tính | Giá trị                                                             |
 | ---------- | ------------------------------------------------------------------- |
 | Trạng thái | `In review`                                                         |
 | Owner      | Product + Content + Mobile                                          |
 | Implements | `PRD-ACT-*`, `PRD-SES-*`, `PRD-BR-003..006`                         |
 | Depends on | [Curriculum & Learning Plan](./01-curriculum-learning-plan-spec.md) |
-| Cập nhật   | 2026-09-08                                                          |
+| Cập nhật   | 2026-11-05                                                          |
 
 ## 1. Activity contract chung
+
+C38/C39 bổ sung optional `presentation` để author cách chơi có cấu trúc (pair/sort/sequence/sentence/hunt/scene/turns) bên trong command hoặc functional communication của bộ mẫu. Các hình và quan hệ tham chiếu được validate, không tự ghép ngẫu nhiên ngữ nghĩa. Kéo/thả/chạm chỉ là tương tác; mẫu đáp án chỉ hiện khi đã ghi nhận full-model support. Kết quả năng lực vẫn do phụ huynh xác nhận cuối phiên. Chi tiết boundary/migration tại C38/C39; source 12 cơ chế không tự trở thành yêu cầu 12 activity type.
+
+Cùng luyện theo quyết định trực tiếp của owner: `Chuẩn bị phiên nhiều bài → học lần lượt từng bài → kết thúc phần học → Parent Gate → nhận xét riêng từng bài → hoàn tất phiên`. Kết thúc/bỏ qua một bài chỉ lưu bằng chứng lượt học và chuyển bài tiếp theo; không mở form nhận xét và không phát observation event. Cuối phần học, review dùng đúng rubric/mức gợi ý của bài tương ứng, giữ bài bỏ qua ở trạng thái chưa quan sát. Mỗi nhận xét commit checkpoint + observation + outbox atomically. Dừng giữa phần học hoặc giữa phần nhận xét đều có thể khôi phục đúng vị trí, không tự phát media. Transfer tiếp tục là hướng dẫn sinh hoạt; không tạo observation transfer khi chưa thực hiện ngoài đời.
 
 Mọi activity instance phải cung cấp:
 
@@ -174,5 +180,9 @@ Child Mode không hiển thị dấu trừ hoặc thông điệp thất bại ch
 Có thể giữ `LearningMediaPlayer`, `MediaContainer`, control bar, pause/replay/next và Auto Play engine/timeline làm foundation. Phải thay input `LearningItem/Card` bằng `PreparedActivity`, bổ sung prompt/wait/observation state và tách illustration khỏi mouth video đúng activity contract.
 
 ## 19. Acceptance
+
+Owner correction 2026-11-05 — `PRD-ACT-012`: presentation games tự chuyển khi hoàn thành thao tác, không parent confirmation/wait giữa bài; giữ observation từng bài cuối phiên. C47 thay phần điều phối manual của C38–C46 cho game, không bỏ parent-guided observation của activity khác. Xem [C47](../delivery/tasks/C47-automatic-game-course-handoff.md).
+
+Owner clarification 2026-11-04 — `PRD-ACT-012`: nhiều trò dùng bộ từ của cùng lesson. Đáp án ghép/chọn/kéo được kiểm tra local, không chấm năng lực ngôn ngữ. Cho phép sticker ngắn, quà cố định và thành tích game; không phạt lỗi hoặc tự chuyển kết quả thành observation. Xem [C40](../delivery/tasks/C40-lesson-vocabulary-games.md).
 
 Mỗi loại activity phải có fixture content, unit test state machine, component test prompt/wait, lifecycle test, accessibility test và ít nhất một E2E từ lesson ready đến observation sync. Không release activity chỉ có UI mà chưa có rubric/content QA.

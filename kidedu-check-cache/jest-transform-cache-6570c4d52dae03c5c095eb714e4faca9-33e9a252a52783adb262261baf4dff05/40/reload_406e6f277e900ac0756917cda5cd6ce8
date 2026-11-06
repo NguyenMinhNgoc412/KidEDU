@@ -1,0 +1,9 @@
+d813dbfd8b3118f6b1e5028827e64170
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.reloadAppAsync = reloadAppAsync;
+async function reloadAppAsync(reason = 'Reloaded from JS call') {
+  await globalThis.expo?.reloadAppAsync(reason);
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJyZWxvYWRBcHBBc3luYyIsInJlYXNvbiIsImdsb2JhbFRoaXMiLCJleHBvIl0sInNvdXJjZXMiOlsicmVsb2FkLnRzIl0sInNvdXJjZXNDb250ZW50IjpbbnVsbF0sIm1hcHBpbmdzIjoiOzs7O0FBUU8sZUFBZUEsZUFBZUMsTUFBQSxHQUFpQix1QkFBdUI7RUFDM0UsTUFBTUMsVUFBQSxDQUFXQyxJQUFJLEVBQUVILGNBQUEsQ0FBZUMsTUFBQTtBQUN4QyIsImlnbm9yZUxpc3QiOltdfQ==

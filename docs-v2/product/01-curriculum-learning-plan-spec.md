@@ -1,18 +1,22 @@
 # Curriculum & Learning Plan Specification
 
+> C50 target update 2026-11-05 — PRD-NAV-001/PRD-SUB-006: chủ đề là entry của Tập nói, không thay goal/progression; basic/full content tier độc lập skill/readiness. Custom authoring paid theo PRD-CUSTOM-*. Không cap số phiên Tập nói/ngày.
+
 | Thuộc tính | Giá trị                                                                               |
 | ---------- | ------------------------------------------------------------------------------------- |
 | Trạng thái | `In review`                                                                           |
 | Owner      | Product + Content                                                                     |
 | Implements | `PRD-PLAN-*`, `PRD-CONT-*`, `PRD-BR-001..005`                                         |
 | Depends on | [Product Brief](../01-product-brief-sot.md), [PRD](../02-product-requirements-sot.md) |
-| Cập nhật   | 2026-09-08                                                                            |
+| Cập nhật   | 2026-11-05                                                                            |
 
 ## 1. Mục tiêu
 
 Định nghĩa cách KidEDU tổ chức curriculum tiếng Việt và tạo learning plan có thể giải thích. Đây không phải giáo trình chẩn đoán hoặc phác đồ can thiệp. Tuổi chỉ là context; kỹ năng quan sát được mới quyết định điểm bắt đầu.
 
 ## 2. Curriculum map v1
+
+Cùng luyện session controls (C36/C37, owner request): parents may select which available lessons belong to the next session and set their order, rather than always running all samples. Add/remove, clear/select-all and up/down controls are parent-gated. Explicit selection survives goal changes/reload; empty selection cannot start. An active prepared session keeps its original list; subsequent edits apply to the next session. Parent reviews still follow the complete selected learning sequence, one review per lesson. Progression/rubric/entitlement requirements remain unchanged.
 
 | Domain              | Goal điển hình                                         | Đầu ra quan sát                                     |
 | ------------------- | ------------------------------------------------------ | --------------------------------------------------- |

@@ -1,0 +1,1 @@
+{"version":3,"names":["CodedError","Error","constructor","code","message","exports"],"sources":["errors/CodedError.ts"],"sourcesContent":[null],"mappings":";;;;AAKO,MAAMA,UAAA,SAAmBC,KAAA;EAI9BC,YAAYC,IAAY,EAAEC,OAAe,EAAE;IACzC,KAAK,CAACA,OAAA;IACN,IAAI,CAACD,IAAI,GAAGA,IAAA;EACd;AACF;AAAAE,OAAA,CAAAL,UAAA,GAAAA,UAAA","ignoreList":[]}

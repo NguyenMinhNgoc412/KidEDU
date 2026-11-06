@@ -9,6 +9,7 @@ import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useLocalBackend, type LocalObservation } from "@/features/localBackend/useLocalBackend";
+import { ChildGenderField, type ChildGender } from "@/features/localBackend/ChildGenderField";
 import { colors, spacing } from "@/theme";
 
 const results = [
@@ -35,12 +36,21 @@ export default function LocalApiScreen() {
   const { session } = useAuth();
   const backend = useLocalBackend(session?.accessToken);
   const [childName, setChildName] = useState("");
+  const [childGender, setChildGender] = useState<ChildGender | null>(null);
+  const [missingGender, setMissingGender] = useState<ChildGender | null>(null);
   const [editName, setEditName] = useState("");
   const [editingObservation, setEditingObservation] = useState<string | null>(null);
 
   useEffect(() => {
+    setChildName("");
+    setChildGender(null);
+    setMissingGender(null);
+  }, [backend.accountId]);
+
+  useEffect(() => {
     setEditName(backend.selected?.displayName ?? "");
     setEditingObservation(null);
+    setMissingGender(null);
   }, [backend.selected?.id, backend.selected?.displayName]);
 
   if (!__DEV__) return <Redirect href="/parent" />;
@@ -104,13 +114,17 @@ export default function LocalApiScreen() {
                 <AppText color="muted" variant="caption">
                   Nút này ghi nhận đồng ý local-test-v1 và tạo dữ liệu thử. Chỉ nhập tên giả.
                 </AppText>
+                <ChildGenderField
+                  value={childGender}
+                  onChange={setChildGender}
+                  disabled={backend.busy}
+                />
                 <KidButton
                   label="Đồng ý và tạo hồ sơ thử"
                   onPress={() => {
-                    void backend.createTestChild(childName);
-                    setChildName("");
+                    if (childGender) void backend.createTestChild(childName, childGender);
                   }}
-                  disabled={backend.busy || !childName.trim()}
+                  disabled={backend.busy || !childName.trim() || childGender === null}
                   fullWidth
                 />
               </Card>
@@ -130,6 +144,28 @@ export default function LocalApiScreen() {
             {backend.selected ? (
               <Card padding="lg" variant="input">
                 <AppText variant="cardTitle">{backend.selected.displayName}</AppText>
+                {backend.selected.gender ? (
+                  <AppText>
+                    Giới tính: {backend.selected.gender === "boy" ? "Bé trai" : "Bé gái"}
+                  </AppText>
+                ) : (
+                  <>
+                    <AppText>Hồ sơ chưa khai báo giới tính. Quà đã nhận vẫn được giữ.</AppText>
+                    <ChildGenderField
+                      value={missingGender}
+                      onChange={setMissingGender}
+                      disabled={backend.busy}
+                    />
+                    <KidButton
+                      label="Lưu giới tính"
+                      fullWidth
+                      disabled={backend.busy || missingGender === null}
+                      onPress={() => {
+                        if (missingGender) void backend.setMissingGender(missingGender);
+                      }}
+                    />
+                  </>
+                )}
                 <TextField
                   label="Tên hiển thị"
                   value={editName}

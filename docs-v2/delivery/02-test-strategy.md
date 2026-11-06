@@ -5,7 +5,7 @@
 | Trạng thái | `In review`                                             |
 | Owner      | QA + Engineering                                        |
 | Implements | `PRD-NFR-*`, PRD release acceptance, architecture gates |
-| Cập nhật   | 2026-09-08                                              |
+| Cập nhật   | 2026-11-05                                              |
 
 ## 1. Principles
 
@@ -51,7 +51,7 @@ Authorization matrix theo role/family/child/object; ID enumeration/BOLA; token r
 
 Đo startup/warm resume/lesson start, Cloud Run cold start, DB migration, list/render, pack verify/install, player memory, API p95, Supavisor/Prisma pool, concurrent activation/sync, dependency pause/outage, network loss, low storage/battery và background constraints trên reference devices.
 
-AI custom generation có test strategy riêng trong specification post-release và không là CI/release gate v1.
+AI custom generation thuộc v1: quota/ledger idempotency, provider failure/privacy/cost cap, preview/approval và private pack E2E là gate C50 P8–P10. Daily-game gate gồm reset 00:00, cross-device, stale outbox/claim và disabled CTA; free/full access và migration phải test.
 
 ## 7. Test data
 

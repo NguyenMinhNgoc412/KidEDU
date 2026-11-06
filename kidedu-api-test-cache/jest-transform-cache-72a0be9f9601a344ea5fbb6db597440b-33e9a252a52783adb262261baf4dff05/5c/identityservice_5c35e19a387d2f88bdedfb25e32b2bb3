@@ -1,0 +1,38 @@
+66c78cadf792245fb45bf375b44111e7
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.IdentityService = void 0;
+const common_1 = require("@nestjs/common");
+const account_repository_1 = require("./account.repository");
+const identity_gateway_1 = require("./identity.gateway");
+let IdentityService = class IdentityService {
+    gateway;
+    accounts;
+    constructor(gateway, accounts) {
+        this.gateway = gateway;
+        this.accounts = accounts;
+    }
+    async resolveAccount(token) {
+        const { subject } = await this.gateway.verifyAccessToken(token);
+        return this.accounts.resolveSupabaseSubject(subject);
+    }
+};
+exports.IdentityService = IdentityService;
+exports.IdentityService = IdentityService = __decorate([
+    (0, common_1.Injectable)(),
+    __param(0, (0, common_1.Inject)(identity_gateway_1.IDENTITY_GATEWAY)),
+    __metadata("design:paramtypes", [Object, account_repository_1.AccountRepository])
+], IdentityService);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xcaWRlbnRpdHlcXGlkZW50aXR5LnNlcnZpY2UudHMiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7O0FBQUEsMkNBQW9EO0FBRXBELDZEQUF5RDtBQUN6RCx5REFBNEU7QUFHckUsSUFBTSxlQUFlLEdBQXJCLE1BQU0sZUFBZTtJQUVtQjtJQUMxQjtJQUZuQixZQUM2QyxPQUF3QixFQUNsRCxRQUEyQjtRQURELFlBQU8sR0FBUCxPQUFPLENBQWlCO1FBQ2xELGFBQVEsR0FBUixRQUFRLENBQW1CO0lBQzNDLENBQUM7SUFFSixLQUFLLENBQUMsY0FBYyxDQUFDLEtBQWE7UUFDaEMsTUFBTSxFQUFFLE9BQU8sRUFBRSxHQUFHLE1BQU0sSUFBSSxDQUFDLE9BQU8sQ0FBQyxpQkFBaUIsQ0FBQyxLQUFLLENBQUMsQ0FBQztRQUNoRSxPQUFPLElBQUksQ0FBQyxRQUFRLENBQUMsc0JBQXNCLENBQUMsT0FBTyxDQUFDLENBQUM7SUFDdkQsQ0FBQztDQUNGLENBQUE7QUFWWSwwQ0FBZTswQkFBZixlQUFlO0lBRDNCLElBQUEsbUJBQVUsR0FBRTtJQUdSLFdBQUEsSUFBQSxlQUFNLEVBQUMsbUNBQWdCLENBQUMsQ0FBQTs2Q0FDRSxzQ0FBaUI7R0FIbkMsZUFBZSxDQVUzQiIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJDOlxcVXNlcnNcXEFTVVNcXERvY3VtZW50c1xcSE9DXFxLSURFRFVcXGFwcHNcXGFwaVxcc3JjXFxpZGVudGl0eVxcaWRlbnRpdHkuc2VydmljZS50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBJbmplY3QsIEluamVjdGFibGUgfSBmcm9tIFwiQG5lc3Rqcy9jb21tb25cIjtcblxuaW1wb3J0IHsgQWNjb3VudFJlcG9zaXRvcnkgfSBmcm9tIFwiLi9hY2NvdW50LnJlcG9zaXRvcnlcIjtcbmltcG9ydCB7IElERU5USVRZX0dBVEVXQVksIHR5cGUgSWRlbnRpdHlHYXRld2F5IH0gZnJvbSBcIi4vaWRlbnRpdHkuZ2F0ZXdheVwiO1xuXG5ASW5qZWN0YWJsZSgpXG5leHBvcnQgY2xhc3MgSWRlbnRpdHlTZXJ2aWNlIHtcbiAgY29uc3RydWN0b3IoXG4gICAgQEluamVjdChJREVOVElUWV9HQVRFV0FZKSBwcml2YXRlIHJlYWRvbmx5IGdhdGV3YXk6IElkZW50aXR5R2F0ZXdheSxcbiAgICBwcml2YXRlIHJlYWRvbmx5IGFjY291bnRzOiBBY2NvdW50UmVwb3NpdG9yeVxuICApIHt9XG5cbiAgYXN5bmMgcmVzb2x2ZUFjY291bnQodG9rZW46IHN0cmluZyk6IFByb21pc2U8c3RyaW5nPiB7XG4gICAgY29uc3QgeyBzdWJqZWN0IH0gPSBhd2FpdCB0aGlzLmdhdGV3YXkudmVyaWZ5QWNjZXNzVG9rZW4odG9rZW4pO1xuICAgIHJldHVybiB0aGlzLmFjY291bnRzLnJlc29sdmVTdXBhYmFzZVN1YmplY3Qoc3ViamVjdCk7XG4gIH1cbn1cbiJdLCJ2ZXJzaW9uIjozfQ==

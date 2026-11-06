@@ -1,12 +1,14 @@
 # KidEDU Design System v2 — Gentle Growth
 
+> C50 target update 2026-11-05 — PRD-NAV-001/PRD-GAME-004: reuse MobileTabBar bốn mục và Gentle Growth; nút hết lượt phải disabled + accessible state + lời giải thích, không chỉ opacity. Celebration theo sensory settings, không che stimulus hoặc đè speech.
+
 | Thuộc tính     | Giá trị                                                  |
 | -------------- | -------------------------------------------------------- |
 | Trạng thái     | `In review`                                              |
 | Owner          | Product Design + Mobile                                  |
 | Implements     | `PRD-UX-*`, `PRD-ACC-004`, `PRD-ACT-*`                   |
 | Sources reused | `src/theme.ts`, components hiện có, 5 screenshots legacy |
-| Cập nhật       | 2026-09-08                                               |
+| Cập nhật       | 2026-11-05                                               |
 
 ## 1. Direction
 
@@ -87,6 +89,8 @@ Không dùng uppercase cho câu hướng dẫn. Target từ đơn có thể uppe
 - `ChildProgressIndicator` hiển thị vị trí trong session, không biểu diễn năng lực trẻ.
 
 ### Component mới
+
+`GameControl` (C42) là control hình trong Child Zone, dùng cùng pressed/disabled tokens với `KidButton`; tên/trạng thái accessible không phụ thuộc chữ nhìn thấy. Layout game dùng `gameSizes` theo 8px trong theme và các radius chuẩn hiện có. Tile đã hoàn tất giữ hình rõ thay vì làm mờ theo trạng thái khóa thao tác.
 
 - `TodayLessonCard`;
 - `GoalProgressCard`;

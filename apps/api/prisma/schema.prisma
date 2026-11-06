@@ -14,6 +14,11 @@ enum FamilyRole {
   caregiver
 }
 
+enum ChildGender {
+  boy
+  girl
+}
+
 enum EntitlementState {
   trial_active
   active
@@ -110,6 +115,7 @@ model ChildProfile {
   id           String        @id @default(uuid()) @db.Uuid
   familyId     String        @map("family_id") @db.Uuid
   displayName  String        @map("display_name") @db.VarChar(80)
+  gender       ChildGender?
   birthYear    Int?          @map("birth_year") @db.SmallInt
   birthMonth   Int?          @map("birth_month") @db.SmallInt
   version      Int           @default(1)
@@ -118,10 +124,70 @@ model ChildProfile {
   deletedAt    DateTime?     @map("deleted_at") @db.Timestamptz(3)
   family       Family        @relation(fields: [familyId], references: [id], onDelete: Restrict)
   plan         LearningPlan?
+  practicePlan PracticePlan?
+  practiceCheckpoints PracticeCheckpoint[]
+  dailyGameSessions DailyGameSession[]
+  rewardInventory RewardInventory[]
   observations Observation[]
 
   @@index([familyId, deletedAt])
   @@map("child_profiles")
+}
+
+model DailyGameSession {
+  id String @id @default(uuid()) @db.Uuid
+  childId String @map("child_id") @db.Uuid
+  playDay String @map("play_day") @db.VarChar(10)
+  startsAt DateTime @map("starts_at") @db.Timestamptz(3)
+  resetAt DateTime @map("reset_at") @db.Timestamptz(3)
+  tier String @db.VarChar(10)
+  plan Json
+  checkpoint Json
+  revision Int @default(1)
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  child ChildProfile @relation(fields: [childId], references: [id], onDelete: Restrict)
+  rewardReservation DailyRewardReservation?
+
+  @@unique([childId, playDay])
+  @@map("daily_game_sessions")
+}
+
+model DailyRewardReservation {
+  sessionId String @id @map("session_id") @db.Uuid
+  catalogId String @map("catalog_id") @db.VarChar(160)
+  catalogVersion Int @map("catalog_version")
+  kind String @db.VarChar(20)
+  rewardGroup ChildGender @map("reward_group")
+  candidates String[]
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  session DailyGameSession @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  receipt DailyRewardReceipt?
+  @@map("daily_reward_reservations")
+}
+
+model RewardInventory {
+  id String @id @default(uuid()) @db.Uuid
+  childId String @map("child_id") @db.Uuid
+  itemId String @map("item_id") @db.VarChar(160)
+  catalogId String @map("catalog_id") @db.VarChar(160)
+  catalogVersion Int @map("catalog_version")
+  acquiredAt DateTime @default(now()) @map("acquired_at") @db.Timestamptz(3)
+  child ChildProfile @relation(fields: [childId], references: [id], onDelete: Restrict)
+  receipt DailyRewardReceipt?
+  @@unique([childId, itemId])
+  @@map("reward_inventory")
+}
+
+model DailyRewardReceipt {
+  id String @id @default(uuid()) @db.Uuid
+  sessionId String @unique @map("session_id") @db.Uuid
+  inventoryId String @unique @map("inventory_id") @db.Uuid
+  boxIndex Int @map("box_index")
+  claimedAt DateTime @default(now()) @map("claimed_at") @db.Timestamptz(3)
+  reservation DailyRewardReservation @relation(fields: [sessionId], references: [sessionId], onDelete: Restrict)
+  inventory RewardInventory @relation(fields: [inventoryId], references: [id], onDelete: Restrict)
+  @@map("daily_reward_receipts")
 }
 
 model LearningPlan {
@@ -132,6 +198,27 @@ model LearningPlan {
   child     ChildProfile @relation(fields: [childId], references: [id], onDelete: Restrict, onUpdate: NoAction)
 
   @@map("learning_plans")
+}
+
+model PracticePlan {
+  childId String @id @map("child_id") @db.Uuid
+  revision Int @default(1)
+  document Json
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  child ChildProfile @relation(fields: [childId], references: [id], onDelete: Restrict)
+  @@map("practice_plans")
+}
+
+model PracticeCheckpoint {
+  childId String @map("child_id") @db.Uuid
+  sessionId String @map("session_id") @db.VarChar(64)
+  revision Int
+  document Json
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  child ChildProfile @relation(fields: [childId], references: [id], onDelete: Restrict)
+  @@id([childId, sessionId])
+  @@index([childId, updatedAt])
+  @@map("practice_checkpoints")
 }
 
 model Observation {

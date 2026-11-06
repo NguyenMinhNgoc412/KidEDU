@@ -1,11 +1,13 @@
 # Sync, Manifest & Lesson Pack Protocol
 
+> C50 target update 2026-11-05 — TA-ADR-025: daily session/reward commands idempotent, authoritative ack không tin client timestamp; checkpoint+outbox atomic. Manifest có reward catalog/content tier version. Multi-device conflict, pending claim qua reset và backward compatibility là gate C50 P1/P2/P4; không silent last-write-wins receipt.
+
 | Thuộc tính | Giá trị                                       |
 | ---------- | --------------------------------------------- |
 | Trạng thái | `In review`                                   |
 | Owner      | Mobile + Backend + Content Pipeline           |
 | Implements | `TA-ADR-004..009`, `TA-ADR-014`, `PRD-SYNC-*` |
-| Cập nhật   | 2026-09-08                                    |
+| Cập nhật   | 2026-11-05                                    |
 
 ## 1. Sync channels
 

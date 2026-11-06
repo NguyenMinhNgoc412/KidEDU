@@ -51,6 +51,7 @@ export function LearningMediaPlayer({
   onAutoPlaySampleEnd,
   onRequestResume,
   manageAppStateExternally = false,
+  hideUnusedMedia = false,
   paused = false,
   playbackSpeed = 1
 }: {
@@ -60,6 +61,7 @@ export function LearningMediaPlayer({
   pronunciationAudio?: LearningItemMedia;
   autoPlayKey?: string | null;
   manageAppStateExternally?: boolean;
+  hideUnusedMedia?: boolean;
   onAutoPlaySampleEnd?: (completion: LearningSampleCompletion) => void;
   onRequestResume?: () => void;
   paused?: boolean;
@@ -488,87 +490,95 @@ export function LearningMediaPlayer({
 
   return (
     <View style={styles.container}>
-      <View style={styles.illustrationSection}>
-        {animation ? (
-          <SemanticIllustration
-            key={illustrationIdentity}
-            animation={animation}
-            paused={playbackPaused || illustrationSettled}
-            disabled={
-              playbackPaused ||
-              (illustrationSettled && Boolean(audioStatus.playing || mouthPlaybackBusy))
-            }
-            onComplete={completeIllustration}
-            onReplay={() => setCompletedIllustration(null)}
-            fallback={
-              <MediaPlaceholder
-                media={illustration}
-                role="illustration"
-                style={styles.illustrationMedia}
-              />
-            }
-          />
-        ) : (
-          <InteractiveIllustrationSlot
-            illustration={illustration}
-            illustrationUri={playableIllustrationVideoUri}
-            isVideo={Boolean(playableIllustrationVideoUri)}
-            onPress={() => playAudio()}
-            paused={playbackPaused}
-          />
-        )}
-      </View>
+      {!hideUnusedMedia || illustration ? (
+        <View style={styles.illustrationSection}>
+          {animation ? (
+            <SemanticIllustration
+              key={illustrationIdentity}
+              animation={animation}
+              paused={playbackPaused || illustrationSettled}
+              disabled={
+                playbackPaused ||
+                (illustrationSettled && Boolean(audioStatus.playing || mouthPlaybackBusy))
+              }
+              onComplete={completeIllustration}
+              onReplay={() => setCompletedIllustration(null)}
+              fallback={
+                <MediaPlaceholder
+                  media={illustration}
+                  role="illustration"
+                  style={styles.illustrationMedia}
+                />
+              }
+            />
+          ) : (
+            <InteractiveIllustrationSlot
+              illustration={illustration}
+              illustrationUri={playableIllustrationVideoUri}
+              isVideo={Boolean(playableIllustrationVideoUri)}
+              onPress={() => playAudio()}
+              paused={playbackPaused}
+            />
+          )}
+        </View>
+      ) : null}
 
-      <View style={styles.mediaSection}>
-        {playableVideoUri ? (
-          <MouthVideoPlayer
-            ref={mouthVideoPlayerRef}
-            onEnd={handleMouthVideoEnd}
-            onError={handleMouthVideoError}
-            onPlayStart={handleMouthVideoPlayStart}
-            onRequestResume={requestResume}
-            paused={playbackPaused}
-            playRequestActive={videoPlayRequest.scope === videoPlaybackScope}
-            playSignal={videoPlayRequest.signal}
-            playbackSpeed={playbackSpeed}
-            uri={playableVideoUri}
-          />
-        ) : (
-          <MediaPlaceholder
-            fallbackLabel="Chưa có video khẩu hình"
-            large
-            media={mouthVideo}
-            role="mouth_video"
-            style={styles.videoPlaceholder}
-          />
-        )}
-      </View>
+      {!hideUnusedMedia || mouthVideo ? (
+        <View style={styles.mediaSection}>
+          {playableVideoUri ? (
+            <MouthVideoPlayer
+              ref={mouthVideoPlayerRef}
+              onEnd={handleMouthVideoEnd}
+              onError={handleMouthVideoError}
+              onPlayStart={handleMouthVideoPlayStart}
+              onRequestResume={requestResume}
+              paused={playbackPaused}
+              playRequestActive={videoPlayRequest.scope === videoPlaybackScope}
+              playSignal={videoPlayRequest.signal}
+              playbackSpeed={playbackSpeed}
+              uri={playableVideoUri}
+            />
+          ) : (
+            <MediaPlaceholder
+              fallbackLabel="Chưa có video khẩu hình"
+              large
+              media={mouthVideo}
+              role="mouth_video"
+              style={styles.videoPlaceholder}
+            />
+          )}
+        </View>
+      ) : null}
 
       <View style={styles.mediaChips}>
-        <MediaChip
-          active={activeRole === "mouth_video"}
-          available={Boolean(playableVideoUri)}
-          icon={
-            <Play
-              color={activeRole === "mouth_video" ? colors.onPrimary : colors.muted}
-              size={17}
-            />
-          }
-          label="Khẩu hình"
-          onPress={playMouthVideo}
-        />
-        <MediaChip
-          active={activeRole === "pronunciation_audio"}
-          available={Boolean(playableAudioUri)}
-          icon={
-            <Volume2
-              color={activeRole === "pronunciation_audio" ? colors.onPrimary : colors.muted}
-              size={17}
-            />
-          }
-          label="Âm phát âm"
-          onPress={() => playAudio()}
-        />
+        {!hideUnusedMedia || mouthVideo ? (
+          <MediaChip
+            active={activeRole === "mouth_video"}
+            available={Boolean(playableVideoUri)}
+            icon={
+              <Play
+                color={activeRole === "mouth_video" ? colors.onPrimary : colors.muted}
+                size={17}
+              />
+            }
+            label="Khẩu hình"
+            onPress={playMouthVideo}
+          />
+        ) : null}
+        {!hideUnusedMedia || pronunciationAudio ? (
+          <MediaChip
+            active={activeRole === "pronunciation_audio"}
+            available={Boolean(playableAudioUri)}
+            icon={
+              <Volume2
+                color={activeRole === "pronunciation_audio" ? colors.onPrimary : colors.muted}
+                size={17}
+              />
+            }
+            label="Âm phát âm"
+            onPress={() => playAudio()}
+          />
+        ) : null}
       </View>
       {feedback ? (
         <AppText align="center" color="secondary" variant="meta">

@@ -1,0 +1,117 @@
+685bad27ffab4378e374d951536a136b
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FamilyController = void 0;
+const common_1 = require("@nestjs/common");
+const auth_guard_1 = require("../identity/auth.guard");
+const family_service_1 = require("./family.service");
+let FamilyController = class FamilyController {
+    families;
+    constructor(families) {
+        this.families = families;
+    }
+    createFamily(request) {
+        return this.families.createFamily(request.accountId);
+    }
+    familiesForAccount(request) {
+        return this.families.listFamilies(request.accountId);
+    }
+    consents(request) {
+        return this.families.listConsents(request.accountId);
+    }
+    recordConsent(request, body) {
+        return this.families.recordConsent(request.accountId, body);
+    }
+    children(request) {
+        return this.families.listChildren(request.accountId);
+    }
+    createChild(request, body) {
+        return this.families.createChild(request.accountId, body);
+    }
+    child(request, childId) {
+        return this.families.getChild(request.accountId, childId);
+    }
+    updateChild(request, childId, body) {
+        return this.families.updateChild(request.accountId, childId, body);
+    }
+};
+exports.FamilyController = FamilyController;
+__decorate([
+    (0, common_1.Post)("families"),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], FamilyController.prototype, "createFamily", null);
+__decorate([
+    (0, common_1.Get)("families"),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], FamilyController.prototype, "familiesForAccount", null);
+__decorate([
+    (0, common_1.Get)("consents"),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], FamilyController.prototype, "consents", null);
+__decorate([
+    (0, common_1.Post)("consents"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
+], FamilyController.prototype, "recordConsent", null);
+__decorate([
+    (0, common_1.Get)("children"),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], FamilyController.prototype, "children", null);
+__decorate([
+    (0, common_1.Post)("children"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
+], FamilyController.prototype, "createChild", null);
+__decorate([
+    (0, common_1.Get)("children/:childId"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], FamilyController.prototype, "child", null);
+__decorate([
+    (0, common_1.Patch)("children/:childId"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], FamilyController.prototype, "updateChild", null);
+exports.FamilyController = FamilyController = __decorate([
+    (0, common_1.Controller)(),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    __metadata("design:paramtypes", [family_service_1.FamilyService])
+], FamilyController);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xcZmFtaWxpZXNcXGZhbWlseS5jb250cm9sbGVyLnRzIiwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7OztBQUFBLDJDQUEyRjtBQUUzRix1REFBbUQ7QUFDbkQscURBQWlEO0FBTTFDLElBQU0sZ0JBQWdCLEdBQXRCLE1BQU0sZ0JBQWdCO0lBQ0U7SUFBN0IsWUFBNkIsUUFBdUI7UUFBdkIsYUFBUSxHQUFSLFFBQVEsQ0FBZTtJQUFHLENBQUM7SUFHeEQsWUFBWSxDQUFRLE9BQXVCO1FBQ3pDLE9BQU8sSUFBSSxDQUFDLFFBQVEsQ0FBQyxZQUFZLENBQUMsT0FBTyxDQUFDLFNBQVMsQ0FBQyxDQUFDO0lBQ3ZELENBQUM7SUFHRCxrQkFBa0IsQ0FBUSxPQUF1QjtRQUMvQyxPQUFPLElBQUksQ0FBQyxRQUFRLENBQUMsWUFBWSxDQUFDLE9BQU8sQ0FBQyxTQUFTLENBQUMsQ0FBQztJQUN2RCxDQUFDO0lBR0QsUUFBUSxDQUFRLE9BQXVCO1FBQ3JDLE9BQU8sSUFBSSxDQUFDLFFBQVEsQ0FBQyxZQUFZLENBQUMsT0FBTyxDQUFDLFNBQVMsQ0FBQyxDQUFDO0lBQ3ZELENBQUM7SUFHRCxhQUFhLENBQVEsT0FBdUIsRUFBVSxJQUFhO1FBQ2pFLE9BQU8sSUFBSSxDQUFDLFFBQVEsQ0FBQyxhQUFhLENBQUMsT0FBTyxDQUFDLFNBQVMsRUFBRSxJQUFJLENBQUMsQ0FBQztJQUM5RCxDQUFDO0lBR0QsUUFBUSxDQUFRLE9BQXVCO1FBQ3JDLE9BQU8sSUFBSSxDQUFDLFFBQVEsQ0FBQyxZQUFZLENBQUMsT0FBTyxDQUFDLFNBQVMsQ0FBQyxDQUFDO0lBQ3ZELENBQUM7SUFHRCxXQUFXLENBQVEsT0FBdUIsRUFBVSxJQUFhO1FBQy9ELE9BQU8sSUFBSSxDQUFDLFFBQVEsQ0FBQyxXQUFXLENBQUMsT0FBTyxDQUFDLFNBQVMsRUFBRSxJQUFJLENBQUMsQ0FBQztJQUM1RCxDQUFDO0lBR0QsS0FBSyxDQUFRLE9BQXVCLEVBQW9CLE9BQWU7UUFDckUsT0FBTyxJQUFJLENBQUMsUUFBUSxDQUFDLFFBQVEsQ0FBQyxPQUFPLENBQUMsU0FBUyxFQUFFLE9BQU8sQ0FBQyxDQUFDO0lBQzVELENBQUM7SUFHRCxXQUFXLENBQ0YsT0FBdUIsRUFDWixPQUFlLEVBQ3pCLElBQWE7UUFFckIsT0FBTyxJQUFJLENBQUMsUUFBUSxDQUFDLFdBQVcsQ0FBQyxPQUFPLENBQUMsU0FBUyxFQUFFLE9BQU8sRUFBRSxJQUFJLENBQUMsQ0FBQztJQUNyRSxDQUFDO0NBQ0YsQ0FBQTtBQTlDWSw0Q0FBZ0I7QUFJM0I7SUFEQyxJQUFBLGFBQUksRUFBQyxVQUFVLENBQUM7SUFDSCxXQUFBLElBQUEsWUFBRyxHQUFFLENBQUE7Ozs7b0RBRWxCO0FBR0Q7SUFEQyxJQUFBLFlBQUcsRUFBQyxVQUFVLENBQUM7SUFDSSxXQUFBLElBQUEsWUFBRyxHQUFFLENBQUE7Ozs7MERBRXhCO0FBR0Q7SUFEQyxJQUFBLFlBQUcsRUFBQyxVQUFVLENBQUM7SUFDTixXQUFBLElBQUEsWUFBRyxHQUFFLENBQUE7Ozs7Z0RBRWQ7QUFHRDtJQURDLElBQUEsYUFBSSxFQUFDLFVBQVUsQ0FBQztJQUNGLFdBQUEsSUFBQSxZQUFHLEdBQUUsQ0FBQTtJQUEyQixXQUFBLElBQUEsYUFBSSxHQUFFLENBQUE7Ozs7cURBRXBEO0FBR0Q7SUFEQyxJQUFBLFlBQUcsRUFBQyxVQUFVLENBQUM7SUFDTixXQUFBLElBQUEsWUFBRyxHQUFFLENBQUE7Ozs7Z0RBRWQ7QUFHRDtJQURDLElBQUEsYUFBSSxFQUFDLFVBQVUsQ0FBQztJQUNKLFdBQUEsSUFBQSxZQUFHLEdBQUUsQ0FBQTtJQUEyQixXQUFBLElBQUEsYUFBSSxHQUFFLENBQUE7Ozs7bURBRWxEO0FBR0Q7SUFEQyxJQUFBLFlBQUcsRUFBQyxtQkFBbUIsQ0FBQztJQUNsQixXQUFBLElBQUEsWUFBRyxHQUFFLENBQUE7SUFBMkIsV0FBQSxJQUFBLGNBQUssRUFBQyxTQUFTLENBQUMsQ0FBQTs7Ozs2Q0FFdEQ7QUFHRDtJQURDLElBQUEsY0FBSyxFQUFDLG1CQUFtQixDQUFDO0lBRXhCLFdBQUEsSUFBQSxZQUFHLEdBQUUsQ0FBQTtJQUNMLFdBQUEsSUFBQSxjQUFLLEVBQUMsU0FBUyxDQUFDLENBQUE7SUFDaEIsV0FBQSxJQUFBLGFBQUksR0FBRSxDQUFBOzs7O21EQUdSOzJCQTdDVSxnQkFBZ0I7SUFGNUIsSUFBQSxtQkFBVSxHQUFFO0lBQ1osSUFBQSxrQkFBUyxFQUFDLHNCQUFTLENBQUM7cUNBRW9CLDhCQUFhO0dBRHpDLGdCQUFnQixDQThDNUIiLCJuYW1lcyI6W10sInNvdXJjZXMiOlsiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xcZmFtaWxpZXNcXGZhbWlseS5jb250cm9sbGVyLnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IEJvZHksIENvbnRyb2xsZXIsIEdldCwgUGFyYW0sIFBhdGNoLCBQb3N0LCBSZXEsIFVzZUd1YXJkcyB9IGZyb20gXCJAbmVzdGpzL2NvbW1vblwiO1xuXG5pbXBvcnQgeyBBdXRoR3VhcmQgfSBmcm9tIFwiLi4vaWRlbnRpdHkvYXV0aC5ndWFyZFwiO1xuaW1wb3J0IHsgRmFtaWx5U2VydmljZSB9IGZyb20gXCIuL2ZhbWlseS5zZXJ2aWNlXCI7XG5cbnR5cGUgQWNjb3VudFJlcXVlc3QgPSB7IGFjY291bnRJZDogc3RyaW5nIH07XG5cbkBDb250cm9sbGVyKClcbkBVc2VHdWFyZHMoQXV0aEd1YXJkKVxuZXhwb3J0IGNsYXNzIEZhbWlseUNvbnRyb2xsZXIge1xuICBjb25zdHJ1Y3Rvcihwcml2YXRlIHJlYWRvbmx5IGZhbWlsaWVzOiBGYW1pbHlTZXJ2aWNlKSB7fVxuXG4gIEBQb3N0KFwiZmFtaWxpZXNcIilcbiAgY3JlYXRlRmFtaWx5KEBSZXEoKSByZXF1ZXN0OiBBY2NvdW50UmVxdWVzdCkge1xuICAgIHJldHVybiB0aGlzLmZhbWlsaWVzLmNyZWF0ZUZhbWlseShyZXF1ZXN0LmFjY291bnRJZCk7XG4gIH1cblxuICBAR2V0KFwiZmFtaWxpZXNcIilcbiAgZmFtaWxpZXNGb3JBY2NvdW50KEBSZXEoKSByZXF1ZXN0OiBBY2NvdW50UmVxdWVzdCkge1xuICAgIHJldHVybiB0aGlzLmZhbWlsaWVzLmxpc3RGYW1pbGllcyhyZXF1ZXN0LmFjY291bnRJZCk7XG4gIH1cblxuICBAR2V0KFwiY29uc2VudHNcIilcbiAgY29uc2VudHMoQFJlcSgpIHJlcXVlc3Q6IEFjY291bnRSZXF1ZXN0KSB7XG4gICAgcmV0dXJuIHRoaXMuZmFtaWxpZXMubGlzdENvbnNlbnRzKHJlcXVlc3QuYWNjb3VudElkKTtcbiAgfVxuXG4gIEBQb3N0KFwiY29uc2VudHNcIilcbiAgcmVjb3JkQ29uc2VudChAUmVxKCkgcmVxdWVzdDogQWNjb3VudFJlcXVlc3QsIEBCb2R5KCkgYm9keTogdW5rbm93bikge1xuICAgIHJldHVybiB0aGlzLmZhbWlsaWVzLnJlY29yZENvbnNlbnQocmVxdWVzdC5hY2NvdW50SWQsIGJvZHkpO1xuICB9XG5cbiAgQEdldChcImNoaWxkcmVuXCIpXG4gIGNoaWxkcmVuKEBSZXEoKSByZXF1ZXN0OiBBY2NvdW50UmVxdWVzdCkge1xuICAgIHJldHVybiB0aGlzLmZhbWlsaWVzLmxpc3RDaGlsZHJlbihyZXF1ZXN0LmFjY291bnRJZCk7XG4gIH1cblxuICBAUG9zdChcImNoaWxkcmVuXCIpXG4gIGNyZWF0ZUNoaWxkKEBSZXEoKSByZXF1ZXN0OiBBY2NvdW50UmVxdWVzdCwgQEJvZHkoKSBib2R5OiB1bmtub3duKSB7XG4gICAgcmV0dXJuIHRoaXMuZmFtaWxpZXMuY3JlYXRlQ2hpbGQocmVxdWVzdC5hY2NvdW50SWQsIGJvZHkpO1xuICB9XG5cbiAgQEdldChcImNoaWxkcmVuLzpjaGlsZElkXCIpXG4gIGNoaWxkKEBSZXEoKSByZXF1ZXN0OiBBY2NvdW50UmVxdWVzdCwgQFBhcmFtKFwiY2hpbGRJZFwiKSBjaGlsZElkOiBzdHJpbmcpIHtcbiAgICByZXR1cm4gdGhpcy5mYW1pbGllcy5nZXRDaGlsZChyZXF1ZXN0LmFjY291bnRJZCwgY2hpbGRJZCk7XG4gIH1cblxuICBAUGF0Y2goXCJjaGlsZHJlbi86Y2hpbGRJZFwiKVxuICB1cGRhdGVDaGlsZChcbiAgICBAUmVxKCkgcmVxdWVzdDogQWNjb3VudFJlcXVlc3QsXG4gICAgQFBhcmFtKFwiY2hpbGRJZFwiKSBjaGlsZElkOiBzdHJpbmcsXG4gICAgQEJvZHkoKSBib2R5OiB1bmtub3duXG4gICkge1xuICAgIHJldHVybiB0aGlzLmZhbWlsaWVzLnVwZGF0ZUNoaWxkKHJlcXVlc3QuYWNjb3VudElkLCBjaGlsZElkLCBib2R5KTtcbiAgfVxufVxuIl0sInZlcnNpb24iOjN9

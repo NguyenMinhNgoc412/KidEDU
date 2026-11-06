@@ -10,6 +10,7 @@ const profile = {
   id: childId,
   familyId: "33333333-3333-4333-8333-333333333333",
   displayName: "Bé Mẫu",
+  gender: null,
   birthYear: 2022,
   birthMonth: 6,
   version: 2
@@ -28,6 +29,44 @@ function setup() {
 }
 
 describe("child profile API policy", () => {
+  it("stores only a parent's explicit initial choice with ownership and version guards", async () => {
+    const { db, service } = setup();
+    await service.updateChild(accountId, childId, { expectedVersion: 2, gender: "girl" });
+    expect(db.childProfile.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          id: childId,
+          version: 2,
+          family: { deletedAt: null, members: { some: { accountId } } }
+        }),
+        data: { gender: "girl", version: { increment: 1 } }
+      })
+    );
+  });
+
+  it("does not infer gender on rename or permit clearing/correcting an existing value", async () => {
+    const { db, service } = setup();
+    db.childProfile.findFirst.mockResolvedValue({ ...profile, gender: "boy" });
+    await expect(
+      service.updateChild(accountId, childId, { expectedVersion: 2, gender: "girl" })
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(() =>
+      service.updateChild(accountId, childId, { expectedVersion: 2, gender: null })
+    ).toThrow(BadRequestException);
+    expect(() =>
+      service.updateChild(accountId, childId, { expectedVersion: 2, gender: "inferred" })
+    ).toThrow(BadRequestException);
+    expect(db.childProfile.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("conflicts when another device wins the initial gender update", async () => {
+    const { db, service } = setup();
+    db.childProfile.updateMany.mockResolvedValue({ count: 0 });
+    await expect(
+      service.updateChild(accountId, childId, { expectedVersion: 2, gender: "girl" })
+    ).rejects.toBeInstanceOf(ConflictException);
+  });
+
   it("returns 404 and never writes when the child is outside the account family", async () => {
     const { db, service } = setup();
     db.childProfile.findFirst.mockResolvedValue(null);

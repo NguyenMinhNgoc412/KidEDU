@@ -1,0 +1,35 @@
+{
+  "evidence": "Chromium + local Nest/PostgreSQL/JWKS; no intercepted API responses",
+  "results": [
+    {
+      "width": 320,
+      "realBackend": true,
+      "realPostgreSQL": true,
+      "separateTab": true,
+      "persistedGoalAndDeferral": true,
+      "commandAndTransfer": true,
+      "checkpointSync": true,
+      "noActivityNetwork": true
+    },
+    {
+      "width": 390,
+      "realBackend": true,
+      "realPostgreSQL": true,
+      "separateTab": true,
+      "persistedGoalAndDeferral": true,
+      "commandAndTransfer": true,
+      "checkpointSync": true,
+      "noActivityNetwork": true
+    },
+    {
+      "width": 768,
+      "realBackend": true,
+      "realPostgreSQL": true,
+      "separateTab": true,
+      "persistedGoalAndDeferral": true,
+      "commandAndTransfer": true,
+      "checkpointSync": true,
+      "noActivityNetwork": true
+    }
+  ]
+}

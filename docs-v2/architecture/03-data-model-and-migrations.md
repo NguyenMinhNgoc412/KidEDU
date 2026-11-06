@@ -1,11 +1,15 @@
 # Server & Mobile Data Model Specification
 
+> C50 target update 2026-11-05 — TA-ADR-025/026: đề xuất versioned DailyGameSession(childId,playDay unique), RewardClaim(unique child/day và stable session), RewardCatalog/OwnedItem, CustomCollection/Version, GenerationJob/QuotaReservation. Daily status reserved/in_progress/completed/expired khác reward pending/claimed. Schema chi tiết ở C50 P1, không là migration đã chạy. Giữ gameStickers/rewardReceipts cũ; không regex hard-code catalog nhỏ.
+
+C50 P1 bắt đầu bằng content contract độc lập tại `src/content/contracts/rewardCatalog.ts`: structural schema v1 và semantic validation theo `PRD-REWARD-002`, giữ reader C49. Chưa tích hợp API/persistence/claim; không SQL migration. Asset references phải được publisher xác minh, schema không tự xác nhận human approval. Evidence/rollback tại [C50 mục 7](../delivery/tasks/C50-four-tabs-daily-games-freemium-ai.md#7-p1-slice-đầu--reward-content-contract-2026-11-05).
+
 | Thuộc tính | Giá trị                                                     |
 | ---------- | ----------------------------------------------------------- |
 | Trạng thái | `In review`                                                 |
 | Owner      | Backend + Mobile                                            |
 | Implements | `TA-ADR-005..007`, `TA-ADR-010`, `TA-ADR-014`, `PRD-PROG-*` |
-| Cập nhật   | 2026-09-08                                                  |
+| Cập nhật   | 2026-11-05                                                  |
 
 ## 1. Data principles
 
@@ -22,6 +26,8 @@ Unique: auth provider + subject; membership family/account; device app-instance.
 ### Child/plan
 
 `child_profiles`, `child_settings`, `goals`, `learning_plans`, `plan_items`, `plan_revisions`. Không lưu diagnosis field trong v1. Plan revision giữ curriculum release và rule version do client dùng.
+
+C29–C31 bổ sung `practice_plans` (child, optimistic revision, versioned plan document) và `practice_checkpoints` (child + stable session ID, monotonic revision, state reference). Tách khỏi `learning_plans` để lựa chọn Cùng luyện không ghi đè phần Học. Checkpoint cloud không chứa content payload, media URI, token/key hoặc parent note; observation dùng pipeline append-only hiện có. Migration `20261103000000_guided_practice` chỉ additive; rollback app giữ reader và dữ liệu, không drop/reset bảng. Đây không thay encrypted pack/key model.
 
 ### Curriculum/content
 
@@ -103,5 +109,13 @@ Account delete tạo server job, revoke grant, tombstone sync data, xóa/anonymi
 Index mọi foreign key/query cursor; unique idempotency event/provider ID; check enum/state transitions; optimistic version trên mutable profile/plan/media; partial indexes cho active/non-deleted rows. Schema detail phải có query plan test cho sync và Today bootstrap.
 
 ## 10. Open items
+
+C50 P4: `20261106000000_daily_game_rewards` thêm reservation (session primary key, bốn candidates), inventory (unique child/item) và receipt (unique session/inventory). Claim transaction dùng child lock chung với daily sessions, commit inventory và receipt nguyên tử. Receipt không phụ thuộc current subscription; không đổi legacy receipt IDs. Giữ toàn bộ tables/data khi rollback; chưa dual-read/import legacy C49 nên chưa cutover. Migration/evidence tại C50 mục 13.
+
+C50 P2 persistence foundation: migration `20261105010000_daily_game_session` thêm `daily_game_sessions`, unique `(child_id, play_day)`, pin window/tier/plan, checkpoint revision và completion timestamp. Repository khóa child row sau ownership check để serialize start/resume và checkpoint giữa thiết bị; clock đọc sau khi lấy khóa. CAS revision và monotonic completed IDs chặn stale overwrite. Đây là internal boundary chưa expose controller, chưa là activation/decryption/reward authority. Rollback giữ bảng/dữ liệu để không mở lượt mới; chỉ migrate database test riêng. Evidence và phần còn thiếu tại C50 mục 11.
+
+C50 P1 profile: migration `20261105000000_child_gender` bổ sung nullable enum `ChildGender` (`boy`, `girl`) cho `child_profiles`. Không default/backfill từ tên; các row cũ giữ null. Parent khai báo qua guarded/versioned API; initial update hai thiết bị chỉ một transaction update thắng. Rollback server/mobile giữ column/type/giá trị và reader cũ; không down migration drop dữ liệu. Evidence chạy PostgreSQL local riêng tại C50 mục 9, chưa deploy database dùng chung/production.
+
+Local Cùng luyện sample runtime: schema v3 adds `practice_media_bindings` keyed by child/lesson/target/activity/asset within the account database. Replacement is transactional and only affects future preparation; saved sessions retain their media snapshots. Family media stays local in a separate practice subtree and can be managed/exported after learning expiry. Migration is additive from v1/v2 and preserves observations/outbox. Keep v3 reader/table on rollback; see [C34](../delivery/tasks/C34-practice-family-media-bindings.md). This fixture implementation is not the encrypted production-pack persistence contract.
 
 ERD vật lý, field-level encryption, exact retention, partition threshold và legacy import policy được chốt trong implementation design trước migration.

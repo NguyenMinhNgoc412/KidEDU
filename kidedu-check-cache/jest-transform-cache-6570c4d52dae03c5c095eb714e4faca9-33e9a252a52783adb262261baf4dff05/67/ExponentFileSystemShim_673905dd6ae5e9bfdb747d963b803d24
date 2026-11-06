@@ -1,0 +1,13 @@
+895ea7baa2f03f2b72b4a7b5ec5f4f61
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _expoModulesCore = require("expo-modules-core");
+class FileSystemShim extends _expoModulesCore.NativeModule {
+  documentDirectory = null;
+  cacheDirectory = null;
+  bundleDirectory = null;
+}
+exports.default = FileSystemShim;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfZXhwb01vZHVsZXNDb3JlIiwicmVxdWlyZSIsIkZpbGVTeXN0ZW1TaGltIiwiTmF0aXZlTW9kdWxlIiwiZG9jdW1lbnREaXJlY3RvcnkiLCJjYWNoZURpcmVjdG9yeSIsImJ1bmRsZURpcmVjdG9yeSIsImV4cG9ydHMiLCJkZWZhdWx0Il0sInNvdXJjZXMiOlsibGVnYWN5L0V4cG9uZW50RmlsZVN5c3RlbVNoaW0udHMiXSwic291cmNlc0NvbnRlbnQiOltudWxsXSwibWFwcGluZ3MiOiI7Ozs7QUFBQSxJQUFBQSxnQkFBQSxHQUFBQyxPQUFBO0FBSWUsTUFBTUMsY0FBQSxTQUNYQyw2QkFBQTtFQUdSQyxpQkFBQSxHQUFvQjtFQUNwQkMsY0FBQSxHQUFpQjtFQUNqQkMsZUFBQSxHQUFrQjtBQUNwQjtBQUFBQyxPQUFBLENBQUFDLE9BQUEsR0FBQU4sY0FBQSIsImlnbm9yZUxpc3QiOltdfQ==

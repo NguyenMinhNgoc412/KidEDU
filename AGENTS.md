@@ -28,8 +28,8 @@ Nếu mâu thuẫn, dừng ở phân tích, chỉ rõ ID/file và xin owner quy�
 - Không chẩn đoán, điều trị, thay chuyên gia hoặc AI chấm phát âm trong v1.
 - Learning progression/activity theo PRD, không thu hẹp về card/flashcard.
 - Parent-guided transfer và family media là capability cốt lõi.
-- AI Custom Library là `Post-release`; không implement, provision provider/queue hoặc đưa vào release gate v1 nếu chưa có SOT change được owner duyệt.
-- Subscription/trial; không third-party ads hoặc permanent free learning tier v1.
+- Custom Library thủ công/AI thuộc paid v1 theo owner decision 2026-11-05/C50. Provider/dispatcher và quota/fee phải qua decision gates; không tự provision provider/queue hoặc mặc định AI vô hạn.
+- Free lâu dài có bộ học cơ bản; paid full + custom authoring; không third-party ads. Tập nói không giới hạn lượt trong scope; game một phiên/ngày reset 00:00 theo C50.
 - Parent login/backend bắt buộc; không quảng bá offline mode.
 - Prepared lesson chạy local; không API trong activity loop.
 - Premium cache không đồng nghĩa quyền; entitlement server-authoritative và content mã hóa.
@@ -65,7 +65,7 @@ Nếu mâu thuẫn, dừng ở phân tích, chỉ rõ ID/file và xin owner quy�
 - progress: `docs-v2/product/04-progress-observation-spec.md`
 - subscription: `docs-v2/product/05-subscription-access-spec.md`
 - default media production: `docs-v2/product/06-content-media-production-spec.md`
-- AI custom library (`Post-release`): `docs-v2/product/07-ai-custom-library-spec.md`
+- AI custom library (v1, C50): `docs-v2/product/07-ai-custom-library-spec.md`
 
 ### Design/UI
 
@@ -92,7 +92,7 @@ Reuse Gentle Growth visual/component foundation nhưng không giữ IA/domain ca
 - notifications: `docs-v2/architecture/09-notification-architecture.md`
 - provider portability/evolution: `docs-v2/architecture/10-portability-and-evolution.md`
 - initial platform deployment: `docs-v2/architecture/11-initial-platform-deployment.md`
-- AI custom generation (`Post-release`): `docs-v2/architecture/12-ai-custom-library-generation.md`
+- AI custom generation (v1, C50): `docs-v2/architecture/12-ai-custom-library-generation.md`
 - contracts: `docs-v2/contracts/`
 - roadmap/test/release/task/cost: `docs-v2/delivery/`
 

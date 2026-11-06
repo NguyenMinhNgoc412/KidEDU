@@ -1,0 +1,4 @@
+de76a2d88630e07182ee1662ffc7866f
+var _dangerousInternal = require("./dangerous-internal");
+(0, _dangerousInternal.installExpoGlobalPolyfill)();
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfZGFuZ2Vyb3VzSW50ZXJuYWwiLCJyZXF1aXJlIiwiaW5zdGFsbEV4cG9HbG9iYWxQb2x5ZmlsbCJdLCJzb3VyY2VzIjpbInBvbHlmaWxsL2luZGV4LndlYi50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6IkFBQUEsSUFBQUEsa0JBQUEsR0FBQUMsT0FBQTtBQUVBLElBQUFDLDRDQUFBIiwiaWdub3JlTGlzdCI6W119

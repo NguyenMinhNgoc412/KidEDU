@@ -1,0 +1,26 @@
+450710e6fcc828622b5b570e460eeee9
+var _mediaPermissionResult = require("../mediaPermissionResult");
+describe("mediaPermissions", () => {
+  it("allows granted permissions", () => {
+    expect(() => (0, _mediaPermissionResult.assertPermissionGranted)({
+      granted: true
+    }, "Cần quyền.", "Mở Cài đặt để cấp quyền.")).not.toThrow();
+  });
+  it("uses the denied message when permission can be requested again", () => {
+    expect(() => (0, _mediaPermissionResult.assertPermissionGranted)({
+      granted: false,
+      canAskAgain: true
+    }, "Cần quyền.", "Mở Cài đặt để cấp quyền.")).toThrow("Cần quyền.");
+  });
+  it("uses the blocked message when permission cannot be requested again", () => {
+    expect(() => (0, _mediaPermissionResult.assertPermissionGranted)({
+      granted: false,
+      canAskAgain: false
+    }, "Cần quyền.", "Mở Cài đặt để cấp quyền.")).toThrow(_mediaPermissionResult.MediaPermissionError);
+    expect(() => (0, _mediaPermissionResult.assertPermissionGranted)({
+      granted: false,
+      canAskAgain: false
+    }, "Cần quyền.", "Mở Cài đặt để cấp quyền.")).toThrow("Mở Cài đặt để cấp quyền.");
+  });
+});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfbWVkaWFQZXJtaXNzaW9uUmVzdWx0IiwicmVxdWlyZSIsImRlc2NyaWJlIiwiaXQiLCJleHBlY3QiLCJhc3NlcnRQZXJtaXNzaW9uR3JhbnRlZCIsImdyYW50ZWQiLCJub3QiLCJ0b1Rocm93IiwiY2FuQXNrQWdhaW4iLCJNZWRpYVBlcm1pc3Npb25FcnJvciJdLCJzb3VyY2VzIjpbIm1lZGlhUGVybWlzc2lvbnMudGVzdC50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBhc3NlcnRQZXJtaXNzaW9uR3JhbnRlZCwgTWVkaWFQZXJtaXNzaW9uRXJyb3IgfSBmcm9tIFwiLi4vbWVkaWFQZXJtaXNzaW9uUmVzdWx0XCI7XG5cbmRlc2NyaWJlKFwibWVkaWFQZXJtaXNzaW9uc1wiLCAoKSA9PiB7XG4gIGl0KFwiYWxsb3dzIGdyYW50ZWQgcGVybWlzc2lvbnNcIiwgKCkgPT4ge1xuICAgIGV4cGVjdCgoKSA9PlxuICAgICAgYXNzZXJ0UGVybWlzc2lvbkdyYW50ZWQoeyBncmFudGVkOiB0cnVlIH0sIFwiQ+G6p24gcXV54buBbi5cIiwgXCJN4bufIEPDoGkgxJHhurd0IMSR4buDIGPhuqVwIHF1eeG7gW4uXCIpXG4gICAgKS5ub3QudG9UaHJvdygpO1xuICB9KTtcblxuICBpdChcInVzZXMgdGhlIGRlbmllZCBtZXNzYWdlIHdoZW4gcGVybWlzc2lvbiBjYW4gYmUgcmVxdWVzdGVkIGFnYWluXCIsICgpID0+IHtcbiAgICBleHBlY3QoKCkgPT5cbiAgICAgIGFzc2VydFBlcm1pc3Npb25HcmFudGVkKHsgZ3JhbnRlZDogZmFsc2UsIGNhbkFza0FnYWluOiB0cnVlIH0sIFwiQ+G6p24gcXV54buBbi5cIiwgXCJN4bufIEPDoGkgxJHhurd0IMSR4buDIGPhuqVwIHF1eeG7gW4uXCIpXG4gICAgKS50b1Rocm93KFwiQ+G6p24gcXV54buBbi5cIik7XG4gIH0pO1xuXG4gIGl0KFwidXNlcyB0aGUgYmxvY2tlZCBtZXNzYWdlIHdoZW4gcGVybWlzc2lvbiBjYW5ub3QgYmUgcmVxdWVzdGVkIGFnYWluXCIsICgpID0+IHtcbiAgICBleHBlY3QoKCkgPT5cbiAgICAgIGFzc2VydFBlcm1pc3Npb25HcmFudGVkKHsgZ3JhbnRlZDogZmFsc2UsIGNhbkFza0FnYWluOiBmYWxzZSB9LCBcIkPhuqduIHF1eeG7gW4uXCIsIFwiTeG7nyBDw6BpIMSR4bq3dCDEkeG7gyBj4bqlcCBxdXnhu4FuLlwiKVxuICAgICkudG9UaHJvdyhNZWRpYVBlcm1pc3Npb25FcnJvcik7XG4gICAgZXhwZWN0KCgpID0+XG4gICAgICBhc3NlcnRQZXJtaXNzaW9uR3JhbnRlZCh7IGdyYW50ZWQ6IGZhbHNlLCBjYW5Bc2tBZ2FpbjogZmFsc2UgfSwgXCJD4bqnbiBxdXnhu4FuLlwiLCBcIk3hu58gQ8OgaSDEkeG6t3QgxJHhu4MgY+G6pXAgcXV54buBbi5cIilcbiAgICApLnRvVGhyb3coXCJN4bufIEPDoGkgxJHhurd0IMSR4buDIGPhuqVwIHF1eeG7gW4uXCIpO1xuICB9KTtcbn0pO1xuIl0sIm1hcHBpbmdzIjoiQUFBQSxJQUFBQSxzQkFBQSxHQUFBQyxPQUFBO0FBRUFDLFFBQVEsQ0FBQyxrQkFBa0IsRUFBRSxNQUFNO0VBQ2pDQyxFQUFFLENBQUMsNEJBQTRCLEVBQUUsTUFBTTtJQUNyQ0MsTUFBTSxDQUFDLE1BQ0wsSUFBQUMsOENBQXVCLEVBQUM7TUFBRUMsT0FBTyxFQUFFO0lBQUssQ0FBQyxFQUFFLFlBQVksRUFBRSwwQkFBMEIsQ0FDckYsQ0FBQyxDQUFDQyxHQUFHLENBQUNDLE9BQU8sQ0FBQyxDQUFDO0VBQ2pCLENBQUMsQ0FBQztFQUVGTCxFQUFFLENBQUMsZ0VBQWdFLEVBQUUsTUFBTTtJQUN6RUMsTUFBTSxDQUFDLE1BQ0wsSUFBQUMsOENBQXVCLEVBQUM7TUFBRUMsT0FBTyxFQUFFLEtBQUs7TUFBRUcsV0FBVyxFQUFFO0lBQUssQ0FBQyxFQUFFLFlBQVksRUFBRSwwQkFBMEIsQ0FDekcsQ0FBQyxDQUFDRCxPQUFPLENBQUMsWUFBWSxDQUFDO0VBQ3pCLENBQUMsQ0FBQztFQUVGTCxFQUFFLENBQUMsb0VBQW9FLEVBQUUsTUFBTTtJQUM3RUMsTUFBTSxDQUFDLE1BQ0wsSUFBQUMsOENBQXVCLEVBQUM7TUFBRUMsT0FBTyxFQUFFLEtBQUs7TUFBRUcsV0FBVyxFQUFFO0lBQU0sQ0FBQyxFQUFFLFlBQVksRUFBRSwwQkFBMEIsQ0FDMUcsQ0FBQyxDQUFDRCxPQUFPLENBQUNFLDJDQUFvQixDQUFDO0lBQy9CTixNQUFNLENBQUMsTUFDTCxJQUFBQyw4Q0FBdUIsRUFBQztNQUFFQyxPQUFPLEVBQUUsS0FBSztNQUFFRyxXQUFXLEVBQUU7SUFBTSxDQUFDLEVBQUUsWUFBWSxFQUFFLDBCQUEwQixDQUMxRyxDQUFDLENBQUNELE9BQU8sQ0FBQywwQkFBMEIsQ0FBQztFQUN2QyxDQUFDLENBQUM7QUFDSixDQUFDLENBQUMiLCJpZ25vcmVMaXN0IjpbXX0=

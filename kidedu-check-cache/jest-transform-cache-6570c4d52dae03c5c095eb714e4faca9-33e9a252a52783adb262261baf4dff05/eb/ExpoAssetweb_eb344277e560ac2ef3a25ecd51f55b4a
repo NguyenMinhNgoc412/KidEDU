@@ -1,0 +1,9 @@
+0355b22ffb1efbdc95475865acbd2550
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.downloadAsync = downloadAsync;
+async function downloadAsync(url, _hash, _type) {
+  return url;
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJkb3dubG9hZEFzeW5jIiwidXJsIiwiX2hhc2giLCJfdHlwZSJdLCJzb3VyY2VzIjpbIkV4cG9Bc3NldC53ZWIudHMiXSwic291cmNlc0NvbnRlbnQiOltudWxsXSwibWFwcGluZ3MiOiI7Ozs7QUFBTyxlQUFlQSxjQUNwQkMsR0FBVyxFQUNYQyxLQUFvQixFQUNwQkMsS0FBYTtFQUViLE9BQU9GLEdBQUE7QUFDVCIsImlnbm9yZUxpc3QiOltdfQ==

@@ -4,6 +4,267 @@
  */
 
 export interface paths {
+    "/children/{childId}/daily-game/inventory": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getDailyRewardInventory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/practice/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    childId: components["parameters"]["ChildId"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Account-authorized curriculum metadata; no production fixture delivery */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PracticeCatalog"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/practice/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    childId: components["parameters"]["ChildId"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Family-owned practice plan, separate from the learning plan */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PracticePlan"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    childId: components["parameters"]["ChildId"];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        expectedRevision: number;
+                        document: components["schemas"]["PracticeDocument"];
+                    };
+                };
+            };
+            responses: {
+                /** @description Optimistic revision saved; stale writes return 409 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PracticePlan"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/practice/lessons/{lessonId}/prepare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+                lessonId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    childId: components["parameters"]["ChildId"];
+                    lessonId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        lessonIds?: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Local-fixture authorization only, not a signed production grant */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PracticePreparation"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/practice/checkpoints": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    childId: components["parameters"]["ChildId"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Last 30 family-owned checkpoint references; no content/media payloads */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            checkpoints: {
+                                sessionId: string;
+                                document: components["schemas"]["PracticeCheckpoint"];
+                            }[];
+                            stickers?: string[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/practice/checkpoints/{sessionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    childId: components["parameters"]["ChildId"];
+                    sessionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PracticeCheckpoint"];
+                };
+            };
+            responses: {
+                /** @description Monotonic checkpoint revision; identical retries are safe */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            revision: number;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/observations/{observationId}:supersede": {
         parameters: {
             query?: never;
@@ -170,10 +431,341 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/children/{childId}/daily-game": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["dailyGameStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/daily-game/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["startDailyGame"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/daily-game/{sessionId}/checkpoint": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["saveDailyGameCheckpoint"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/daily-game/{sessionId}/reward": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getDailyRewardState"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/daily-game/{sessionId}/reward/reserve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reserveDailyReward"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/daily-game/{sessionId}/reward/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["claimDailyReward"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        DailyRewardState: {
+            /** @constant */
+            schemaVersion: 1;
+            /** Format: uuid */
+            sessionId: string;
+            /** @enum {string} */
+            state: "incomplete" | "choose_kind" | "boxes" | "claimed" | "expired";
+            /** @enum {string|null} */
+            kind: "sticker" | "puzzle_piece" | null;
+            receipt: null | components["schemas"]["DailyRewardReceipt"];
+        };
+        DailyRewardInventory: {
+            /** @constant */
+            schemaVersion: 1;
+            profileRequired: boolean;
+            remaining: null | {
+                sticker: number;
+                puzzle_piece: number;
+            };
+            items: {
+                /** Format: uuid */
+                id: string;
+                itemId: string;
+                catalogId: string;
+                catalogVersion: number;
+                /** Format: date-time */
+                acquiredAt: string;
+            }[];
+        };
+        DailyGameStatus: {
+            /** @constant */
+            schemaVersion: 1;
+            /** Format: date-time */
+            serverNow: string;
+            playDay: string;
+            /** Format: date-time */
+            resetAt: string;
+            /** @enum {string} */
+            tier: "basic" | "full";
+            contentReady: boolean;
+            /** @enum {string} */
+            state: "available" | "resumable" | "completed";
+            /** Format: uuid */
+            sessionId: string | null;
+            canStart: boolean;
+        };
+        DailyGameCheckpoint: {
+            /** @constant */
+            schemaVersion: 1;
+            /** @constant */
+            kind: "daily_game";
+            contentVersion: string;
+            shadowScreenIndex: number;
+            placedTargetIds: string[];
+            listenRoundIndex: number;
+            memoryMatchedTargetIds: string[];
+            memoryOpenCardIds: string[];
+        };
+        /** @description Semantic validation uses content contract v1; not an entitlement/decryption grant. */
+        DailyGamePlan: {
+            /** @constant */
+            schemaVersion: 1;
+            /** @constant */
+            kind: "daily_game";
+            contentVersion: string;
+            /** @enum {string} */
+            tier: "basic" | "full";
+            shadowScreens: {
+                id: string;
+                targetIds: string[];
+            }[];
+            listenRounds: {
+                id: string;
+                targetId: string;
+                optionTargetIds: string[];
+            }[];
+            memoryTargetIds: string[];
+        };
+        DailyGameSession: {
+            /** @constant */
+            schemaVersion: 1;
+            /** Format: uuid */
+            id: string;
+            playDay: string;
+            /** Format: date-time */
+            resetAt: string;
+            revision: number;
+            /** Format: date-time */
+            completedAt: string | null;
+            plan: components["schemas"]["DailyGamePlan"];
+            checkpoint: components["schemas"]["DailyGameCheckpoint"];
+        };
+        DailyGameCheckpointAck: {
+            /** @constant */
+            schemaVersion: 1;
+            /** Format: uuid */
+            sessionId: string;
+            revision: number;
+            checkpoint: components["schemas"]["DailyGameCheckpoint"];
+            /** Format: date-time */
+            completedAt: string | null;
+        };
+        DailyRewardBoxes: {
+            /** Format: uuid */
+            sessionId: string;
+            /** @enum {string} */
+            kind: "sticker" | "puzzle_piece";
+            /** @constant */
+            boxCount: 4;
+        };
+        DailyRewardReceipt: {
+            /** @constant */
+            schemaVersion: 1;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            sessionId: string;
+            boxIndex: number;
+            itemId: string;
+            catalogId: string;
+            catalogVersion: number;
+            /** Format: date-time */
+            claimedAt: string;
+        };
+        PracticeDocument: {
+            /** @enum {integer} */
+            schemaVersion: 1;
+            curriculumVersion: string;
+            goalIds: string[];
+            selectedLessonId: string | null;
+            deferredLessonIds: string[];
+            /** @description Explicit ordered session selection; absent preserves legacy composition, empty selects no lessons */
+            lessonIds?: string[];
+        };
+        PracticePlan: {
+            revision: number;
+            document: components["schemas"]["PracticeDocument"] | null;
+        };
+        PracticeCatalog: {
+            /** @enum {integer} */
+            schemaVersion: 1;
+            version: string;
+            /** @enum {string} */
+            source: "development_fixture" | "unavailable";
+            learningAllowed: boolean;
+            goals: {
+                id: string;
+                title: string;
+                description: string;
+                prerequisiteIds: string[];
+            }[];
+            lessons: {
+                id: string;
+                goalId: string;
+                title: string;
+                preparation: string;
+                itemId: string;
+                version: number;
+                prerequisiteLessonIds: string[];
+                activityTypes: string[];
+            }[];
+        };
+        PracticePreparation: {
+            lessonId: string;
+            lessonVersion: number;
+            /** @enum {string} */
+            source: "development_fixture" | "unavailable";
+            curriculumVersion: string;
+            lessonIds?: string[];
+        };
+        PracticeCourseState: {
+            lessonIds: string[];
+            reviewIndex: number;
+            attempts: {
+                index: number;
+                promptLevel: number;
+                repeats: number;
+                deferred: boolean;
+                /** Format: date-time */
+                occurredAt: string;
+            }[];
+        };
+        WordGameProgress: {
+            /** @enum {integer} */
+            schemaVersion: 1;
+            memoryOpen: string[];
+            memoryMatched: string[];
+            found: string[];
+            placed: string[];
+        };
+        GameRewardReceipt: {
+            /** @enum {string} */
+            kind: "sticker" | "puzzle_piece";
+            itemId: string;
+        };
+        PendingGameReward: {
+            key: string;
+            activityId: string;
+            /** @enum {string} */
+            slot: "round_1" | "round_2" | "round_3" | "lesson" | "play";
+            stickerCandidate: string;
+            pieceCandidate: string | null;
+            /** @enum {string|null} */
+            selectedKind: "sticker" | "puzzle_piece" | null;
+        };
+        PracticeCheckpoint: {
+            /** @enum {integer} */
+            schemaVersion: 1;
+            lessonId: string;
+            lessonVersion: number;
+            revision: number;
+            index: number;
+            /** @enum {string} */
+            phase: "overview" | "presenting" | "waiting" | "observation" | "paused" | "finished";
+            /** @enum {string|null} */
+            resumePhase: "overview" | "presenting" | "waiting" | "observation" | null;
+            promptLevel: number;
+            repeats: number;
+            waitRemainingMs: number;
+            deferred: boolean;
+            rewardReceipts?: {
+                [key: string]: components["schemas"]["GameRewardReceipt"];
+            };
+            pendingReward?: components["schemas"]["PendingGameReward"];
+            course?: components["schemas"]["PracticeCourseState"];
+            gameRounds?: {
+                [key: string]: number;
+            };
+            gameProgress?: {
+                [key: string]: components["schemas"]["WordGameProgress"];
+            };
+            gameStickers?: {
+                [key: string]: "item-bong" | "item-gau" | "item-xe" | "item-banh" | "item-sua";
+            };
+        };
         Subscription: {
             /** @enum {string} */
             state: "none" | "trial_active" | "active" | "grace_period" | "billing_retry" | "canceled_active" | "expired" | "refunded" | "revoked" | "account_hold";
@@ -206,6 +798,11 @@ export interface components {
             familyId: string;
             displayName: string;
             birthYear?: number | null;
+            /**
+             * @description Parent-entered value. Missing or null on legacy profiles; never inferred.
+             * @enum {string|null}
+             */
+            gender?: "boy" | "girl" | null;
             birthMonth?: number | null;
             version: number;
         };
@@ -274,13 +871,51 @@ export interface components {
         };
     };
     responses: never;
-    parameters: never;
+    parameters: {
+        ChildId: string;
+    };
     requestBodies: never;
     headers: never;
     pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getDailyRewardInventory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Owned rewards remain readable without paid access or current published catalog. Null remaining means unavailable catalog, not exhausted pool. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyRewardInventory"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Child not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     supersedeObservation: {
         parameters: {
             query?: never;
@@ -473,6 +1108,11 @@ export interface operations {
                     /** Format: uuid */
                     familyId: string;
                     displayName: string;
+                    /**
+                     * @description Current clients require a choice. Omitted only for v1 client compatibility.
+                     * @enum {string}
+                     */
+                    gender?: "boy" | "girl";
                     birthYear?: number;
                     birthMonth?: number;
                 };
@@ -526,6 +1166,11 @@ export interface operations {
                 "application/json": {
                     expectedVersion: number;
                     displayName?: string;
+                    /**
+                     * @description Initial entry for a missing value; changing an existing value returns 409.
+                     * @enum {string}
+                     */
+                    gender?: "boy" | "girl";
                     birthYear?: number | null;
                     birthMonth?: number | null;
                 };
@@ -660,6 +1305,425 @@ export interface operations {
                         nextCursor: string | null;
                     };
                 };
+            };
+        };
+    };
+    dailyGameStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Daily game command result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyGameStatus"];
+                };
+            };
+            /** @description Invalid command */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Access expired */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Child or session not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict; reconcile current server state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Daily window expired */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Published content unavailable; no new turn consumed */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    startDailyGame: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Daily game command result */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyGameSession"];
+                };
+            };
+            /** @description Invalid command */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Access expired */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Child or session not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict; reconcile current server state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Daily window expired */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Published content unavailable; no new turn consumed */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    saveDailyGameCheckpoint: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    expectedRevision: number;
+                    checkpoint: components["schemas"]["DailyGameCheckpoint"];
+                };
+            };
+        };
+        responses: {
+            /** @description Daily game command result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyGameCheckpointAck"];
+                };
+            };
+            /** @description Invalid command */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Access expired */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Child or session not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict; reconcile current server state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Daily window expired */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Published content unavailable; no new turn consumed */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getDailyRewardState: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Recover the immutable selection or confirmed receipt; candidates remain private */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyRewardState"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Child or session not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    reserveDailyReward: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    kind: "sticker" | "puzzle_piece";
+                };
+            };
+        };
+        responses: {
+            /** @description Daily game command result */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyRewardBoxes"];
+                };
+            };
+            /** @description Invalid command */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Access expired */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Child or session not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict; reconcile current server state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Daily window expired */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Published content unavailable; no new turn consumed */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    claimDailyReward: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    boxIndex: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Daily game command result */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyRewardReceipt"];
+                };
+            };
+            /** @description Invalid command */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Access expired */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Child or session not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict; reconcile current server state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Daily window expired */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Published content unavailable; no new turn consumed */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

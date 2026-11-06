@@ -9,13 +9,13 @@ import {
   Utensils,
   UsersRound
 } from "lucide-react-native";
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
 import { PressableCard } from "@/components/Card";
 import { KidButton } from "@/components/KidButton";
-import { MobileTabBar } from "@/components/MobileTabBar";
+import { ChildTabBar } from "@/components/ChildTabBar";
 import { Screen } from "@/components/Screen";
 import { StateMessage } from "@/components/StateMessage";
 import { useCategoriesQuery, useDecksQuery } from "@/data/queries";
@@ -27,28 +27,10 @@ import { categoryTileColors, categoryTileForegroundColors, colors, radii, spacin
 export default function ChildHomeScreen() {
   const { status, refresh } = useLearningAccess();
   const router = useRouter();
+  const [alternativesExpanded, setAlternativesExpanded] = useState(false);
 
   return (
-    <Screen
-      bottomBar={
-        <MobileTabBar
-          items={[
-            {
-              active: true,
-              icon: <BookOpen color={colors.secondary} size={21} strokeWidth={2.3} />,
-              label: "Học",
-              onPress: () => undefined
-            },
-            {
-              icon: <UsersRound color={colors.muted} size={21} strokeWidth={2.3} />,
-              label: "Phụ huynh",
-              onPress: () => router.push("/parent-gate")
-            }
-          ]}
-        />
-      }
-      scroll={false}
-    >
+    <Screen bottomBar={<ChildTabBar active="speech" />} scroll={false}>
       <View style={styles.brandBar}>
         <View style={styles.brandMark}>
           <Sparkles color={colors.primary} size={18} strokeWidth={2.5} />
@@ -63,13 +45,28 @@ export default function ChildHomeScreen() {
         style={styles.mainScroll}
       >
         <View style={styles.intro}>
-          <AppText variant="screenTitle">Hôm nay mình học gì?</AppText>
+          <AppText variant="screenTitle">Hôm nay mình tập nói gì?</AppText>
           <AppText color="muted">Cùng người lớn luyện nói qua những điều gần gũi mỗi ngày.</AppText>
         </View>
         {status === "allowed" ? (
           <>
             <TodayPlanCard />
-            {__DEV__ ? <LegacyLearningChoices /> : null}
+            <KidButton
+              label={alternativesExpanded ? "Thu gọn" : "Chọn cách luyện khác"}
+              variant="plain"
+              expanded={alternativesExpanded}
+              onPress={() => setAlternativesExpanded((value) => !value)}
+            />
+            {alternativesExpanded ? (
+              <>
+                <KidButton
+                  label="Cùng phụ huynh luyện nói"
+                  variant="plain"
+                  onPress={() => router.push("/practice")}
+                />
+                {__DEV__ ? <LegacyLearningChoices /> : null}
+              </>
+            ) : null}
           </>
         ) : (
           <>

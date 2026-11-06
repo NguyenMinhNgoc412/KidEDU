@@ -8,6 +8,16 @@ import { useAuth } from "@/features/auth/AuthProvider";
 import { localFixtureEnabled } from "./fixtureBoundary";
 import { flushOutbox } from "./flushOutbox";
 import { useLessonRuntimeRepository } from "./LessonRuntimeProvider";
+import { learningGoals } from "./lessonCatalog";
+
+const goalLabels = Object.fromEntries(
+  Object.entries(learningGoals).map(([key, goal]) => [`fixture_goal_${key}`, goal.title])
+);
+const activityLabels: Record<string, string> = {
+  command: "Làm theo yêu cầu",
+  functional_communication: "Giao tiếp",
+  parent_transfer: "Chuyển sang sinh hoạt"
+};
 
 const labels = {
   independent: "Độc lập (+)",
@@ -68,6 +78,8 @@ export function LocalObservationsCard({ childId }: { childId: string }) {
       ) : (
         history.data.map(({ event, syncState }) => (
           <AppText key={event.eventId}>
+            {goalLabels[event.payload.goalId] ?? "Mục tiêu đã luyện"} ·{" "}
+            {activityLabels[event.payload.activityType] ?? "Hoạt động"} ·{" "}
             {labels[event.payload.result]} ·{" "}
             {event.payload.context === "parent_guided" ? "Trong sinh hoạt" : "Trong bài"} ·{" "}
             {syncLabels[syncState]}

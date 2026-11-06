@@ -1,0 +1,1 @@
+{"version":3,"names":["_UnavailabilityError","require","requireNativeViewManager","moduleName","viewName","UnavailabilityError"],"sources":["NativeViewManagerAdapter.tsx"],"sourcesContent":[null],"mappings":";;;;AAEA,IAAAA,oBAAA,GAAAC,OAAA;AAKO,SAASC,yBACdC,UAAkB,EAClBC,QAAiB;EAEjB,MAAM,IAAIC,wCAAA,CAAoB,qBAAqB;AACrD","ignoreList":[]}

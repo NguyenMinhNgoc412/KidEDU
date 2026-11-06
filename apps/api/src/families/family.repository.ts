@@ -61,6 +61,7 @@ export class FamilyRepository {
     input: {
       familyId: string;
       displayName: string;
+      gender?: "boy" | "girl";
       birthYear?: number;
       birthMonth?: number;
     },
@@ -89,6 +90,7 @@ export class FamilyRepository {
           id: true,
           familyId: true,
           displayName: true,
+          gender: true,
           birthYear: true,
           birthMonth: true,
           version: true
@@ -104,6 +106,7 @@ export class FamilyRepository {
         id: true,
         familyId: true,
         displayName: true,
+        gender: true,
         birthYear: true,
         birthMonth: true,
         version: true
@@ -124,6 +127,7 @@ export class FamilyRepository {
         id: true,
         familyId: true,
         displayName: true,
+        gender: true,
         birthYear: true,
         birthMonth: true,
         version: true
@@ -139,11 +143,16 @@ export class FamilyRepository {
     input: {
       expectedVersion: number;
       displayName?: string;
+      gender?: "boy" | "girl";
       birthYear?: number | null;
       birthMonth?: number | null;
     }
   ) {
     const current = await this.getChild(accountId, childId);
+    // D05 only authorizes initial entry. Correction policy is still owner-gated.
+    if (input.gender !== undefined && current.gender != null && input.gender !== current.gender) {
+      throw new ConflictException("Giới tính đã được lưu. Không thể thay đổi trong thao tác này.");
+    }
     const birthYear = input.birthYear === undefined ? current.birthYear : input.birthYear;
     const birthMonth = input.birthMonth === undefined ? current.birthMonth : input.birthMonth;
     if (birthMonth !== null && birthYear === null) {
@@ -159,6 +168,7 @@ export class FamilyRepository {
       },
       data: {
         ...(input.displayName !== undefined ? { displayName: input.displayName } : {}),
+        ...(input.gender !== undefined ? { gender: input.gender } : {}),
         ...(input.birthYear !== undefined ? { birthYear: input.birthYear } : {}),
         ...(input.birthMonth !== undefined ? { birthMonth: input.birthMonth } : {}),
         version: { increment: 1 }

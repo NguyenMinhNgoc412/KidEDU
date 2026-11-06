@@ -1,0 +1,103 @@
+36ad93b9602030b9d63c2675294aa0e4
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PracticeController = void 0;
+const common_1 = require("@nestjs/common");
+const auth_guard_1 = require("../identity/auth.guard");
+const practice_service_1 = require("./practice.service");
+let PracticeController = class PracticeController {
+    practice;
+    constructor(practice) {
+        this.practice = practice;
+    }
+    catalog(req, childId) {
+        return this.practice.catalog(req.accountId, childId);
+    }
+    plan(req, childId) {
+        return this.practice.plan(req.accountId, childId);
+    }
+    savePlan(req, childId, body) {
+        return this.practice.savePlan(req.accountId, childId, body);
+    }
+    prepare(req, childId, lessonId, body) {
+        return this.practice.prepare(req.accountId, childId, lessonId, body);
+    }
+    checkpoints(req, childId) {
+        return this.practice.checkpoints(req.accountId, childId);
+    }
+    saveCheckpoint(req, childId, sessionId, body) {
+        return this.practice.saveCheckpoint(req.accountId, childId, sessionId, body);
+    }
+};
+exports.PracticeController = PracticeController;
+__decorate([
+    (0, common_1.Get)("catalog"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], PracticeController.prototype, "catalog", null);
+__decorate([
+    (0, common_1.Get)("plan"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], PracticeController.prototype, "plan", null);
+__decorate([
+    (0, common_1.Put)("plan"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], PracticeController.prototype, "savePlan", null);
+__decorate([
+    (0, common_1.Post)("lessons/:lessonId/prepare"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __param(2, (0, common_1.Param)("lessonId")),
+    __param(3, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, Object]),
+    __metadata("design:returntype", void 0)
+], PracticeController.prototype, "prepare", null);
+__decorate([
+    (0, common_1.Get)("checkpoints"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], PracticeController.prototype, "checkpoints", null);
+__decorate([
+    (0, common_1.Put)("checkpoints/:sessionId"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __param(2, (0, common_1.Param)("sessionId")),
+    __param(3, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, Object]),
+    __metadata("design:returntype", void 0)
+], PracticeController.prototype, "saveCheckpoint", null);
+exports.PracticeController = PracticeController = __decorate([
+    (0, common_1.Controller)("children/:childId/practice"),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    __metadata("design:paramtypes", [practice_service_1.PracticeService])
+], PracticeController);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xccHJhY3RpY2VcXHByYWN0aWNlLmNvbnRyb2xsZXIudHMiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7O0FBQUEsMkNBQXlGO0FBQ3pGLHVEQUFtRDtBQUNuRCx5REFBcUQ7QUFLOUMsSUFBTSxrQkFBa0IsR0FBeEIsTUFBTSxrQkFBa0I7SUFDQTtJQUE3QixZQUE2QixRQUF5QjtRQUF6QixhQUFRLEdBQVIsUUFBUSxDQUFpQjtJQUFHLENBQUM7SUFDMUMsT0FBTyxDQUFRLEdBQW1CLEVBQW9CLE9BQWU7UUFDbkYsT0FBTyxJQUFJLENBQUMsUUFBUSxDQUFDLE9BQU8sQ0FBQyxHQUFHLENBQUMsU0FBUyxFQUFFLE9BQU8sQ0FBQyxDQUFDO0lBQ3ZELENBQUM7SUFDWSxJQUFJLENBQVEsR0FBbUIsRUFBb0IsT0FBZTtRQUM3RSxPQUFPLElBQUksQ0FBQyxRQUFRLENBQUMsSUFBSSxDQUFDLEdBQUcsQ0FBQyxTQUFTLEVBQUUsT0FBTyxDQUFDLENBQUM7SUFDcEQsQ0FBQztJQUNZLFFBQVEsQ0FDWixHQUFtQixFQUNSLE9BQWUsRUFDekIsSUFBYTtRQUVyQixPQUFPLElBQUksQ0FBQyxRQUFRLENBQUMsUUFBUSxDQUFDLEdBQUcsQ0FBQyxTQUFTLEVBQUUsT0FBTyxFQUFFLElBQUksQ0FBQyxDQUFDO0lBQzlELENBQUM7SUFDa0MsT0FBTyxDQUNqQyxHQUFtQixFQUNSLE9BQWUsRUFDZCxRQUFnQixFQUMzQixJQUFhO1FBRXJCLE9BQU8sSUFBSSxDQUFDLFFBQVEsQ0FBQyxPQUFPLENBQUMsR0FBRyxDQUFDLFNBQVMsRUFBRSxPQUFPLEVBQUUsUUFBUSxFQUFFLElBQUksQ0FBQyxDQUFDO0lBQ3ZFLENBQUM7SUFDbUIsV0FBVyxDQUFRLEdBQW1CLEVBQW9CLE9BQWU7UUFDM0YsT0FBTyxJQUFJLENBQUMsUUFBUSxDQUFDLFdBQVcsQ0FBQyxHQUFHLENBQUMsU0FBUyxFQUFFLE9BQU8sQ0FBQyxDQUFDO0lBQzNELENBQUM7SUFDOEIsY0FBYyxDQUNwQyxHQUFtQixFQUNSLE9BQWUsRUFDYixTQUFpQixFQUM3QixJQUFhO1FBRXJCLE9BQU8sSUFBSSxDQUFDLFFBQVEsQ0FBQyxjQUFjLENBQUMsR0FBRyxDQUFDLFNBQVMsRUFBRSxPQUFPLEVBQUUsU0FBUyxFQUFFLElBQUksQ0FBQyxDQUFDO0lBQy9FLENBQUM7Q0FDRixDQUFBO0FBbENZLGdEQUFrQjtBQUViO0lBQWYsSUFBQSxZQUFHLEVBQUMsU0FBUyxDQUFDO0lBQVUsV0FBQSxJQUFBLFlBQUcsR0FBRSxDQUFBO0lBQXVCLFdBQUEsSUFBQSxjQUFLLEVBQUMsU0FBUyxDQUFDLENBQUE7Ozs7aURBRXBFO0FBQ1k7SUFBWixJQUFBLFlBQUcsRUFBQyxNQUFNLENBQUM7SUFBTyxXQUFBLElBQUEsWUFBRyxHQUFFLENBQUE7SUFBdUIsV0FBQSxJQUFBLGNBQUssRUFBQyxTQUFTLENBQUMsQ0FBQTs7Ozs4Q0FFOUQ7QUFDWTtJQUFaLElBQUEsWUFBRyxFQUFDLE1BQU0sQ0FBQztJQUNULFdBQUEsSUFBQSxZQUFHLEdBQUUsQ0FBQTtJQUNMLFdBQUEsSUFBQSxjQUFLLEVBQUMsU0FBUyxDQUFDLENBQUE7SUFDaEIsV0FBQSxJQUFBLGFBQUksR0FBRSxDQUFBOzs7O2tEQUdSO0FBQ2tDO0lBQWxDLElBQUEsYUFBSSxFQUFDLDJCQUEyQixDQUFDO0lBQy9CLFdBQUEsSUFBQSxZQUFHLEdBQUUsQ0FBQTtJQUNMLFdBQUEsSUFBQSxjQUFLLEVBQUMsU0FBUyxDQUFDLENBQUE7SUFDaEIsV0FBQSxJQUFBLGNBQUssRUFBQyxVQUFVLENBQUMsQ0FBQTtJQUNqQixXQUFBLElBQUEsYUFBSSxHQUFFLENBQUE7Ozs7aURBR1I7QUFDbUI7SUFBbkIsSUFBQSxZQUFHLEVBQUMsYUFBYSxDQUFDO0lBQWMsV0FBQSxJQUFBLFlBQUcsR0FBRSxDQUFBO0lBQXVCLFdBQUEsSUFBQSxjQUFLLEVBQUMsU0FBUyxDQUFDLENBQUE7Ozs7cURBRTVFO0FBQzhCO0lBQTlCLElBQUEsWUFBRyxFQUFDLHdCQUF3QixDQUFDO0lBQzNCLFdBQUEsSUFBQSxZQUFHLEdBQUUsQ0FBQTtJQUNMLFdBQUEsSUFBQSxjQUFLLEVBQUMsU0FBUyxDQUFDLENBQUE7SUFDaEIsV0FBQSxJQUFBLGNBQUssRUFBQyxXQUFXLENBQUMsQ0FBQTtJQUNsQixXQUFBLElBQUEsYUFBSSxHQUFFLENBQUE7Ozs7d0RBR1I7NkJBakNVLGtCQUFrQjtJQUY5QixJQUFBLG1CQUFVLEVBQUMsNEJBQTRCLENBQUM7SUFDeEMsSUFBQSxrQkFBUyxFQUFDLHNCQUFTLENBQUM7cUNBRW9CLGtDQUFlO0dBRDNDLGtCQUFrQixDQWtDOUIiLCJuYW1lcyI6W10sInNvdXJjZXMiOlsiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xccHJhY3RpY2VcXHByYWN0aWNlLmNvbnRyb2xsZXIudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgQm9keSwgQ29udHJvbGxlciwgR2V0LCBQYXJhbSwgUG9zdCwgUHV0LCBSZXEsIFVzZUd1YXJkcyB9IGZyb20gXCJAbmVzdGpzL2NvbW1vblwiO1xuaW1wb3J0IHsgQXV0aEd1YXJkIH0gZnJvbSBcIi4uL2lkZW50aXR5L2F1dGguZ3VhcmRcIjtcbmltcG9ydCB7IFByYWN0aWNlU2VydmljZSB9IGZyb20gXCIuL3ByYWN0aWNlLnNlcnZpY2VcIjtcbnR5cGUgQWNjb3VudFJlcXVlc3QgPSB7IGFjY291bnRJZDogc3RyaW5nIH07XG5cbkBDb250cm9sbGVyKFwiY2hpbGRyZW4vOmNoaWxkSWQvcHJhY3RpY2VcIilcbkBVc2VHdWFyZHMoQXV0aEd1YXJkKVxuZXhwb3J0IGNsYXNzIFByYWN0aWNlQ29udHJvbGxlciB7XG4gIGNvbnN0cnVjdG9yKHByaXZhdGUgcmVhZG9ubHkgcHJhY3RpY2U6IFByYWN0aWNlU2VydmljZSkge31cbiAgQEdldChcImNhdGFsb2dcIikgY2F0YWxvZyhAUmVxKCkgcmVxOiBBY2NvdW50UmVxdWVzdCwgQFBhcmFtKFwiY2hpbGRJZFwiKSBjaGlsZElkOiBzdHJpbmcpIHtcbiAgICByZXR1cm4gdGhpcy5wcmFjdGljZS5jYXRhbG9nKHJlcS5hY2NvdW50SWQsIGNoaWxkSWQpO1xuICB9XG4gIEBHZXQoXCJwbGFuXCIpIHBsYW4oQFJlcSgpIHJlcTogQWNjb3VudFJlcXVlc3QsIEBQYXJhbShcImNoaWxkSWRcIikgY2hpbGRJZDogc3RyaW5nKSB7XG4gICAgcmV0dXJuIHRoaXMucHJhY3RpY2UucGxhbihyZXEuYWNjb3VudElkLCBjaGlsZElkKTtcbiAgfVxuICBAUHV0KFwicGxhblwiKSBzYXZlUGxhbihcbiAgICBAUmVxKCkgcmVxOiBBY2NvdW50UmVxdWVzdCxcbiAgICBAUGFyYW0oXCJjaGlsZElkXCIpIGNoaWxkSWQ6IHN0cmluZyxcbiAgICBAQm9keSgpIGJvZHk6IHVua25vd25cbiAgKSB7XG4gICAgcmV0dXJuIHRoaXMucHJhY3RpY2Uuc2F2ZVBsYW4ocmVxLmFjY291bnRJZCwgY2hpbGRJZCwgYm9keSk7XG4gIH1cbiAgQFBvc3QoXCJsZXNzb25zLzpsZXNzb25JZC9wcmVwYXJlXCIpIHByZXBhcmUoXG4gICAgQFJlcSgpIHJlcTogQWNjb3VudFJlcXVlc3QsXG4gICAgQFBhcmFtKFwiY2hpbGRJZFwiKSBjaGlsZElkOiBzdHJpbmcsXG4gICAgQFBhcmFtKFwibGVzc29uSWRcIikgbGVzc29uSWQ6IHN0cmluZyxcbiAgICBAQm9keSgpIGJvZHk6IHVua25vd25cbiAgKSB7XG4gICAgcmV0dXJuIHRoaXMucHJhY3RpY2UucHJlcGFyZShyZXEuYWNjb3VudElkLCBjaGlsZElkLCBsZXNzb25JZCwgYm9keSk7XG4gIH1cbiAgQEdldChcImNoZWNrcG9pbnRzXCIpIGNoZWNrcG9pbnRzKEBSZXEoKSByZXE6IEFjY291bnRSZXF1ZXN0LCBAUGFyYW0oXCJjaGlsZElkXCIpIGNoaWxkSWQ6IHN0cmluZykge1xuICAgIHJldHVybiB0aGlzLnByYWN0aWNlLmNoZWNrcG9pbnRzKHJlcS5hY2NvdW50SWQsIGNoaWxkSWQpO1xuICB9XG4gIEBQdXQoXCJjaGVja3BvaW50cy86c2Vzc2lvbklkXCIpIHNhdmVDaGVja3BvaW50KFxuICAgIEBSZXEoKSByZXE6IEFjY291bnRSZXF1ZXN0LFxuICAgIEBQYXJhbShcImNoaWxkSWRcIikgY2hpbGRJZDogc3RyaW5nLFxuICAgIEBQYXJhbShcInNlc3Npb25JZFwiKSBzZXNzaW9uSWQ6IHN0cmluZyxcbiAgICBAQm9keSgpIGJvZHk6IHVua25vd25cbiAgKSB7XG4gICAgcmV0dXJuIHRoaXMucHJhY3RpY2Uuc2F2ZUNoZWNrcG9pbnQocmVxLmFjY291bnRJZCwgY2hpbGRJZCwgc2Vzc2lvbklkLCBib2R5KTtcbiAgfVxufVxuIl0sInZlcnNpb24iOjN9

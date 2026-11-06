@@ -1,0 +1,13 @@
+b224a33f5f0c5dc90eac4147b5f51bd4
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Uuidv5Namespace = void 0;
+var Uuidv5Namespace = exports.Uuidv5Namespace = function (Uuidv5Namespace) {
+  Uuidv5Namespace["dns"] = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
+  Uuidv5Namespace["url"] = "6ba7b811-9dad-11d1-80b4-00c04fd430c8";
+  Uuidv5Namespace["oid"] = "6ba7b812-9dad-11d1-80b4-00c04fd430c8";
+  Uuidv5Namespace["x500"] = "6ba7b814-9dad-11d1-80b4-00c04fd430c8";
+  return Uuidv5Namespace;
+}({});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJVdWlkdjVOYW1lc3BhY2UiLCJleHBvcnRzIl0sInNvdXJjZXMiOlsidXVpZC91dWlkLnR5cGVzLnRzIl0sInNvdXJjZXNDb250ZW50IjpbbnVsbF0sIm1hcHBpbmdzIjoiOzs7O0FBa0JPLElBQUFBLGVBQUssR0FBQUMsT0FBQSxDQUFBRCxlQUFBLGFBQUFBLGVBQUE7Ozs7O1NBQUFBLGVBQUEiLCJpZ25vcmVMaXN0IjpbXX0=

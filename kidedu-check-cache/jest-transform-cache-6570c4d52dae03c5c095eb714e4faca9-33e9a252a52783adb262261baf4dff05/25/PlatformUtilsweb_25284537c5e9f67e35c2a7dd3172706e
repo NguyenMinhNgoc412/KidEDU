@@ -1,0 +1,17 @@
+02b4b853cf64a5727822cadf662e37ca
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.IS_ENV_WITH_LOCAL_ASSETS = void 0;
+exports.getLocalAssets = getLocalAssets;
+exports.getManifest2 = getManifest2;
+exports.manifestBaseUrl = void 0;
+const IS_ENV_WITH_LOCAL_ASSETS = exports.IS_ENV_WITH_LOCAL_ASSETS = false;
+function getLocalAssets() {
+  return {};
+}
+function getManifest2() {
+  return {};
+}
+const manifestBaseUrl = exports.manifestBaseUrl = null;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJJU19FTlZfV0lUSF9MT0NBTF9BU1NFVFMiLCJleHBvcnRzIiwiZ2V0TG9jYWxBc3NldHMiLCJnZXRNYW5pZmVzdDIiLCJtYW5pZmVzdEJhc2VVcmwiXSwic291cmNlcyI6WyJQbGF0Zm9ybVV0aWxzLndlYi50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6Ijs7Ozs7OztBQUFPLE1BQU1BLHdCQUFBLEdBQUFDLE9BQUEsQ0FBQUQsd0JBQUEsR0FBMkI7QUFFakMsU0FBU0UsZUFBQTtFQUNkLE9BQU8sQ0FBQztBQUNWO0FBRU8sU0FBU0MsYUFBQTtFQUNkLE9BQU8sQ0FBQztBQUNWO0FBR08sTUFBTUMsZUFBQSxHQUFBSCxPQUFBLENBQUFHLGVBQUEsR0FBa0IiLCJpZ25vcmVMaXN0IjpbXX0=

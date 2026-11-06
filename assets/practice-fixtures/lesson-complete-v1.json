@@ -1,0 +1,11 @@
+{
+  "asset": "lesson-complete-v1.wav",
+  "source": "original deterministic synthesis",
+  "role": "optional completion sfx",
+  "durationMs": 950,
+  "sampleRate": 44100,
+  "channels": 1,
+  "speech": false,
+  "sha256": "0191aab50f8b06213b433639a04294c65f79e949e2d887667509232e9e940332",
+  "reviewStatus": "development candidate; native listening QA pending"
+}

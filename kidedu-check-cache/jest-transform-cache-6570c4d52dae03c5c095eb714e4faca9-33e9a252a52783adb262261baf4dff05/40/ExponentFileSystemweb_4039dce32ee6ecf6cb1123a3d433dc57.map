@@ -1,0 +1,1 @@
+{"version":3,"names":["_ExponentFileSystemShim","_interopRequireDefault","require","_default","exports","default","ExponentFileSystemShim"],"sources":["legacy/ExponentFileSystem.web.ts"],"sourcesContent":[null],"mappings":";;;;;AAAA,IAAAA,uBAAA,GAAAC,sBAAA,CAAAC,OAAA;AAA8D,IAAAC,QAAA,GAAAC,OAAA,CAAAC,OAAA,GAC/CC,+BAAA","ignoreList":[]}

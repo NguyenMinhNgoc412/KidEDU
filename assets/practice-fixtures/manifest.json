@@ -1,0 +1,31 @@
+{
+  "source": "development_fixture",
+  "approvedForProduction": false,
+  "authorization": "Owner requested existing samples on 2026-11-03",
+  "tool": "ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers",
+  "assets": [
+    {
+      "file": "ba-v1.wav",
+      "source": "assets\\default-media\\item-ba\\mouth-video-v1.mp4",
+      "sourceSha256": "a9a6363c9dc3ae2c94388167116a9407ad37b510aeb3ca4446aa620b812a24a3",
+      "filter": "silenceremove=start_periods=1:start_duration=0.08:start_threshold=-45dB:stop_periods=-1:stop_duration=0.5:stop_threshold=-45dB",
+      "sha256": "959c25cb23b4c435318ddde5df57bea2be116bf80fe3858fc1b8ff1b2963bec4"
+    },
+    {
+      "file": "me-v1.wav",
+      "source": "assets\\default-media\\item-me\\mouth-video-v1.mp4",
+      "sourceSha256": "7a879caa55edf64d8ef3a222321a0b7759f67978a0584f9dbcf6464c930d04a7",
+      "filter": "silenceremove=start_periods=1:start_duration=0.08:start_threshold=-45dB:stop_periods=-1:stop_duration=0.5:stop_threshold=-45dB",
+      "sha256": "42686b921224d042c9da7567e464e055fedb515d1fe4a5e53768bf027eee95b7"
+    },
+    {
+      "file": "ba-me-v1.wav",
+      "source": [
+        "ba-v1.wav",
+        "me-v1.wav"
+      ],
+      "filter": "authored concatenation, no runtime waveform cutting",
+      "sha256": "4d6a87f8e128d754eae158b93474b3e6a594d5529ada954ca78672441fee54b9"
+    }
+  ]
+}

@@ -6,7 +6,7 @@
 | Mã tài liệu        | `SOT-TA-03`                                                        |
 | Trạng thái         | `In review`                                                        |
 | Architecture owner | Technical owner KidEDU                                             |
-| Cập nhật           | 2026-09-08                                                         |
+| Cập nhật           | 2026-11-05                                                         |
 | Phạm vi            | Hệ thống production cho Store Release v1.0                         |
 | Phải đáp ứng       | [02-product-requirements-sot.md](./02-product-requirements-sot.md) |
 
@@ -171,15 +171,19 @@ AI/media provider cho default corpus chỉ nằm trong authoring pipeline, khôn
 
 FFmpeg normalize/transcode deterministic. Source/master/provenance lưu ở Drive; output đã human-review được hash, immutable, encrypt và publish qua R2/pack/manifest. ChatGPT/Gemini image generation và Codex được dùng tạo candidate/code/tooling nhưng không tự publish. Provider/model và tài khoản authoring không xuất hiện trong mobile runtime contract; API automation có billing/quota riêng và chỉ bật sau cost/quality review.
 
-## 4.1. Post-release architecture candidate
+## 4.1. Owner-approved v1 scope extension
 
-Mục này lưu hướng thiết kế để không mất quyết định nghiên cứu; nó không thuộc reference architecture hay implementation scope v1.
+### `TA-FUTURE-001` — Historical identifier
 
-### `TA-FUTURE-001` — Paid asynchronous AI custom-library generation
+Superseded by `TA-ADR-025`/`TA-ADR-026` và ADR-0010 ngày 2026-11-05; AI custom library thuộc v1. Không dùng identifier lịch sử này để provision Cloud Tasks hoặc mandatory consumable credit.
 
-Đây là candidate architecture cho phase sau, không phải invariant/stack/release gate v1. Mobile gửi typed draft tới app server; backend resolve/reuse published default asset bằng semantic/locale/role trước khi quote/generate, giữ durable `GenerationJob` và credit ledger trong PostgreSQL, dispatch/poll/retry bằng Cloud Tasks và chạy generation handler trên Cloud Run từ cùng OCI image/codebase. Candidate provider adapters dùng Gemini cho structured Vietnamese/image, Google Cloud TTS `vi-VN` cho audio và allowlisted motion recipes cho Reanimated/SVG/Lottie; custom flow không AI-generate mouth video mặc định.
+### `TA-ADR-025` — Free capability và daily-game authority
 
-Parent phải preview/approve trước khi backend build private family-scoped signed/encrypted pack. Credit add-on được store xác thực, reserve/capture/release idempotent; provider key, family media, child profile/progress và diagnosis không được gửi từ client hoặc đưa vào provider prompt mặc định. `GenerationGateway`/`SpeechGenerationGateway`, job authority ở PostgreSQL và immutable pack contract giữ khả năng thay provider/dispatcher mà không đổi learning runtime.
+Server cấp basic/full scope và quản lý day/session/reward reservation, unique child/day, idempotent completion/claim và trusted resetAt. Ngày chơi theo `Asia/Ho_Chi_Minh`, reset 00:00; quà chưa được server xác nhận trước reset bị hủy, receipt đã xác nhận giữ nguyên khi retry. Các thiết bị dùng cùng session và optimistic revision, không cấp thêm lượt hoặc ghi đè checkpoint mới bằng bản cũ. Mobile giữ projection/checkpoint/outbox; không API trong activity loop. Premium scope expiry không xóa free capability hoặc family inventory. Trial không có custom authoring. Chi tiết ADR-0010/C50; không dùng midnight thay thời hạn entitlement do store xác nhận.
+
+### `TA-ADR-026` — Custom authoring v1
+
+Manual/AI authoring sau Parent Gate cho paid. Async AI job và quota ledger PostgreSQL, provider sau GenerationGateway/SpeechGenerationGateway, safety + parent preview/approve, signed/encrypted private pack qua pipeline hiện có. Không child PII/family media trong provider prompt mặc định; no speech scoring/AI mouth video baseline. Provider và dispatcher chưa chốt: giữ TA-ADR-018, cần ADR/POC trước thêm Cloud Tasks. Quota/overage pricing phải chốt; không mặc định paid add-on. Xem [ADR-0010](./decisions/ADR-0010-freemium-daily-games-and-custom-library.md).
 
 ## 5. Reference technology stack v1
 

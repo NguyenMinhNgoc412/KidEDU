@@ -1,0 +1,27 @@
+a1fadfea21446551191ad9548a52838f
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBundleOrigin = getBundleOrigin;
+Object.defineProperty(exports, "getBundleUrl", {
+  enumerable: true,
+  get: function () {
+    return _getBundleUrl.getBundleUrl;
+  }
+});
+var _getBundleUrl = require("./getBundleUrl");
+function getBundleOrigin(bundleUrl = (0, _getBundleUrl.getBundleUrl)()) {
+  if (!bundleUrl) {
+    return null;
+  }
+  try {
+    const {
+      protocol,
+      origin
+    } = new URL(bundleUrl);
+    return protocol === 'http:' || protocol === 'https:' ? origin : null;
+  } catch {
+    return null;
+  }
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfZ2V0QnVuZGxlVXJsIiwicmVxdWlyZSIsImdldEJ1bmRsZU9yaWdpbiIsImJ1bmRsZVVybCIsImdldEJ1bmRsZVVybCIsInByb3RvY29sIiwib3JpZ2luIiwiVVJMIl0sInNvdXJjZXMiOlsidXRpbHMvZ2V0QnVuZGxlT3JpZ2luLnRzIl0sInNvdXJjZXNDb250ZW50IjpbbnVsbF0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7O0FBRUEsSUFBQUEsYUFBQSxHQUFBQyxPQUFBO0FBWU8sU0FBU0MsZ0JBQWdCQyxTQUFBLEdBQVksSUFBQUMsMEJBQUEsR0FBYztFQUN4RCxJQUFJLENBQUNELFNBQUEsRUFBVztJQUNkLE9BQU87RUFDVDtFQUNBLElBQUk7SUFDRixNQUFNO01BQUVFLFFBQVE7TUFBRUM7SUFBTSxDQUFFLEdBQUcsSUFBSUMsR0FBQSxDQUFJSixTQUFBO0lBRXJDLE9BQU9FLFFBQUEsS0FBYSxXQUFXQSxRQUFBLEtBQWEsV0FBV0MsTUFBQSxHQUFTO0VBQ2xFLEVBQUUsTUFBTTtJQUNOLE9BQU87RUFDVDtBQUNGIiwiaWdub3JlTGlzdCI6W119

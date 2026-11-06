@@ -1,22 +1,39 @@
-import { type ReactNode } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { useRef, type ComponentRef, type ReactNode } from "react";
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+  type StyleProp,
+  type ViewStyle
+} from "react-native";
 import { SafeAreaView, type Edge } from "react-native-safe-area-context";
 
 import { colors, spacing } from "@/theme";
+import { ScreenScrollLockContext, useScreenScrollLockController } from "./ScreenScrollLock";
 
 export function Screen({
   children,
   scroll = true,
   padded = true,
   edges,
-  bottomBar
+  bottomBar,
+  maxWidth = 720,
+  contentStyle
 }: {
   children: ReactNode;
   scroll?: boolean;
   padded?: boolean;
   edges?: readonly Edge[];
   bottomBar?: ReactNode;
+  maxWidth?: number;
+  contentStyle?: StyleProp<ViewStyle>;
 }) {
+  const scrollView = useRef<ComponentRef<typeof ScrollView>>(null);
+  const { locked, acquire } = useScreenScrollLockController((value) => {
+    // Apply immediately on native; the prop below also keeps React/web in sync.
+    if (Platform.OS !== "web") scrollView.current?.setNativeProps({ scrollEnabled: !value });
+  });
   const defaultEdges: readonly Edge[] = bottomBar
     ? ["top", "left", "right"]
     : ["top", "left", "right", "bottom"];
@@ -26,8 +43,10 @@ export function Screen({
     <View
       style={[
         styles.content,
+        { maxWidth },
         padded ? styles.padded : null,
-        bottomBar && padded ? styles.paddedWithBottomBar : null
+        bottomBar && padded ? styles.paddedWithBottomBar : null,
+        contentStyle
       ]}
     >
       {children}
@@ -35,22 +54,29 @@ export function Screen({
   );
 
   return (
-    <SafeAreaView edges={safeEdges} style={styles.safeArea}>
-      <View style={styles.container}>
-        {scroll ? (
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            {content}
-          </ScrollView>
-        ) : (
-          content
-        )}
-        {bottomBar}
-      </View>
-    </SafeAreaView>
+    <ScreenScrollLockContext.Provider value={acquire}>
+      <SafeAreaView edges={safeEdges} style={styles.safeArea}>
+        <View style={styles.container}>
+          {scroll ? (
+            <ScrollView
+              ref={scrollView}
+              testID="screen-scroll"
+              scrollEnabled={!locked}
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              {content}
+            </ScrollView>
+          ) : (
+            <View testID="screen-scroll" nativeID="game-fixed-screen" style={styles.fixedContent}>
+              {content}
+            </View>
+          )}
+          {bottomBar}
+        </View>
+      </SafeAreaView>
+    </ScreenScrollLockContext.Provider>
   );
 }
 
@@ -70,9 +96,9 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     flex: 1,
     gap: spacing[12],
-    maxWidth: 460,
     width: "100%"
   },
+  fixedContent: { flex: 1, overflow: "hidden" },
   padded: {
     paddingBottom: spacing[24],
     paddingHorizontal: spacing[18],

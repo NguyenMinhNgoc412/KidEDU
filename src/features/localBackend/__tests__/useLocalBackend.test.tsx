@@ -16,6 +16,31 @@ jest.mock("@/api/localClient", () => ({
 }));
 
 describe("local backend account isolation", () => {
+  it("ignores a late profile response after switching account", async () => {
+    let resolveRows!: (
+      value: { id: string; displayName: string; gender: string; version: number }[]
+    ) => void;
+    mockListChildren.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveRows = resolve;
+      })
+    );
+    const { result } = await renderHook(() => useLocalBackend("old-token"));
+    let connecting!: Promise<void>;
+    await act(async () => {
+      connecting = result.current.connect();
+    });
+    await act(async () => {
+      result.current.changeToken("new-token");
+    });
+    await act(async () => {
+      resolveRows([{ id: "old-child", displayName: "Synthetic", gender: "girl", version: 1 }]);
+      await connecting;
+    });
+    expect(result.current.children).toEqual([]);
+    expect(result.current.accountId).toBeNull();
+    expect(result.current.subscription).toBeNull();
+  });
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetMe.mockResolvedValue({ id: "account-1" });

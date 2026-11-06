@@ -55,7 +55,87 @@ export function createLocalApiClient(
   }
 
   const childPath = (childId: string) => `/children/${encodeURIComponent(childId)}`;
+  const dailySessionPath = (childId: string, sessionId: string) =>
+    `${childPath(childId)}/daily-game/${encodeURIComponent(sessionId)}`;
   return {
+    getDailyRewardState: (childId: string, sessionId: string) =>
+      call<components["schemas"]["DailyRewardState"]>(
+        "GET",
+        `${dailySessionPath(childId, sessionId)}/reward`
+      ),
+    getDailyRewardInventory: (childId: string) =>
+      call<components["schemas"]["DailyRewardInventory"]>(
+        "GET",
+        `${childPath(childId)}/daily-game/inventory`
+      ),
+    getDailyGameStatus: (childId: string) =>
+      call<components["schemas"]["DailyGameStatus"]>("GET", `${childPath(childId)}/daily-game`),
+    startDailyGame: (childId: string) =>
+      call<components["schemas"]["DailyGameSession"]>(
+        "POST",
+        `${childPath(childId)}/daily-game/start`,
+        {}
+      ),
+    saveDailyGameCheckpoint: (
+      childId: string,
+      sessionId: string,
+      expectedRevision: number,
+      checkpoint: components["schemas"]["DailyGameCheckpoint"]
+    ) =>
+      call<components["schemas"]["DailyGameCheckpointAck"]>(
+        "PUT",
+        `${dailySessionPath(childId, sessionId)}/checkpoint`,
+        { expectedRevision, checkpoint }
+      ),
+    reserveDailyReward: (childId: string, sessionId: string, kind: "sticker" | "puzzle_piece") =>
+      call<components["schemas"]["DailyRewardBoxes"]>(
+        "POST",
+        `${dailySessionPath(childId, sessionId)}/reward/reserve`,
+        { kind }
+      ),
+    claimDailyReward: (childId: string, sessionId: string, boxIndex: number) =>
+      call<components["schemas"]["DailyRewardReceipt"]>(
+        "POST",
+        `${dailySessionPath(childId, sessionId)}/reward/claim`,
+        { boxIndex }
+      ),
+    getPracticeCatalog: (childId: string) =>
+      call<components["schemas"]["PracticeCatalog"]>(
+        "GET",
+        `${childPath(childId)}/practice/catalog`
+      ),
+    getPracticePlan: (childId: string) =>
+      call<components["schemas"]["PracticePlan"]>("GET", `${childPath(childId)}/practice/plan`),
+    savePracticePlan: (
+      childId: string,
+      expectedRevision: number,
+      document: components["schemas"]["PracticeDocument"]
+    ) =>
+      call<components["schemas"]["PracticePlan"]>("PUT", `${childPath(childId)}/practice/plan`, {
+        expectedRevision,
+        document
+      }),
+    preparePracticeLesson: (childId: string, lessonId: string, lessonIds?: string[]) =>
+      call<components["schemas"]["PracticePreparation"]>(
+        "POST",
+        `${childPath(childId)}/practice/lessons/${encodeURIComponent(lessonId)}/prepare`,
+        lessonIds ? { lessonIds } : {}
+      ),
+    getPracticeCheckpoints: (childId: string) =>
+      call<{
+        checkpoints: { sessionId: string; document: components["schemas"]["PracticeCheckpoint"] }[];
+        stickers?: string[];
+      }>("GET", `${childPath(childId)}/practice/checkpoints`),
+    savePracticeCheckpoint: (
+      childId: string,
+      sessionId: string,
+      document: components["schemas"]["PracticeCheckpoint"]
+    ) =>
+      call<{ revision: number }>(
+        "PUT",
+        `${childPath(childId)}/practice/checkpoints/${encodeURIComponent(sessionId)}`,
+        document
+      ),
     getMe: () => call<Me>("GET", "/me"),
     getSubscription: () => call<Subscription>("GET", "/subscription"),
     createFamily: () => call<{ id: string }>("POST", "/families", {}),
@@ -67,14 +147,16 @@ export function createLocalApiClient(
         action: "grant",
         attestsGuardian: true
       }),
-    createChild: (familyId: string, displayName: string) =>
-      call<Child>("POST", "/children", { familyId, displayName }),
+    createChild: (familyId: string, displayName: string, gender: NonNullable<Child["gender"]>) =>
+      call<Child>("POST", "/children", { familyId, displayName, gender }),
     listChildren: () => call<Child[]>("GET", "/children"),
     getChild: (childId: string) => call<Child>("GET", childPath(childId)),
     updateChild: (
       childId: string,
       expectedVersion: number,
-      changes: Partial<Pick<Child, "displayName" | "birthYear" | "birthMonth">>
+      changes: Partial<Pick<Child, "displayName" | "birthYear" | "birthMonth">> & {
+        gender?: NonNullable<Child["gender"]>;
+      }
     ) => call<Child>("PATCH", childPath(childId), { expectedVersion, ...changes }),
     getPlan: (childId: string) => call<Plan>("GET", `${childPath(childId)}/plan`),
     savePlan: (childId: string, expectedRevision: number, document: PlanDocument) =>

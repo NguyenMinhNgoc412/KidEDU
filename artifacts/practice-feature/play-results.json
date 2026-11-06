@@ -1,0 +1,32 @@
+{
+  "evidence": "Chromium + real Nest/JWKS/PostgreSQL",
+  "results": [
+    {
+      "width": 320,
+      "playVariants": 7,
+      "scenarios": 13,
+      "directDrag": true,
+      "endReviews": true,
+      "noActivityApi": true,
+      "noBrowserErrors": true
+    },
+    {
+      "width": 390,
+      "playVariants": 7,
+      "scenarios": 13,
+      "directDrag": true,
+      "endReviews": true,
+      "noActivityApi": true,
+      "noBrowserErrors": true
+    },
+    {
+      "width": 768,
+      "playVariants": 7,
+      "scenarios": 13,
+      "directDrag": true,
+      "endReviews": true,
+      "noActivityApi": true,
+      "noBrowserErrors": true
+    }
+  ]
+}

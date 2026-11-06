@@ -6,7 +6,7 @@
 | Mã tài liệu      | `SOT-PB-01`                                                        |
 | Trạng thái       | `In review`                                                        |
 | Product owner    | Chủ dự án KidEDU                                                   |
-| Cập nhật         | 2026-09-07                                                         |
+| Cập nhật         | 2026-11-05                                                         |
 | Phạm vi          | Store Release v1.0                                                 |
 | Tài liệu kế tiếp | [02-product-requirements-sot.md](./02-product-requirements-sot.md) |
 
@@ -19,6 +19,8 @@ PRD phải dẫn xuất từ Product Brief. Technical Architecture phải đáp 
 Tên sản phẩm được giữ là **KidEDU**. Việc đổi tên thương hiệu, bundle ID hoặc domain không thuộc đợt refactor tài liệu này.
 
 ## 2. Product statement
+
+Owner decision 2026-11-05 — `PB-PLAY-01`: Tập nói theo chủ đề và progression có nhận xét phụ huynh; Trò chơi là phiên riêng gồm ba trò, một lượt mỗi ngày reset 00:00 và quà sưu tập sau khi hoàn tất. Game không có nhận xét ngôn ngữ. Bốn tab và chi tiết tại `PRD-NAV-001`, `PRD-GAME-*`, `PRD-REWARD-*`.
 
 > KidEDU là ứng dụng di động tiếng Việt giúp phụ huynh tổ chức việc luyện ngôn ngữ và giao tiếp tại nhà cho trẻ chậm nói theo một lộ trình có cấu trúc, từ hiểu và gọi tên đến nói câu, trả lời và chủ động dùng lời nói trong đời sống.
 
@@ -162,19 +164,23 @@ App có backend, đăng nhập phụ huynh, subscription, đồng bộ dữ li�
 
 ### `PB-BIZ-01` — Subscription
 
-KidEDU dùng subscription để mở learning plan, kho nội dung đầy đủ, các activity premium, cá nhân hóa nâng cao và đồng bộ tương ứng. Giá tháng/năm chưa chốt và phải được benchmark riêng trước release.
+V1 có free lâu dài với bộ học cơ bản; subscription mở toàn bộ thư viện, tạo bộ học thủ công/AI và capability theo gói. Tập nói không giới hạn số phiên/ngày trong content scope được cấp. AI có hạn mức riêng, không mặc định vô hạn; allowance/fee vượt mức còn cần owner chốt. Không third-party ads.
 
 ### `PB-BIZ-02` — Trial thay cho quảng cáo
 
-Người dùng mới được trải nghiệm sản phẩm qua trial. Hết trial mà không subscribe thì không tiếp tục learning mode đầy đủ. App vẫn cho phép quản lý tài khoản, mua lại, xem/xuất/xóa dữ liệu của gia đình theo chính sách dữ liệu.
+Trial là trải nghiệm quyền mở rộng có thời hạn nếu được cung cấp; policy còn tại `PB-TBD-02`. Hết trial hoặc subscription trở về free/basic theo `PB-BIZ-04`, không khóa mọi learning. Dữ liệu gia đình vẫn xem/xuất/xóa được.
 
 ### `PB-BIZ-03` — Chi phí tài khoản hết hạn
 
 Cloud backup media gia đình là quyền lợi subscriber và phải có quota. Khi subscription hết hạn, upload/sync media mới dừng; retention và quy trình tải dữ liệu trước khi xóa phải được công bố rõ. Media gia đình mặc định có thể lưu trên thiết bị để tránh chi phí cloud không cần thiết.
 
-### `PB-BIZ-04` — Không có permanent free learning tier tại v1
+### `PB-BIZ-04` — Free learning tier lâu dài tại v1
 
-V1 không trợ cấp một nhóm người dùng học miễn phí vô thời hạn bằng quảng cáo. Nếu sau release muốn thử free tier, đó là thay đổi business model và phải cập nhật Product Brief cùng PRD.
+Owner phê duyệt 2026-11-05: free lâu dài gồm năm bộ hiện có: Gia đình, Nhu cầu cơ bản, Đồ vật quen thuộc, Con vật, Hành động; không tự thêm bộ. Paid mở full và tạo bộ thủ công/AI; trial không tạo bộ. Cả hai có một phiên ba trò/ngày với độ dài khác nhau, reset 00:00 theo `Asia/Ho_Chi_Minh`; không mua thêm lượt. Quà chưa nhận khi reset bị hủy; đồng bộ cùng phiên giữa thiết bị, không cấp lượt mới. Tập nói không giới hạn số phiên trong quyền được cấp. Quyết định này thay mốc 08:00 ban đầu.
+
+### `PB-BIZ-05` — Tạo bộ học thủ công/AI trong v1
+
+Owner phê duyệt 2026-11-05: subscriber tạo private collection bằng nội dung/media tự nhập hoặc AI hỗ trợ. Safety validation và parent preview/approval trước publish; không AI chấm phát âm, không gửi PII/family media mặc định. Đây là phạm vi Store Release v1.0 thay cho post-release. Hạn mức, pricing vượt mức, provider và operational budget cần chốt trước production; không mặc định paid add-on bắt buộc. Chi tiết `PRD-CUSTOM-*`.
 
 ## 12. Phạm vi không thuộc v1
 
@@ -188,7 +194,6 @@ V1 không trợ cấp một nhóm người dùng học miễn phí vô thời h�
 - streaming video như mô hình xem phim;
 - cam kết offline hoàn toàn;
 - tiếng Anh hoặc các lĩnh vực đào tạo tổng hợp ngoài ngôn ngữ tiếng Việt.
-- AI Custom Library cho phép parent tạo private pack và mua generation credit; thiết kế được giữ cho phase sau, không là release gate v1.
 
 ## 13. Thước đo thành công
 
@@ -243,7 +248,7 @@ Các mục sau là `TBD` và không được tự suy diễn ở tài liệu c�
 Tài liệu chuyển sang `Approved` khi product owner:
 
 1. duyệt tên/định vị và toàn bộ product principles;
-2. xác nhận subscription + trial, không third-party ads và không permanent free learning tier;
+2. xác nhận free/basic + paid/full, trial policy và không third-party ads;
 3. xác nhận các trụ cột và out-of-scope của Store Release v1.0;
 4. chấp nhận danh sách `TBD` có owner và thời điểm giải quyết;
 5. xác nhận tài liệu giáo trình chứa PII đã được loại khỏi phạm vi commit/phân phối.

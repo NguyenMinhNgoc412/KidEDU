@@ -1,11 +1,13 @@
 # Entitlement, Activation & Content-Key Security
 
+> C50 target update 2026-11-05 — PRD-SUB-006/TA-ADR-025: free/basic là server-issued scope không phải bypass activation. Paid expiry chỉ hủy premium grant/key; basic grant có TTL riêng theo policy. Quota lượt game độc lập subscription expiry và capability, không reset khi upgrade. Collection/data control không bị khóa theo paid expiry.
+
 | Thuộc tính | Giá trị                                                                  |
 | ---------- | ------------------------------------------------------------------------ |
 | Trạng thái | `In review`                                                              |
 | Owner      | Backend + Mobile Security                                                |
 | Implements | `TA-ADR-001..003`, `TA-ADR-009`, `TA-ADR-013`, `TA-ADR-017`, `PRD-SUB-*` |
-| Cập nhật   | 2026-09-08                                                               |
+| Cập nhật   | 2026-11-05                                                               |
 
 ## 1. Trust model
 
@@ -15,7 +17,7 @@ Apple/Google xác nhận giao dịch; app-server billing adapters verify/reconci
 
 Grant có: version, grant ID, account/device/app-instance, capabilities, pack-key IDs, issued/not-before/expiry, trusted server-time anchor, subscription effective end, app/min schema và signature/key ID.
 
-TTL là ngắn hạn và không vượt paid/trial end. Exact TTL qua POC giữa revoke latency, network resilience và server cost.
+TTL premium ngắn hạn và không vượt paid/trial end; basic grant có TTL server riêng, không hết quyền chỉ vì paid hết hạn. Exact TTL qua POC giữa revoke latency, network resilience và server cost.
 
 ## 3. Key flow
 

@@ -1,0 +1,9 @@
+c50c6d59a2165bf42342a54679af8a56
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getLocalAssetUri = getLocalAssetUri;
+function getLocalAssetUri(hash, type) {
+  return null;
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJnZXRMb2NhbEFzc2V0VXJpIiwiaGFzaCIsInR5cGUiXSwic291cmNlcyI6WyJMb2NhbEFzc2V0cy53ZWIudHMiXSwic291cmNlc0NvbnRlbnQiOltudWxsXSwibWFwcGluZ3MiOiI7Ozs7QUFBTyxTQUFTQSxpQkFBaUJDLElBQVksRUFBRUMsSUFBbUI7RUFFaEUsT0FBTztBQUNUIiwiaWdub3JlTGlzdCI6W119

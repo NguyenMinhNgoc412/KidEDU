@@ -139,7 +139,8 @@ export async function stageRecordedAudioForPreview(input: {
 
 export async function commitStagedMediaToAppStorage(
   staged: StagedMediaImport,
-  accountId?: string
+  accountId?: string,
+  namespace?: "practice"
 ): Promise<SavedPickedMedia> {
   if (Platform.OS === "web") {
     return accountId
@@ -148,14 +149,16 @@ export async function commitStagedMediaToAppStorage(
   }
 
   const extension = getFileExtension(staged.uri, staged.mimeType ?? undefined, staged.type);
-  const durableDir = await ensureMediaDirectory(staged.type, accountId);
+  const durableDir = await ensureMediaDirectory(staged.type, accountId, namespace);
   const destinationUri = `${durableDir}${makeFileName(extension)}`;
 
   try {
     await FileSystem.copyAsync({ from: staged.uri, to: destinationUri });
     const info = await FileSystem.getInfoAsync(destinationUri);
     const thumbnailUri =
-      staged.type === "video" ? await createVideoThumbnail(destinationUri, accountId) : null;
+      staged.type === "video"
+        ? await createVideoThumbnail(destinationUri, accountId, namespace)
+        : null;
 
     return {
       type: staged.type,
@@ -276,7 +279,11 @@ async function compressImageForStorage(uri: string): Promise<string> {
   }
 }
 
-async function createVideoThumbnail(videoUri: string, accountId?: string): Promise<string | null> {
+async function createVideoThumbnail(
+  videoUri: string,
+  accountId?: string,
+  namespace?: "practice"
+): Promise<string | null> {
   const tempUris: string[] = [];
   let destinationUri: string | null = null;
 
@@ -292,7 +299,7 @@ async function createVideoThumbnail(videoUri: string, accountId?: string): Promi
       tempUris.push(processedUri);
     }
 
-    const durableDir = await ensureMediaDirectory("thumbnail", accountId);
+    const durableDir = await ensureMediaDirectory("thumbnail", accountId, namespace);
     destinationUri = `${durableDir}${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
     await FileSystem.copyAsync({ from: processedUri, to: destinationUri });
 
@@ -322,8 +329,14 @@ async function compressVideoThumbnailForStorage(uri: string): Promise<string> {
   }
 }
 
-async function ensureMediaDirectory(type: MediaType, accountId?: string): Promise<string> {
-  const root = FileSystem.documentDirectory;
+async function ensureMediaDirectory(
+  type: MediaType,
+  accountId?: string,
+  namespace?: "practice"
+): Promise<string> {
+  const root =
+    FileSystem.documentDirectory &&
+    `${FileSystem.documentDirectory}${namespace ? "practice/" : ""}`;
   if (!root) {
     throw new MediaImportError("Thiết bị chưa cấp vùng lưu trữ nội bộ cho ứng dụng.");
   }

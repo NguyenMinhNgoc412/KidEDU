@@ -1,6 +1,7 @@
 # ADR-0009 — Paid AI custom library generation
 
-**Status:** Deferred — Post-release  
+**Status:** Superseded by [ADR-0010](./ADR-0010-freemium-daily-games-and-custom-library.md); phần dưới giữ quyết định lịch sử, không là scope hiện hành
+
 **Date:** 2026-09-08  
 **References:** `TA-FUTURE-001`, `PRD-CUSTOM-*`, `PRD-SUB-005`
 

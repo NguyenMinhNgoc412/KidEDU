@@ -20,10 +20,23 @@ import { SubscriptionController } from "./entitlement/subscription.controller";
 import { SubscriptionService } from "./entitlement/subscription.service";
 import { OBJECT_STORAGE_GATEWAY } from "./storage/object-storage.gateway";
 import { R2ObjectStorageAdapter } from "./storage/r2-object-storage.adapter";
+import { PracticeController } from "./practice/practice.controller";
+import { PracticeService } from "./practice/practice.service";
+import { DailyGameController } from "./daily-games/daily-game.controller";
+import { DailyGameService } from "./daily-games/daily-game.service";
+import { DailyGameRepository } from "./daily-games/daily-game.repository";
+import { DailyRewardRepository } from "./daily-games/daily-reward.repository";
+import { LocalDailyContentGateway } from "./daily-games/local-daily-content.gateway";
+import {
+  DAILY_CONTENT_GATEWAY,
+  UnavailableDailyContentGateway
+} from "./daily-games/daily-content.gateway";
 
 @Module({
   controllers: [
     HealthController,
+    DailyGameController,
+    PracticeController,
     MeController,
     FamilyController,
     LearningController,
@@ -32,6 +45,17 @@ import { R2ObjectStorageAdapter } from "./storage/r2-object-storage.adapter";
   ],
   providers: [
     PrismaService,
+    DailyGameService,
+    DailyGameRepository,
+    DailyRewardRepository,
+    {
+      provide: DAILY_CONTENT_GATEWAY,
+      useFactory: () =>
+        process.env.APP_ENV === "local" && process.env.C50_LOCAL_DAILY_FIXTURE === "1"
+          ? new LocalDailyContentGateway()
+          : new UnavailableDailyContentGateway()
+    },
+    PracticeService,
     HealthService,
     AccountRepository,
     FamilyRepository,

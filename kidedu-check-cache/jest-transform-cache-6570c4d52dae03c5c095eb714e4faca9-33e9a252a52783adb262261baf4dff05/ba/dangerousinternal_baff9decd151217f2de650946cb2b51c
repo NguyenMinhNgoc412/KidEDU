@@ -1,0 +1,49 @@
+67f29c6e58777b2610dc4ea76b3e9db9
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var _exportNames = {
+  installExpoGlobalPolyfill: true
+};
+exports.installExpoGlobalPolyfill = installExpoGlobalPolyfill;
+var _index = _interopRequireDefault(require("../uuid/index.web"));
+var _CoreModule = require("./CoreModule");
+var _global = require("../ts-declarations/global");
+Object.keys(_global).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _global[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _global[key];
+    }
+  });
+});
+function installExpoGlobalPolyfill() {
+  if (globalThis.expo) return;
+  globalThis.expo = {
+    EventEmitter: _CoreModule.EventEmitter,
+    NativeModule: _CoreModule.NativeModule,
+    SharedObject: _CoreModule.SharedObject,
+    SharedRef: _CoreModule.SharedRef,
+    modules: globalThis.ExpoDomWebView?.expoModulesProxy ?? {},
+    uuidv4: _index.default.v4,
+    uuidv5: _index.default.v5,
+    getViewConfig: () => {
+      throw new Error('Method not implemented.');
+    },
+    reloadAppAsync: async () => {
+      window.location.reload();
+    },
+    expoModulesCoreVersion: undefined,
+    cacheDir: undefined,
+    documentsDir: undefined,
+    isRunningOnQuest: false,
+    installOnUIRuntime: _uiRuntimeHolder => {
+      throw new Error('Method not implemented.');
+    }
+  };
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfaW5kZXgiLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSIsIl9Db3JlTW9kdWxlIiwiX2dsb2JhbCIsIk9iamVjdCIsImtleXMiLCJmb3JFYWNoIiwia2V5IiwicHJvdG90eXBlIiwiaGFzT3duUHJvcGVydHkiLCJjYWxsIiwiX2V4cG9ydE5hbWVzIiwiZXhwb3J0cyIsImRlZmluZVByb3BlcnR5IiwiZW51bWVyYWJsZSIsImdldCIsImluc3RhbGxFeHBvR2xvYmFsUG9seWZpbGwiLCJnbG9iYWxUaGlzIiwiZXhwbyIsIkV2ZW50RW1pdHRlciIsIk5hdGl2ZU1vZHVsZSIsIlNoYXJlZE9iamVjdCIsIlNoYXJlZFJlZiIsIm1vZHVsZXMiLCJFeHBvRG9tV2ViVmlldyIsImV4cG9Nb2R1bGVzUHJveHkiLCJ1dWlkdjQiLCJ1dWlkIiwidjQiLCJ1dWlkdjUiLCJ2NSIsImdldFZpZXdDb25maWciLCJFcnJvciIsInJlbG9hZEFwcEFzeW5jIiwid2luZG93IiwibG9jYXRpb24iLCJyZWxvYWQiLCJleHBvTW9kdWxlc0NvcmVWZXJzaW9uIiwidW5kZWZpbmVkIiwiY2FjaGVEaXIiLCJkb2N1bWVudHNEaXIiLCJpc1J1bm5pbmdPblF1ZXN0IiwiaW5zdGFsbE9uVUlSdW50aW1lIiwiX3VpUnVudGltZUhvbGRlciJdLCJzb3VyY2VzIjpbInBvbHlmaWxsL2Rhbmdlcm91cy1pbnRlcm5hbC50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7QUFBQSxJQUFBQSxNQUFBLEdBQUFDLHNCQUFBLENBQUFDLE9BQUE7QUFDQSxJQUFBQyxXQUFBLEdBQUFELE9BQUE7QUFJQSxJQUFBRSxPQUFBLEdBQUFGLE9BQUE7QUFBQUcsTUFBQSxDQUFBQyxJQUFBLENBQUFGLE9BQUEsRUFBQUcsT0FBQSxXQUFBQyxHQUFBO0VBQUEsSUFBQUEsR0FBQSxrQkFBQUEsR0FBQTtFQUFBLElBQUFILE1BQUEsQ0FBQUksU0FBQSxDQUFBQyxjQUFBLENBQUFDLElBQUEsQ0FBQUMsWUFBQSxFQUFBSixHQUFBO0VBQUEsSUFBQUEsR0FBQSxJQUFBSyxPQUFBLElBQUFBLE9BQUEsQ0FBQUwsR0FBQSxNQUFBSixPQUFBLENBQUFJLEdBQUE7RUFBQUgsTUFBQSxDQUFBUyxjQUFBLENBQUFELE9BQUEsRUFBQUwsR0FBQTtJQUFBTyxVQUFBO0lBQUFDLEdBQUEsV0FBQUEsQ0FBQTtNQUFBLE9BQUFaLE9BQUEsQ0FBQUksR0FBQTtJQUFBO0VBQUE7QUFBQTtBQUVPLFNBQVNTLDBCQUFBO0VBQ2QsSUFBSUMsVUFBQSxDQUFXQyxJQUFJLEVBQUU7RUFFckJELFVBQUEsQ0FBV0MsSUFBSSxHQUFHO0lBQ2hCQyxZQUFBLEVBQUFBLHdCQUFBO0lBQ0FDLFlBQUEsRUFBQUEsd0JBQUE7SUFDQUMsWUFBQSxFQUFBQSx3QkFBQTtJQUNBQyxTQUFBLEVBQUFBLHFCQUFBO0lBQ0FDLE9BQUEsRUFBU04sVUFBQSxDQUFXTyxjQUFjLEVBQUVDLGdCQUFBLElBQW9CLENBQUM7SUFDekRDLE1BQUEsRUFBUUMsY0FBQSxDQUFLQyxFQUFFO0lBQ2ZDLE1BQUEsRUFBUUYsY0FBQSxDQUFLRyxFQUFFO0lBQ2ZDLGFBQUEsRUFBZUEsQ0FBQTtNQUNiLE1BQU0sSUFBSUMsS0FBQSxDQUFNO0lBQ2xCO0lBQ0FDLGNBQUEsRUFBZ0IsTUFBQUEsQ0FBQTtNQUNkQyxNQUFBLENBQU9DLFFBQVEsQ0FBQ0MsTUFBTTtJQUN4QjtJQUVBQyxzQkFBQSxFQUF3QkMsU0FBQTtJQUN4QkMsUUFBQSxFQUFVRCxTQUFBO0lBQ1ZFLFlBQUEsRUFBY0YsU0FBQTtJQUNkRyxnQkFBQSxFQUFrQjtJQUVsQkMsa0JBQUEsRUFBcUJDLGdCQUFBO01BQ25CLE1BQU0sSUFBSVgsS0FBQSxDQUFNO0lBQ2xCO0VBQ0Y7QUFDRiIsImlnbm9yZUxpc3QiOltdfQ==

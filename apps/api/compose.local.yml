@@ -81,6 +81,9 @@ services:
       dockerfile: apps/api/Dockerfile
     environment:
       APP_ENV: local
+      # This compose file is exclusively the synthetic local integration stack.
+      C50_LOCAL_DAILY_FIXTURE: ${C50_LOCAL_DAILY_FIXTURE:-1}
+      C50_DAILY_GAMES_CUTOVER: "1"
       DATABASE_POOL_URL: postgresql://kidedu_local:local-dev-only@postgres:5432/kidedu_local?schema=public
       SUPABASE_JWKS_URL: http://identity:3011/jwks
       SUPABASE_JWT_ISSUER: http://identity:3011

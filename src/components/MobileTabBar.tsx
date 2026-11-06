@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing[8],
     justifyContent: "space-around",
-    maxWidth: 460,
+    maxWidth: 720,
     width: "100%"
   },
   icon: {

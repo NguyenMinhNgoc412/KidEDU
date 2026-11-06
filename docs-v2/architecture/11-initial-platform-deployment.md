@@ -1,12 +1,14 @@
 # Initial Platform Deployment Specification
 
+> C50 target update 2026-11-05 — TA-ADR-026: bổ sung AI worker/provider secret/quota/budget/IAM và dispatcher sau C50-D03/POC; không provision Cloud Tasks mặc định. Số liệu sizing/cost cũ chưa bao gồm free DAU và AI job mới; phải cập nhật trước release.
+
 | Thuộc tính | Giá trị                                                                                        |
 | ---------- | ---------------------------------------------------------------------------------------------- |
 | Trạng thái | `In review`                                                                                    |
 | Owner      | Backend + Operations                                                                           |
 | Implements | `TA-ADR-012`, `TA-ADR-016`, `TA-ADR-020`, `TA-ADR-022..024`                                    |
 | Depends on | [Backend](./02-backend-architecture.md), [Operations](./07-operations-observability-backup.md) |
-| Cập nhật   | 2026-09-08                                                                                     |
+| Cập nhật   | 2026-11-05                                                                                     |
 
 ## 1. Baseline and non-goals
 

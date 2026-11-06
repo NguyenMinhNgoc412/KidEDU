@@ -20,6 +20,7 @@ describe("frontend HTTP contract", () => {
         displayName: "Bé Mẫu",
         birthYear: 2022,
         birthMonth: 6,
+        gender: null,
         version: 1
       }
     ]);
@@ -32,6 +33,7 @@ describe("frontend HTTP contract", () => {
       displayName: "Bé Mẫu",
       birthYear: 2022,
       birthMonth: 6,
+      gender: null,
       version: 1
     });
     jest.spyOn(app.get(FamilyService), "updateChild").mockResolvedValue({
@@ -40,6 +42,7 @@ describe("frontend HTTP contract", () => {
       displayName: "Bé Mẫu mới",
       birthYear: 2022,
       birthMonth: 6,
+      gender: null,
       version: 2
     });
     jest.spyOn(app.get(SubscriptionService), "current").mockResolvedValue({

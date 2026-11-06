@@ -1,0 +1,13 @@
+c99a3d4fe6fe35bde117fa7702807cf1
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.installOnUIRuntime = installOnUIRuntime;
+function installOnUIRuntime(uiRuntimeHolder) {
+  const installOnUIRuntimeNative = globalThis?.expo?.installOnUIRuntime;
+  if (!installOnUIRuntimeNative) {
+    throw Error("Native method to install Expo Modules on the worklets UI runtime wasn't found in `expo-modules-core`.");
+  }
+  installOnUIRuntimeNative(uiRuntimeHolder);
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJpbnN0YWxsT25VSVJ1bnRpbWUiLCJ1aVJ1bnRpbWVIb2xkZXIiLCJpbnN0YWxsT25VSVJ1bnRpbWVOYXRpdmUiLCJnbG9iYWxUaGlzIiwiZXhwbyIsIkVycm9yIl0sInNvdXJjZXMiOlsid29ya2xldHMvaW5kZXgudHMiXSwic291cmNlc0NvbnRlbnQiOltudWxsXSwibWFwcGluZ3MiOiI7Ozs7QUFPTyxTQUFTQSxtQkFBbUJDLGVBQXVCO0VBQ3hELE1BQU1DLHdCQUFBLEdBQTJCQyxVQUFBLEVBQVlDLElBQUEsRUFBTUosa0JBQUE7RUFDbkQsSUFBSSxDQUFDRSx3QkFBQSxFQUEwQjtJQUM3QixNQUFNRyxLQUFBLENBQ0o7RUFFSjtFQUVBSCx3QkFBQSxDQUF5QkQsZUFBQTtBQUMzQiIsImlnbm9yZUxpc3QiOltdfQ==

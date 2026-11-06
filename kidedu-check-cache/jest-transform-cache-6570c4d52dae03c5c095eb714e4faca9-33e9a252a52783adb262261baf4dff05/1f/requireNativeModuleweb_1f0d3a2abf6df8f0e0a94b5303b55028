@@ -1,0 +1,23 @@
+0afea0048cce4cd83666ac687d2df65b
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.requireNativeModule = requireNativeModule;
+exports.requireOptionalNativeModule = requireOptionalNativeModule;
+function requireNativeModule(moduleName) {
+  const nativeModule = requireOptionalNativeModule(moduleName);
+  if (nativeModule != null) {
+    return nativeModule;
+  }
+  if (true) {
+    return {};
+  }
+  throw new Error(`Cannot find native module '${moduleName}'`);
+}
+function requireOptionalNativeModule(moduleName) {
+  if (typeof globalThis.ExpoDomWebView === 'object' && globalThis?.expo?.modules != null) {
+    return globalThis.expo?.modules?.[moduleName] ?? null;
+  }
+  return null;
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJyZXF1aXJlTmF0aXZlTW9kdWxlIiwibW9kdWxlTmFtZSIsIm5hdGl2ZU1vZHVsZSIsInJlcXVpcmVPcHRpb25hbE5hdGl2ZU1vZHVsZSIsIkVycm9yIiwiZ2xvYmFsVGhpcyIsIkV4cG9Eb21XZWJWaWV3IiwiZXhwbyIsIm1vZHVsZXMiXSwic291cmNlcyI6WyJyZXF1aXJlTmF0aXZlTW9kdWxlLndlYi50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6Ijs7Ozs7QUFBTyxTQUFTQSxvQkFBc0NDLFVBQWtCO0VBQ3RFLE1BQU1DLFlBQUEsR0FBZUMsMkJBQUEsQ0FBd0NGLFVBQUE7RUFDN0QsSUFBSUMsWUFBQSxJQUFnQixNQUFNO0lBQ3hCLE9BQU9BLFlBQUE7RUFDVDtFQUNBLFVBQW1DO0lBRWpDLE9BQU8sQ0FBQztFQUNWO0VBQ0EsTUFBTSxJQUFJRSxLQUFBLENBQU0sOEJBQThCSCxVQUFBLEdBQWE7QUFDN0Q7QUFFTyxTQUFTRSw0QkFDZEYsVUFBa0I7RUFFbEIsSUFBSSxPQUFPSSxVQUFBLENBQVdDLGNBQWMsS0FBSyxZQUFZRCxVQUFBLEVBQVlFLElBQUEsRUFBTUMsT0FBQSxJQUFXLE1BQU07SUFDdEYsT0FBT0gsVUFBQSxDQUFXRSxJQUFJLEVBQUVDLE9BQUEsR0FBVVAsVUFBQSxDQUFXLElBQUk7RUFDbkQ7RUFDQSxPQUFPO0FBQ1QiLCJpZ25vcmVMaXN0IjpbXX0=

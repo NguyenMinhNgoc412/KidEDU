@@ -1,5 +1,37 @@
 # KidEDU Documentation v2
 
+Owner correction 2026-11-06: C50 board cố định có Back, hình/thẻ lớn responsive, cặp sai tự úp; completion tự đồng bộ → server ACK → quà → tự về Trò chơi. `GameScreenHeader`, `boardLayout`, `useGameNavigationLock`, `useRewardReturn` tách presentation/lifecycle khỏi API/SQLite. Verification và rollback tại [C50 mục 21](./delivery/tasks/C50-four-tabs-daily-games-freemium-ai.md#21-owner-correction-board-và-completion-flow--2026-11-06); không đồng nghĩa production/release gates đã đạt.
+
+Current target: [C50 — bốn tab, daily games, free/paid và custom library v1](./delivery/tasks/C50-four-tabs-daily-games-freemium-ai.md). Owner amendment 2026-11-06 hoãn AI, tiếp tục toàn bộ phần ngoài AI. Daily game/reward đã nối API/account SQLite/lifecycle/receipt recovery và album sáu mảnh trên corpus local synthetic; thêm parent profile editor và UI ít nhiễu. Evidence, verification, migration/rollback và remaining tại **C50 mục 20**. Chưa production cutover hoặc hoàn tất manual/free-learning/release gates; preview riêng vẫn không tiêu lượt hoặc cấp quà. Reset 00:00 Asia/Ho_Chi_Minh, năm bộ free, trial không tạo bộ và chỉ nhận món quà mới. [ADR-0010](./decisions/ADR-0010-freemium-daily-games-and-custom-library.md) ghi trade-offs/gates. C36–C49 dưới đây là implementation history, không override C50.
+
+Implemented reward choice and gentle completion chime: [C49](./delivery/tasks/C49-reward-choice-and-completion-chime.md). C48 word audio and optional album puzzle gameplay remain planned.
+
+Draft plan — word audio and between-game rewards: [C48](./delivery/tasks/C48-word-audio-and-between-game-rewards-plan.md).
+
+Automatic game/course handoff: [C47](./delivery/tasks/C47-automatic-game-course-handoff.md).
+
+Drag scroll-lock fix: [C46](./delivery/tasks/C46-drag-screen-scroll-lock.md).
+
+Direct drag game interactions: [C45](./delivery/tasks/C45-direct-drag-game-interactions.md).
+
+Focused game artwork/start guides: [C44](./delivery/tasks/C44-focused-game-art-and-start-guides.md).
+
+Game pattern/recovery fixes: [C43](./delivery/tasks/C43-game-progress-recovery-and-renderers.md).
+
+Design-system review fixes: [C42](./delivery/tasks/C42-child-games-design-system-alignment.md).
+
+Picture-first child games and persistent sticker album: [C41](./delivery/tasks/C41-picture-first-games-and-sticker-album.md), following the owner's visual/interaction correction to C40.
+
+Current owner direction: [C40 — bộ từ của một bài qua nhiều trò chơi](./delivery/tasks/C40-lesson-vocabulary-games.md). Five-word sample with three games extends the catalog to 28 lessons; game rewards stay separate from parent observations. C41 adds the initial cross-session sticker album; chapters remain planned.
+
+Play variety: [C38 — authored presentation/content](./delivery/tasks/C38-authored-play-presentations.md), [C39 — seven play interactions](./delivery/tasks/C39-diverse-play-interactions.md). Thirteen new sample situations extend the local catalog to 27 selectable lessons.
+
+Session editing: [C37 — chọn, thêm/bớt và đổi thứ tự bài](./delivery/tasks/C37-edit-session-lessons.md).
+
+Current Cùng luyện flow: [C36 — nhiều bài trong một phiên, nhận xét từng bài cuối phiên](./delivery/tasks/C36-multi-lesson-session-end-review.md). This supersedes earlier interleaved review descriptions in historical delivery tasks.
+
+Cùng luyện implementation: [C33 — media/activity runtime](./delivery/tasks/C33-practice-media-and-activity-runtime.md), [C34 — family media bindings](./delivery/tasks/C34-practice-family-media-bindings.md), [C35 — history and parent choices](./delivery/tasks/C35-practice-history-and-parent-decisions.md). Owner selected sample content; actual evidence and remaining production/device gates are maintained in [C32](./delivery/tasks/C32-practice-verification-and-remaining-coverage.md).
+
 ## 1. Mục đích
 
 `docs-v2` là bộ tài liệu đang được viết lại để đưa KidEDU thành sản phẩm production có thể phát hành lên store. Bộ cũ tại `../docs/` được giữ nguyên làm **legacy baseline** để review, so sánh và đào tạo; không dùng bộ cũ làm authority cho thiết kế mới.
@@ -56,6 +88,14 @@ Trạng thái hợp lệ:
 ## 5. Cấu trúc tài liệu hiện tại
 
 Owner input: [Thông tin cần bổ sung](./delivery/07-owner-input-checklist.md).
+
+Classroom curriculum adaptation: [Điều chỉnh mô phỏng giáo trình cho v2](./product/08-classroom-curriculum-v2-adaptation.md) — đề xuất đối chiếu `In review`, không thay SOT hoặc mở rộng scope.
+
+Implementation by boundary: [C26 — Goal-based lessons](./delivery/tasks/C26-goal-based-guided-lessons.md), [C27 — Guidance and observation](./delivery/tasks/C27-authored-guidance-observation.md), [C28 — Practice suggestions](./delivery/tasks/C28-observation-practice-guidance.md).
+
+Feature plan: [Cùng luyện — tính năng bên cạnh Học](./delivery/10-guided-practice-feature-plan.md) — IA và các giai đoạn triển khai; phần FE/BE dùng mẫu đã triển khai theo yêu cầu owner, release gates theo C32.
+
+Cùng luyện FE/BE: [C29 — API/data](./delivery/tasks/C29-practice-api-and-plan.md), [C30 — Feature UI](./delivery/tasks/C30-practice-feature-interface.md), [C31 — Session sync](./delivery/tasks/C31-practice-checkpoint-sync.md), [C32 — Verification and remaining coverage](./delivery/tasks/C32-practice-verification-and-remaining-coverage.md). Sample activity/media/editor/history implementation is tracked by C33–C35 above; C32 records evidence and production/device gates.
 Review: [Đối chiếu SOT và UI ngày 2026-10-12](./delivery/08-sot-ui-review-2026-10-12.md).
 Local expiry fix: [C10 — Local entitlement expiry timer](./delivery/tasks/C10-local-entitlement-expiry-timer.md).
 
@@ -105,7 +145,8 @@ docs-v2/
 │  ├─ 04-progress-observation-spec.md
 │  ├─ 05-subscription-access-spec.md
 │  ├─ 06-content-media-production-spec.md
-│  └─ 07-ai-custom-library-spec.md
+│  ├─ 07-ai-custom-library-spec.md
+│  └─ 08-classroom-curriculum-v2-adaptation.md
 ├─ design/
 │  ├─ 01-information-architecture-user-flows.md
 │  ├─ 02-design-system.md
@@ -155,7 +196,7 @@ docs-v2/
 
 Tất cả file trên là first full draft, không phải file rỗng. Chúng chỉ thành authority trong phạm vi sau khi trạng thái được chuyển `Approved`.
 
-`product/07-ai-custom-library-spec.md`, `architecture/12-ai-custom-library-generation.md` và `ADR-0009` có trạng thái `Deferred — Post-release`: được giữ để không mất thiết kế nhưng không thuộc scope, baseline stack hoặc release gate v1.
+`product/07-ai-custom-library-spec.md` và `architecture/12-ai-custom-library-generation.md` thuộc v1 theo C50. ADR-0009 đã superseded bởi ADR-0010; owner chọn Gemini free cho internal synthetic test và GPT-5.6 Luna mục tiêu phát hành; quality/privacy, dispatcher và quota/fee còn gates, không tự provision. Tooling/evidence tại C50 mục 13–19; Gemini synthetic live smoke đã chạy, chưa AI production.
 
 ## 6. Traceability bắt buộc
 
@@ -206,17 +247,17 @@ Nếu các file đã từng được commit ở remote khác, `.gitignore` khôn
 
 ## 9. So sánh với legacy
 
-| Legacy                             | v2                                                                     |
-| ---------------------------------- | ---------------------------------------------------------------------- |
-| KidEDU là MVP thẻ từ               | KidEDU là Store Release v1.0 với progression giao tiếp tiếng Việt      |
-| Local-first, không backend/login   | Server-authoritative, login + backend + local runtime/cache            |
-| `new/practicing/familiar`          | Observation `+`, `+/-`, `-` theo activity/prompt                       |
-| Video/ảnh/audio gắn vào card       | Target có readiness riêng theo activity; media là asset có provenance  |
-| Chỉ sửa/thêm card local            | V1 dùng curriculum/lesson; AI custom library được lưu cho post-release |
-| Sync toàn bộ/local backup          | Delta sync + progressive lesson pack + durable media cache             |
-| Chưa subscription                  | Trial-to-paywall + store subscription + server entitlement             |
-| Cache là quyền sử dụng             | Premium bytes mã hóa, quyền được xác thực độc lập                      |
-| Một business SOT + mobile overview | Product Brief + PRD + system-wide Technical Architecture               |
+| Legacy                             | v2                                                                    |
+| ---------------------------------- | --------------------------------------------------------------------- |
+| KidEDU là MVP thẻ từ               | KidEDU là Store Release v1.0 với progression giao tiếp tiếng Việt     |
+| Local-first, không backend/login   | Server-authoritative, login + backend + local runtime/cache           |
+| `new/practicing/familiar`          | Observation `+`, `+/-`, `-` theo activity/prompt                      |
+| Video/ảnh/audio gắn vào card       | Target có readiness riêng theo activity; media là asset có provenance |
+| Chỉ sửa/thêm card local            | V1 dùng curriculum/lesson; paid custom library thủ công/AI theo C50   |
+| Sync toàn bộ/local backup          | Delta sync + progressive lesson pack + durable media cache            |
+| Chưa subscription                  | Trial-to-paywall + store subscription + server entitlement            |
+| Cache là quyền sử dụng             | Premium bytes mã hóa, quyền được xác thực độc lập                     |
+| Một business SOT + mobile overview | Product Brief + PRD + system-wide Technical Architecture              |
 
 Legacy được giữ để fresher so sánh, không sửa/xóa/di chuyển trong quá trình rewrite.
 

@@ -5,7 +5,7 @@
 | Trạng thái | `In review`                    |
 | Owner      | Technical owner                |
 | Depends on | Approved SOT/specs and Roadmap |
-| Cập nhật   | 2026-09-08                     |
+| Cập nhật   | 2026-11-05                     |
 
 Đây là work breakdown theo dependency, không phải permission để implement requirement chưa approved. Mỗi task khi tạo phải có requirement IDs, acceptance, tests, migration/rollback và out-of-scope.
 
@@ -67,9 +67,9 @@
 - F06 beta, store assets/submission/staged rollout;
 - F07 provider accounts/IAM/store credentials, EAS Free iOS build/submit, free-tier budget/quota dashboard và Pro/VPS trigger review.
 
-## Post-release workstream — AI custom library
+## C50 — Daily games, freemium và custom library v1
 
-Không tạo task này trong v1 backlog. Sau SOT approval cho phase mới mới tách thành custom schema/prompt, generation job/dispatcher/provider, preview UX, credit ledger, private pack và privacy/cost/resilience work.
+Workstream này thuộc v1 theo C50 P7–P9; không mở nhiều task tổng trùng nhau. C50 chia các phase theo boundary/contract; provider/dispatcher và quota policy phải đóng gate trước production.
 
 ## Task template
 

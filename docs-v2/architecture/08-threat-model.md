@@ -1,11 +1,13 @@
 # Security & Privacy Threat Model
 
+> C50 target update 2026-11-05 — TA-ADR-025/026: bổ sung clock/timezone tampering, duplicate device claim, replay ngày cũ, pending claim qua reset, paid downgrade bypass, AI prompt injection/unsafe output/PII leakage, quota race và cost abuse. Mitigation/evidence ở C50 P2/P4/P8/P10.
+
 | Thuộc tính | Giá trị                                                                          |
 | ---------- | -------------------------------------------------------------------------------- |
 | Trạng thái | `In review`                                                                      |
 | Owner      | Technical owner + Privacy owner                                                  |
 | Implements | `PRD-PRIV-*`, `PRD-NOTIF-*`, `PRD-NFR-003..005`, `TA-ADR-009..010`, `TA-ADR-016` |
-| Cập nhật   | 2026-09-08                                                                       |
+| Cập nhật   | 2026-11-05                                                                       |
 
 ## 1. Assets
 

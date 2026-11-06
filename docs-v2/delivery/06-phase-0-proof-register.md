@@ -1,12 +1,14 @@
 # Phase 0 — Proof and decision register
 
+> C50 target update 2026-11-05 — C50 cập nhật scope 2026-11-05: AI và free/basic thuộc v1; PRD-TBD-08 là release gate AI, PRD-TBD-09 đã đóng theo PRD-SUB-006. Các kết quả Phase 0 cũ là historical evidence, không chứng minh capability mới.
+
 | Thuộc tính | Giá trị                                                                                               |
 | ---------- | ----------------------------------------------------------------------------------------------------- |
 | Trạng thái | `In progress` — chưa đạt exit gate                                                                    |
 | Owner      | Product/Technical owner                                                                               |
 | Implements | `PRD-CONT-001`, `PRD-PRIV-003`, `TA-ADR-007..009`, `TA-ADR-012`, `TA-ADR-016..017`, `TA-ADR-020..024` |
 | Depends on | [Roadmap](./01-roadmap.md), ba SOT, các spec liên quan                                                |
-| Cập nhật   | 2026-09-29                                                                                            |
+| Cập nhật   | 2026-11-05                                                                                            |
 
 ## Phạm vi và acceptance
 
@@ -47,7 +49,7 @@ Web local ngày 2026-09-30: `pnpm test:web` đi hết luồng prototype trên Ch
 ## Quyết định owner và dependency
 
 - Ba SOT còn `In review`. Product owner cần duyệt theo thứ tự Product Brief → PRD → Technical Architecture; approval phải được ghi trong file sở hữu. `PB-TBD-01..06` gồm tên/domain, trial, giá, số hồ sơ trẻ, media quota/retention và review chuyên môn.
-- `PRD-TBD-01..07` còn mở; Phase 0 cần ưu tiên content depth, session limit, export/deletion, lịch phát hành và notification cadence. `PRD-TBD-08..09` thuộc Post-release.
+- `PRD-TBD-01..07` còn mở; Phase 0 cần ưu tiên content depth, session limit, export/deletion, lịch phát hành và notification cadence. `PRD-TBD-08` là gate AI v1 theo C50; `PRD-TBD-09` đóng theo PRD-SUB-006.
 - `TA-TBD-001..003`, `005..012` còn mở; POC ở trên là evidence đầu vào, không tự chốt giá trị trong detailed spec.
 - Cost envelope cần được owner duyệt sau khi cập nhật calculator/quote hiện hành cho ingress, SMTP, store, staging và backup. [Cost model](./05-cost-model.md) là ước tính ngày 2026-09-08, không phải báo giá hiện tại.
 - Phase 0 exit chỉ đạt khi proof reports có kết quả, không còn architecture blocker, cost envelope và ADR được owner duyệt. Trạng thái hiện tại: **chưa đạt**.

@@ -9,5 +9,12 @@ export default function ParentLayout() {
     return <Redirect href="/parent-gate" />;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen
+        name="game-preview"
+        options={{ gestureEnabled: false, fullScreenGestureEnabled: false }}
+      />
+    </Stack>
+  );
 }

@@ -7,9 +7,17 @@ import { useAuth } from "@/features/auth/AuthProvider";
 import { useLearningAccess } from "@/features/entitlement/LearningAccessProvider";
 import { useParentGateStore } from "@/features/parent/parentGate";
 import { findSampleLesson, prepareSampleLesson, sampleLessons } from "./lessonCatalog";
+import { preparePracticeSample } from "@/features/practice/preparePracticeSample";
+import { verifyLocalActivityMedia } from "@/features/practice/practiceFixtureMedia";
+import { preparePracticeCourse } from "@/features/practice/preparePracticeCourse";
+import { composePractice } from "@/features/practice/practicePlan";
 import { flushOutbox } from "./flushOutbox";
 import { localFixtureEnabled } from "./fixtureBoundary";
 import { useLessonRuntimeRepository } from "./LessonRuntimeProvider";
+import {
+  practiceCheckpoint,
+  restorePracticeCheckpoint
+} from "@/features/practice/practiceCheckpoint";
 import {
   createLessonSession,
   recordObservation,
@@ -19,7 +27,7 @@ import {
   type ObservationResult
 } from "./sessionEngine";
 
-export function useLessonSession(childId: string | undefined) {
+export function useLessonSession(childId: string | undefined, practiceLessonId?: string) {
   const queryClient = useQueryClient();
   const { repository, error: databaseError } = useLessonRuntimeRepository();
   const { session: auth, accessTokenValid } = useAuth();
@@ -28,11 +36,15 @@ export function useLessonSession(childId: string | undefined) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [collection, setCollection] = useState<{ scope: string; ids: string[] }>({
+    scope: "",
+    ids: []
+  });
   const current = useRef<LessonSession | null>(null);
   const pending = useRef(false);
   const pauseRequested = useRef(false);
   const alive = useRef(true);
-  const key = `${auth?.accountId}:${childId}`;
+  const key = `${auth?.accountId}:${childId}:${practiceLessonId ?? "learning"}`;
   const loadedKey = useRef("");
   const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
 
@@ -58,13 +70,106 @@ export function useLessonSession(childId: string | undefined) {
       const children = await createLocalApiClient(apiUrl, auth.accessToken).listChildren();
       if (!active) return;
       if (!children.some((child) => child.id === childId)) throw new Error("CHILD_NOT_OWNED");
-      const selectedId = (await repository.selectedLesson(childId)) ?? sampleLessons[0].id;
+      if (practiceLessonId === "fixture_play_today_words")
+        throw new Error("DAILY_GAME_ROUTE_REQUIRED");
+      const storedSelection =
+        practiceLessonId ?? (await repository.selectedLesson(childId)) ?? sampleLessons[0].id;
+      const selectedId =
+        storedSelection === "fixture_play_today_words" ? sampleLessons[0].id : storedSelection;
       if (!findSampleLesson(selectedId)) throw new Error("UNKNOWN_LESSON");
-      const prepared = prepareSampleLesson(__DEV__, selectedId);
-      let saved = await repository.load(childId, prepared.generation);
+      const api = createLocalApiClient(apiUrl, auth.accessToken);
+      const localStickers = await repository.stickerCollection(childId);
+      if (active) setCollection({ scope: key, ids: localStickers });
+      const localCourse = practiceLessonId
+        ? await repository.load(childId, `practice-course:fixture:${selectedId}:1`)
+        : null;
+      let prepared;
+      let ignoredRemoteSessionId: string | null = null;
+      if (practiceLessonId) {
+        if (localCourse?.course && localCourse.resumePhase === "observation") {
+          prepared = localCourse.prepared;
+        } else {
+          const [catalog, plan, remote] = await Promise.all([
+            api.getPracticeCatalog(childId),
+            api.getPracticePlan(childId),
+            api.getPracticeCheckpoints(childId)
+          ]);
+          const remoteCourse = remote.checkpoints.find(
+            (item) =>
+              item.document.course &&
+              item.document.lessonId === selectedId &&
+              item.document.phase !== "finished"
+          );
+          if (active)
+            setCollection({
+              scope: key,
+              ids: [...new Set([...localStickers, ...(remote.stickers ?? [])])]
+            });
+          const canRestore =
+            remoteCourse && !(await repository.hasSession(childId, remoteCourse.sessionId));
+          if (remoteCourse && !canRestore) ignoredRemoteSessionId = remoteCourse.sessionId;
+          const lessonIds =
+            localCourse?.course?.lessonIds ??
+            (canRestore
+              ? remoteCourse.document.course!.lessonIds
+              : composePractice(catalog, plan.document).lessons.map((item) => item.id));
+          if (lessonIds[0] !== selectedId) throw new Error("COURSE_PLAN_CHANGED");
+          const authorization = await api.preparePracticeLesson(childId, selectedId, lessonIds);
+          if (!active) return;
+          if (
+            authorization.source !== "development_fixture" ||
+            authorization.lessonId !== selectedId ||
+            authorization.lessonVersion !== 1 ||
+            JSON.stringify(authorization.lessonIds) !== JSON.stringify(lessonIds)
+          )
+            throw new Error("LESSON_NOT_AUTHORIZED");
+          prepared =
+            localCourse?.prepared ??
+            (await preparePracticeCourse(auth.accountId, childId, lessonIds, repository));
+        }
+      } else {
+        prepared =
+          "activityType" in findSampleLesson(selectedId)!
+            ? await preparePracticeSample(auth.accountId, childId, selectedId, repository)
+            : prepareSampleLesson(__DEV__, selectedId);
+      }
+      let saved = localCourse ?? (await repository.load(childId, prepared.generation));
       if (!active) return;
+      if (
+        saved?.prepared.media &&
+        !(saved.course && saved.resumePhase === "observation") &&
+        !(await verifyLocalActivityMedia(
+          saved.prepared.activities,
+          saved.prepared.media,
+          auth.accountId,
+          childId
+        ))
+      )
+        throw new Error("MEDIA_REPAIR_REQUIRED");
+      if (!saved && practiceLessonId) {
+        const remote = await api.getPracticeCheckpoints(childId);
+        if (!active) return;
+        const checkpoint = remote.checkpoints.find(
+          (item) =>
+            item.sessionId !== ignoredRemoteSessionId &&
+            item.document.lessonId === selectedId &&
+            Boolean(item.document.course) &&
+            item.document.lessonVersion === prepared.lesson.version &&
+            item.document.phase !== "finished"
+        );
+        // A stale remote pause must not resurrect a session already finished locally.
+        if (checkpoint && !(await repository.hasSession(childId, checkpoint.sessionId))) {
+          saved = restorePracticeCheckpoint(
+            checkpoint.sessionId,
+            childId,
+            prepared,
+            checkpoint.document
+          );
+          await repository.start(saved);
+        }
+      }
       if (!saved) {
-        const id = `lesson_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 14)}`;
+        const id = `${practiceLessonId ? "practice" : "lesson"}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 14)}`;
         saved = createLessonSession(id, childId, prepared);
         await repository.start(saved);
       }
@@ -85,7 +190,7 @@ export function useLessonSession(childId: string | undefined) {
     return () => {
       active = false;
     };
-  }, [repository, key, auth, accessTokenValid, childId, apiUrl]);
+  }, [repository, key, auth, accessTokenValid, childId, apiUrl, practiceLessonId]);
 
   async function apply(action: Action) {
     const previous = current.current;
@@ -93,12 +198,23 @@ export function useLessonSession(childId: string | undefined) {
     if (action.type !== "pause" && AppState.currentState && AppState.currentState !== "active")
       return;
     if (action.type === "pause") pauseRequested.current = false;
-    if ((action.type === "start" || action.type === "resume") && access.status !== "allowed") {
+    if (
+      (action.type === "start" || action.type === "resume") &&
+      access.status !== "allowed" &&
+      !(previous.course && previous.resumePhase === "observation")
+    ) {
       setError("Nhờ phụ huynh kiểm tra kết nối và quyền học trước khi tiếp tục.");
       return;
     }
-    const next = transition(previous, action);
+    let next = transition(previous, action);
     if (next === previous) return;
+    if (
+      previous.course &&
+      next.index !== previous.index &&
+      next.phase === "presenting" &&
+      access.status !== "allowed"
+    )
+      next = { ...transition(next, { type: "pause" }), revision: next.revision };
     pending.current = true;
     setBusy(true);
     try {
@@ -156,7 +272,9 @@ export function useLessonSession(childId: string | undefined) {
       );
       // Activity boundary: no new activity opens with invalid access.
       const guarded =
-        next.phase !== "finished" && access.status !== "allowed"
+        next.phase !== "finished" &&
+        !(next.course && next.phase === "observation") &&
+        access.status !== "allowed"
           ? { ...transition(next, { type: "pause" }), revision: next.revision }
           : next;
       await repository.commitObservation(previous, guarded, event);
@@ -195,6 +313,14 @@ export function useLessonSession(childId: string | undefined) {
         childId,
         createLocalApiClient(apiUrl, auth.accessToken)
       );
+      if (practiceLessonId && !outcome.remaining && !outcome.rejected && current.current) {
+        await createLocalApiClient(apiUrl, auth.accessToken).savePracticeCheckpoint(
+          childId,
+          current.current.id,
+          practiceCheckpoint(current.current)
+        );
+        void queryClient.invalidateQueries({ queryKey: ["practice", auth.accountId, childId] });
+      }
       if (alive.current)
         setSyncMessage(
           outcome.rejected
@@ -211,13 +337,38 @@ export function useLessonSession(childId: string | undefined) {
       if (alive.current) setBusy(false);
     }
   }
+  async function leave() {
+    if (pending.current) return false;
+    await apply({ type: "pause" });
+    const snapshot = current.current;
+    if (practiceLessonId && snapshot && auth && repository && accessTokenValid) {
+      try {
+        const api = createLocalApiClient(apiUrl, auth.accessToken);
+        const outcome = await flushOutbox(repository, snapshot.childId, api);
+        if (!outcome.remaining && !outcome.rejected)
+          await api.savePracticeCheckpoint(
+            snapshot.childId,
+            snapshot.id,
+            practiceCheckpoint(snapshot)
+          );
+      } catch {
+        /* Durable local checkpoint/outbox remain the recovery source. */
+      }
+      void queryClient.invalidateQueries({
+        queryKey: ["practice", auth.accountId, snapshot.childId]
+      });
+    }
+    return true;
+  }
   return {
+    collection: collection.scope === key ? collection.ids : [],
     session: session?.childId === childId ? session : null,
     busy,
     error: databaseError ? "Không mở được dữ liệu bài học." : error,
     apply,
     observe,
     sync,
+    leave,
     syncMessage
   };
 }

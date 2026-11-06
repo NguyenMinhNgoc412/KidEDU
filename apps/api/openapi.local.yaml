@@ -5,11 +5,380 @@ info:
 servers:
   - url: /v1
 components:
+  parameters:
+    ChildId:
+      name: childId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
   schemas:
+    DailyRewardState:
+      type: object
+      required: [schemaVersion, sessionId, state, kind, receipt]
+      properties:
+        schemaVersion: { type: integer, const: 1 }
+        sessionId: { type: string, format: uuid }
+        state: { type: string, enum: [incomplete, choose_kind, boxes, claimed, expired] }
+        kind: { type: [string, "null"], enum: [sticker, puzzle_piece, null] }
+        receipt:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/DailyRewardReceipt"
+    DailyRewardInventory:
+      type: object
+      required: [schemaVersion, profileRequired, remaining, items]
+      properties:
+        schemaVersion: { type: integer, const: 1 }
+        profileRequired: { type: boolean }
+        remaining:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [sticker, puzzle_piece]
+              properties:
+                sticker: { type: integer, minimum: 0 }
+                puzzle_piece: { type: integer, minimum: 0 }
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, itemId, catalogId, catalogVersion, acquiredAt]
+            properties:
+              id: { type: string, format: uuid }
+              itemId: { type: string }
+              catalogId: { type: string }
+              catalogVersion: { type: integer, minimum: 1 }
+              acquiredAt: { type: string, format: date-time }
+    DailyGameStatus:
+      type: object
+      required:
+        [schemaVersion, serverNow, playDay, resetAt, tier, contentReady, state, sessionId, canStart]
+      properties:
+        schemaVersion: { type: integer, const: 1 }
+        serverNow: { type: string, format: date-time }
+        playDay: { type: string }
+        resetAt: { type: string, format: date-time }
+        tier: { type: string, enum: [basic, full] }
+        contentReady: { type: boolean }
+        state: { type: string, enum: [available, resumable, completed] }
+        sessionId: { type: [string, "null"], format: uuid }
+        canStart: { type: boolean }
+    DailyGameCheckpoint:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          schemaVersion,
+          kind,
+          contentVersion,
+          shadowScreenIndex,
+          placedTargetIds,
+          listenRoundIndex,
+          memoryMatchedTargetIds,
+          memoryOpenCardIds
+        ]
+      properties:
+        schemaVersion: { type: integer, const: 1 }
+        kind: { type: string, const: daily_game }
+        contentVersion: { type: string }
+        shadowScreenIndex: { type: integer, minimum: 0, maximum: 5 }
+        placedTargetIds: { type: array, maxItems: 3, uniqueItems: true, items: { type: string } }
+        listenRoundIndex: { type: integer, minimum: 0, maximum: 12 }
+        memoryMatchedTargetIds:
+          { type: array, maxItems: 5, uniqueItems: true, items: { type: string } }
+        memoryOpenCardIds: { type: array, maxItems: 2, uniqueItems: true, items: { type: string } }
+    DailyGamePlan:
+      type: object
+      additionalProperties: false
+      description: Semantic validation uses content contract v1; not an entitlement/decryption grant.
+      required:
+        [schemaVersion, kind, contentVersion, tier, shadowScreens, listenRounds, memoryTargetIds]
+      properties:
+        schemaVersion: { type: integer, const: 1 }
+        kind: { type: string, const: daily_game }
+        contentVersion: { type: string }
+        tier: { type: string, enum: [basic, full] }
+        shadowScreens:
+          type: array
+          minItems: 2
+          maxItems: 5
+          items:
+            type: object
+            required: [id, targetIds]
+            properties:
+              id: { type: string }
+              targetIds:
+                {
+                  type: array,
+                  minItems: 3,
+                  maxItems: 3,
+                  uniqueItems: true,
+                  items: { type: string }
+                }
+        listenRounds:
+          type: array
+          minItems: 5
+          maxItems: 12
+          items:
+            type: object
+            required: [id, targetId, optionTargetIds]
+            properties:
+              id: { type: string }
+              targetId: { type: string }
+              optionTargetIds:
+                {
+                  type: array,
+                  minItems: 3,
+                  maxItems: 3,
+                  uniqueItems: true,
+                  items: { type: string }
+                }
+        memoryTargetIds:
+          { type: array, minItems: 5, maxItems: 5, uniqueItems: true, items: { type: string } }
+    DailyGameSession:
+      type: object
+      required: [schemaVersion, id, playDay, resetAt, revision, completedAt, plan, checkpoint]
+      properties:
+        schemaVersion: { type: integer, const: 1 }
+        id: { type: string, format: uuid }
+        playDay: { type: string }
+        resetAt: { type: string, format: date-time }
+        revision: { type: integer, minimum: 1 }
+        completedAt: { type: [string, "null"], format: date-time }
+        plan: { $ref: "#/components/schemas/DailyGamePlan" }
+        checkpoint: { $ref: "#/components/schemas/DailyGameCheckpoint" }
+    DailyGameCheckpointAck:
+      type: object
+      required: [schemaVersion, sessionId, revision, checkpoint, completedAt]
+      properties:
+        schemaVersion: { type: integer, const: 1 }
+        sessionId: { type: string, format: uuid }
+        revision: { type: integer, minimum: 1 }
+        checkpoint: { $ref: "#/components/schemas/DailyGameCheckpoint" }
+        completedAt: { type: [string, "null"], format: date-time }
+    DailyRewardBoxes:
+      type: object
+      required: [sessionId, kind, boxCount]
+      properties:
+        sessionId: { type: string, format: uuid }
+        kind: { type: string, enum: [sticker, puzzle_piece] }
+        boxCount: { type: integer, const: 4 }
+    DailyRewardReceipt:
+      type: object
+      required:
+        [schemaVersion, id, sessionId, boxIndex, itemId, catalogId, catalogVersion, claimedAt]
+      properties:
+        schemaVersion: { type: integer, const: 1 }
+        id: { type: string, format: uuid }
+        sessionId: { type: string, format: uuid }
+        boxIndex: { type: integer, minimum: 0, maximum: 3 }
+        itemId: { type: string }
+        catalogId: { type: string }
+        catalogVersion: { type: integer, minimum: 1 }
+        claimedAt: { type: string, format: date-time }
+    PracticeDocument:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, curriculumVersion, goalIds, selectedLessonId, deferredLessonIds]
+      properties:
+        schemaVersion: { type: integer, enum: [1] }
+        curriculumVersion: { type: string }
+        goalIds: { type: array, uniqueItems: true, maxItems: 30, items: { type: string } }
+        selectedLessonId: { type: [string, "null"] }
+        deferredLessonIds: { type: array, uniqueItems: true, maxItems: 30, items: { type: string } }
+        lessonIds:
+          {
+            type: array,
+            uniqueItems: true,
+            maxItems: 30,
+            items: { type: string },
+            description: "Explicit ordered session selection; absent preserves legacy composition, empty selects no lessons"
+          }
+    PracticePlan:
+      type: object
+      required: [revision, document]
+      properties:
+        revision: { type: integer }
+        document:
+          oneOf:
+            - $ref: "#/components/schemas/PracticeDocument"
+            - { type: "null" }
+    PracticeCatalog:
+      type: object
+      required: [schemaVersion, version, source, goals, lessons, learningAllowed]
+      properties:
+        schemaVersion: { type: integer, enum: [1] }
+        version: { type: string }
+        source: { type: string, enum: [development_fixture, unavailable] }
+        learningAllowed: { type: boolean }
+        goals:
+          type: array
+          items:
+            type: object
+            required: [id, title, description, prerequisiteIds]
+            properties:
+              id: { type: string }
+              title: { type: string }
+              description: { type: string }
+              prerequisiteIds: { type: array, items: { type: string } }
+        lessons:
+          type: array
+          items:
+            type: object
+            required:
+              [
+                id,
+                goalId,
+                title,
+                preparation,
+                itemId,
+                version,
+                prerequisiteLessonIds,
+                activityTypes
+              ]
+            properties:
+              id: { type: string }
+              goalId: { type: string }
+              title: { type: string }
+              preparation: { type: string }
+              itemId: { type: string }
+              version: { type: integer }
+              prerequisiteLessonIds: { type: array, items: { type: string } }
+              activityTypes: { type: array, items: { type: string } }
+    PracticePreparation:
+      type: object
+      required: [lessonId, lessonVersion, source, curriculumVersion]
+      properties:
+        lessonId: { type: string }
+        lessonVersion: { type: integer }
+        source: { type: string, enum: [development_fixture, unavailable] }
+        curriculumVersion: { type: string }
+        lessonIds:
+          { type: array, minItems: 1, maxItems: 30, uniqueItems: true, items: { type: string } }
+    PracticeCourseState:
+      type: object
+      additionalProperties: false
+      required: [lessonIds, attempts, reviewIndex]
+      properties:
+        lessonIds:
+          { type: array, minItems: 1, maxItems: 30, uniqueItems: true, items: { type: string } }
+        reviewIndex: { type: integer, minimum: 0, maximum: 30 }
+        attempts:
+          type: array
+          maxItems: 30
+          items:
+            type: object
+            additionalProperties: false
+            required: [index, promptLevel, repeats, deferred, occurredAt]
+            properties:
+              index: { type: integer, minimum: 0, maximum: 29 }
+              promptLevel: { type: integer, minimum: 0, maximum: 4 }
+              repeats: { type: integer, minimum: 0, maximum: 10 }
+              deferred: { type: boolean }
+              occurredAt: { type: string, format: date-time }
+    WordGameProgress:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, memoryOpen, memoryMatched, found, placed]
+      properties:
+        schemaVersion: { type: integer, enum: [1] }
+        memoryOpen:
+          type: array
+          maxItems: 2
+          uniqueItems: true
+          items: { type: string, pattern: "^[a-z][a-z0-9_]{1,81}$" }
+        memoryMatched:
+          type: array
+          maxItems: 5
+          uniqueItems: true
+          items: { type: string, pattern: "^[a-z][a-z0-9_]{1,79}$" }
+        found:
+          type: array
+          maxItems: 5
+          uniqueItems: true
+          items: { type: string, pattern: "^[a-z][a-z0-9_]{1,79}$" }
+        placed:
+          type: array
+          maxItems: 5
+          uniqueItems: true
+          items: { type: string, pattern: "^[a-z][a-z0-9_]{1,79}$" }
+    GameRewardReceipt:
+      type: object
+      additionalProperties: false
+      required: [kind, itemId]
+      properties:
+        kind: { type: string, enum: [sticker, puzzle_piece] }
+        itemId:
+          {
+            type: string,
+            pattern: "^(sticker_(animals|heroes|princesses)_[1-6]|piece_(garden|space)_[0-3])$"
+          }
+    PendingGameReward:
+      type: object
+      additionalProperties: false
+      required: [key, activityId, slot, stickerCandidate, pieceCandidate, selectedKind]
+      properties:
+        key: { type: string, pattern: "^[a-z][a-z0-9_:-]{2,159}$" }
+        activityId: { type: string, pattern: "^[a-z][a-z0-9_:-]{2,159}$" }
+        slot: { type: string, enum: [round_1, round_2, round_3, lesson, play] }
+        stickerCandidate: { type: string }
+        pieceCandidate: { type: [string, "null"] }
+        selectedKind: { type: [string, "null"], enum: [sticker, puzzle_piece, null] }
+    PracticeCheckpoint:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          schemaVersion,
+          lessonId,
+          lessonVersion,
+          revision,
+          index,
+          phase,
+          resumePhase,
+          promptLevel,
+          repeats,
+          waitRemainingMs,
+          deferred
+        ]
+      properties:
+        schemaVersion: { type: integer, enum: [1] }
+        lessonId: { type: string }
+        lessonVersion: { type: integer }
+        revision: { type: integer, minimum: 0, maximum: 2147483647 }
+        index: { type: integer, minimum: 0, maximum: 64 }
+        phase:
+          { type: string, enum: [overview, presenting, waiting, observation, paused, finished] }
+        resumePhase:
+          { type: [string, "null"], enum: [overview, presenting, waiting, observation, null] }
+        promptLevel: { type: integer, minimum: 0, maximum: 4 }
+        repeats: { type: integer, minimum: 0, maximum: 10 }
+        waitRemainingMs: { type: number, minimum: 0, maximum: 30000 }
+        deferred: { type: boolean }
+        rewardReceipts:
+          type: object
+          maxProperties: 120
+          additionalProperties: { $ref: "#/components/schemas/GameRewardReceipt" }
+        pendingReward: { $ref: "#/components/schemas/PendingGameReward" }
+        course: { $ref: "#/components/schemas/PracticeCourseState" }
+        gameRounds:
+          type: object
+          maxProperties: 30
+          additionalProperties: { type: integer, minimum: 1, maximum: 3 }
+        gameProgress:
+          type: object
+          maxProperties: 30
+          additionalProperties: { $ref: "#/components/schemas/WordGameProgress" }
+        gameStickers:
+          type: object
+          maxProperties: 30
+          additionalProperties:
+            type: string
+            enum: [item-bong, item-gau, item-xe, item-banh, item-sua]
     Subscription:
       type: object
       required:
@@ -65,6 +434,10 @@ components:
         familyId: { type: string, format: uuid }
         displayName: { type: string }
         birthYear: { type: [integer, "null"] }
+        gender:
+          type: [string, "null"]
+          enum: [boy, girl, null]
+          description: Parent-entered value. Missing or null on legacy profiles; never inferred.
         birthMonth: { type: [integer, "null"] }
         version: { type: integer }
     PlanDocument:
@@ -174,6 +547,133 @@ components:
 security:
   - bearerAuth: []
 paths:
+  /children/{childId}/daily-game/inventory:
+    get:
+      operationId: getDailyRewardInventory
+      parameters:
+        - $ref: "#/components/parameters/ChildId"
+      responses:
+        "200":
+          description: Owned rewards remain readable without paid access or current published catalog. Null remaining means unavailable catalog, not exhausted pool.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DailyRewardInventory" }
+        "401": { description: Authentication required }
+        "404": { description: Child not found }
+  /children/{childId}/practice/catalog:
+    parameters:
+      - $ref: "#/components/parameters/ChildId"
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Account-authorized curriculum metadata; no production fixture delivery
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PracticeCatalog" }
+  /children/{childId}/practice/plan:
+    parameters:
+      - $ref: "#/components/parameters/ChildId"
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Family-owned practice plan, separate from the learning plan
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PracticePlan" }
+    put:
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expectedRevision, document]
+              properties:
+                expectedRevision: { type: integer, minimum: 0, maximum: 2147483646 }
+                document: { $ref: "#/components/schemas/PracticeDocument" }
+      responses:
+        "200":
+          description: Optimistic revision saved; stale writes return 409
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PracticePlan" }
+  /children/{childId}/practice/lessons/{lessonId}/prepare:
+    parameters:
+      - $ref: "#/components/parameters/ChildId"
+      - { name: lessonId, in: path, required: true, schema: { type: string } }
+    post:
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                lessonIds:
+                  {
+                    type: array,
+                    minItems: 1,
+                    maxItems: 30,
+                    uniqueItems: true,
+                    items: { type: string }
+                  }
+      responses:
+        "201":
+          description: Local-fixture authorization only, not a signed production grant
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PracticePreparation" }
+  /children/{childId}/practice/checkpoints:
+    parameters:
+      - $ref: "#/components/parameters/ChildId"
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Last 30 family-owned checkpoint references; no content/media payloads
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [checkpoints]
+                properties:
+                  checkpoints:
+                    type: array
+                    items:
+                      type: object
+                      required: [sessionId, document]
+                      properties:
+                        sessionId: { type: string }
+                        document: { $ref: "#/components/schemas/PracticeCheckpoint" }
+                  stickers:
+                    type: array
+                    uniqueItems: true
+                    items: { type: string }
+  /children/{childId}/practice/checkpoints/{sessionId}:
+    parameters:
+      - $ref: "#/components/parameters/ChildId"
+      - { name: sessionId, in: path, required: true, schema: { type: string } }
+    put:
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PracticeCheckpoint" }
+      responses:
+        "200":
+          description: Monotonic checkpoint revision; identical retries are safe
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [revision]
+                properties:
+                  revision: { type: integer }
   /observations/{observationId}:supersede:
     parameters:
       - name: observationId
@@ -292,6 +792,10 @@ paths:
               properties:
                 familyId: { type: string, format: uuid }
                 displayName: { type: string }
+                gender:
+                  type: string
+                  enum: [boy, girl]
+                  description: Current clients require a choice. Omitted only for v1 client compatibility.
                 birthYear: { type: integer }
                 birthMonth: { type: integer }
       responses:
@@ -326,6 +830,10 @@ paths:
               properties:
                 expectedVersion: { type: integer, minimum: 1 }
                 displayName: { type: string }
+                gender:
+                  type: string
+                  enum: [boy, girl]
+                  description: Initial entry for a missing value; changing an existing value returns 409.
                 birthYear: { type: [integer, "null"] }
                 birthMonth: { type: [integer, "null"] }
       responses:
@@ -425,3 +933,252 @@ paths:
                 properties:
                   observations: { type: array, items: { $ref: "#/components/schemas/Observation" } }
                   nextCursor: { type: [string, "null"] }
+
+  /children/{childId}/daily-game:
+    get:
+      {
+        "operationId": "dailyGameStatus",
+        "parameters": [{ "$ref": "#/components/parameters/ChildId" }],
+        "responses":
+          {
+            "200":
+              {
+                "description": "Daily game command result",
+                "content":
+                  {
+                    "application/json":
+                      { "schema": { "$ref": "#/components/schemas/DailyGameStatus" } }
+                  }
+              },
+            "400": { "description": "Invalid command" },
+            "401": { "description": "Authentication required" },
+            "403": { "description": "Access expired" },
+            "404": { "description": "Child or session not found" },
+            "409": { "description": "Conflict; reconcile current server state" },
+            "410": { "description": "Daily window expired" },
+            "503": { "description": "Published content unavailable; no new turn consumed" }
+          }
+      }
+
+  /children/{childId}/daily-game/start:
+    post:
+      {
+        "operationId": "startDailyGame",
+        "parameters": [{ "$ref": "#/components/parameters/ChildId" }],
+        "responses":
+          {
+            "201":
+              {
+                "description": "Daily game command result",
+                "content":
+                  {
+                    "application/json":
+                      { "schema": { "$ref": "#/components/schemas/DailyGameSession" } }
+                  }
+              },
+            "400": { "description": "Invalid command" },
+            "401": { "description": "Authentication required" },
+            "403": { "description": "Access expired" },
+            "404": { "description": "Child or session not found" },
+            "409": { "description": "Conflict; reconcile current server state" },
+            "410": { "description": "Daily window expired" },
+            "503": { "description": "Published content unavailable; no new turn consumed" }
+          },
+        "requestBody":
+          {
+            "required": true,
+            "content":
+              {
+                "application/json":
+                  {
+                    "schema":
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [],
+                        "properties": {}
+                      }
+                  }
+              }
+          }
+      }
+
+  /children/{childId}/daily-game/{sessionId}/checkpoint:
+    put:
+      {
+        "operationId": "saveDailyGameCheckpoint",
+        "parameters":
+          [
+            { "$ref": "#/components/parameters/ChildId" },
+            {
+              "name": "sessionId",
+              "in": "path",
+              "required": true,
+              "schema": { "type": "string", "format": "uuid" }
+            }
+          ],
+        "responses":
+          {
+            "200":
+              {
+                "description": "Daily game command result",
+                "content":
+                  {
+                    "application/json":
+                      { "schema": { "$ref": "#/components/schemas/DailyGameCheckpointAck" } }
+                  }
+              },
+            "400": { "description": "Invalid command" },
+            "401": { "description": "Authentication required" },
+            "403": { "description": "Access expired" },
+            "404": { "description": "Child or session not found" },
+            "409": { "description": "Conflict; reconcile current server state" },
+            "410": { "description": "Daily window expired" },
+            "503": { "description": "Published content unavailable; no new turn consumed" }
+          },
+        "requestBody":
+          {
+            "required": true,
+            "content":
+              {
+                "application/json":
+                  {
+                    "schema":
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["expectedRevision", "checkpoint"],
+                        "properties":
+                          {
+                            "expectedRevision": { "type": "integer", "minimum": 1 },
+                            "checkpoint": { "$ref": "#/components/schemas/DailyGameCheckpoint" }
+                          }
+                      }
+                  }
+              }
+          }
+      }
+
+  /children/{childId}/daily-game/{sessionId}/reward:
+    get:
+      operationId: getDailyRewardState
+      parameters:
+        - $ref: "#/components/parameters/ChildId"
+        - name: sessionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Recover the immutable selection or confirmed receipt; candidates remain private
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DailyRewardState" }
+        "401": { description: Authentication required }
+        "404": { description: Child or session not found }
+
+  /children/{childId}/daily-game/{sessionId}/reward/reserve:
+    post:
+      {
+        "operationId": "reserveDailyReward",
+        "parameters":
+          [
+            { "$ref": "#/components/parameters/ChildId" },
+            {
+              "name": "sessionId",
+              "in": "path",
+              "required": true,
+              "schema": { "type": "string", "format": "uuid" }
+            }
+          ],
+        "responses":
+          {
+            "201":
+              {
+                "description": "Daily game command result",
+                "content":
+                  {
+                    "application/json":
+                      { "schema": { "$ref": "#/components/schemas/DailyRewardBoxes" } }
+                  }
+              },
+            "400": { "description": "Invalid command" },
+            "401": { "description": "Authentication required" },
+            "403": { "description": "Access expired" },
+            "404": { "description": "Child or session not found" },
+            "409": { "description": "Conflict; reconcile current server state" },
+            "410": { "description": "Daily window expired" },
+            "503": { "description": "Published content unavailable; no new turn consumed" }
+          },
+        "requestBody":
+          {
+            "required": true,
+            "content":
+              {
+                "application/json":
+                  {
+                    "schema":
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["kind"],
+                        "properties":
+                          { "kind": { "type": "string", "enum": ["sticker", "puzzle_piece"] } }
+                      }
+                  }
+              }
+          }
+      }
+
+  /children/{childId}/daily-game/{sessionId}/reward/claim:
+    post:
+      {
+        "operationId": "claimDailyReward",
+        "parameters":
+          [
+            { "$ref": "#/components/parameters/ChildId" },
+            {
+              "name": "sessionId",
+              "in": "path",
+              "required": true,
+              "schema": { "type": "string", "format": "uuid" }
+            }
+          ],
+        "responses":
+          {
+            "201":
+              {
+                "description": "Daily game command result",
+                "content":
+                  {
+                    "application/json":
+                      { "schema": { "$ref": "#/components/schemas/DailyRewardReceipt" } }
+                  }
+              },
+            "400": { "description": "Invalid command" },
+            "401": { "description": "Authentication required" },
+            "403": { "description": "Access expired" },
+            "404": { "description": "Child or session not found" },
+            "409": { "description": "Conflict; reconcile current server state" },
+            "410": { "description": "Daily window expired" },
+            "503": { "description": "Published content unavailable; no new turn consumed" }
+          },
+        "requestBody":
+          {
+            "required": true,
+            "content":
+              {
+                "application/json":
+                  {
+                    "schema":
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["boxIndex"],
+                        "properties":
+                          { "boxIndex": { "type": "integer", "minimum": 0, "maximum": 3 } }
+                      }
+                  }
+              }
+          }
+      }

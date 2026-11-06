@@ -1,0 +1,58 @@
+{
+  "evidence": "Real local API, JWKS and PostgreSQL, Chromium",
+  "results": [
+    {
+      "lessonId": "fixture_lesson_model_ba",
+      "goalId": "model",
+      "preparedLocalMedia": true,
+      "noActivityNetwork": true,
+      "parentObservationOnly": true
+    },
+    {
+      "lessonId": "fixture_lesson_recognition",
+      "goalId": "recognition",
+      "preparedLocalMedia": true,
+      "noActivityNetwork": true,
+      "parentObservationOnly": true
+    },
+    {
+      "lessonId": "fixture_lesson_naming",
+      "goalId": "naming",
+      "preparedLocalMedia": true,
+      "noActivityNetwork": true,
+      "parentObservationOnly": true
+    },
+    {
+      "lessonId": "fixture_lesson_cloze",
+      "goalId": "cloze",
+      "preparedLocalMedia": true,
+      "noActivityNetwork": true,
+      "parentObservationOnly": true
+    },
+    {
+      "lessonId": "fixture_lesson_sentence",
+      "goalId": "sentence",
+      "preparedLocalMedia": true,
+      "noActivityNetwork": true,
+      "parentObservationOnly": true
+    },
+    {
+      "lessonId": "fixture_lesson_yes_no",
+      "goalId": "yes_no",
+      "preparedLocalMedia": true,
+      "noActivityNetwork": true,
+      "parentObservationOnly": true
+    },
+    {
+      "familyPreviewCommitAndFallback": true,
+      "historyFilters": true
+    },
+    {
+      "lessonId": "fixture_lesson_visual_qa",
+      "goalId": "visual_qa",
+      "preparedLocalMedia": true,
+      "noActivityNetwork": true,
+      "parentObservationOnly": true
+    }
+  ]
+}

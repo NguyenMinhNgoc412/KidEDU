@@ -1,0 +1,79 @@
+bffc70b89766098ac5b671c6b1726e46
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LearningController = void 0;
+const common_1 = require("@nestjs/common");
+const auth_guard_1 = require("../identity/auth.guard");
+const learning_service_1 = require("./learning.service");
+let LearningController = class LearningController {
+    learning;
+    constructor(learning) {
+        this.learning = learning;
+    }
+    plan(request, childId) {
+        return this.learning.getPlan(request.accountId, childId);
+    }
+    savePlan(request, childId, body) {
+        return this.learning.savePlan(request.accountId, childId, body);
+    }
+    ingest(request, childId, body) {
+        return this.learning.ingest(request.accountId, childId, body);
+    }
+    observations(request, childId, cursor) {
+        return this.learning.observations(request.accountId, childId, cursor);
+    }
+};
+exports.LearningController = LearningController;
+__decorate([
+    (0, common_1.Get)("plan"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], LearningController.prototype, "plan", null);
+__decorate([
+    (0, common_1.Put)("plan"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], LearningController.prototype, "savePlan", null);
+__decorate([
+    (0, common_1.Post)("events:batch"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], LearningController.prototype, "ingest", null);
+__decorate([
+    (0, common_1.Get)("observations"),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("childId")),
+    __param(2, (0, common_1.Query)("cursor")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", void 0)
+], LearningController.prototype, "observations", null);
+exports.LearningController = LearningController = __decorate([
+    (0, common_1.Controller)("children/:childId"),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    __metadata("design:paramtypes", [learning_service_1.LearningService])
+], LearningController);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xcbGVhcm5pbmdcXGxlYXJuaW5nLmNvbnRyb2xsZXIudHMiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7O0FBQUEsMkNBQWdHO0FBRWhHLHVEQUFtRDtBQUNuRCx5REFBcUQ7QUFNOUMsSUFBTSxrQkFBa0IsR0FBeEIsTUFBTSxrQkFBa0I7SUFDQTtJQUE3QixZQUE2QixRQUF5QjtRQUF6QixhQUFRLEdBQVIsUUFBUSxDQUFpQjtJQUFHLENBQUM7SUFHMUQsSUFBSSxDQUFRLE9BQXVCLEVBQW9CLE9BQWU7UUFDcEUsT0FBTyxJQUFJLENBQUMsUUFBUSxDQUFDLE9BQU8sQ0FBQyxPQUFPLENBQUMsU0FBUyxFQUFFLE9BQU8sQ0FBQyxDQUFDO0lBQzNELENBQUM7SUFHRCxRQUFRLENBQ0MsT0FBdUIsRUFDWixPQUFlLEVBQ3pCLElBQWE7UUFFckIsT0FBTyxJQUFJLENBQUMsUUFBUSxDQUFDLFFBQVEsQ0FBQyxPQUFPLENBQUMsU0FBUyxFQUFFLE9BQU8sRUFBRSxJQUFJLENBQUMsQ0FBQztJQUNsRSxDQUFDO0lBR0QsTUFBTSxDQUFRLE9BQXVCLEVBQW9CLE9BQWUsRUFBVSxJQUFhO1FBQzdGLE9BQU8sSUFBSSxDQUFDLFFBQVEsQ0FBQyxNQUFNLENBQUMsT0FBTyxDQUFDLFNBQVMsRUFBRSxPQUFPLEVBQUUsSUFBSSxDQUFDLENBQUM7SUFDaEUsQ0FBQztJQUdELFlBQVksQ0FDSCxPQUF1QixFQUNaLE9BQWUsRUFDaEIsTUFBZTtRQUVoQyxPQUFPLElBQUksQ0FBQyxRQUFRLENBQUMsWUFBWSxDQUFDLE9BQU8sQ0FBQyxTQUFTLEVBQUUsT0FBTyxFQUFFLE1BQU0sQ0FBQyxDQUFDO0lBQ3hFLENBQUM7Q0FDRixDQUFBO0FBOUJZLGdEQUFrQjtBQUk3QjtJQURDLElBQUEsWUFBRyxFQUFDLE1BQU0sQ0FBQztJQUNOLFdBQUEsSUFBQSxZQUFHLEdBQUUsQ0FBQTtJQUEyQixXQUFBLElBQUEsY0FBSyxFQUFDLFNBQVMsQ0FBQyxDQUFBOzs7OzhDQUVyRDtBQUdEO0lBREMsSUFBQSxZQUFHLEVBQUMsTUFBTSxDQUFDO0lBRVQsV0FBQSxJQUFBLFlBQUcsR0FBRSxDQUFBO0lBQ0wsV0FBQSxJQUFBLGNBQUssRUFBQyxTQUFTLENBQUMsQ0FBQTtJQUNoQixXQUFBLElBQUEsYUFBSSxHQUFFLENBQUE7Ozs7a0RBR1I7QUFHRDtJQURDLElBQUEsYUFBSSxFQUFDLGNBQWMsQ0FBQztJQUNiLFdBQUEsSUFBQSxZQUFHLEdBQUUsQ0FBQTtJQUEyQixXQUFBLElBQUEsY0FBSyxFQUFDLFNBQVMsQ0FBQyxDQUFBO0lBQW1CLFdBQUEsSUFBQSxhQUFJLEdBQUUsQ0FBQTs7OztnREFFaEY7QUFHRDtJQURDLElBQUEsWUFBRyxFQUFDLGNBQWMsQ0FBQztJQUVqQixXQUFBLElBQUEsWUFBRyxHQUFFLENBQUE7SUFDTCxXQUFBLElBQUEsY0FBSyxFQUFDLFNBQVMsQ0FBQyxDQUFBO0lBQ2hCLFdBQUEsSUFBQSxjQUFLLEVBQUMsUUFBUSxDQUFDLENBQUE7Ozs7c0RBR2pCOzZCQTdCVSxrQkFBa0I7SUFGOUIsSUFBQSxtQkFBVSxFQUFDLG1CQUFtQixDQUFDO0lBQy9CLElBQUEsa0JBQVMsRUFBQyxzQkFBUyxDQUFDO3FDQUVvQixrQ0FBZTtHQUQzQyxrQkFBa0IsQ0E4QjlCIiwibmFtZXMiOltdLCJzb3VyY2VzIjpbIkM6XFxVc2Vyc1xcQVNVU1xcRG9jdW1lbnRzXFxIT0NcXEtJREVEVVxcYXBwc1xcYXBpXFxzcmNcXGxlYXJuaW5nXFxsZWFybmluZy5jb250cm9sbGVyLnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IEJvZHksIENvbnRyb2xsZXIsIEdldCwgUGFyYW0sIFBvc3QsIFB1dCwgUXVlcnksIFJlcSwgVXNlR3VhcmRzIH0gZnJvbSBcIkBuZXN0anMvY29tbW9uXCI7XG5cbmltcG9ydCB7IEF1dGhHdWFyZCB9IGZyb20gXCIuLi9pZGVudGl0eS9hdXRoLmd1YXJkXCI7XG5pbXBvcnQgeyBMZWFybmluZ1NlcnZpY2UgfSBmcm9tIFwiLi9sZWFybmluZy5zZXJ2aWNlXCI7XG5cbnR5cGUgQWNjb3VudFJlcXVlc3QgPSB7IGFjY291bnRJZDogc3RyaW5nIH07XG5cbkBDb250cm9sbGVyKFwiY2hpbGRyZW4vOmNoaWxkSWRcIilcbkBVc2VHdWFyZHMoQXV0aEd1YXJkKVxuZXhwb3J0IGNsYXNzIExlYXJuaW5nQ29udHJvbGxlciB7XG4gIGNvbnN0cnVjdG9yKHByaXZhdGUgcmVhZG9ubHkgbGVhcm5pbmc6IExlYXJuaW5nU2VydmljZSkge31cblxuICBAR2V0KFwicGxhblwiKVxuICBwbGFuKEBSZXEoKSByZXF1ZXN0OiBBY2NvdW50UmVxdWVzdCwgQFBhcmFtKFwiY2hpbGRJZFwiKSBjaGlsZElkOiBzdHJpbmcpIHtcbiAgICByZXR1cm4gdGhpcy5sZWFybmluZy5nZXRQbGFuKHJlcXVlc3QuYWNjb3VudElkLCBjaGlsZElkKTtcbiAgfVxuXG4gIEBQdXQoXCJwbGFuXCIpXG4gIHNhdmVQbGFuKFxuICAgIEBSZXEoKSByZXF1ZXN0OiBBY2NvdW50UmVxdWVzdCxcbiAgICBAUGFyYW0oXCJjaGlsZElkXCIpIGNoaWxkSWQ6IHN0cmluZyxcbiAgICBAQm9keSgpIGJvZHk6IHVua25vd25cbiAgKSB7XG4gICAgcmV0dXJuIHRoaXMubGVhcm5pbmcuc2F2ZVBsYW4ocmVxdWVzdC5hY2NvdW50SWQsIGNoaWxkSWQsIGJvZHkpO1xuICB9XG5cbiAgQFBvc3QoXCJldmVudHM6YmF0Y2hcIilcbiAgaW5nZXN0KEBSZXEoKSByZXF1ZXN0OiBBY2NvdW50UmVxdWVzdCwgQFBhcmFtKFwiY2hpbGRJZFwiKSBjaGlsZElkOiBzdHJpbmcsIEBCb2R5KCkgYm9keTogdW5rbm93bikge1xuICAgIHJldHVybiB0aGlzLmxlYXJuaW5nLmluZ2VzdChyZXF1ZXN0LmFjY291bnRJZCwgY2hpbGRJZCwgYm9keSk7XG4gIH1cblxuICBAR2V0KFwib2JzZXJ2YXRpb25zXCIpXG4gIG9ic2VydmF0aW9ucyhcbiAgICBAUmVxKCkgcmVxdWVzdDogQWNjb3VudFJlcXVlc3QsXG4gICAgQFBhcmFtKFwiY2hpbGRJZFwiKSBjaGlsZElkOiBzdHJpbmcsXG4gICAgQFF1ZXJ5KFwiY3Vyc29yXCIpIGN1cnNvcj86IHN0cmluZ1xuICApIHtcbiAgICByZXR1cm4gdGhpcy5sZWFybmluZy5vYnNlcnZhdGlvbnMocmVxdWVzdC5hY2NvdW50SWQsIGNoaWxkSWQsIGN1cnNvcik7XG4gIH1cbn1cbiJdLCJ2ZXJzaW9uIjozfQ==

@@ -1,13 +1,19 @@
 # Progress & Observation Specification
 
+> C50 target update 2026-11-05 — PRD-PROG-005: chỉ Tập nói tạo observation. Game không có review/reminder nhận xét và không đưa completion/reward vào mastery. Collection theo PRD-REWARD-003. Giữ lịch sử cũ và session-kind provenance khi migrate; các đoạn C40/C41 dưới đây là implementation baseline.
+
 | Thuộc tính | Giá trị                                     |
 | ---------- | ------------------------------------------- |
 | Trạng thái | `In review`                                 |
 | Owner      | Product + Mobile                            |
 | Implements | `PRD-PROG-*`, `PRD-BR-006`, `PB-OUTCOME-05` |
-| Cập nhật   | 2026-09-08                                  |
+| Cập nhật   | 2026-11-05                                  |
 
 ## 1. Nguyên tắc
+
+C41 triển khai album sticker mẫu theo child: nhận một sticker từ hộp quà sau bộ trò, lưu lựa chọn bất biến trong `gameStickers` checkpoint. Album gộp DISTINCT qua toàn bộ phiên local/server, không tự tạo observation/mastery và không mất quyền xem vì expiry. Không có bản đồ chương trong C41.
+
+`PRD-ACT-012`: số trò hoàn tất và sticker/quà là thành tích game, lưu tách khỏi observation. Ghép/chọn/kéo đúng không tự điền `+`/độc lập hoặc kết luận phát âm. Theo PRD-PROG-005, chỉ phiên Tập nói có nhận xét từng bài cuối phiên; game không nhận xét. C40 lưu số trò hoàn tất trong checkpoint của phiên; album/chương xuyên phiên cần task dữ liệu riêng.
 
 Progress phản ánh điều phụ huynh quan sát trong một activity/ngữ cảnh, không phải đánh giá y khoa. Không suy luận năng lực chỉ từ lượt xem, thời gian màn hình hoặc số lần bấm đúng.
 

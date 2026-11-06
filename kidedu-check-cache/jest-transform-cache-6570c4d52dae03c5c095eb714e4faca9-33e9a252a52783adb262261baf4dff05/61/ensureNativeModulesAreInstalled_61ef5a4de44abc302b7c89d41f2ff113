@@ -1,0 +1,8 @@
+8a3972ad93d0353ae4a11f689f798df8
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ensureNativeModulesAreInstalled = ensureNativeModulesAreInstalled;
+require("./polyfill");
+function ensureNativeModulesAreInstalled() {}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJyZXF1aXJlIiwiZW5zdXJlTmF0aXZlTW9kdWxlc0FyZUluc3RhbGxlZCJdLCJzb3VyY2VzIjpbImVuc3VyZU5hdGl2ZU1vZHVsZXNBcmVJbnN0YWxsZWQudHMiXSwic291cmNlc0NvbnRlbnQiOltudWxsXSwibWFwcGluZ3MiOiI7Ozs7QUFDQUEsT0FBQTtBQU1PLFNBQVNDLGdDQUFBLEdBRWhCIiwiaWdub3JlTGlzdCI6W119

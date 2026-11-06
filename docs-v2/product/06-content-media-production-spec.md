@@ -1,16 +1,18 @@
 # Content Media Production Specification
 
+> C50 target update 2026-11-05 — PRD-REWARD-002 bổ sung production corpus tranh/sticker và quyền sử dụng, preview/mask/hash/review. PRD-CUSTOM-* là private authoring v1 riêng; parent approval không biến asset private thành default published content.
+
 | Thuộc tính | Giá trị                                                                                              |
 | ---------- | ---------------------------------------------------------------------------------------------------- |
 | Trạng thái | `In review`                                                                                          |
 | Owner      | Product + Content + Design + Mobile                                                                  |
 | Implements | `PRD-BR-004..005`, `PRD-CONT-001`, `PRD-CONT-004..006`, `PRD-ACT-*`, `TA-ADR-007..009`, `TA-ADR-024` |
 | Depends on | [Learning Activity Specification](./02-learning-activity-spec.md)                                    |
-| Cập nhật   | 2026-09-08                                                                                           |
+| Cập nhật   | 2026-11-05                                                                                           |
 
 ## 1. Mục tiêu và boundary
 
-Tài liệu này chốt cách KidEDU tạo, duyệt, chuẩn hóa và phát hành video, audio, animation và ảnh minh họa mặc định của v1. Các công cụ AI chỉ nằm trong **authoring pipeline**, không nằm trong learning runtime và không được tự publish output. AI Custom Library là thiết kế post-release riêng tại [AI Custom Library Specification](./07-ai-custom-library-spec.md), không thuộc pipeline/runtime/release gate v1.
+Tài liệu này chốt cách KidEDU tạo, duyệt, chuẩn hóa và phát hành video, audio, animation và ảnh minh họa mặc định của v1. Các công cụ AI chỉ nằm trong **authoring pipeline**, không nằm trong learning runtime và không được tự publish output. AI Custom Library thuộc v1 tại [AI Custom Library Specification](./07-ai-custom-library-spec.md), là pipeline private riêng, không gọi AI trong learning runtime.
 
 Mỗi asset phải phục vụ một vai trò học tập đã xác định. Không thêm video hoặc animation chỉ để làm màn hình sinh động; stimulus ngôn ngữ, khoảng chờ và tương tác giữa phụ huynh với trẻ luôn có ưu tiên cao hơn hiệu ứng.
 

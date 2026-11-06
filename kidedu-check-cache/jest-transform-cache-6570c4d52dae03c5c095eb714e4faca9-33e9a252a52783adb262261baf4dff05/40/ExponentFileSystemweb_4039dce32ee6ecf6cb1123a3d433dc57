@@ -1,0 +1,9 @@
+961ec1ae8d200f83830a0713f9da0a2c
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _ExponentFileSystemShim = _interopRequireDefault(require("./ExponentFileSystemShim"));
+var _default = exports.default = _ExponentFileSystemShim.default;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfRXhwb25lbnRGaWxlU3lzdGVtU2hpbSIsIl9pbnRlcm9wUmVxdWlyZURlZmF1bHQiLCJyZXF1aXJlIiwiX2RlZmF1bHQiLCJleHBvcnRzIiwiZGVmYXVsdCIsIkV4cG9uZW50RmlsZVN5c3RlbVNoaW0iXSwic291cmNlcyI6WyJsZWdhY3kvRXhwb25lbnRGaWxlU3lzdGVtLndlYi50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6Ijs7Ozs7QUFBQSxJQUFBQSx1QkFBQSxHQUFBQyxzQkFBQSxDQUFBQyxPQUFBO0FBQThELElBQUFDLFFBQUEsR0FBQUMsT0FBQSxDQUFBQyxPQUFBLEdBQy9DQywrQkFBQSIsImlnbm9yZUxpc3QiOltdfQ==

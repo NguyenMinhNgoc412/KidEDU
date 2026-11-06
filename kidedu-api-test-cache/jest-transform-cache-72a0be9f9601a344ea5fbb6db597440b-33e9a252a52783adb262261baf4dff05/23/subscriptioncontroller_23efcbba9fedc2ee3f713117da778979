@@ -1,0 +1,42 @@
+db7fbf9ab00e63ea6e860ac87a3f21ab
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SubscriptionController = void 0;
+const common_1 = require("@nestjs/common");
+const auth_guard_1 = require("../identity/auth.guard");
+const subscription_service_1 = require("./subscription.service");
+let SubscriptionController = class SubscriptionController {
+    subscription;
+    constructor(subscription) {
+        this.subscription = subscription;
+    }
+    current(request) {
+        return this.subscription.current(request.accountId);
+    }
+};
+exports.SubscriptionController = SubscriptionController;
+__decorate([
+    (0, common_1.Get)(),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], SubscriptionController.prototype, "current", null);
+exports.SubscriptionController = SubscriptionController = __decorate([
+    (0, common_1.Controller)("subscription"),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    __metadata("design:paramtypes", [subscription_service_1.SubscriptionService])
+], SubscriptionController);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xcZW50aXRsZW1lbnRcXHN1YnNjcmlwdGlvbi5jb250cm9sbGVyLnRzIiwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7OztBQUFBLDJDQUFpRTtBQUVqRSx1REFBbUQ7QUFDbkQsaUVBQTZEO0FBSXRELElBQU0sc0JBQXNCLEdBQTVCLE1BQU0sc0JBQXNCO0lBQ0o7SUFBN0IsWUFBNkIsWUFBaUM7UUFBakMsaUJBQVksR0FBWixZQUFZLENBQXFCO0lBQUcsQ0FBQztJQUdsRSxPQUFPLENBQVEsT0FBOEI7UUFDM0MsT0FBTyxJQUFJLENBQUMsWUFBWSxDQUFDLE9BQU8sQ0FBQyxPQUFPLENBQUMsU0FBUyxDQUFDLENBQUM7SUFDdEQsQ0FBQztDQUNGLENBQUE7QUFQWSx3REFBc0I7QUFJakM7SUFEQyxJQUFBLFlBQUcsR0FBRTtJQUNHLFdBQUEsSUFBQSxZQUFHLEdBQUUsQ0FBQTs7OztxREFFYjtpQ0FOVSxzQkFBc0I7SUFGbEMsSUFBQSxtQkFBVSxFQUFDLGNBQWMsQ0FBQztJQUMxQixJQUFBLGtCQUFTLEVBQUMsc0JBQVMsQ0FBQztxQ0FFd0IsMENBQW1CO0dBRG5ELHNCQUFzQixDQU9sQyIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJDOlxcVXNlcnNcXEFTVVNcXERvY3VtZW50c1xcSE9DXFxLSURFRFVcXGFwcHNcXGFwaVxcc3JjXFxlbnRpdGxlbWVudFxcc3Vic2NyaXB0aW9uLmNvbnRyb2xsZXIudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgQ29udHJvbGxlciwgR2V0LCBSZXEsIFVzZUd1YXJkcyB9IGZyb20gXCJAbmVzdGpzL2NvbW1vblwiO1xuXG5pbXBvcnQgeyBBdXRoR3VhcmQgfSBmcm9tIFwiLi4vaWRlbnRpdHkvYXV0aC5ndWFyZFwiO1xuaW1wb3J0IHsgU3Vic2NyaXB0aW9uU2VydmljZSB9IGZyb20gXCIuL3N1YnNjcmlwdGlvbi5zZXJ2aWNlXCI7XG5cbkBDb250cm9sbGVyKFwic3Vic2NyaXB0aW9uXCIpXG5AVXNlR3VhcmRzKEF1dGhHdWFyZClcbmV4cG9ydCBjbGFzcyBTdWJzY3JpcHRpb25Db250cm9sbGVyIHtcbiAgY29uc3RydWN0b3IocHJpdmF0ZSByZWFkb25seSBzdWJzY3JpcHRpb246IFN1YnNjcmlwdGlvblNlcnZpY2UpIHt9XG5cbiAgQEdldCgpXG4gIGN1cnJlbnQoQFJlcSgpIHJlcXVlc3Q6IHsgYWNjb3VudElkOiBzdHJpbmcgfSkge1xuICAgIHJldHVybiB0aGlzLnN1YnNjcmlwdGlvbi5jdXJyZW50KHJlcXVlc3QuYWNjb3VudElkKTtcbiAgfVxufVxuIl0sInZlcnNpb24iOjN9

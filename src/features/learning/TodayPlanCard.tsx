@@ -9,6 +9,7 @@ import { KidButton } from "@/components/KidButton";
 import { useParentDashboard } from "@/features/parent/useParentDashboard";
 import { localFixtureEnabled } from "@/features/lessonRuntime/fixtureBoundary";
 import { useLessonSelection } from "@/features/lessonRuntime/useLessonSelection";
+import { learningGoals } from "@/features/lessonRuntime/lessonCatalog";
 
 /** Account-bound plan read; no lesson is marked Ready until the pack loader exists. */
 export function TodayPlanCard() {
@@ -27,8 +28,7 @@ export function TodayPlanCard() {
         </View>
         <AppText variant="screenTitle">{selection.lesson.title}</AppText>
         <AppText color="muted">
-          Cùng con dùng {selection.lesson.object} để tạo cơ hội giao tiếp, rồi thử trong sinh hoạt
-          hằng ngày.
+          {learningGoals[selection.lesson.goal].purpose} Sau đó thử trong sinh hoạt hằng ngày.
         </AppText>
         <View style={{ flexDirection: "row", gap: 12, flexWrap: "wrap" }}>
           <AppText variant="caption" color="primary">
@@ -50,11 +50,6 @@ export function TodayPlanCard() {
               params: { childId: dashboard.selected!.id }
             })
           }
-        />
-        <KidButton
-          label="Nhờ phụ huynh chọn bài khác"
-          variant="plain"
-          onPress={() => router.push("/parent-gate")}
         />
         <AppText variant="caption" color="muted">
           Bài trải nghiệm · dữ liệu mẫu

@@ -32,6 +32,7 @@ export function useLocalBackend(authToken = "") {
   const [plan, setPlan] = useState<LocalPlan | null>(null);
   const [observations, setObservations] = useState<LocalObservation[]>([]);
   const pendingCorrections = useRef(new Map<string, string>());
+  const accountEpoch = useRef(0);
 
   useEffect(() => {
     if (token !== authToken) changeToken(authToken);
@@ -42,6 +43,8 @@ export function useLocalBackend(authToken = "") {
   }
 
   function clearAccount() {
+    accountEpoch.current += 1;
+    setBusy(false);
     pendingCorrections.current.clear();
     setAccountId(null);
     setSubscription(null);
@@ -63,27 +66,31 @@ export function useLocalBackend(authToken = "") {
     setStatus("Địa chỉ API đã đổi. Kết nối lại để tải dữ liệu.");
   }
 
-  async function run(action: () => Promise<void>) {
+  async function run(action: (isCurrent: () => boolean) => Promise<void>) {
+    const epoch = accountEpoch.current;
+    const isCurrent = () => accountEpoch.current === epoch;
     setBusy(true);
     try {
-      await action();
+      await action(isCurrent);
     } catch (error) {
+      if (!isCurrent()) return;
       setStatus(messageFor(error));
       if (error instanceof ApiRequestError && error.status === 401) clearAccount();
     } finally {
-      setBusy(false);
+      if (isCurrent()) setBusy(false);
     }
   }
 
   async function connect() {
     clearAccount();
-    await run(async () => {
+    await run(async (isCurrent) => {
       const api = client();
       const me = await api.getMe();
       const [nextSubscription, rows] = await Promise.all([
         api.getSubscription(),
         api.listChildren()
       ]);
+      if (!isCurrent()) return;
       setAccountId(me.id);
       setSubscription(nextSubscription);
       setChildren(rows);
@@ -91,29 +98,35 @@ export function useLocalBackend(authToken = "") {
     });
   }
 
-  async function createTestChild(displayName: string) {
-    await run(async () => {
+  async function createTestChild(displayName: string, gender: NonNullable<LocalChild["gender"]>) {
+    await run(async (isCurrent) => {
       const api = client();
       const families = await api.listFamilies();
+      if (!isCurrent()) return;
       const familyId =
         families.find((family) => family.role === "owner")?.id ?? (await api.createFamily()).id;
       await api.grantChildProfileConsent("local-test-v1");
-      const child = await api.createChild(familyId, displayName.trim());
-      setChildren(await api.listChildren());
+      if (!isCurrent()) return;
+      const child = await api.createChild(familyId, displayName.trim(), gender);
+      const rows = await api.listChildren();
+      if (!isCurrent()) return;
+      setChildren(rows);
       setStatus(`Đã tạo hồ sơ thử ${child.displayName}.`);
     });
   }
 
   async function openChild(child: LocalChild) {
+    accountEpoch.current += 1;
     setSelected(child);
     setPlan(null);
     setObservations([]);
-    await run(async () => {
+    await run(async (isCurrent) => {
       const api = client();
       const [nextPlan, page] = await Promise.all([
         api.getPlan(child.id),
         api.listObservations(child.id)
       ]);
+      if (!isCurrent()) return;
       setPlan(nextPlan);
       setObservations(page.observations);
       setStatus(`Đã tải dữ liệu của ${child.displayName}.`);
@@ -122,25 +135,39 @@ export function useLocalBackend(authToken = "") {
 
   async function renameChild(displayName: string) {
     if (!selected) return;
-    await run(async () => {
+    await run(async (isCurrent) => {
       const updated = await client().updateChild(selected.id, selected.version, { displayName });
+      if (!isCurrent()) return;
       setSelected(updated);
       setChildren((current) => current.map((child) => (child.id === updated.id ? updated : child)));
       setStatus("Đã cập nhật tên hiển thị.");
     });
   }
 
+  async function setMissingGender(gender: NonNullable<LocalChild["gender"]>) {
+    if (!selected || selected.gender != null) return;
+    await run(async (isCurrent) => {
+      const updated = await client().updateChild(selected.id, selected.version, { gender });
+      if (!isCurrent()) return;
+      setSelected(updated);
+      setChildren((current) => current.map((child) => (child.id === updated.id ? updated : child)));
+      setStatus("Đã lưu giới tính do phụ huynh chọn.");
+    });
+  }
+
   async function correctObservation(observationId: string, result: ObservationResult) {
     if (!selected) return;
-    await run(async () => {
+    await run(async (isCurrent) => {
       const pendingKey = `${observationId}:${result}`;
       const eventId =
         pendingCorrections.current.get(pendingKey) ??
         `correction-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
       pendingCorrections.current.set(pendingKey, eventId);
       await client().supersedeObservation(observationId, eventId, result, null);
+      if (!isCurrent()) return;
       pendingCorrections.current.delete(pendingKey);
       const page = await client().listObservations(selected.id);
+      if (!isCurrent()) return;
       setObservations(page.observations);
       setStatus("Đã lưu bản sửa quan sát. Bản gốc được giữ lại.");
     });
@@ -163,6 +190,7 @@ export function useLocalBackend(authToken = "") {
     createTestChild,
     openChild,
     renameChild,
+    setMissingGender,
     correctObservation
   };
 }

@@ -5,11 +5,11 @@
 | Trạng thái | `In review`                                          |
 | Owner      | Product + Backend + Mobile                           |
 | Implements | `PRD-SUB-*`, `PRD-ACC-001`, `PRD-SYNC-*`, `PB-BIZ-*` |
-| Cập nhật   | 2026-09-08                                           |
+| Cập nhật   | 2026-11-05                                           |
 
 ## 1. Business model
 
-V1 dùng trial-to-paywall và subscription. Không có permanent free learning tier, third-party ads hoặc quảng cáo hành vi. Giá, trial length và gói tháng/năm còn theo `PB-TBD-02..05`.
+V1 dùng free/basic lâu dài + paid/full theo `PB-BIZ-04..05`, `PRD-SUB-006`. Hết paid/trial về basic; không third-party ads. Giá/trial và quota AI vẫn là gate owner.
 
 ## 2. Effective access states
 
@@ -34,7 +34,7 @@ Entitlement cấp capability/versioned scope, không chỉ boolean `isPremium`:
 - `content.pack.<tier>`;
 - `family_media.cloud` + quota;
 - `profiles.count`;
-- feature capability tương lai.
+- basic/full learning scope, free/paid game length, custom manual/AI authoring + server quota theo PRD-SUB-006; không boolean premium chung cho tất cả quyền.
 
 Activation grant chỉ chứa capability cần cho device/session, có account/device binding và expiry.
 
@@ -78,3 +78,7 @@ Apple App Store Server Notification V2 JWS và Google Play RTDN/Pub/Sub phải �
 Test sandbox iOS/Android cho purchase, cancel, renew, trial convert, grace, billing retry, expire, refund/revoke, reinstall, restore trên device khác, duplicate/out-of-order store event, Apple/Google API/RTDN outage và account switch.
 
 Security acceptance: copy SQLite/pack sang account/device khác hoặc rollback clock không mở được premium theo normal app flow.
+
+## C50 acceptance extension
+
+Theo `PRD-GAME-*`/`PRD-SUB-006`: kiểm basic năm bộ đã chốt sau expiry, ngày chơi không reset khi upgrade/reinstall, same child nhiều device, 00:00 Asia/Ho_Chi_Minh reset, không mở premium qua basic key, custom authoring free/trial bị chặn mọi boundary. Quota/content giữ theo phiên; quyền premium vẫn hết tại expiry store, không kéo tới midnight. Inventory cũ vẫn xem được; D03 quota/provider/fee AI còn mở.

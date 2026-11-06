@@ -1,0 +1,65 @@
+f08e7e2bf285787301d744614fb1b40c
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AppModule = void 0;
+const common_1 = require("@nestjs/common");
+const health_controller_1 = require("./health.controller");
+const health_service_1 = require("./health.service");
+const prisma_service_1 = require("./database/prisma.service");
+const family_controller_1 = require("./families/family.controller");
+const family_repository_1 = require("./families/family.repository");
+const family_service_1 = require("./families/family.service");
+const account_repository_1 = require("./identity/account.repository");
+const auth_guard_1 = require("./identity/auth.guard");
+const identity_gateway_1 = require("./identity/identity.gateway");
+const identity_service_1 = require("./identity/identity.service");
+const me_controller_1 = require("./identity/me.controller");
+const supabase_identity_adapter_1 = require("./identity/supabase-identity.adapter");
+const learning_controller_1 = require("./learning/learning.controller");
+const learning_service_1 = require("./learning/learning.service");
+const observation_controller_1 = require("./learning/observation.controller");
+const entitlement_repository_1 = require("./entitlement/entitlement.repository");
+const subscription_controller_1 = require("./entitlement/subscription.controller");
+const subscription_service_1 = require("./entitlement/subscription.service");
+const object_storage_gateway_1 = require("./storage/object-storage.gateway");
+const r2_object_storage_adapter_1 = require("./storage/r2-object-storage.adapter");
+const practice_controller_1 = require("./practice/practice.controller");
+const practice_service_1 = require("./practice/practice.service");
+let AppModule = class AppModule {
+};
+exports.AppModule = AppModule;
+exports.AppModule = AppModule = __decorate([
+    (0, common_1.Module)({
+        controllers: [
+            health_controller_1.HealthController,
+            practice_controller_1.PracticeController,
+            me_controller_1.MeController,
+            family_controller_1.FamilyController,
+            learning_controller_1.LearningController,
+            observation_controller_1.ObservationController,
+            subscription_controller_1.SubscriptionController
+        ],
+        providers: [
+            prisma_service_1.PrismaService,
+            practice_service_1.PracticeService,
+            health_service_1.HealthService,
+            account_repository_1.AccountRepository,
+            family_repository_1.FamilyRepository,
+            family_service_1.FamilyService,
+            learning_service_1.LearningService,
+            entitlement_repository_1.EntitlementRepository,
+            subscription_service_1.SubscriptionService,
+            identity_service_1.IdentityService,
+            auth_guard_1.AuthGuard,
+            { provide: identity_gateway_1.IDENTITY_GATEWAY, useClass: supabase_identity_adapter_1.SupabaseIdentityAdapter },
+            { provide: object_storage_gateway_1.OBJECT_STORAGE_GATEWAY, useClass: r2_object_storage_adapter_1.R2ObjectStorageAdapter }
+        ]
+    })
+], AppModule);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xcYXBwLm1vZHVsZS50cyIsIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7QUFBQSwyQ0FBd0M7QUFFeEMsMkRBQXVEO0FBQ3ZELHFEQUFpRDtBQUNqRCw4REFBMEQ7QUFDMUQsb0VBQWdFO0FBQ2hFLG9FQUFnRTtBQUNoRSw4REFBMEQ7QUFDMUQsc0VBQWtFO0FBQ2xFLHNEQUFrRDtBQUNsRCxrRUFBK0Q7QUFDL0Qsa0VBQThEO0FBQzlELDREQUF3RDtBQUN4RCxvRkFBK0U7QUFDL0Usd0VBQW9FO0FBQ3BFLGtFQUE4RDtBQUM5RCw4RUFBMEU7QUFDMUUsaUZBQTZFO0FBQzdFLG1GQUErRTtBQUMvRSw2RUFBeUU7QUFDekUsNkVBQTBFO0FBQzFFLG1GQUE2RTtBQUM3RSx3RUFBb0U7QUFDcEUsa0VBQThEO0FBNEJ2RCxJQUFNLFNBQVMsR0FBZixNQUFNLFNBQVM7Q0FBRyxDQUFBO0FBQVosOEJBQVM7b0JBQVQsU0FBUztJQTFCckIsSUFBQSxlQUFNLEVBQUM7UUFDTixXQUFXLEVBQUU7WUFDWCxvQ0FBZ0I7WUFDaEIsd0NBQWtCO1lBQ2xCLDRCQUFZO1lBQ1osb0NBQWdCO1lBQ2hCLHdDQUFrQjtZQUNsQiw4Q0FBcUI7WUFDckIsZ0RBQXNCO1NBQ3ZCO1FBQ0QsU0FBUyxFQUFFO1lBQ1QsOEJBQWE7WUFDYixrQ0FBZTtZQUNmLDhCQUFhO1lBQ2Isc0NBQWlCO1lBQ2pCLG9DQUFnQjtZQUNoQiw4QkFBYTtZQUNiLGtDQUFlO1lBQ2YsOENBQXFCO1lBQ3JCLDBDQUFtQjtZQUNuQixrQ0FBZTtZQUNmLHNCQUFTO1lBQ1QsRUFBRSxPQUFPLEVBQUUsbUNBQWdCLEVBQUUsUUFBUSxFQUFFLG1EQUF1QixFQUFFO1lBQ2hFLEVBQUUsT0FBTyxFQUFFLCtDQUFzQixFQUFFLFFBQVEsRUFBRSxrREFBc0IsRUFBRTtTQUN0RTtLQUNGLENBQUM7R0FDVyxTQUFTLENBQUciLCJuYW1lcyI6W10sInNvdXJjZXMiOlsiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xcYXBwLm1vZHVsZS50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBNb2R1bGUgfSBmcm9tIFwiQG5lc3Rqcy9jb21tb25cIjtcblxuaW1wb3J0IHsgSGVhbHRoQ29udHJvbGxlciB9IGZyb20gXCIuL2hlYWx0aC5jb250cm9sbGVyXCI7XG5pbXBvcnQgeyBIZWFsdGhTZXJ2aWNlIH0gZnJvbSBcIi4vaGVhbHRoLnNlcnZpY2VcIjtcbmltcG9ydCB7IFByaXNtYVNlcnZpY2UgfSBmcm9tIFwiLi9kYXRhYmFzZS9wcmlzbWEuc2VydmljZVwiO1xuaW1wb3J0IHsgRmFtaWx5Q29udHJvbGxlciB9IGZyb20gXCIuL2ZhbWlsaWVzL2ZhbWlseS5jb250cm9sbGVyXCI7XG5pbXBvcnQgeyBGYW1pbHlSZXBvc2l0b3J5IH0gZnJvbSBcIi4vZmFtaWxpZXMvZmFtaWx5LnJlcG9zaXRvcnlcIjtcbmltcG9ydCB7IEZhbWlseVNlcnZpY2UgfSBmcm9tIFwiLi9mYW1pbGllcy9mYW1pbHkuc2VydmljZVwiO1xuaW1wb3J0IHsgQWNjb3VudFJlcG9zaXRvcnkgfSBmcm9tIFwiLi9pZGVudGl0eS9hY2NvdW50LnJlcG9zaXRvcnlcIjtcbmltcG9ydCB7IEF1dGhHdWFyZCB9IGZyb20gXCIuL2lkZW50aXR5L2F1dGguZ3VhcmRcIjtcbmltcG9ydCB7IElERU5USVRZX0dBVEVXQVkgfSBmcm9tIFwiLi9pZGVudGl0eS9pZGVudGl0eS5nYXRld2F5XCI7XG5pbXBvcnQgeyBJZGVudGl0eVNlcnZpY2UgfSBmcm9tIFwiLi9pZGVudGl0eS9pZGVudGl0eS5zZXJ2aWNlXCI7XG5pbXBvcnQgeyBNZUNvbnRyb2xsZXIgfSBmcm9tIFwiLi9pZGVudGl0eS9tZS5jb250cm9sbGVyXCI7XG5pbXBvcnQgeyBTdXBhYmFzZUlkZW50aXR5QWRhcHRlciB9IGZyb20gXCIuL2lkZW50aXR5L3N1cGFiYXNlLWlkZW50aXR5LmFkYXB0ZXJcIjtcbmltcG9ydCB7IExlYXJuaW5nQ29udHJvbGxlciB9IGZyb20gXCIuL2xlYXJuaW5nL2xlYXJuaW5nLmNvbnRyb2xsZXJcIjtcbmltcG9ydCB7IExlYXJuaW5nU2VydmljZSB9IGZyb20gXCIuL2xlYXJuaW5nL2xlYXJuaW5nLnNlcnZpY2VcIjtcbmltcG9ydCB7IE9ic2VydmF0aW9uQ29udHJvbGxlciB9IGZyb20gXCIuL2xlYXJuaW5nL29ic2VydmF0aW9uLmNvbnRyb2xsZXJcIjtcbmltcG9ydCB7IEVudGl0bGVtZW50UmVwb3NpdG9yeSB9IGZyb20gXCIuL2VudGl0bGVtZW50L2VudGl0bGVtZW50LnJlcG9zaXRvcnlcIjtcbmltcG9ydCB7IFN1YnNjcmlwdGlvbkNvbnRyb2xsZXIgfSBmcm9tIFwiLi9lbnRpdGxlbWVudC9zdWJzY3JpcHRpb24uY29udHJvbGxlclwiO1xuaW1wb3J0IHsgU3Vic2NyaXB0aW9uU2VydmljZSB9IGZyb20gXCIuL2VudGl0bGVtZW50L3N1YnNjcmlwdGlvbi5zZXJ2aWNlXCI7XG5pbXBvcnQgeyBPQkpFQ1RfU1RPUkFHRV9HQVRFV0FZIH0gZnJvbSBcIi4vc3RvcmFnZS9vYmplY3Qtc3RvcmFnZS5nYXRld2F5XCI7XG5pbXBvcnQgeyBSMk9iamVjdFN0b3JhZ2VBZGFwdGVyIH0gZnJvbSBcIi4vc3RvcmFnZS9yMi1vYmplY3Qtc3RvcmFnZS5hZGFwdGVyXCI7XG5pbXBvcnQgeyBQcmFjdGljZUNvbnRyb2xsZXIgfSBmcm9tIFwiLi9wcmFjdGljZS9wcmFjdGljZS5jb250cm9sbGVyXCI7XG5pbXBvcnQgeyBQcmFjdGljZVNlcnZpY2UgfSBmcm9tIFwiLi9wcmFjdGljZS9wcmFjdGljZS5zZXJ2aWNlXCI7XG5cbkBNb2R1bGUoe1xuICBjb250cm9sbGVyczogW1xuICAgIEhlYWx0aENvbnRyb2xsZXIsXG4gICAgUHJhY3RpY2VDb250cm9sbGVyLFxuICAgIE1lQ29udHJvbGxlcixcbiAgICBGYW1pbHlDb250cm9sbGVyLFxuICAgIExlYXJuaW5nQ29udHJvbGxlcixcbiAgICBPYnNlcnZhdGlvbkNvbnRyb2xsZXIsXG4gICAgU3Vic2NyaXB0aW9uQ29udHJvbGxlclxuICBdLFxuICBwcm92aWRlcnM6IFtcbiAgICBQcmlzbWFTZXJ2aWNlLFxuICAgIFByYWN0aWNlU2VydmljZSxcbiAgICBIZWFsdGhTZXJ2aWNlLFxuICAgIEFjY291bnRSZXBvc2l0b3J5LFxuICAgIEZhbWlseVJlcG9zaXRvcnksXG4gICAgRmFtaWx5U2VydmljZSxcbiAgICBMZWFybmluZ1NlcnZpY2UsXG4gICAgRW50aXRsZW1lbnRSZXBvc2l0b3J5LFxuICAgIFN1YnNjcmlwdGlvblNlcnZpY2UsXG4gICAgSWRlbnRpdHlTZXJ2aWNlLFxuICAgIEF1dGhHdWFyZCxcbiAgICB7IHByb3ZpZGU6IElERU5USVRZX0dBVEVXQVksIHVzZUNsYXNzOiBTdXBhYmFzZUlkZW50aXR5QWRhcHRlciB9LFxuICAgIHsgcHJvdmlkZTogT0JKRUNUX1NUT1JBR0VfR0FURVdBWSwgdXNlQ2xhc3M6IFIyT2JqZWN0U3RvcmFnZUFkYXB0ZXIgfVxuICBdXG59KVxuZXhwb3J0IGNsYXNzIEFwcE1vZHVsZSB7fVxuIl0sInZlcnNpb24iOjN9

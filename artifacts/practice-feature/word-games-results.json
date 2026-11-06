@@ -1,0 +1,50 @@
+{
+  "evidence": "Chromium + real Nest/JWKS/PostgreSQL",
+  "results": [
+    {
+      "width": 320,
+      "playVariants": 3,
+      "scenarios": 1,
+      "imageOnly": true,
+      "mismatchAutoClose": true,
+      "pointerDrag": true,
+      "partialProgressSurvivesPause": true,
+      "partialProgressSurvivesReload": false,
+      "giftChoiceAndCollection": true,
+      "albumSurvivesReloadAndSignIn": true,
+      "endReviews": true,
+      "noActivityApi": true,
+      "noBrowserErrors": true
+    },
+    {
+      "width": 390,
+      "playVariants": 3,
+      "scenarios": 1,
+      "imageOnly": true,
+      "mismatchAutoClose": true,
+      "pointerDrag": true,
+      "partialProgressSurvivesPause": true,
+      "partialProgressSurvivesReload": true,
+      "giftChoiceAndCollection": true,
+      "albumSurvivesReloadAndSignIn": true,
+      "endReviews": true,
+      "noActivityApi": true,
+      "noBrowserErrors": true
+    },
+    {
+      "width": 768,
+      "playVariants": 3,
+      "scenarios": 1,
+      "imageOnly": true,
+      "mismatchAutoClose": true,
+      "pointerDrag": true,
+      "partialProgressSurvivesPause": true,
+      "partialProgressSurvivesReload": false,
+      "giftChoiceAndCollection": true,
+      "albumSurvivesReloadAndSignIn": true,
+      "endReviews": true,
+      "noActivityApi": true,
+      "noBrowserErrors": true
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+06393671a77c255596bc7baaaddb8c37
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.UnavailabilityError = void 0;
+var _Platform = _interopRequireDefault(require("../Platform"));
+var _CodedError = require("./CodedError");
+class UnavailabilityError extends _CodedError.CodedError {
+  constructor(moduleName, propertyName) {
+    super('ERR_UNAVAILABLE', `The method or property ${moduleName}.${propertyName} is not available on ${_Platform.default.OS}, are you sure you've linked all the native dependencies properly?`);
+  }
+}
+exports.UnavailabilityError = UnavailabilityError;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfUGxhdGZvcm0iLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSIsIl9Db2RlZEVycm9yIiwiVW5hdmFpbGFiaWxpdHlFcnJvciIsIkNvZGVkRXJyb3IiLCJjb25zdHJ1Y3RvciIsIm1vZHVsZU5hbWUiLCJwcm9wZXJ0eU5hbWUiLCJQbGF0Zm9ybSIsIk9TIiwiZXhwb3J0cyJdLCJzb3VyY2VzIjpbImVycm9ycy9VbmF2YWlsYWJpbGl0eUVycm9yLnRzIl0sInNvdXJjZXNDb250ZW50IjpbbnVsbF0sIm1hcHBpbmdzIjoiOzs7OztBQUFBLElBQUFBLFNBQUEsR0FBQUMsc0JBQUEsQ0FBQUMsT0FBQTtBQUNBLElBQUFDLFdBQUEsR0FBQUQsT0FBQTtBQU9PLE1BQU1FLG1CQUFBLFNBQTRCQyxzQkFBQTtFQUN2Q0MsWUFBWUMsVUFBa0IsRUFBRUMsWUFBb0IsRUFBRTtJQUNwRCxLQUFLLENBQ0gsbUJBQ0EsMEJBQTBCRCxVQUFBLElBQWNDLFlBQUEsd0JBQW9DQyxpQkFBQSxDQUFTQyxFQUFFLG9FQUFvRTtFQUUvSjtBQUNGO0FBQUFDLE9BQUEsQ0FBQVAsbUJBQUEsR0FBQUEsbUJBQUEiLCJpZ25vcmVMaXN0IjpbXX0=

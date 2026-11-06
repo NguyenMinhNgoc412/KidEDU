@@ -2,15 +2,15 @@
 
 | Thuộc tính | Giá trị                                                                                                                    |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Trạng thái | `Deferred — Post-release`                                                                                                  |
+| Trạng thái | `In review — v1 scope approved`                                                                                            |
 | Owner      | Product + Content + Backend + Mobile + Billing                                                                             |
 | Implements | `PRD-CUSTOM-*`, `PRD-SUB-005`, `PRD-CONT-001`, `PRD-CONT-006`, `PRD-MEDIA-*`, `PRD-PRIV-*`                                 |
 | Depends on | [Content Media Production](./06-content-media-production-spec.md), [Subscription Access](./05-subscription-access-spec.md) |
-| Cập nhật   | 2026-09-08                                                                                                                 |
+| Cập nhật   | 2026-11-05                                                                                                                 |
 
 ## 1. Định nghĩa sản phẩm
 
-> Không thuộc Store Release v1.0. Tài liệu này được giữ làm specification đầu vào cho phase sau và không cho phép implementation trong roadmap v1.
+> Owner đã chuyển vào Store Release v1.0 ngày 2026-11-05. PRD-CUSTOM-* và C50 là scope/gate; paid được tạo thủ công hoặc AI, free không tạo bộ. Không mặc định mandatory consumable add-on.
 
 Tên capability trong tài liệu: **AI Custom Library**; label UX tiếng Việt dự kiến: **Bộ học tùy chỉnh AI**.
 
@@ -19,11 +19,11 @@ Tên capability trong tài liệu: **AI Custom Library**; label UX tiếng Việ
 ## 2. Điều kiện sử dụng
 
 - Parent account, Parent Gate và active subscription.
-- Có generation credit khả dụng hoặc hoàn tất mua credit qua store.
+- AI cần allowance/quota khả dụng theo policy server; optional store credit chỉ khi SKU được owner duyệt. Manual không tiêu generation quota.
 - Consent/privacy notice cho việc gửi input đã tối thiểu hóa sang provider.
 - Device online để tạo/preview/publish; sau khi private pack `Ready`, learning runtime dùng local theo entitlement như pack khác.
 
-Trial không được generation miễn phí mặc định. Product owner có thể cấp promotional credit server-side có audit, nhưng không được làm local flag.
+Trial không được tạo bộ thủ công hoặc AI theo C50-D02/PRD-SUB-006. Không dùng promotional credit hay local flag để vượt giới hạn này.
 
 ## 3. Authoring flow
 
@@ -33,8 +33,8 @@ Tạo bộ mới
 → AI đề xuất structured draft tiếng Việt
 → parent sửa/chọn/bỏ từng target
 → resolve target/asset mặc định đã duyệt có thể reuse
-→ hiển thị quote: phần reused/phần cần generate, credit, quota, retry/refund
-→ reserve credit + enqueue generation
+→ hiển thị quote: reused/generated, allowance/quota, phí nếu có, retry/refund
+→ reserve allowance/quota + enqueue generation
 → server tạo audio + image + allowlisted motion recipe
 → automated safety/schema/technical validation
 → parent preview, sửa/regenerate/bỏ asset
@@ -90,25 +90,7 @@ Parent approval không biến asset thành default content. Report content unsaf
 
 ## 7. Fee and credit behavior
 
-Generation credit là consumable digital product của Apple/Google, hoặc promotional ledger entry do backend cấp có audit. Candidate policy quote theo **job output unit thực sự cần generate**, không charge lại asset mặc định được reuse và không tính bí mật theo provider token mà parent không thể dự đoán.
-
-```text
-available
-→ reserved(jobId)
-→ captured(preview_ready)
-
-reserved → released(job failed/cancelled/server rejected)
-captured → compensated_credit(approved support/refund policy)
-```
-
-- Purchase/ledger server-authoritative và idempotent.
-- Client không tự cộng/trừ balance.
-- Retry do transient provider/server lỗi không trừ thêm credit.
-- Parent đổi brief hoặc yêu cầu regenerate ngoài included allowance có quote mới trước khi chạy.
-- Partial job policy phải công bố: candidate policy chỉ capture khi đủ minimum deliverable cho số target đã quote; target server-rejected được loại khỏi charge hoặc bù credit theo đơn vị.
-- Chargeback/refund store phải reconcile ledger và chống double-spend nhưng không tự xóa dữ liệu gia đình đã tạo.
-
-`PB-TBD-07`/`PRD-TBD-08` phải chốt SKU, unit, included retry, expiry và compensation trước release.
+Owner C50-D03 chọn mỗi bộ AI khoảng năm từ theo gợi ý phụ huynh; trial không tạo bộ theo `PRD-SUB-006`. Số từ trong bộ không phải số lượt generation được cấp. Theo `PRD-CUSTOM-005`, `PRD-SUB-005`: included allowance, số lần retry, fee vượt hạn mức/SKU và retention cần đóng `PRD-TBD-08`/C50-D03. Không tự chốt mua credit riêng. Ledger reserve → capture khi đạt deliverable đã công bố; fail/cancel release idempotent; retry hệ thống không thu thêm. Nếu chọn store add-on, verify/reconcile Apple/Google và test refund/duplicate; nếu không có add-on, không provision SKU. Không dùng local balance cấp quyền. Chi phí text/image/audio/storage/job phải có cap trước production.
 
 ## 8. Privacy and safety
 
@@ -136,10 +118,14 @@ Support view chỉ thấy job ID, redacted error, billing state, model/config ve
 
 ## 11. Acceptance
 
-- Parent tạo draft → quote → purchase/reserve → background generation → preview → approve → download → học từ local thành công.
+- Parent tạo draft → quote → allowance reserve (purchase chỉ nếu add-on được duyệt) → background generation → preview → approve → download → học từ local thành công.
 - Kill/reopen/switch account ở mọi state không mất job, double-charge hoặc lộ preview.
 - Provider timeout/429/5xx retry có bound; fail/cancel release credit đúng một lần.
 - Text/audio/image/motion không đạt gate không vào private pack; edit tạo immutable version mới.
 - Family media không xuất hiện trong provider request/log; provider key không có trong mobile.
 - Expiry khóa session nhưng giữ data/export/delete; resubscribe không regenerate asset hợp lệ.
 - Cost cap, per-account quota, abuse limit và operational dashboard hoạt động trước public release.
+
+## Manual path và release gates C50
+
+Manual: parent nhập target/câu, gắn media qua stage/validate/preview, chọn compatible activity → approve → private pack. Không provider call. Không tự thêm vào plan; chỉ hoạt động đạt readiness mới học được. C50 P7–P9 sở hữu delivery, D03 sở hữu quota/provider/commercial decisions; mọi trường hợp expiry vẫn về basic nhưng private premium learning khóa, dữ liệu xem/export/delete được.

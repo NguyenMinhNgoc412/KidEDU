@@ -1,11 +1,13 @@
 # Operations, Observability, Backup & DR
 
+> C50 target update 2026-11-05 — TA-ADR-025/026: monitor day-reservation/claim conflicts, stale pending jobs, quota/cost limits; backup/restore bao gồm daily/reward/quota ledgers. Không log prompt, child data hoặc raw media; provider/job kill switch có runbook, không xóa approved pack.
+
 | Thuộc tính | Giá trị                                      |
 | ---------- | -------------------------------------------- |
 | Trạng thái | `In review`                                  |
 | Owner      | Technical owner                              |
 | Implements | `TA-ADR-020`, `TA-SLO-*`, `PRD-NFR-006..008` |
-| Cập nhật   | 2026-09-08                                   |
+| Cập nhật   | 2026-11-05                                   |
 
 ## 1. Operability objective
 

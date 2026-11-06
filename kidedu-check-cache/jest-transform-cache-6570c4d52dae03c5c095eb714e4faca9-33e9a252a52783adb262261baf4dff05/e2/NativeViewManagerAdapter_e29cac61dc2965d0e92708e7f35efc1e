@@ -1,0 +1,10 @@
+8f7a6f27a3ae464c1b5d10832098e7f8
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.requireNativeViewManager = requireNativeViewManager;
+var _UnavailabilityError = require("./errors/UnavailabilityError");
+function requireNativeViewManager(moduleName, viewName) {
+  throw new _UnavailabilityError.UnavailabilityError('expo-modules-core', 'requireNativeViewManager');
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfVW5hdmFpbGFiaWxpdHlFcnJvciIsInJlcXVpcmUiLCJyZXF1aXJlTmF0aXZlVmlld01hbmFnZXIiLCJtb2R1bGVOYW1lIiwidmlld05hbWUiLCJVbmF2YWlsYWJpbGl0eUVycm9yIl0sInNvdXJjZXMiOlsiTmF0aXZlVmlld01hbmFnZXJBZGFwdGVyLnRzeCJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6Ijs7OztBQUVBLElBQUFBLG9CQUFBLEdBQUFDLE9BQUE7QUFLTyxTQUFTQyx5QkFDZEMsVUFBa0IsRUFDbEJDLFFBQWlCO0VBRWpCLE1BQU0sSUFBSUMsd0NBQUEsQ0FBb0IscUJBQXFCO0FBQ3JEIiwiaWdub3JlTGlzdCI6W119

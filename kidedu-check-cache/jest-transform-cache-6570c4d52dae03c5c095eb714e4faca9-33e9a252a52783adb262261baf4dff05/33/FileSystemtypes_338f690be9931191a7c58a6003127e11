@@ -1,0 +1,21 @@
+5e12b57d454fda701861c3b948783387
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.FileSystemUploadType = exports.FileSystemSessionType = exports.EncodingType = void 0;
+var FileSystemSessionType = exports.FileSystemSessionType = function (FileSystemSessionType) {
+  FileSystemSessionType[FileSystemSessionType["BACKGROUND"] = 0] = "BACKGROUND";
+  FileSystemSessionType[FileSystemSessionType["FOREGROUND"] = 1] = "FOREGROUND";
+  return FileSystemSessionType;
+}({});
+var FileSystemUploadType = exports.FileSystemUploadType = function (FileSystemUploadType) {
+  FileSystemUploadType[FileSystemUploadType["BINARY_CONTENT"] = 0] = "BINARY_CONTENT";
+  FileSystemUploadType[FileSystemUploadType["MULTIPART"] = 1] = "MULTIPART";
+  return FileSystemUploadType;
+}({});
+var EncodingType = exports.EncodingType = function (EncodingType) {
+  EncodingType["UTF8"] = "utf8";
+  EncodingType["Base64"] = "base64";
+  return EncodingType;
+}({});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJGaWxlU3lzdGVtU2Vzc2lvblR5cGUiLCJleHBvcnRzIiwiRmlsZVN5c3RlbVVwbG9hZFR5cGUiLCJFbmNvZGluZ1R5cGUiXSwic291cmNlcyI6WyJsZWdhY3kvRmlsZVN5c3RlbS50eXBlcy50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6Ijs7OztBQUlPLElBQUFBLHFCQUFLLEdBQUFDLE9BQUEsQ0FBQUQscUJBQUEsYUFBQUEscUJBQUE7RUFLVEEscUJBQUEsQ0FBQUEscUJBQUE7RUFLQUEscUJBQUEsQ0FBQUEscUJBQUE7U0FWU0EscUJBQUE7O0FBY0wsSUFBQUUsb0JBQUssR0FBQUQsT0FBQSxDQUFBQyxvQkFBQSxhQUFBQSxvQkFBQTtFQUdUQSxvQkFBQSxDQUFBQSxvQkFBQTtFQUtBQSxvQkFBQSxDQUFBQSxvQkFBQTtTQVJTQSxvQkFBQTs7QUF5TkwsSUFBQUMsWUFBSyxHQUFBRixPQUFBLENBQUFFLFlBQUEsYUFBQUEsWUFBQTtFQUdUQSxZQUFBO0VBSUFBLFlBQUE7U0FQU0EsWUFBQSIsImlnbm9yZUxpc3QiOltdfQ==

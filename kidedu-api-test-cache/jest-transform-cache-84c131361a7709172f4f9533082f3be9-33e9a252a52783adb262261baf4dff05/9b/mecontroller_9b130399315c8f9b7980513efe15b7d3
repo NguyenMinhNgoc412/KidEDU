@@ -1,0 +1,36 @@
+ab5090e6011334d9c53a9ee8c60d507a
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MeController = void 0;
+const common_1 = require("@nestjs/common");
+const auth_guard_1 = require("./auth.guard");
+let MeController = class MeController {
+    me(request) {
+        return { id: request.accountId };
+    }
+};
+exports.MeController = MeController;
+__decorate([
+    (0, common_1.Get)(),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], MeController.prototype, "me", null);
+exports.MeController = MeController = __decorate([
+    (0, common_1.Controller)("me"),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard)
+], MeController);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xcaWRlbnRpdHlcXG1lLmNvbnRyb2xsZXIudHMiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7O0FBQUEsMkNBQWlFO0FBRWpFLDZDQUF5QztBQUlsQyxJQUFNLFlBQVksR0FBbEIsTUFBTSxZQUFZO0lBRXZCLEVBQUUsQ0FBUSxPQUE4QjtRQUN0QyxPQUFPLEVBQUUsRUFBRSxFQUFFLE9BQU8sQ0FBQyxTQUFTLEVBQUUsQ0FBQztJQUNuQyxDQUFDO0NBQ0YsQ0FBQTtBQUxZLG9DQUFZO0FBRXZCO0lBREMsSUFBQSxZQUFHLEdBQUU7SUFDRixXQUFBLElBQUEsWUFBRyxHQUFFLENBQUE7Ozs7c0NBRVI7dUJBSlUsWUFBWTtJQUZ4QixJQUFBLG1CQUFVLEVBQUMsSUFBSSxDQUFDO0lBQ2hCLElBQUEsa0JBQVMsRUFBQyxzQkFBUyxDQUFDO0dBQ1IsWUFBWSxDQUt4QiIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJDOlxcVXNlcnNcXEFTVVNcXERvY3VtZW50c1xcSE9DXFxLSURFRFVcXGFwcHNcXGFwaVxcc3JjXFxpZGVudGl0eVxcbWUuY29udHJvbGxlci50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBDb250cm9sbGVyLCBHZXQsIFJlcSwgVXNlR3VhcmRzIH0gZnJvbSBcIkBuZXN0anMvY29tbW9uXCI7XG5cbmltcG9ydCB7IEF1dGhHdWFyZCB9IGZyb20gXCIuL2F1dGguZ3VhcmRcIjtcblxuQENvbnRyb2xsZXIoXCJtZVwiKVxuQFVzZUd1YXJkcyhBdXRoR3VhcmQpXG5leHBvcnQgY2xhc3MgTWVDb250cm9sbGVyIHtcbiAgQEdldCgpXG4gIG1lKEBSZXEoKSByZXF1ZXN0OiB7IGFjY291bnRJZDogc3RyaW5nIH0pIHtcbiAgICByZXR1cm4geyBpZDogcmVxdWVzdC5hY2NvdW50SWQgfTtcbiAgfVxufVxuIl0sInZlcnNpb24iOjN9

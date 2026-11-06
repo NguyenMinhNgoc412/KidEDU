@@ -1,6 +1,7 @@
 module.exports = {
   preset: "jest-expo/node",
   modulePathIgnorePatterns: ["<rootDir>/apps/api"],
+  testPathIgnorePatterns: ["/node_modules/", "\\.native\\.test\\.tsx?$"],
   testMatch: ["**/__tests__/**/*.test.ts", "**/__tests__/**/*.test.tsx"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1"

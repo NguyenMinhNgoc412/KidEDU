@@ -1,11 +1,13 @@
 # Backend Architecture & Docker Deployment
 
+> C50 target update 2026-11-05 — TA-ADR-025/026: app server sở hữu basic/full scope, daily-session/reward idempotency, custom job/quota ledger; không chạy từng bước game. Provider/dispatcher approval gate trước provision; modular monolith giữ nguyên.
+
 | Thuộc tính | Giá trị                                           |
 | ---------- | ------------------------------------------------- |
 | Trạng thái | `In review`                                       |
 | Owner      | Backend/Operations                                |
 | Implements | `TA-ADR-001..005`, `TA-ADR-011..024`, `PRD-NFR-*` |
-| Cập nhật   | 2026-09-08                                        |
+| Cập nhật   | 2026-11-05                                        |
 
 ## 1. Scope
 

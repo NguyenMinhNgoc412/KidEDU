@@ -1,0 +1,12 @@
+e8d16ceb8805a70921b5b9c1e728dcd4
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PermissionStatus = void 0;
+var PermissionStatus = exports.PermissionStatus = function (PermissionStatus) {
+  PermissionStatus["GRANTED"] = "granted";
+  PermissionStatus["UNDETERMINED"] = "undetermined";
+  PermissionStatus["DENIED"] = "denied";
+  return PermissionStatus;
+}({});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJQZXJtaXNzaW9uU3RhdHVzIiwiZXhwb3J0cyJdLCJzb3VyY2VzIjpbIlBlcm1pc3Npb25zSW50ZXJmYWNlLnRzIl0sInNvdXJjZXNDb250ZW50IjpbbnVsbF0sIm1hcHBpbmdzIjoiOzs7O0FBQU8sSUFBQUEsZ0JBQUssR0FBQUMsT0FBQSxDQUFBRCxnQkFBQSxhQUFBQSxnQkFBQTtFQUdUQSxnQkFBQTtFQUlBQSxnQkFBQTtFQUlBQSxnQkFBQTtTQVhTQSxnQkFBQSIsImlnbm9yZUxpc3QiOltdfQ==

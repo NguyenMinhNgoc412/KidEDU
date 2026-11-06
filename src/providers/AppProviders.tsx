@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "@/features/auth/AuthProvider";
 import { LearningAccessProvider } from "@/features/entitlement/LearningAccessProvider";
 import { ParentGateLifecycle } from "@/features/parent/ParentGateLifecycle";
 import { LessonRuntimeProvider } from "@/features/lessonRuntime/LessonRuntimeProvider";
+import { DailyGameRuntimeProvider } from "@/features/dailyGames/DailyGameRuntimeProvider";
 import { MediaAccountContext } from "@/features/media/MediaAccountBoundary";
 
 export function AppProviders({ children }: { children: ReactNode }) {
@@ -37,7 +38,9 @@ function AuthenticatedDataProvider({ children }: { children: ReactNode }) {
   return session ? (
     <MediaAccountContext.Provider value={session.accountId}>
       <KidEduDataProvider key={session.accountId} accountId={session.accountId}>
-        <LessonRuntimeProvider>{children}</LessonRuntimeProvider>
+        <DailyGameRuntimeProvider>
+          <LessonRuntimeProvider>{children}</LessonRuntimeProvider>
+        </DailyGameRuntimeProvider>
       </KidEduDataProvider>
     </MediaAccountContext.Provider>
   ) : (

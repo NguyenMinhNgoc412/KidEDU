@@ -1,11 +1,13 @@
 # Media, Storage & Content Security Specification
 
+> C50 target update 2026-11-05 — TA-ADR-026: AI private staging/output dùng family namespace, signed/encrypted pack và approved references; không arbitrary URL/path từ client/model. Reward asset quyền xem inventory tách khỏi premium learning key; thiếu asset không xóa receipt.
+
 | Thuộc tính | Giá trị                                                       |
 | ---------- | ------------------------------------------------------------- |
 | Trạng thái | `In review`                                                   |
 | Owner      | Mobile + Backend + Content Operations                         |
 | Implements | `TA-ADR-007..010`, `TA-ADR-024`, `PRD-MEDIA-*`, `PRD-NFR-003` |
-| Cập nhật   | 2026-09-08                                                    |
+| Cập nhật   | 2026-11-05                                                    |
 
 ## 1. Storage topology
 

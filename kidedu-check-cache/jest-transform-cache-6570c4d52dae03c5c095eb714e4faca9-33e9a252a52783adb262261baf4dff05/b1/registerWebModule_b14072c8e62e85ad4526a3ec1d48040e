@@ -1,0 +1,22 @@
+5ce945afa629ed0aea1c69e4a380d5db
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.registerWebModule = registerWebModule;
+var _ensureNativeModulesAreInstalled = require("./ensureNativeModulesAreInstalled");
+function registerWebModule(moduleImplementation, moduleName) {
+  (0, _ensureNativeModulesAreInstalled.ensureNativeModulesAreInstalled)();
+  moduleName = moduleName ?? moduleImplementation.name;
+  if (!moduleName) {
+    throw new Error('Web module implementation is missing a name - it is either not a class or has been minified. Pass the name as a second argument to the `registerWebModule` function.');
+  }
+  if (!globalThis?.expo?.modules) {
+    globalThis.expo.modules = {};
+  }
+  if (globalThis.expo.modules[moduleName]) {
+    return globalThis.expo.modules[moduleName];
+  }
+  globalThis.expo.modules[moduleName] = new moduleImplementation();
+  return globalThis.expo.modules[moduleName];
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfZW5zdXJlTmF0aXZlTW9kdWxlc0FyZUluc3RhbGxlZCIsInJlcXVpcmUiLCJyZWdpc3RlcldlYk1vZHVsZSIsIm1vZHVsZUltcGxlbWVudGF0aW9uIiwibW9kdWxlTmFtZSIsImVuc3VyZU5hdGl2ZU1vZHVsZXNBcmVJbnN0YWxsZWQiLCJuYW1lIiwiRXJyb3IiLCJnbG9iYWxUaGlzIiwiZXhwbyIsIm1vZHVsZXMiXSwic291cmNlcyI6WyJyZWdpc3RlcldlYk1vZHVsZS50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6Ijs7OztBQUFBLElBQUFBLGdDQUFBLEdBQUFDLE9BQUE7QUFVTyxTQUFTQyxrQkFHZEMsb0JBQWdDLEVBQUVDLFVBQWtCO0VBQ3BELElBQUFDLGdFQUFBO0VBRUFELFVBQUEsR0FBYUEsVUFBQSxJQUFjRCxvQkFBQSxDQUFxQkcsSUFBSTtFQUNwRCxJQUFJLENBQUNGLFVBQUEsRUFBWTtJQUNmLE1BQU0sSUFBSUcsS0FBQSxDQUNSO0VBRUo7RUFDQSxJQUFJLENBQUNDLFVBQUEsRUFBWUMsSUFBQSxFQUFNQyxPQUFBLEVBQVM7SUFDOUJGLFVBQUEsQ0FBV0MsSUFBSSxDQUFDQyxPQUFPLEdBQUcsQ0FBQztFQUM3QjtFQUNBLElBQUlGLFVBQUEsQ0FBV0MsSUFBSSxDQUFDQyxPQUFPLENBQUNOLFVBQUEsQ0FBVyxFQUFFO0lBQ3ZDLE9BQU9JLFVBQUEsQ0FBV0MsSUFBSSxDQUFDQyxPQUFPLENBQUNOLFVBQUEsQ0FBVztFQUM1QztFQUNBSSxVQUFBLENBQVdDLElBQUksQ0FBQ0MsT0FBTyxDQUFDTixVQUFBLENBQVcsR0FBRyxJQUFJRCxvQkFBQTtFQUMxQyxPQUFPSyxVQUFBLENBQVdDLElBQUksQ0FBQ0MsT0FBTyxDQUFDTixVQUFBLENBQVc7QUFDNUMiLCJpZ25vcmVMaXN0IjpbXX0=

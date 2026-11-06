@@ -1,0 +1,54 @@
+1e978380c5f99d534f0e3f2203e33c72
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HealthController = void 0;
+const common_1 = require("@nestjs/common");
+const health_service_1 = require("./health.service");
+let HealthController = class HealthController {
+    health;
+    constructor(health) {
+        this.health = health;
+    }
+    live() {
+        return { status: "ok" };
+    }
+    startup() {
+        return { status: "ok" };
+    }
+    ready() {
+        return this.health.ready();
+    }
+};
+exports.HealthController = HealthController;
+__decorate([
+    (0, common_1.Get)("live"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], HealthController.prototype, "live", null);
+__decorate([
+    (0, common_1.Get)("startup"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], HealthController.prototype, "startup", null);
+__decorate([
+    (0, common_1.Get)("ready"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], HealthController.prototype, "ready", null);
+exports.HealthController = HealthController = __decorate([
+    (0, common_1.Controller)("health"),
+    __metadata("design:paramtypes", [health_service_1.HealthService])
+], HealthController);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xcaGVhbHRoLmNvbnRyb2xsZXIudHMiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7O0FBQUEsMkNBQWlEO0FBRWpELHFEQUFpRDtBQUcxQyxJQUFNLGdCQUFnQixHQUF0QixNQUFNLGdCQUFnQjtJQUNFO0lBQTdCLFlBQTZCLE1BQXFCO1FBQXJCLFdBQU0sR0FBTixNQUFNLENBQWU7SUFBRyxDQUFDO0lBR3RELElBQUk7UUFDRixPQUFPLEVBQUUsTUFBTSxFQUFFLElBQUksRUFBRSxDQUFDO0lBQzFCLENBQUM7SUFHRCxPQUFPO1FBQ0wsT0FBTyxFQUFFLE1BQU0sRUFBRSxJQUFJLEVBQUUsQ0FBQztJQUMxQixDQUFDO0lBR0QsS0FBSztRQUNILE9BQU8sSUFBSSxDQUFDLE1BQU0sQ0FBQyxLQUFLLEVBQUUsQ0FBQztJQUM3QixDQUFDO0NBQ0YsQ0FBQTtBQWpCWSw0Q0FBZ0I7QUFJM0I7SUFEQyxJQUFBLFlBQUcsRUFBQyxNQUFNLENBQUM7Ozs7NENBR1g7QUFHRDtJQURDLElBQUEsWUFBRyxFQUFDLFNBQVMsQ0FBQzs7OzsrQ0FHZDtBQUdEO0lBREMsSUFBQSxZQUFHLEVBQUMsT0FBTyxDQUFDOzs7OzZDQUdaOzJCQWhCVSxnQkFBZ0I7SUFENUIsSUFBQSxtQkFBVSxFQUFDLFFBQVEsQ0FBQztxQ0FFa0IsOEJBQWE7R0FEdkMsZ0JBQWdCLENBaUI1QiIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJDOlxcVXNlcnNcXEFTVVNcXERvY3VtZW50c1xcSE9DXFxLSURFRFVcXGFwcHNcXGFwaVxcc3JjXFxoZWFsdGguY29udHJvbGxlci50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBDb250cm9sbGVyLCBHZXQgfSBmcm9tIFwiQG5lc3Rqcy9jb21tb25cIjtcblxuaW1wb3J0IHsgSGVhbHRoU2VydmljZSB9IGZyb20gXCIuL2hlYWx0aC5zZXJ2aWNlXCI7XG5cbkBDb250cm9sbGVyKFwiaGVhbHRoXCIpXG5leHBvcnQgY2xhc3MgSGVhbHRoQ29udHJvbGxlciB7XG4gIGNvbnN0cnVjdG9yKHByaXZhdGUgcmVhZG9ubHkgaGVhbHRoOiBIZWFsdGhTZXJ2aWNlKSB7fVxuXG4gIEBHZXQoXCJsaXZlXCIpXG4gIGxpdmUoKSB7XG4gICAgcmV0dXJuIHsgc3RhdHVzOiBcIm9rXCIgfTtcbiAgfVxuXG4gIEBHZXQoXCJzdGFydHVwXCIpXG4gIHN0YXJ0dXAoKSB7XG4gICAgcmV0dXJuIHsgc3RhdHVzOiBcIm9rXCIgfTtcbiAgfVxuXG4gIEBHZXQoXCJyZWFkeVwiKVxuICByZWFkeSgpIHtcbiAgICByZXR1cm4gdGhpcy5oZWFsdGgucmVhZHkoKTtcbiAgfVxufVxuIl0sInZlcnNpb24iOjN9

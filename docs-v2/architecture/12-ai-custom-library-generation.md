@@ -2,15 +2,15 @@
 
 | Thuộc tính | Giá trị                                                                                                            |
 | ---------- | ------------------------------------------------------------------------------------------------------------------ |
-| Trạng thái | `Deferred — Post-release`                                                                                          |
+| Trạng thái | `In review — v1 scope approved`                                                                                    |
 | Owner      | Backend + Mobile + Content Platform + Billing                                                                      |
-| Implements | `TA-FUTURE-001`, `PRD-CUSTOM-*`, `PRD-SUB-005`                                                                     |
+| Implements | `TA-ADR-026`, `PRD-CUSTOM-*`, `PRD-SUB-005`                                                                        |
 | Depends on | [Backend Architecture](./02-backend-architecture.md), [Media Security](./05-media-storage-and-content-security.md) |
-| Cập nhật   | 2026-09-08                                                                                                         |
+| Cập nhật   | 2026-11-05                                                                                                         |
 
 ## 1. Architecture shape
 
-> Candidate architecture cho phase sau Store Release v1.0; Cloud Tasks, generation worker, provider runtime và credit ledger không thuộc baseline deployment v1.
+> AI workflow thuộc v1 theo TA-ADR-026/ADR-0010. Provider/model, dispatcher và allowance policy vẫn là candidate cần C50-D03/POC. Sơ đồ Cloud Tasks dưới đây là phương án, không là authorization provision; dùng baseline PostgreSQL job/outbox nếu đủ số đo.
 
 AI generation là asynchronous control-plane workflow, không nằm trong learning runtime:
 
@@ -18,7 +18,7 @@ AI generation là asynchronous control-plane workflow, không nằm trong learni
 Mobile Parent Mode
   → App Server API: draft / quote / reserve / status / approve
   → approved-catalog resolver: semantic/locale/role reuse before generation
-  → PostgreSQL: GenerationJob + AssetAttempt + CreditLedger
+  → PostgreSQL: GenerationJob + AssetAttempt + QuotaLedger (optional credit)
   → Cloud Tasks: dispatch/poll/retry, payload chỉ có opaque job ID
   → Cloud Run generation handler từ cùng OCI image/repository
       → GenerationGateway: Gemini text/image candidate
@@ -34,6 +34,8 @@ API và handler có thể deploy thành hai Cloud Run services từ cùng image 
 
 ## 2. Candidate provider and portability
 
+C50-D03 owner amendment 2026-11-06: Gemini AI Studio free chỉ developer-only synthetic harness, không application runtime; model phát hành dự kiến GPT-5.6 Luna cho draft chữ, qua evaluation/privacy gates. Quota/budget/retry/dispatcher còn theo decision table C50 và cost model; không provisioning/billing từ lựa chọn model. Các Gemini text/image trong sơ đồ candidate bên trên không là provider production đã duyệt.
+
 - Text/structured draft + image: Gemini model qua `GenerationGateway`; production ưu tiên Google Cloud/Vertex AI service identity và allowlisted model/config thay vì API key trong client.
 - Audio: Google Cloud Text-to-Speech `vi-VN` qua `SpeechGenerationGateway`.
 - Motion: server chỉ trả `motionRecipeId` và bounded parameters từ registry versioned; client render bằng Reanimated/SVG hoặc bundled Lottie. Model không được tạo arbitrary code hoặc executable asset.
@@ -46,7 +48,7 @@ Domain lưu `providerClass`, internal `modelConfigId` và provenance snapshot, k
 ### 3.1. Generation job
 
 ```text
-draft → quoted → credit_reserved → queued
+draft → quoted → quota_reserved → queued
 queued → generating_text → generating_assets → validating
 validating → preview_ready → parent_approved → packaging → ready
 
@@ -57,9 +59,9 @@ preview_ready → revision_requested → queued
 
 Transition dùng optimistic version + transaction. Mỗi task có `(jobId, step, attemptNo, idempotencyKey)`; handler reload state từ DB, không tin task payload. Duplicate/out-of-order task phải no-op an toàn.
 
-### 3.2. Credit ledger
+### 3.2. Allowance/quota ledger và optional credit
 
-Credit ledger là append-only double-entry-like journal: `purchase_granted`, `promo_granted`, `reserved`, `released`, `captured`, `compensated`, `store_reversed`. Unique constraint theo store transaction/event và job reservation ngăn double-spend/double-charge. Balance là projection có thể rebuild từ journal.
+Ledger quota là append-only; included allowance có grant server-side và unique reservation/job. Nếu owner duyệt add-on, credit journal có: `purchase_granted`, `promo_granted`, `reserved`, `released`, `captured`, `compensated`, `store_reversed`. Unique constraint theo store transaction/event và job reservation ngăn double-spend/double-charge. Balance là projection có thể rebuild từ journal.
 
 Reservation và job transition commit trong một DB transaction. Provider call không nằm trong transaction; retry dùng stored attempt/result hash.
 
@@ -100,7 +102,7 @@ Provider safety filter không là lớp duy nhất: server allowlist use case, m
 
 ## 7. Queue, concurrency and cost control
 
-Cloud Tasks là candidate managed dispatcher vì workflow do user trigger cần retry/delay bền vững. Trước implementation, phase sau phải có ADR mới extend/supersede `TA-ADR-018`; tài liệu deferred này tự nó không tạo ngoại lệ cho v1. Queue có thể tách text/image/audio/packaging khi quota cần khác, với:
+Cloud Tasks là candidate dispatcher. Trước provision phải có ADR/POC extend TA-ADR-018; scope AI v1 không tự duyệt service mới. Baseline PostgreSQL job/outbox cần đo timeout/throughput/retry trước lựa chọn dispatcher. Queue có thể tách text/image/audio/packaging khi quota cần khác, với:
 
 - per-account concurrent job limit;
 - global/project rate and spend cap;
@@ -128,7 +130,7 @@ Long-running provider operation lưu opaque operation ID mã hóa/least-sensitiv
 - Parent không approve: preview expires theo retention; credit capture/compensation theo disclosed policy, không silent delete.
 - Pack build lỗi: content remains preview-ready; retry packaging không gọi AI/trừ credit lại.
 - Provider quality/cost regression: disable model config; existing immutable packs không đổi.
-- Cloud Tasks unavailable: job stays `credit_reserved/queued`; reconciler resubmits idempotently hoặc releases stale reservation.
+- Cloud Tasks unavailable: job stays `quota_reserved/queued`; reconciler resubmits idempotently hoặc releases stale reservation.
 - Rollback app/server: schema expand-compatible, unknown custom pack capability không được render best-effort.
 
 ## 10. Verification gate
@@ -137,4 +139,4 @@ Long-running provider operation lưu opaque operation ID mã hóa/least-sensitiv
 - Load/cost test concurrent jobs với hard max; no unbounded provider retry/poll.
 - Security test prompt injection, oversized input/output, cross-family BOLA, leaked preview URL, malicious image/audio và arbitrary motion recipe.
 - Privacy test xác nhận family media/child profile/progress không có trong provider request/log.
-- E2E production-like: buy credit → kill app → generate → reopen → preview/revise → approve → pack ready → expiry/resubscribe/delete.
+- E2E production-like: reserve allowance (buy chỉ nếu add-on approved) → kill app → generate → reopen → preview/revise → approve → pack ready → expiry/resubscribe/delete.

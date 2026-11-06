@@ -143,7 +143,7 @@ async function run() {
       await page.getByRole("tab", { name: "Phụ huynh", exact: true }).click();
       await openParentGate(page);
       await page.getByRole("button", { name: "Chọn bài cùng con", exact: true }).click();
-      await page.getByRole("button", { name: "Chọn bài bóng", exact: true }).click();
+      await page.getByRole("button", { name: "Chọn bài Con muốn bóng", exact: true }).click();
       await page
         .getByText("Đã chọn bài. Các bài đang dở vẫn được giữ lại.", { exact: true })
         .waitFor();
@@ -158,7 +158,7 @@ async function run() {
       await page.getByRole("tab", { name: "Phụ huynh", exact: true }).click();
       await openParentGate(page);
       await page.getByRole("button", { name: "Chọn bài cùng con", exact: true }).click();
-      await page.getByRole("button", { name: "Chọn bài nước", exact: true }).click();
+      await page.getByRole("button", { name: "Chọn bài Con muốn nước", exact: true }).click();
       await page
         .getByText("Đã chọn bài. Các bài đang dở vẫn được giữ lại.", { exact: true })
         .waitFor();
@@ -191,10 +191,67 @@ async function run() {
       await page.getByRole("button", { name: "Về học, giữ bài đã lưu" }).click();
       await page.getByRole("tab", { name: "Phụ huynh", exact: true }).click();
       await openParentGate(page);
-      await page.getByText("Độc lập (+) · Trong bài · Đã đồng bộ", { exact: true }).waitFor();
+      await page.getByText(/Độc lập \(\+\) · Trong bài · Đã đồng bộ/).waitFor();
+      await page.getByText(/Không quan sát được · Trong sinh hoạt · Đã đồng bộ/).waitFor();
+      await page.getByRole("button", { name: "Chọn bài cùng con", exact: true }).click();
+      await page.getByRole("button", { name: "Hiểu và làm theo yêu cầu", exact: true }).click();
+      assert.equal(
+        await page.getByRole("button", { name: "Chọn bài Con muốn bóng", exact: true }).count(),
+        0
+      );
       await page
-        .getByText("Không quan sát được · Trong sinh hoạt · Đã đồng bộ", { exact: true })
+        .getByRole("button", { name: "Chọn bài Bóng vào hộp, gấu cho mẹ", exact: true })
+        .click();
+      await capture("command-picker");
+      await page.getByRole("button", { name: "Về học với bài đã chọn" }).click();
+      await page.getByRole("button", { name: "Mở bài hôm nay", exact: true }).click();
+      await page.getByRole("button", { name: "Bắt đầu cùng con" }).waitFor();
+      learning = true;
+      await page.getByRole("button", { name: "Bắt đầu cùng con" }).click();
+      await page
+        .getByText("Nói một lần: “Cho bóng vào hộp rồi Đưa gấu cho mẹ”.", { exact: true })
         .waitFor();
+      await capture("command-activity");
+      await page.getByRole("button", { name: "Đã tạo cơ hội, chờ con" }).click();
+      await page.getByRole("button", { name: "Mời phụ huynh ghi nhận", exact: true }).click();
+      await page.getByRole("button", { name: "Nhấn giữ để ghi nhận" }).click({ delay: 1700 });
+      await page
+        .getByRole("button", { name: "Có gợi ý bằng hình hoặc cử chỉ", exact: true })
+        .click();
+      assert.equal(
+        await page.getByRole("radio", { name: "Con tự thực hiện", exact: true }).isEnabled(),
+        false
+      );
+      await page.getByRole("radio", { name: "Con thực hiện khi có hỗ trợ", exact: true }).click();
+      await page.getByRole("button", { name: "Lưu và tiếp tục" }).click();
+      await page.getByRole("button", { name: "Để lúc khác", exact: true }).click();
+      await page.getByRole("button", { name: "Nhấn giữ để ghi nhận" }).click({ delay: 1700 });
+      await page.getByRole("radio", { name: "Chưa có dịp quan sát" }).click();
+      await page.getByRole("button", { name: "Lưu và tiếp tục" }).click();
+      await page.getByText(/Một bước nhỏ\s*đã được ghi lại/).waitFor();
+      learning = false;
+      assert.deepEqual(callsInActivity, [], "Command loop made remote requests");
+      await page.getByRole("button", { name: "Đồng bộ quan sát", exact: true }).click();
+      await page.getByText("Quan sát đã được đồng bộ.", { exact: true }).waitFor();
+      const commandEvent = [...received.values()].find(
+        (event) => event.payload.activityType === "command"
+      );
+      assert.equal(commandEvent.payload.context, "parent_guided");
+      assert.equal(commandEvent.payload.result, "supported");
+      assert.equal(commandEvent.payload.promptLevel, 1);
+      await page.getByRole("button", { name: "Về học, giữ bài đã lưu" }).click();
+      await page.getByRole("tab", { name: "Phụ huynh", exact: true }).click();
+      await openParentGate(page);
+      await page.getByRole("button", { name: "Chọn bài cùng con", exact: true }).click();
+      await page.getByText("Luyện lại và thử giảm gợi ý", { exact: true }).waitFor();
+      await page
+        .getByRole("button", {
+          name: "Để gợi ý cho bài Bóng vào hộp, gấu cho mẹ lúc khác",
+          exact: true
+        })
+        .click();
+      assert.equal(await page.getByText("Luyện lại và thử giảm gợi ý", { exact: true }).count(), 0);
+      await capture("goal-recommendation");
       assert.deepEqual(errors, []);
       results.push({
         width,
@@ -204,6 +261,8 @@ async function run() {
         observations: 2,
         duplicateRetryStable: true,
         parentHistory: true,
+        commandParentGuided: true,
+        goalFilterAndDeferrableRecommendation: true,
         pageErrors: errors
       });
       await context.close();

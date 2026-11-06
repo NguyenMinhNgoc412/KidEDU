@@ -5,7 +5,7 @@
 | Trạng thái | `In review`                                               |
 | Owner      | Product + Technical owner                                 |
 | Implements | `PB-BIZ-*`, `PRD-SUB-*`, `PRD-NOTIF-*`, `TA-ADR-017..023` |
-| Cập nhật   | 2026-09-08                                                |
+| Cập nhật   | 2026-11-05                                                |
 
 ## 1. Purpose and assumptions
 
@@ -40,7 +40,7 @@ Giả định:
 
 Production bật MFA/recovery, tách staging/production credential và có break-glass record. Store/database/R2/key secret nằm trong Secret Manager, không chia sẻ qua Drive/repository/chat.
 
-**Không thuộc baseline:** Supabase Edge Functions/Storage/Data API cho application data, RevenueCat, EAS paid/EAS Update, Sentry, FCM/APNs app push, OneSignal, SMS gateway, AI Custom Library runtime/Cloud Tasks/generation credit, GCE/VPS hoặc Kubernetes.
+**Không thuộc baseline:** Supabase Edge Functions/Storage/Data API cho application data, RevenueCat, EAS paid/EAS Update, Sentry, FCM/APNs app push, OneSignal, SMS gateway, GCE/VPS hoặc Kubernetes.
 
 ## 3. Free-tier allowances and limitations checked 2026-09-08
 
@@ -83,7 +83,7 @@ Drive API standard usage không thu thêm phí nhưng Drive là user-owned file 
 
 Stable custom-domain ingress thuộc `TA-TBD-012`. Cloud Run direct domain mapping hiện Preview/không được Google khuyến nghị cho production; nếu chọn external load balancer phải cộng calculator cost. Firebase Hosting hoặc reviewed proxy là alternative cần POC, không được ghi `0` bằng giả định.
 
-Core baseline trên không gồm chi phí sản xuất default corpus; khoản này được hạch toán theo content release. AI Custom Library là post-release nên không có provider API/worker/queue/credit cost trong v1 baseline.
+Core baseline trên không gồm chi phí sản xuất default corpus; khoản này được hạch toán theo content release. AI Custom Library đã vào v1 theo C50: baseline estimate cũ chưa gồm AI provider/job/ledger và free-user traffic. Phải bổ sung các khoản này trước release; không tái sử dụng số estimate cũ như total budget mới.
 
 Google Cloud `300 USD/90 ngày` credit có thể bù Cloud Run/build/logging/POC nhưng baseline không phụ thuộc credit và credit hết hạn không bắt buộc migration.
 
@@ -135,11 +135,21 @@ Không có RevenueCat fee vì KidEDU tích hợp trực tiếp store. Google Pla
 - Crashlytics/Cloud Logging retention được kiểm soát; chỉ thêm monitoring vendor khi có diagnostic gap đã đo.
 - Store commission luôn trong financial dashboard; direct adapter có alert notification/RTDN/reconcile lag.
 
-## 9. Post-release cost note — AI Custom Library
+## 9. C50 freemium và AI v1 cost gate
 
-Không provision hoặc đưa vào v1 budget. Khi phase này được duyệt lại, cost model phải cộng text/image generation, TTS, worker/tasks, staging/storage, included retry/support, store fee, tax/refund/risk margin; generation credit phải đủ bù p95 cost. ChatGPT Pro/Google AI Pro không phải server API credit.
+V1 phải budget free active accounts/pack downloads/game reservations/reward storage cùng paid full/custom usage. AI cost = generated text/image/audio + retry được phép + job compute/dispatcher nếu chọn + private storage/backup + egress + support/moderation. Track reuse ratio, cost/job, included allowance, per-account/global hard cap và margin theo paid tier. Provider/SKU/quota theo C50-D03; amendment và pricing verification mới nằm ở mục 10. Cloud Tasks là candidate cần ADR/POC, không mặc định provision. Tạo 30–40 tranh và sticker có chi phí authoring/QA riêng.
 
 ## 10. Official pricing/reliability references checked 2026-09-08
+
+### C50 D03 amendment — checked 2026-11-06
+
+Owner chọn thử nghiệm Gemini AI Studio free trong developer-only harness với synthetic data; phát hành sau dùng GPT-5.6 Luna, qua quality/privacy gates. Không nối Gemini Developer API vào app trẻ em: [Gemini terms](https://ai.google.dev/gemini-api/terms?authuser=00) hạn chế API client hướng tới hoặc có khả năng được người dưới 18 truy cập. Parent Gate không tự giải quyết điều khoản này. Free-tier availability phải kiểm trong project; harness không tự bật billing hoặc chuyển paid model.
+
+[GPT-5.6 Luna official model pricing](https://developers.openai.com/api/docs/models/gpt-5.6-luna): $0.20/1M input, $1.20/1M output. Giả định 1,000 input + 500 billed output tokens thì $0.0008/job, $0.80/1,000 jobs; đây là tính toán text-only, chưa gồm retry/reasoning vượt giả định/media/hosting/storage/review. Không chọn nano cũ chỉ theo bảng giá: [GPT-4.1 nano](https://developers.openai.com/api/docs/models/gpt-4.1-nano) đã shut down, [GPT-5.4 nano](https://developers.openai.com/api/docs/models/gpt-5.4-nano) ghi deprecated tại lần kiểm tra này.
+
+Đề xuất chưa phê duyệt quota: 20 drafts thành công/tháng/paid account, free/trial không tạo; $5 API global/month enforced bằng server reservation ledger, không dựa billing alert; một retry có kiểm soát, chưa SKU mua lẻ. Reuse reviewed media trước generate. Budget alert không phải hard cap. Input phụ huynh không được mang child PII/family media sang provider; [OpenAI under-18 guidance](https://developers.openai.com/api/docs/guides/safety-checks/under-18-api-guidance) yêu cầu safeguard và ZDR trước khi xử lý personal data của trẻ dưới 13/tuổi đồng ý số áp dụng, khuyến nghị model flagship hiện hành cho trải nghiệm trẻ em. Vì vậy model rẻ chỉ là candidate cho parent-reviewed drafting, không phải kết luận compliance hoặc chất lượng; cần eval tiếng Việt và rà soát trước production.
+
+Phần nguồn bên dưới giữ lịch sử kiểm tra 2026-09-08, không phải toàn bộ giá đã được kiểm lại ngày 2026-11-06.
 
 - [Supabase pricing](https://supabase.com/pricing)
 - [Supabase billing](https://supabase.com/docs/guides/platform/billing-on-supabase)

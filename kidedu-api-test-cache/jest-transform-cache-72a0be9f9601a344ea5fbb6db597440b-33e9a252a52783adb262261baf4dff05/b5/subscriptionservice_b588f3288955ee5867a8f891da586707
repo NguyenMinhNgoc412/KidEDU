@@ -1,0 +1,43 @@
+50f365a48c302a302f13df93b36278e4
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SubscriptionService = void 0;
+const common_1 = require("@nestjs/common");
+const entitlement_repository_1 = require("./entitlement.repository");
+const entitlement_policy_1 = require("./entitlement.policy");
+let SubscriptionService = class SubscriptionService {
+    repository;
+    constructor(repository) {
+        this.repository = repository;
+    }
+    async current(accountId) {
+        const now = new Date();
+        const projection = await this.repository.getForAccount(accountId);
+        const access = (0, entitlement_policy_1.evaluateEntitlement)(projection, now);
+        return {
+            state: projection?.state ?? "none",
+            version: projection?.version ?? 0,
+            effectiveUntil: projection?.effectiveUntil ?? null,
+            accessUntil: access.effectiveUntil,
+            learningAllowed: access.learningAllowed,
+            allowedCapabilities: access.allowedCapabilities,
+            familyDataAllowed: access.familyDataAllowed,
+            serverTime: now
+        };
+    }
+};
+exports.SubscriptionService = SubscriptionService;
+exports.SubscriptionService = SubscriptionService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [entitlement_repository_1.EntitlementRepository])
+], SubscriptionService);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xcZW50aXRsZW1lbnRcXHN1YnNjcmlwdGlvbi5zZXJ2aWNlLnRzIiwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7OztBQUFBLDJDQUE0QztBQUU1QyxxRUFBaUU7QUFDakUsNkRBQTJEO0FBR3BELElBQU0sbUJBQW1CLEdBQXpCLE1BQU0sbUJBQW1CO0lBQ0Q7SUFBN0IsWUFBNkIsVUFBaUM7UUFBakMsZUFBVSxHQUFWLFVBQVUsQ0FBdUI7SUFBRyxDQUFDO0lBRWxFLEtBQUssQ0FBQyxPQUFPLENBQUMsU0FBaUI7UUFDN0IsTUFBTSxHQUFHLEdBQUcsSUFBSSxJQUFJLEVBQUUsQ0FBQztRQUN2QixNQUFNLFVBQVUsR0FBRyxNQUFNLElBQUksQ0FBQyxVQUFVLENBQUMsYUFBYSxDQUFDLFNBQVMsQ0FBQyxDQUFDO1FBQ2xFLE1BQU0sTUFBTSxHQUFHLElBQUEsd0NBQW1CLEVBQUMsVUFBVSxFQUFFLEdBQUcsQ0FBQyxDQUFDO1FBQ3BELE9BQU87WUFDTCxLQUFLLEVBQUUsVUFBVSxFQUFFLEtBQUssSUFBSSxNQUFNO1lBQ2xDLE9BQU8sRUFBRSxVQUFVLEVBQUUsT0FBTyxJQUFJLENBQUM7WUFDakMsY0FBYyxFQUFFLFVBQVUsRUFBRSxjQUFjLElBQUksSUFBSTtZQUNsRCxXQUFXLEVBQUUsTUFBTSxDQUFDLGNBQWM7WUFDbEMsZUFBZSxFQUFFLE1BQU0sQ0FBQyxlQUFlO1lBQ3ZDLG1CQUFtQixFQUFFLE1BQU0sQ0FBQyxtQkFBbUI7WUFDL0MsaUJBQWlCLEVBQUUsTUFBTSxDQUFDLGlCQUFpQjtZQUMzQyxVQUFVLEVBQUUsR0FBRztTQUNoQixDQUFDO0lBQ0osQ0FBQztDQUNGLENBQUE7QUFsQlksa0RBQW1COzhCQUFuQixtQkFBbUI7SUFEL0IsSUFBQSxtQkFBVSxHQUFFO3FDQUU4Qiw4Q0FBcUI7R0FEbkQsbUJBQW1CLENBa0IvQiIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJDOlxcVXNlcnNcXEFTVVNcXERvY3VtZW50c1xcSE9DXFxLSURFRFVcXGFwcHNcXGFwaVxcc3JjXFxlbnRpdGxlbWVudFxcc3Vic2NyaXB0aW9uLnNlcnZpY2UudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgSW5qZWN0YWJsZSB9IGZyb20gXCJAbmVzdGpzL2NvbW1vblwiO1xuXG5pbXBvcnQgeyBFbnRpdGxlbWVudFJlcG9zaXRvcnkgfSBmcm9tIFwiLi9lbnRpdGxlbWVudC5yZXBvc2l0b3J5XCI7XG5pbXBvcnQgeyBldmFsdWF0ZUVudGl0bGVtZW50IH0gZnJvbSBcIi4vZW50aXRsZW1lbnQucG9saWN5XCI7XG5cbkBJbmplY3RhYmxlKClcbmV4cG9ydCBjbGFzcyBTdWJzY3JpcHRpb25TZXJ2aWNlIHtcbiAgY29uc3RydWN0b3IocHJpdmF0ZSByZWFkb25seSByZXBvc2l0b3J5OiBFbnRpdGxlbWVudFJlcG9zaXRvcnkpIHt9XG5cbiAgYXN5bmMgY3VycmVudChhY2NvdW50SWQ6IHN0cmluZykge1xuICAgIGNvbnN0IG5vdyA9IG5ldyBEYXRlKCk7XG4gICAgY29uc3QgcHJvamVjdGlvbiA9IGF3YWl0IHRoaXMucmVwb3NpdG9yeS5nZXRGb3JBY2NvdW50KGFjY291bnRJZCk7XG4gICAgY29uc3QgYWNjZXNzID0gZXZhbHVhdGVFbnRpdGxlbWVudChwcm9qZWN0aW9uLCBub3cpO1xuICAgIHJldHVybiB7XG4gICAgICBzdGF0ZTogcHJvamVjdGlvbj8uc3RhdGUgPz8gXCJub25lXCIsXG4gICAgICB2ZXJzaW9uOiBwcm9qZWN0aW9uPy52ZXJzaW9uID8/IDAsXG4gICAgICBlZmZlY3RpdmVVbnRpbDogcHJvamVjdGlvbj8uZWZmZWN0aXZlVW50aWwgPz8gbnVsbCxcbiAgICAgIGFjY2Vzc1VudGlsOiBhY2Nlc3MuZWZmZWN0aXZlVW50aWwsXG4gICAgICBsZWFybmluZ0FsbG93ZWQ6IGFjY2Vzcy5sZWFybmluZ0FsbG93ZWQsXG4gICAgICBhbGxvd2VkQ2FwYWJpbGl0aWVzOiBhY2Nlc3MuYWxsb3dlZENhcGFiaWxpdGllcyxcbiAgICAgIGZhbWlseURhdGFBbGxvd2VkOiBhY2Nlc3MuZmFtaWx5RGF0YUFsbG93ZWQsXG4gICAgICBzZXJ2ZXJUaW1lOiBub3dcbiAgICB9O1xuICB9XG59XG4iXSwidmVyc2lvbiI6M30=

@@ -1,0 +1,64 @@
+63da68e7aca0aa38f7c2e8c49f1b8041
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.LegacyEventEmitter = void 0;
+var _invariant = _interopRequireDefault(require("invariant"));
+var _NativeEventEmitter = _interopRequireDefault(require("react-native-web/dist/exports/NativeEventEmitter"));
+var _Platform = _interopRequireDefault(require("react-native-web/dist/exports/Platform"));
+const nativeEmitterSubscriptionKey = '@@nativeEmitterSubscription@@';
+class LegacyEventEmitter {
+  _listenerCount = 0;
+  constructor(nativeModule) {
+    if (nativeModule.__expo_module_name__) {
+      return nativeModule;
+    }
+    this._nativeModule = nativeModule;
+    this._eventEmitter = new _NativeEventEmitter.default(nativeModule);
+  }
+  addListener(eventName, listener) {
+    if (!this._listenerCount && _Platform.default.OS !== 'ios' && this._nativeModule.startObserving) {
+      this._nativeModule.startObserving();
+    }
+    this._listenerCount++;
+    const nativeEmitterSubscription = this._eventEmitter.addListener(eventName, listener);
+    const subscription = {
+      [nativeEmitterSubscriptionKey]: nativeEmitterSubscription,
+      remove: () => {
+        this.removeSubscription(subscription);
+      }
+    };
+    return subscription;
+  }
+  removeAllListeners(eventName) {
+    const removedListenerCount = this._eventEmitter.listenerCount ? this._eventEmitter.listenerCount(eventName) : this._eventEmitter.listeners(eventName).length;
+    this._eventEmitter.removeAllListeners(eventName);
+    this._listenerCount -= removedListenerCount;
+    (0, _invariant.default)(this._listenerCount >= 0, `EventEmitter must have a non-negative number of listeners`);
+    if (!this._listenerCount && _Platform.default.OS !== 'ios' && this._nativeModule.stopObserving) {
+      this._nativeModule.stopObserving();
+    }
+  }
+  removeSubscription(subscription) {
+    const state = subscription;
+    const nativeEmitterSubscription = state[nativeEmitterSubscriptionKey];
+    if (!nativeEmitterSubscription) {
+      return;
+    }
+    if ('remove' in nativeEmitterSubscription) {
+      nativeEmitterSubscription.remove?.();
+    }
+    this._listenerCount--;
+    delete state[nativeEmitterSubscriptionKey];
+    subscription.remove = () => {};
+    if (!this._listenerCount && _Platform.default.OS !== 'ios' && this._nativeModule.stopObserving) {
+      this._nativeModule.stopObserving();
+    }
+  }
+  emit(eventName, ...params) {
+    this._eventEmitter.emit(eventName, ...params);
+  }
+}
+exports.LegacyEventEmitter = LegacyEventEmitter;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfaW52YXJpYW50IiwiX2ludGVyb3BSZXF1aXJlRGVmYXVsdCIsInJlcXVpcmUiLCJfTmF0aXZlRXZlbnRFbWl0dGVyIiwiX1BsYXRmb3JtIiwibmF0aXZlRW1pdHRlclN1YnNjcmlwdGlvbktleSIsIkxlZ2FjeUV2ZW50RW1pdHRlciIsIl9saXN0ZW5lckNvdW50IiwiY29uc3RydWN0b3IiLCJuYXRpdmVNb2R1bGUiLCJfX2V4cG9fbW9kdWxlX25hbWVfXyIsIl9uYXRpdmVNb2R1bGUiLCJfZXZlbnRFbWl0dGVyIiwiTmF0aXZlRXZlbnRFbWl0dGVyIiwiYWRkTGlzdGVuZXIiLCJldmVudE5hbWUiLCJsaXN0ZW5lciIsIlBsYXRmb3JtIiwiT1MiLCJzdGFydE9ic2VydmluZyIsIm5hdGl2ZUVtaXR0ZXJTdWJzY3JpcHRpb24iLCJzdWJzY3JpcHRpb24iLCJyZW1vdmUiLCJyZW1vdmVTdWJzY3JpcHRpb24iLCJyZW1vdmVBbGxMaXN0ZW5lcnMiLCJyZW1vdmVkTGlzdGVuZXJDb3VudCIsImxpc3RlbmVyQ291bnQiLCJsaXN0ZW5lcnMiLCJsZW5ndGgiLCJpbnZhcmlhbnQiLCJzdG9wT2JzZXJ2aW5nIiwic3RhdGUiLCJlbWl0IiwicGFyYW1zIiwiZXhwb3J0cyJdLCJzb3VyY2VzIjpbIkxlZ2FjeUV2ZW50RW1pdHRlci50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6Ijs7Ozs7QUFBQSxJQUFBQSxVQUFBLEdBQUFDLHNCQUFBLENBQUFDLE9BQUE7QUFBa0MsSUFBQUMsbUJBQUEsR0FBQUYsc0JBQUEsQ0FBQUMsT0FBQTtBQUFBLElBQUFFLFNBQUEsR0FBQUgsc0JBQUEsQ0FBQUMsT0FBQTtBQUtsQyxNQUFNRyw0QkFBQSxHQUErQjtBQXVCOUIsTUFBTUMsa0JBQUE7RUFDWEMsY0FBQSxHQUFpQjtFQVFqQkMsWUFBWUMsWUFBMEIsRUFBRTtJQUd0QyxJQUFJQSxZQUFBLENBQWFDLG9CQUFvQixFQUFFO01BRXJDLE9BQU9ELFlBQUE7SUFD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

@@ -1,0 +1,35 @@
+a875d8c23728b977b77d5e4dfe8ef8d3
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AuthGuard = void 0;
+const common_1 = require("@nestjs/common");
+const identity_service_1 = require("./identity.service");
+let AuthGuard = class AuthGuard {
+    identity;
+    constructor(identity) {
+        this.identity = identity;
+    }
+    async canActivate(context) {
+        const request = context.switchToHttp().getRequest();
+        const match = /^Bearer ([^\s]+)$/.exec(request.headers.authorization ?? "");
+        if (!match?.[1])
+            throw new common_1.UnauthorizedException("Cần đăng nhập để tiếp tục.");
+        request.accountId = await this.identity.resolveAccount(match[1]);
+        return true;
+    }
+};
+exports.AuthGuard = AuthGuard;
+exports.AuthGuard = AuthGuard = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [identity_service_1.IdentityService])
+], AuthGuard);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxBU1VTXFxEb2N1bWVudHNcXEhPQ1xcS0lERURVXFxhcHBzXFxhcGlcXHNyY1xcaWRlbnRpdHlcXGF1dGguZ3VhcmQudHMiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7O0FBQUEsMkNBQWtHO0FBRWxHLHlEQUFxRDtBQVE5QyxJQUFNLFNBQVMsR0FBZixNQUFNLFNBQVM7SUFDUztJQUE3QixZQUE2QixRQUF5QjtRQUF6QixhQUFRLEdBQVIsUUFBUSxDQUFpQjtJQUFHLENBQUM7SUFFMUQsS0FBSyxDQUFDLFdBQVcsQ0FBQyxPQUF5QjtRQUN6QyxNQUFNLE9BQU8sR0FBRyxPQUFPLENBQUMsWUFBWSxFQUFFLENBQUMsVUFBVSxFQUF3QixDQUFDO1FBQzFFLE1BQU0sS0FBSyxHQUFHLG1CQUFtQixDQUFDLElBQUksQ0FBQyxPQUFPLENBQUMsT0FBTyxDQUFDLGFBQWEsSUFBSSxFQUFFLENBQUMsQ0FBQztRQUM1RSxJQUFJLENBQUMsS0FBSyxFQUFFLENBQUMsQ0FBQyxDQUFDO1lBQUUsTUFBTSxJQUFJLDhCQUFxQixDQUFDLDRCQUE0QixDQUFDLENBQUM7UUFDL0UsT0FBTyxDQUFDLFNBQVMsR0FBRyxNQUFNLElBQUksQ0FBQyxRQUFRLENBQUMsY0FBYyxDQUFDLEtBQUssQ0FBQyxDQUFDLENBQUMsQ0FBQyxDQUFDO1FBQ2pFLE9BQU8sSUFBSSxDQUFDO0lBQ2QsQ0FBQztDQUNGLENBQUE7QUFWWSw4QkFBUztvQkFBVCxTQUFTO0lBRHJCLElBQUEsbUJBQVUsR0FBRTtxQ0FFNEIsa0NBQWU7R0FEM0MsU0FBUyxDQVVyQiIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJDOlxcVXNlcnNcXEFTVVNcXERvY3VtZW50c1xcSE9DXFxLSURFRFVcXGFwcHNcXGFwaVxcc3JjXFxpZGVudGl0eVxcYXV0aC5ndWFyZC50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBDYW5BY3RpdmF0ZSwgRXhlY3V0aW9uQ29udGV4dCwgSW5qZWN0YWJsZSwgVW5hdXRob3JpemVkRXhjZXB0aW9uIH0gZnJvbSBcIkBuZXN0anMvY29tbW9uXCI7XG5cbmltcG9ydCB7IElkZW50aXR5U2VydmljZSB9IGZyb20gXCIuL2lkZW50aXR5LnNlcnZpY2VcIjtcblxudHlwZSBBdXRoZW50aWNhdGVkUmVxdWVzdCA9IHtcbiAgaGVhZGVyczogeyBhdXRob3JpemF0aW9uPzogc3RyaW5nIH07XG4gIGFjY291bnRJZD86IHN0cmluZztcbn07XG5cbkBJbmplY3RhYmxlKClcbmV4cG9ydCBjbGFzcyBBdXRoR3VhcmQgaW1wbGVtZW50cyBDYW5BY3RpdmF0ZSB7XG4gIGNvbnN0cnVjdG9yKHByaXZhdGUgcmVhZG9ubHkgaWRlbnRpdHk6IElkZW50aXR5U2VydmljZSkge31cblxuICBhc3luYyBjYW5BY3RpdmF0ZShjb250ZXh0OiBFeGVjdXRpb25Db250ZXh0KTogUHJvbWlzZTxib29sZWFuPiB7XG4gICAgY29uc3QgcmVxdWVzdCA9IGNvbnRleHQuc3dpdGNoVG9IdHRwKCkuZ2V0UmVxdWVzdDxBdXRoZW50aWNhdGVkUmVxdWVzdD4oKTtcbiAgICBjb25zdCBtYXRjaCA9IC9eQmVhcmVyIChbXlxcc10rKSQvLmV4ZWMocmVxdWVzdC5oZWFkZXJzLmF1dGhvcml6YXRpb24gPz8gXCJcIik7XG4gICAgaWYgKCFtYXRjaD8uWzFdKSB0aHJvdyBuZXcgVW5hdXRob3JpemVkRXhjZXB0aW9uKFwiQ+G6p24gxJHEg25nIG5o4bqtcCDEkeG7gyB0aeG6v3AgdOG7pWMuXCIpO1xuICAgIHJlcXVlc3QuYWNjb3VudElkID0gYXdhaXQgdGhpcy5pZGVudGl0eS5yZXNvbHZlQWNjb3VudChtYXRjaFsxXSk7XG4gICAgcmV0dXJuIHRydWU7XG4gIH1cbn1cbiJdLCJ2ZXJzaW9uIjozfQ==

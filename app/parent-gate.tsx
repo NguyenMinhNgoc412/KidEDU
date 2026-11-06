@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { AppState, Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
@@ -7,16 +7,26 @@ import { KidButton } from "@/components/KidButton";
 import { Screen } from "@/components/Screen";
 import { useParentGateStore } from "@/features/parent/parentGate";
 import { useParentHold } from "@/features/parent/useParentHold";
+import { localFixtureEnabled } from "@/features/lessonRuntime/fixtureBoundary";
 import { colors, radii, spacing } from "@/theme";
 
 export default function ParentGateScreen() {
   const router = useRouter();
+  const { destination } = useLocalSearchParams<{ destination?: string }>();
   const hold = useParentHold(openParentArea);
 
   function openParentArea() {
     if (AppState.currentState && AppState.currentState !== "active") return;
     useParentGateStore.getState().unlock();
-    router.replace("/parent");
+    router.replace(
+      destination === "game-preview" && localFixtureEnabled()
+        ? "/parent/game-preview"
+        : destination === "practice"
+          ? "/parent/practice"
+          : destination === "profiles"
+            ? "/parent/profiles"
+            : "/parent"
+    );
   }
 
   return (

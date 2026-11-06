@@ -1,7 +1,6 @@
 import { useRouter } from "expo-router";
 import {
   Archive,
-  BookOpen,
   ChartNoAxesColumn,
   ChevronRight,
   Home,
@@ -18,11 +17,12 @@ import { AppText } from "@/components/AppText";
 import { LocalObservationsCard } from "@/features/lessonRuntime/LocalObservationsCard";
 import { Card } from "@/components/Card";
 import { KidButton } from "@/components/KidButton";
-import { MobileTabBar } from "@/components/MobileTabBar";
+import { ChildTabBar } from "@/components/ChildTabBar";
 import { Screen } from "@/components/Screen";
 import { useParentGateStore } from "@/features/parent/parentGate";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useParentDashboard } from "@/features/parent/useParentDashboard";
+import { localFixtureEnabled } from "@/features/lessonRuntime/fixtureBoundary";
 import { colors, radii, spacing } from "@/theme";
 
 const subscriptionLabels: Record<string, string> = {
@@ -57,26 +57,7 @@ export default function ParentHomeScreen() {
   }
 
   return (
-    <Screen
-      bottomBar={
-        <MobileTabBar
-          items={[
-            {
-              icon: <BookOpen color={colors.muted} size={21} strokeWidth={2.3} />,
-              label: "Học",
-              onPress: exitParentArea
-            },
-            {
-              active: true,
-              icon: <ShieldCheck color={colors.secondary} size={21} strokeWidth={2.3} />,
-              label: "Phụ huynh",
-              onPress: () => undefined
-            }
-          ]}
-        />
-      }
-      scroll={false}
-    >
+    <Screen bottomBar={<ChildTabBar active="parent" />} scroll={false}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -103,7 +84,7 @@ export default function ParentHomeScreen() {
         {dashboard.error ? (
           <Card padding="lg" style={styles.overviewCard} variant="subtle">
             <AppText variant="cardTitle">Chưa tải được dữ liệu gia đình</AppText>
-            <AppText color="muted">Kiểm tra kết nối app server rồi thử lại.</AppText>
+            <AppText color="muted">Kiểm tra kết nối mạng rồi thử lại.</AppText>
             <KidButton label="Tải lại" onPress={dashboard.refresh} variant="plain" />
           </Card>
         ) : null}
@@ -153,6 +134,13 @@ export default function ParentHomeScreen() {
               variant="plain"
             />
           ) : null}
+          {dashboard.selected ? (
+            <KidButton
+              label="Chỉnh hồ sơ"
+              variant="plain"
+              onPress={() => router.push("/parent/profiles")}
+            />
+          ) : null}
         </Card>
 
         <Card padding="lg" style={styles.overviewCard} variant="subtle">
@@ -165,8 +153,7 @@ export default function ParentHomeScreen() {
                 {dashboard.plan.document.items.length} bài trong kế hoạch
               </AppText>
               <AppText color="muted">
-                {dashboard.plan.document.goalIds.length} mục tiêu · bản cập nhật{" "}
-                {dashboard.plan.revision}
+                {dashboard.plan.document.goalIds.length} mục tiêu đang luyện
               </AppText>
             </>
           ) : (
@@ -175,7 +162,7 @@ export default function ParentHomeScreen() {
                 ? "Không tải được kế hoạch."
                 : dashboard.loading
                   ? "Đang tải kế hoạch…"
-                  : "Chưa có kế hoạch đã đồng bộ cho hồ sơ này."}
+                  : "Chưa có kế hoạch cho hồ sơ này."}
             </AppText>
           )}
           <AppText color="muted" variant="caption">
@@ -185,6 +172,12 @@ export default function ParentHomeScreen() {
             label="Chọn bài cùng con"
             disabled={!dashboard.selected || dashboard.loading || Boolean(dashboard.error)}
             onPress={() => router.push("/parent/lessons")}
+          />
+          <KidButton
+            label="Kế hoạch Cùng luyện"
+            variant="plain"
+            disabled={!dashboard.selected}
+            onPress={() => router.push("/parent/practice")}
           />
         </Card>
 
@@ -226,8 +219,8 @@ export default function ParentHomeScreen() {
           </AppText>
           <AppText color="muted">
             {dashboard.subscription?.learningAllowed
-              ? "Quyền học đang có hiệu lực trên server."
-              : "Nội dung học đang khóa. Dữ liệu gia đình vẫn xem được."}
+              ? "Gói học đang có hiệu lực."
+              : "Gói học đầy đủ chưa mở. Dữ liệu gia đình vẫn xem được."}
           </AppText>
           {dashboard.subscription?.accessUntil ? (
             <AppText color="muted" variant="caption">
@@ -243,6 +236,14 @@ export default function ParentHomeScreen() {
         <AppText variant="cardTitle">Quản lý trên thiết bị</AppText>
 
         <Card padding="none" style={styles.menuCard} variant="input">
+          {localFixtureEnabled() ? (
+            <ParentMenuRow
+              icon={<ShieldCheck color={colors.primary} size={20} strokeWidth={2.3} />}
+              iconBackground={colors.primarySoft}
+              label="Thử ba trò chơi (local)"
+              onPress={() => router.push("/parent/game-preview")}
+            />
+          ) : null}
           {__DEV__ ? (
             <ParentMenuRow
               icon={<ShieldCheck color={colors.primary} size={20} strokeWidth={2.3} />}

@@ -1,10 +1,12 @@
 # Store Release v1.0 Checklist
 
+> C50 target update 2026-11-05 — [BLOCKING] C50 P10: basic/full scopes, một phiên/ngày reset 00:00, concurrent devices/late claims, bốn tab/no game review, corpus mỗi group, manual/AI approval/privacy/cost/resilience, migration/rollback và native proof. Tất cả C50-D đóng trước phase/release phụ thuộc.
+
 | Thuộc tính | Giá trị                    |
 | ---------- | -------------------------- |
 | Trạng thái | `In review`                |
 | Owner      | Product + Engineering + QA |
-| Cập nhật   | 2026-09-08                 |
+| Cập nhật   | 2026-11-05                 |
 
 Mọi mục `[BLOCKING]` phải có evidence link/owner, không chỉ tick bằng cảm tính.
 

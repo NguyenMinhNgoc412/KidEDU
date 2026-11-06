@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { playPresentationSchema } from "./playPresentation";
 
 const id = z.string().regex(/^[a-z][a-z0-9_]{2,79}$/);
 const text = z.string().trim().min(1).max(500);
@@ -53,7 +54,8 @@ const common = {
     waitMs: z.number().int().min(1000).max(30000),
     observationHint: text
   }),
-  skipRule: text
+  skipRule: text,
+  presentation: playPresentationSchema.optional()
 };
 
 const option = z.strictObject({ id, visualAssetId: id, label: shortText });
@@ -166,6 +168,15 @@ export const activitySchemaV1 = z
     })
   ])
   .superRefine((activity, context) => {
+    if (
+      activity.presentation &&
+      activity.type !== "command" &&
+      activity.type !== "functional_communication"
+    )
+      context.addIssue({
+        code: "custom",
+        message: "Play presentation needs an authored command or communication scenario"
+      });
     if (activity.timing.waitMinMs > activity.timing.waitMaxMs) {
       context.addIssue({
         code: "custom",

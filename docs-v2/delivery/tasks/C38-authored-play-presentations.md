@@ -1,0 +1,13 @@
+# C38 — Authored play presentations and sample coverage
+
+Implements: `PRD-CONT-002..006`, `PRD-ACT-*`, `PRD-BR-006`, `TA-ADR-004..006`. Dependencies: C33/C36/C37. Authorization: owner asked to implement the broader activity variety in product 08 and the supplied DSG-002 simulation, beyond choosing a list of lessons.
+
+Scope: add optional, strictly validated `ActivityV1.presentation` for seven reusable presentation variants: pair, sort, sequence, sentence, hunt, scene and turns. This does not create new activity types, automatic scoring, a second curriculum taxonomy or a new engine dependency. Thirteen synthetic authored situations extend the local sample catalog from 14 to 27 entries. Backend metadata uses the same IDs/goals/titles; parity tests detect drift. New presentations attach to authored command/functional-communication activities, preserving expected response, rubric, prompt and transfer.
+
+Coverage: toy matching; food/toy baskets; animal food; animal habitat; object purpose; before/after commands; phrase construction; hidden-object requests; greeting; calling for help; turn-taking; possession; invitation. Existing word models, naming, cloze, yes/no, visual QA, choice/refusal/request and real-object commands remain available. Pictures reuse bundled illustration assets and code-native icons, preflighted during preparation. No unreviewed generated audio, external asset URI or new provider is introduced.
+
+Validation: schema limits/unique IDs and referential checks; all local visuals exist; API/mobile metadata parity; snapshot parse/restore and per-lesson course order remain compatible. In-app play commands emit in_app observations only when parents later review; they do not masquerade as real-object parent_guided observations. Touches and correct placement are never converted into speech/ability results.
+
+Migration/rollback: optional content JSON property, new fixture IDs and local catalog entries; no SQL migration. Update renderer and local catalog together. Existing snapshots have no presentation and retain their prior behavior. Rollback hides new catalog entries while retaining parsers for saved play sessions; never reinterpret, reset or delete family progress. Production content publish/rights/activation/encryption and native/device release gates remain open. Source mechanisms incompatible with v2—standalone motor tracing/multitouch programs, breath measurement, face assessment and automatic mastery/reward systems—are not silently imported.
+
+Tests: C39 owns interaction/browser evidence; unit tests cover authored references, metadata parity, seven modes, local pictures, all sample graph readiness and restoration. Content remains explicitly development-only and is not professional approval of the full curriculum.

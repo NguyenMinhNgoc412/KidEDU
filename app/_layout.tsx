@@ -49,6 +49,17 @@ function AuthenticatedStack() {
       </Stack.Protected>
       <Stack.Protected guard={Boolean(session)}>
         <Stack.Screen name="index" />
+        <Stack.Screen name="practice" />
+        <Stack.Screen name="games" />
+        <Stack.Screen
+          name="daily-reward"
+          options={{ gestureEnabled: false, fullScreenGestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="daily-game"
+          options={{ gestureEnabled: false, fullScreenGestureEnabled: false }}
+        />
+        <Stack.Screen name="collection" />
         <Stack.Screen name="parent-gate" />
         <Stack.Screen name="parent" />
         <Stack.Screen name="prototype" />

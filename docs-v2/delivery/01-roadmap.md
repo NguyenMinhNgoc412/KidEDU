@@ -5,7 +5,7 @@
 | Trạng thái   | `In review`                                |
 | Owner        | Product/Technical owner                    |
 | Derives from | Product Brief, PRD, Technical Architecture |
-| Cập nhật     | 2026-09-08                                 |
+| Cập nhật     | 2026-11-05                                 |
 
 Phase là delivery stage, không phải MVP. Public release chỉ xảy ra khi toàn bộ release gate đạt.
 
@@ -88,10 +88,6 @@ SOT/POC
 
 UI foundation, admin and content authoring có thể chạy song song sau khi schema/flow approved. Không author toàn bộ content trước khi activity fixtures/usability được xác nhận.
 
-## Post-release, not hidden v1 scope
+## C50 — Phạm vi bổ sung Store Release v1.0
 
-### Phase 6 candidate — Advanced AI customization
-
-Sau khi v1 đã phát hành và có số đo vận hành, mới review/approve lại AI Custom Library: draft/quote, Cloud Tasks/generation handler, provider adapters, generation-credit SKU/ledger, parent preview và private pack. Không provision hoặc implement theo phase này trong roadmap v1.
-
-Therapist portal, AI pronunciation scoring, classroom, public marketplace, other languages/education domains và third-party integrations cũng chỉ bắt đầu bằng Product Brief/PRD change sau v1.
+C50 là task tổng v1 cho bốn tab/free/basic/daily games/rewards/manual và AI authoring. Thực thi theo P0–P10 với dependency/acceptance/rollback riêng; AI không còn phase sau. Các phase core trước đây vẫn bắt buộc. Xem [C50](./tasks/C50-four-tabs-daily-games-freemium-ai.md).

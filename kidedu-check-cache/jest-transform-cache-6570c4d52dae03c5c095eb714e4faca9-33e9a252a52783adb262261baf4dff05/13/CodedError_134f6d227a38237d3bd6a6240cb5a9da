@@ -1,0 +1,13 @@
+c5add13fed842e90ffac03a716306eb0
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.CodedError = void 0;
+class CodedError extends Error {
+  constructor(code, message) {
+    super(message);
+    this.code = code;
+  }
+}
+exports.CodedError = CodedError;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJDb2RlZEVycm9yIiwiRXJyb3IiLCJjb25zdHJ1Y3RvciIsImNvZGUiLCJtZXNzYWdlIiwiZXhwb3J0cyJdLCJzb3VyY2VzIjpbImVycm9ycy9Db2RlZEVycm9yLnRzIl0sInNvdXJjZXNDb250ZW50IjpbbnVsbF0sIm1hcHBpbmdzIjoiOzs7O0FBS08sTUFBTUEsVUFBQSxTQUFtQkMsS0FBQTtFQUk5QkMsWUFBWUMsSUFBWSxFQUFFQyxPQUFlLEVBQUU7SUFDekMsS0FBSyxDQUFDQSxPQUFBO0lBQ04sSUFBSSxDQUFDRCxJQUFJLEdBQUdBLElBQUE7RUFDZDtBQUNGO0FBQUFFLE9BQUEsQ0FBQUwsVUFBQSxHQUFBQSxVQUFBIiwiaWdub3JlTGlzdCI6W119

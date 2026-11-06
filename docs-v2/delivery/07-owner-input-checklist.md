@@ -1,5 +1,7 @@
 # Thông tin owner cần bổ sung — Store Release v1.0
 
+> C50 owner amendment 2026-11-05 — Đã chốt reset 00:00 Asia/Ho_Chi_Minh, năm bộ free hiện có, trial không tạo bộ, hủy quà chưa nhận khi reset, nhập giới tính cùng tên, đồng bộ cùng phiên giữa thiết bị và chỉ quà mới/khóa loại hết/hiển thị remaining count. AI khoảng năm từ theo gợi ý parent. C50-D03 quota/fee/provider/dispatcher và policy sửa giới tính đã nhập còn mở; xem bảng quyết định trong C50. PRD-TBD-08 chặn AI production; không chặn các phase độc lập.
+
 Cập nhật: 2026-10-12. Trạng thái: `Pending owner input`.
 
 Danh sách này tổng hợp quyết định còn mở trong [Product Brief](../01-product-brief-sot.md), [PRD](../02-product-requirements-sot.md) và [Technical Architecture](../03-technical-architecture-sot.md). Owner có thể điền cột cuối; sau đó cập nhật quyết định tại file SOT sở hữu và changelog. Điền checklist không tự chuyển SOT sang `Approved`. Không ghi password, token, private key hoặc thông tin nhận dạng trẻ vào file này.
@@ -50,4 +52,6 @@ Cần môi trường staging tách biệt cho Supabase Auth/PostgreSQL, Cloud Ru
 
 Backend local hiện có identity/family, entitlement read, plan/observation và object-storage adapter; frontend đã có login, account isolation, dashboard và preview. Đây chưa phải signed activation, encrypted lesson delivery, store billing hay complete v2 learning runtime. Các task C06..C09 là slice local; không đồng nhất số task với workstream cùng mã trong work breakdown.
 
-AI Custom Library và PRD-TBD-08..09 thuộc Post-release, không đưa vào danh sách việc chặn Store Release v1.0.
+AI Custom Library thuộc v1; PRD-TBD-08/C50-D03 phải đóng trước AI production, PRD-TBD-09 đã đóng theo PRD-SUB-006.
+
+C50-D03 amendment 2026-11-06: owner chọn Gemini AI Studio free để test nội bộ synthetic và GPT-5.6 Luna cho phát hành sau review. Owner đã cấu hình key local; synthetic live smoke đạt, không ghi key vào tài liệu/chat và không mở billing. Quota/budget/retry/retention/dispatcher vẫn chưa được ghi approved; cấu hình đề xuất và chi phí tham chiếu tại cost model/C50 mục 14. Việc chọn provider thử nghiệm không đồng nghĩa hoàn tất AI production gate.

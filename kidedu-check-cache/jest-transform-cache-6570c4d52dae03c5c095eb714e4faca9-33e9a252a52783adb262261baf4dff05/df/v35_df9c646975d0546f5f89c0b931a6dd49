@@ -1,0 +1,48 @@
+04c64009ccd677de1532198d142dc449
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _default;
+var _bytesToUuid = _interopRequireDefault(require("./bytesToUuid"));
+function uuidToBytes(uuid) {
+  const bytes = [];
+  uuid.replace(/[a-fA-F0-9]{2}/g, hex => {
+    bytes.push(parseInt(hex, 16));
+    return '';
+  });
+  return bytes;
+}
+function stringToBytes(str) {
+  str = unescape(encodeURIComponent(str));
+  const bytes = new Array(str.length);
+  for (let i = 0; i < str.length; i++) {
+    bytes[i] = str.charCodeAt(i);
+  }
+  return bytes;
+}
+function _default(name, version, hashfunc) {
+  const generateUUID = function (value, namespace, buf, offset) {
+    const off = buf && offset || 0;
+    if (typeof value == 'string') value = stringToBytes(value);
+    if (typeof namespace == 'string') namespace = uuidToBytes(namespace);
+    if (!Array.isArray(value)) throw TypeError('value must be an array of bytes');
+    if (!Array.isArray(namespace) || namespace.length !== 16) throw TypeError('namespace must be uuid string or an Array of 16 byte values');
+    const bytes = hashfunc(namespace.concat(value));
+    bytes[6] = bytes[6] & 0x0f | version;
+    bytes[8] = bytes[8] & 0x3f | 0x80;
+    if (buf) {
+      for (let idx = 0; idx < 16; ++idx) {
+        buf[off + idx] = bytes[idx];
+      }
+    }
+    return (0, _bytesToUuid.default)(bytes);
+  };
+  try {
+    generateUUID.name = name;
+  } catch {}
+  generateUUID.DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+  generateUUID.URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
+  return generateUUID;
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfYnl0ZXNUb1V1aWQiLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSIsInV1aWRUb0J5dGVzIiwidXVpZCIsImJ5dGVzIiwicmVwbGFjZSIsImhleCIsInB1c2giLCJwYXJzZUludCIsInN0cmluZ1RvQnl0ZXMiLCJzdHIiLCJ1bmVzY2FwZSIsImVuY29kZVVSSUNvbXBvbmVudCIsIkFycmF5IiwibGVuZ3RoIiwiaSIsImNoYXJDb2RlQXQiLCJfZGVmYXVsdCIsIm5hbWUiLCJ2ZXJzaW9uIiwiaGFzaGZ1bmMiLCJnZW5lcmF0ZVVVSUQiLCJ2YWx1ZSIsIm5hbWVzcGFjZSIsImJ1ZiIsIm9mZnNldCIsIm9mZiIsImlzQXJyYXkiLCJUeXBlRXJyb3IiLCJjb25jYXQiLCJpZHgiLCJieXRlc1RvVXVpZCIsIkROUyIsIlVSTCJdLCJzb3VyY2VzIjpbInV1aWQvbGliL3YzNS50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6Ijs7Ozs7QUFBQSxJQUFBQSxZQUFBLEdBQUFDLHNCQUFBLENBQUFDLE9BQUE7QUFFQSxTQUFTQyxZQUFZQyxJQUFZO0VBRS9CLE1BQU1DLEtBQUEsR0FBa0IsRUFBRTtFQUMxQkQsSUFBQSxDQUFLRSxPQUFPLENBQUMsbUJBQW9CQyxHQUFBO0lBQy9CRixLQUFBLENBQU1HLElBQUksQ0FBQ0MsUUFBQSxDQUFTRixHQUFBLEVBQUs7SUFDekIsT0FBTztFQUNUO0VBRUEsT0FBT0YsS0FBQTtBQUNUO0FBRUEsU0FBU0ssY0FBY0MsR0FBVztFQUNoQ0EsR0FBQSxHQUFNQyxRQUFBLENBQVNDLGtCQUFBLENBQW1CRixHQUFBO0VBQ2xDLE1BQU1OLEtBQUEsR0FBa0IsSUFBSVMsS0FBQSxDQUFNSCxHQUFBLENBQUlJLE1BQU07RUFDNUMsS0FBSyxJQUFJQyxDQUFBLEdBQUksR0FBR0EsQ0FBQSxHQUFJTCxHQUFBLENBQUlJLE1BQU0sRUFBRUMsQ0FBQSxJQUFLO0lBQ25DWCxLQUFLLENBQUNXLENBQUEsQ0FBRSxHQUFHTCxHQUFBLENBQUlNLFVBQVUsQ0FBQ0QsQ0FBQTtFQUM1QjtFQUNBLE9BQU9YLEtBQUE7QUFDVDtBQUVlLFNBQUFhLFNBQ2JDLElBQVksRUFDWkMsT0FBZSxFQUNmQyxRQUFnRDtFQUVoRCxNQUFNQyxZQUFBLEdBQWUsU0FBQUEsQ0FDbkJDLEtBQXdCLEVBQ3hCQyxTQUE0QixFQUM1QkMsR0FBYyxFQUNkQyxNQUFlO0lBRWYsTUFBTUMsR0FBQSxHQUFNRixHQUFDLElBQU9DLE1BQUEsSUFBVztJQUUvQixJQUFJLE9BQU9ILEtBQUEsSUFBUyxVQUFVQSxLQUFBLEdBQVFiLGFBQUEsQ0FBY2EsS0FBQTtJQUNwRCxJQUFJLE9BQU9DLFNBQUEsSUFBYSxVQUFVQSxTQUFBLEdBQVlyQixXQUFBLENBQVlxQixTQUFBO0lBRTFELElBQUksQ0FBQ1YsS0FBQSxDQUFNYyxPQUFPLENBQUNMLEtBQUEsR0FBUSxNQUFNTSxTQUFBLENBQVU7SUFDM0MsSUFBSSxDQUFDZixLQUFBLENBQU1jLE9BQU8sQ0FBQ0osU0FBQSxLQUFjQSxTQUFBLENBQVVULE1BQU0sS0FBSyxJQUNwRCxNQUFNYyxTQUFBLENBQVU7SUFHbEIsTUFBTXhCLEtBQUEsR0FBUWdCLFFBQUEsQ0FBU0csU0FBQSxDQUFVTSxNQUFNLENBQUNQLEtBQUE7SUFFeENsQixLQUFLLENBQUMsRUFBRSxHQUFHQSxLQUFNLENBQUMsRUFBRSxHQUFHLE9BQVFlLE9BQUE7SUFFL0JmLEtBQUssQ0FBQyxFQUFFLEdBQUdBLEtBQU0sQ0FBQyxFQUFFLEdBQUcsT0FBUTtJQUUvQixJQUFJb0IsR0FBQSxFQUFLO01BQ1AsS0FBSyxJQUFJTSxHQUFBLEdBQU0sR0FBR0EsR0FBQSxHQUFNLElBQUksRUFBRUEsR0FBQSxFQUFLO1FBRWpDTixHQUFHLENBQUNFLEdBQUEsR0FBTUksR0FBQSxDQUFJLEdBQUcxQixLQUFLLENBQUMwQixHQUFBLENBQUk7TUFDN0I7SUFDRjtJQUVBLE9BQU8sSUFBQUMsb0JBQUEsRUFBWTNCLEtBQUE7RUFDckI7RUFHQSxJQUFJO0lBQ0ZpQixZQUFBLENBQWFILElBQUksR0FBR0EsSUFBQTtFQUN0QixFQUFFLE1BQU0sQ0FBQztFQUdURyxZQUFBLENBQWFXLEdBQUcsR0FBRztFQUNuQlgsWUFBQSxDQUFhWSxHQUFHLEdBQUc7RUFFbkIsT0FBT1osWUFBQTtBQUNUIiwiaWdub3JlTGlzdCI6W119

@@ -92,6 +92,25 @@ export const radii = {
   full: 999
 } as const;
 
+/** Child game geometry follows the 8px grid; illustrations are not touch controls. */
+export const gameSizes = {
+  tile: 80,
+  tileHeight: 88,
+  slot: 80,
+  source: 80,
+  sprite: 64,
+  sticker: 72,
+  stickerImage: 56,
+  gift: 80,
+  giftHeight: 104,
+  preview: 112,
+  reward: 144,
+  step: 32,
+  primaryControl: 64,
+  minimumControl: 56
+} as const;
+export const controlFeedback = { pressedOpacity: 0.92, disabledOpacity: 0.45 } as const;
+
 export const fontSizes = {
   12: 12,
   13: 13,

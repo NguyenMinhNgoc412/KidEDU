@@ -1,0 +1,52 @@
+2875ff81b0e31971f74917810f03201b
+'use client';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createPermissionHook = createPermissionHook;
+var _react = require("react");
+function usePermission(methods, options) {
+  const isMounted = (0, _react.useRef)(true);
+  const [status, setStatus] = (0, _react.useState)(null);
+  const {
+    get = true,
+    request = false,
+    ...permissionOptions
+  } = options || {};
+  const getPermission = (0, _react.useCallback)(async () => {
+    let response;
+    if (Object.keys(permissionOptions).length > 0) {
+      response = await methods.getMethod(permissionOptions);
+    } else {
+      response = await methods.getMethod();
+    }
+    if (isMounted.current) setStatus(response);
+    return response;
+  }, [methods.getMethod]);
+  const requestPermission = (0, _react.useCallback)(async () => {
+    let response;
+    if (Object.keys(permissionOptions).length > 0) {
+      response = await methods.requestMethod(permissionOptions);
+    } else {
+      response = await methods.requestMethod();
+    }
+    if (isMounted.current) setStatus(response);
+    return response;
+  }, [methods.requestMethod]);
+  (0, _react.useEffect)(function runMethods() {
+    if (request) requestPermission();
+    if (!request && get) getPermission();
+  }, [get, request, requestPermission, getPermission]);
+  (0, _react.useEffect)(function didMount() {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+  return [status, requestPermission, getPermission];
+}
+function createPermissionHook(methods) {
+  return options => usePermission(methods, options);
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJPYmplY3QiLCJkZWZpbmVQcm9wZXJ0eSIsImV4cG9ydHMiLCJ2YWx1ZSIsImNyZWF0ZVBlcm1pc3Npb25Ib29rIiwiX3JlYWN0IiwicmVxdWlyZSIsInVzZVBlcm1pc3Npb24iLCJtZXRob2RzIiwib3B0aW9ucyIsImlzTW91bnRlZCIsInVzZVJlZiIsInN0YXR1cyIsInNldFN0YXR1cyIsInVzZVN0YXRlIiwiZ2V0IiwicmVxdWVzdCIsInBlcm1pc3Npb25PcHRpb25zIiwiZ2V0UGVybWlzc2lvbiIsInVzZUNhbGxiYWNrIiwicmVzcG9uc2UiLCJrZXlzIiwibGVuZ3RoIiwiZ2V0TWV0aG9kIiwiY3VycmVudCIsInJlcXVlc3RQZXJtaXNzaW9uIiwicmVxdWVzdE1ldGhvZCIsInVzZUVmZmVjdCIsInJ1bk1ldGhvZHMiLCJkaWRNb3VudCJdLCJzb3VyY2VzIjpbIlBlcm1pc3Npb25zSG9vay50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6IkFBRUE7O0FBQUFBLE1BQUEsQ0FBQUMsY0FBQSxDQUFBQyxPQUFBO0VBQUFDLEtBQUE7QUFBQTtBQUFBRCxPQUFBLENBQUFFLG9CQUFBLEdBQUFBLG9CQUFBO0FBRUEsSUFBQUMsTUFBQSxHQUFBQyxPQUFBO0FBNkJBLFNBQVNDLGNBQ1BDLE9BQW1ELEVBQ25EQyxPQUF3QztFQUV4QyxNQUFNQyxTQUFBLEdBQVksSUFBQUMsYUFBQSxFQUFPO0VBQ3pCLE1BQU0sQ0FBQ0MsTUFBQSxFQUFRQyxTQUFBLENBQVUsR0FBRyxJQUFBQyxlQUFBLEVBQTRCO0VBQ3hELE1BQU07SUFBRUMsR0FBQSxHQUFNLElBQUk7SUFBRUMsT0FBQSxHQUFVLEtBQUs7SUFBRSxHQUFHQztFQUFBLENBQW1CLEdBQUdSLE9BQUEsSUFBVyxDQUFDO0VBRTFFLE1BQU1TLGFBQUEsR0FBZ0IsSUFBQUMsa0JBQUEsRUFBWTtJQUNoQyxJQUFJQyxRQUFBO0lBQ0osSUFBSXBCLE1BQUEsQ0FBT3FCLElBQUksQ0FBQ0osaUJBQUEsRUFBbUJLLE1BQU0sR0FBRyxHQUFHO01BQzdDRixRQUFBLEdBQVcsTUFBTVosT0FBQSxDQUFRZSxTQUFTLENBQUNOLGlCQUFBO0lBQ3JDLE9BQU87TUFDTEcsUUFBQSxHQUFXLE1BQU1aLE9BQUEsQ0FBUWUsU0FBUztJQUNwQztJQUNBLElBQUliLFNBQUEsQ0FBVWMsT0FBTyxFQUFFWCxTQUFBLENBQVVPLFFBQUE7SUFDakMsT0FBT0EsUUFBQTtFQUNULEdBQUcsQ0FBQ1osT0FBQSxDQUFRZSxTQUFTLENBQUM7RUFFdEIsTUFBTUUsaUJBQUEsR0FBb0IsSUFBQU4sa0JBQUEsRUFBWTtJQUNwQyxJQUFJQyxRQUFBO0lBQ0osSUFBSXBCLE1BQUEsQ0FBT3FCLElBQUksQ0FBQ0osaUJBQUEsRUFBbUJLLE1BQU0sR0FBRyxHQUFHO01BQzdDRixRQUFBLEdBQVcsTUFBTVosT0FBQSxDQUFRa0IsYUFBYSxDQUFDVCxpQkFBQTtJQUN6QyxPQUFPO01BQ0xHLFFBQUEsR0FBVyxNQUFNWixPQUFBLENBQVFrQixhQUFhO0lBQ3hDO0lBQ0EsSUFBSWhCLFNBQUEsQ0FBVWMsT0FBTyxFQUFFWCxTQUFBLENBQVVPLFFBQUE7SUFDakMsT0FBT0EsUUFBQTtFQUNULEdBQUcsQ0FBQ1osT0FBQSxDQUFRa0IsYUFBYSxDQUFDO0VBRTFCLElBQUFDLGdCQUFBLEVBQ0UsU0FBU0MsV0FBQTtJQUNQLElBQUlaLE9BQUEsRUFBU1MsaUJBQUE7SUFDYixJQUFJLENBQUNULE9BQUEsSUFBV0QsR0FBQSxFQUFLRyxhQUFBO0VBQ3ZCLEdBQ0EsQ0FBQ0gsR0FBQSxFQUFLQyxPQUFBLEVBQVNTLGlCQUFBLEVBQW1CUCxhQUFBLENBQWM7RUFJbEQsSUFBQVMsZ0JBQUEsRUFBVSxTQUFTRSxTQUFBO0lBQ2pCbkIsU0FBQSxDQUFVYyxPQUFPLEdBQUc7SUFDcEIsT0FBTztNQUNMZCxTQUFBLENBQVVjLE9BQU8sR0FBRztJQUN0QjtFQUNGLEdBQUcsRUFBRTtFQUVMLE9BQU8sQ0FBQ1osTUFBQSxFQUFRYSxpQkFBQSxFQUFtQlAsYUFBQSxDQUFjO0FBQ25EO0FBTU8sU0FBU2QscUJBQ2RJLE9BQW1EO0VBRW5ELE9BQVFDLE9BQUEsSUFDTkYsYUFBQSxDQUFtQ0MsT0FBQSxFQUFTQyxPQUFBO0FBQ2hEIiwiaWdub3JlTGlzdCI6W119

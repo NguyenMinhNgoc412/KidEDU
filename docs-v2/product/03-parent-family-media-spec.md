@@ -1,11 +1,13 @@
 # Parent & Family Media Specification
 
+> C50 target update 2026-11-05 — PRD-CUSTOM-001/006 và PRD-SUB-006: paid thêm bộ thủ công/AI; family-media override hiện có là capability riêng, không được vô tình khóa vì free không tạo bộ mới. Family media không gửi AI mặc định; stage/validate/preview/atomic commit vẫn bắt buộc.
+
 | Thuộc tính | Giá trị                                         |
 | ---------- | ----------------------------------------------- |
 | Trạng thái | `In review`                                     |
 | Owner      | Product + Mobile + Backend                      |
 | Implements | `PRD-MEDIA-*`, `PRD-ACC-002..005`, `PRD-PRIV-*` |
-| Cập nhật   | 2026-09-08                                      |
+| Cập nhật   | 2026-11-05                                      |
 
 ## 1. Mục tiêu
 

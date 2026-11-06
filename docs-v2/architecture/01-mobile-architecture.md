@@ -1,11 +1,13 @@
 # Mobile Architecture Specification
 
+> C50 target update 2026-11-05 — TA-ADR-025/026 và PRD-NAV-001: tách speech/game session kind, day reservation/resetAt projection, collection repository và custom authoring. Route không API/SQLite trực tiếp; không API trong game loop. Migration/rollback reader theo C50 P1.
+
 | Thuộc tính | Giá trị                                                              |
 | ---------- | -------------------------------------------------------------------- |
 | Trạng thái | `In review`                                                          |
 | Owner      | Mobile                                                               |
 | Implements | `TA-ADR-002..010`, `TA-ADR-014..017`, `TA-ADR-021..024`, `PRD-NFR-*` |
-| Cập nhật   | 2026-10-30                                                           |
+| Cập nhật   | 2026-11-06                                                           |
 
 ## 1. Stack
 
@@ -94,6 +96,8 @@ Guard nhiều lớp: route → lesson preparation → repository query → activ
 - Download/install chạy coordinator/mutex theo pack; không có hai writer switch generation.
 - Account switch đóng player/session/query cache rồi đổi namespace.
 - File cleanup chỉ chạy sau DB commit và có orphan retry.
+
+C50 implementation: `DailyGameRuntimeProvider` mở account-specific SQLite cho references/checkpoint/outbox, không cấp quyền nội dung. `DailyGameAccountRuntime` sở hữu các coordinator và đóng prepared leases trước namespace/database cleanup; thay child/screen không giữ phiên cũ hoạt động. Coordinator chỉ gọi API tại preparation/pause/completion, còn action kiểm prepared-access boundary bên trong transaction. `/daily-game` và `/daily-reward` dùng lifecycle hooks riêng, không gọi API/SQLite trực tiếp trong screen. SQLite pin hộp trước claim; foreground query phục hồi kind/receipt từ server. Local preparation adapter chỉ nhận corpus synthetic trong development/private-local boundary, kiểm identity, target refs, server reset/expiry qua đồng hồ monotonic; không thay signed activation/key/media adapter production. Xem [C50 mục 20](../delivery/tasks/C50-four-tabs-daily-games-freemium-ai.md#20-durable-local-game-flow-và-ui-ít-nhiễu--2026-11-06).
 
 ## 9. Lifecycle
 

@@ -1,12 +1,14 @@
 # Provider Portability & Service Evolution
 
+> C50 target update 2026-11-05 — TA-ADR-026: GenerationGateway/SpeechGenerationGateway và dispatcher port giữ provider DTO/operation ID ngoài mobile contract. PostgreSQL là job/ledger authority; candidate Cloud Tasks cần ADR riêng và có migration path, không thay portability baseline.
+
 | Thuộc tính | Giá trị                                           |
 | ---------- | ------------------------------------------------- |
 | Trạng thái | `In review`                                       |
 | Owner      | Technical owner                                   |
 | Implements | `TA-ADR-011..024`, `PRD-NFR-004..008`, `PB-BIZ-*` |
 | Depends on | [Cost model](../delivery/05-cost-model.md)        |
-| Cập nhật   | 2026-09-08                                        |
+| Cập nhật   | 2026-11-05                                        |
 
 ## 1. Objective
 

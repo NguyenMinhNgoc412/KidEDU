@@ -1,20 +1,17 @@
 # Information Architecture & User Flows
 
+> C50: route map/luồng Cùng luyện bên dưới là baseline cần migrate, không giữ tab Cùng luyện sau cutover. Parent-guided learning chuyển vào Tập nói; game có hub xem được khi hết lượt, CTA disabled theo PRD-GAME-004. Route aliases và session-kind mapping chốt P1/P6.
+
 | Thuộc tính | Giá trị                                                                                         |
 | ---------- | ----------------------------------------------------------------------------------------------- |
 | Trạng thái | `In review`                                                                                     |
 | Owner      | Product Design                                                                                  |
 | Implements | `PRD-ACC-*`, `PRD-PLAN-*`, `PRD-SES-*`, `PRD-MEDIA-*`, `PRD-PROG-*`, `PRD-SUB-*`, `PRD-NOTIF-*` |
-| Cập nhật   | 2026-09-08                                                                                      |
+| Cập nhật   | 2026-11-05                                                                                      |
 
 ## 1. Navigation model
 
-Mobile có hai zone, dùng visual DNA chung nhưng khác mật độ:
-
-- **Child/Learning Zone:** ít lựa chọn, session-first, không thao tác nhạy cảm.
-- **Parent Zone:** plan, progress, media, download, subscription, account/privacy; luôn qua Parent Gate khi đi từ Child Zone.
-
-Bottom navigation giữ hai mục hiện có: `Học` và `Phụ huynh`. `Tiến độ` không là top-level tab; nằm trong Parent Zone. Trong Parent Zone có back stack rõ và child switch ở header/dashboard.
+Theo PRD-NAV-001: bốn tab Tập nói, Trò chơi, Bộ sưu tập, Phụ huynh. Tập nói giữ goal/progression, media gia đình và transfer; nhận xét từng bài sau phiên qua Parent Gate. Game theo PRD-GAME-* không review; collection theo PRD-REWARD-*. Parent Zone giữ quản lý plan/progress/media/download/subscription/privacy và tạo bộ thủ công/AI paid. Không sensitive action ở Child Zone.
 
 ## 2. Route map mục tiêu
 
@@ -58,6 +55,17 @@ Parent Gate
 ```
 
 Admin web tách khỏi mobile consumer app: login → content catalog → editor → review → publish/release → operational status.
+
+Entry Cùng luyện được bổ sung bên cạnh cây Học:
+
+```text
+/practice                       # hub, buổi được đề nghị, tiếp tục/cập nhật dữ liệu đã lưu
+/practice/prepare               # primary goal, props, chuỗi activity và readiness
+/practice/session               # runtime theo lessonId, generation tách khỏi Học
+Parent Gate → /parent/practice  # goal discovery, chọn/hoãn bài, lịch sử/reason
+```
+
+Không truyền media URI hoặc quyền truy cập trong deep link. Chuẩn bị session phải kiểm ownership/entitlement qua backend; đường fixture chỉ dành môi trường local, không thay signed production activation.
 
 ## 3. First-run flow
 
@@ -110,14 +118,14 @@ Child chạm lesson locked → thông báo “Cần phụ huynh mở” → Pare
 
 Hết hạn khi mở app → account/data control vẫn vào được; Today giải thích cần gia hạn; encrypted cache không bị hiển thị như usable.
 
-## 7. Post-release concept — AI custom library flow
+## 7. Custom library v1 flow
 
-Phần này không thuộc IA/release gate v1; chỉ giữ concept để phase sau tiếp tục review.
+Theo PRD-CUSTOM-* và C50 P7–P9: manual hoặc AI; AI quota/overage policy còn gate, không bắt buộc mua credit trước mọi job.
 
 ```text
 Parent Zone → Bộ học tùy chỉnh AI
 → tạo/sửa draft và chọn target
-→ xem quote/credit → Parent Gate → mua hoặc dùng credit
+→ Parent Gate → xem quota/quote → reserve allowance (mua chỉ nếu add-on được duyệt)
 → generation chạy nền; screen polling có backoff
 → app đóng/mở lại lấy trạng thái bằng delta
 → preview text/audio/image/motion từng target
@@ -151,7 +159,7 @@ Notification tap khi cold/warm start phải restore đúng account, fetch curren
 
 ## 10. Reuse hiện trạng
 
-Giữ bottom tab hai mục, Child category tiles làm entry của `Luyện thêm`, Parent settings-list pattern, header/back conventions và learning control bar. Thay Child Home category-only bằng Today-first; thay `Deck/Word list` bằng goal/lesson/target views mà vẫn reuse card/list primitives.
+Giữ component bottom tab, chuyển bốn mục theo PRD-NAV-001; Child category tiles làm entry của `Luyện thêm`, Parent settings-list pattern, header/back conventions và learning control bar. Thay Child Home category-only bằng Today-first; thay `Deck/Word list` bằng goal/lesson/target views mà vẫn reuse card/list primitives.
 
 ## 11. IA acceptance
 

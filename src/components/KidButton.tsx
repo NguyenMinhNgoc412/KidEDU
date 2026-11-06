@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors, radii, spacing } from "@/theme";
+import { colors, controlFeedback, radii, spacing } from "@/theme";
 
 import { AppText } from "./AppText";
 
@@ -17,7 +17,8 @@ export function KidButton({
   fullWidth = false,
   disabled = false,
   accessibilityLabel,
-  selected
+  selected,
+  expanded
 }: {
   label: string;
   onPress?: () => void;
@@ -28,12 +29,17 @@ export function KidButton({
   disabled?: boolean;
   accessibilityLabel?: string;
   selected?: boolean;
+  expanded?: boolean;
 }) {
   return (
     <Pressable
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityRole="button"
-      accessibilityState={{ disabled, ...(selected === undefined ? {} : { selected }) }}
+      accessibilityState={{
+        disabled,
+        ...(selected === undefined ? {} : { selected }),
+        ...(expanded === undefined ? {} : { expanded })
+      }}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
@@ -90,10 +96,10 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   pressed: {
-    opacity: 0.92
+    opacity: controlFeedback.pressedOpacity
   },
   disabled: {
-    opacity: 0.45
+    opacity: controlFeedback.disabledOpacity
   }
 });
 

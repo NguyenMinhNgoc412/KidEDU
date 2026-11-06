@@ -7,6 +7,8 @@ const childInputSchema = z
   .strictObject({
     familyId: z.uuid(),
     displayName: z.string().trim().min(1).max(80),
+    // Optional on v1 for older clients; current UI requires an explicit choice.
+    gender: z.enum(["boy", "girl"]).optional(),
     birthYear: z.number().int().min(1900).max(new Date().getUTCFullYear()).optional(),
     birthMonth: z.number().int().min(1).max(12).optional()
   })
@@ -16,12 +18,14 @@ const childUpdateSchema = z
   .strictObject({
     expectedVersion: z.number().int().positive(),
     displayName: z.string().trim().min(1).max(80).optional(),
+    gender: z.enum(["boy", "girl"]).optional(),
     birthYear: z.number().int().min(1900).max(new Date().getUTCFullYear()).nullable().optional(),
     birthMonth: z.number().int().min(1).max(12).nullable().optional()
   })
   .refine(
     (value) =>
       value.displayName !== undefined ||
+      value.gender !== undefined ||
       value.birthYear !== undefined ||
       value.birthMonth !== undefined
   );
