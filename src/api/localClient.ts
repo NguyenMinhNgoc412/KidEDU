@@ -99,6 +99,10 @@ export function createLocalApiClient(
         `${dailySessionPath(childId, sessionId)}/reward/claim`,
         { boxIndex }
       ),
+    restartLocalDailyTest: (childId: string, sessionId: string) =>
+      call<{ restarted: true }>("POST", `${childPath(childId)}/daily-game/local-test/restart`, {
+        sessionId
+      }),
     getPracticeCatalog: (childId: string) =>
       call<components["schemas"]["PracticeCatalog"]>(
         "GET",

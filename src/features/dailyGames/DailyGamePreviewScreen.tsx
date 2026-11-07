@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
-import { AccessibilityInfo } from "react-native";
+import { AccessibilityInfo, AppState } from "react-native";
+import { useFeedbackWindow } from "./useFeedbackWindow";
 import { Redirect, useFocusEffect, useRouter } from "expo-router";
 import { AppText } from "@/components/AppText";
 import { Screen } from "@/components/Screen";
@@ -26,29 +27,60 @@ export function DailyGamePreviewScreen() {
   const [feedback, setFeedback] = useState("");
   const [active, setActive] = useState(false);
   const focused = useRef(false);
+  const busy = useRef(false);
+  const { wait: waitFeedback, cancel: cancelFeedback } = useFeedbackWindow();
   useFocusEffect(
     useCallback(() => {
       focused.current = true;
       setActive(true);
+      setCheckpoint(current.current);
+      const subscription = AppState.addEventListener("change", (state) => {
+        if (state !== "active") {
+          setActive(false);
+          cancelFeedback();
+        } else {
+          setCheckpoint(current.current);
+          setActive(true);
+        }
+      });
       return () => {
         focused.current = false;
         setActive(false);
+        cancelFeedback();
+        subscription.remove();
       };
-    }, [])
+    }, [cancelFeedback])
   );
   if (!localFixtureEnabled()) return <Redirect href="/games" />;
   if (!unlocked) return <Redirect href="/parent-gate?destination=game-preview" />;
   function apply(action: DailyGameAction) {
-    if (!focused.current || !useParentGateStore.getState().isUnlocked) return;
+    if (busy.current || !focused.current || !active || !useParentGateStore.getState().isUnlocked)
+      return;
     const result = advanceDailyGame(plan, current.current, action);
     current.current = result.checkpoint;
-    setCheckpoint(result.checkpoint);
+    if (action.type === "choose_listen") {
+      busy.current = true;
+      void waitFeedback()
+        .then(() => {
+          if (
+            focused.current &&
+            AppState.currentState !== "background" &&
+            AppState.currentState !== "inactive"
+          )
+            setCheckpoint(current.current);
+        })
+        .finally(() => {
+          busy.current = false;
+        });
+    } else setCheckpoint(result.checkpoint);
     const message =
-      result.feedback === "correct"
-        ? "Đúng rồi!"
-        : result.feedback === "try_again"
-          ? "Mình thử lại nhé."
-          : "";
+      action.type === "choose_listen"
+        ? ""
+        : result.feedback === "correct"
+          ? "Đúng rồi!"
+          : result.feedback === "try_again"
+            ? "Mình thử lại nhé."
+            : "";
     setFeedback(message);
     if (message) AccessibilityInfo.announceForAccessibility(message);
   }

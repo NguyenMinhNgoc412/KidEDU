@@ -13,10 +13,15 @@ export function DailyGamesHubScreen() {
   const hub = useDailyGameHub();
   const router = useRouter();
   const refresh = useRef(hub.refresh);
+  const focused = useRef(false);
   refresh.current = hub.refresh;
   useFocusEffect(
     useCallback(() => {
+      focused.current = true;
       refresh.current();
+      return () => {
+        focused.current = false;
+      };
     }, [])
   );
   const completed = hub.status?.state === "completed";
@@ -28,8 +33,27 @@ export function DailyGamesHubScreen() {
         {completed ? (
           <>
             <AppText variant="cardTitle">Mình đã chơi xong hôm nay</AppText>
-            <AppText>Lượt mới mở lúc 00:00 theo giờ Việt Nam.</AppText>
-            <KidButton label="Vào chơi" disabled />
+            {!hub.localTestAccess ? (
+              <>
+                <AppText>Lượt mới mở lúc 00:00 theo giờ Việt Nam.</AppText>
+                <KidButton label="Vào chơi" disabled />
+              </>
+            ) : null}
+            {hub.localTestAccess ? (
+              <>
+                <AppText>Chế độ fullaccess: mở phiên thử mới, giữ quà đã có.</AppText>
+                <KidButton
+                  label={hub.restartingTest ? "Đang mở phiên thử…" : "Chơi phiên thử mới"}
+                  disabled={hub.restartingTest}
+                  onPress={async () => {
+                    if ((await hub.restartTest()) && focused.current) router.push("/daily-game");
+                  }}
+                />
+                {hub.restartTestError ? (
+                  <AppText>Chưa mở được phiên thử. Mình thử lại nhé.</AppText>
+                ) : null}
+              </>
+            ) : null}
             <KidButton
               label="Xem quà hôm nay"
               variant="plain"

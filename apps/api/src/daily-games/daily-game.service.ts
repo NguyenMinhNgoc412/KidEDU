@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -94,6 +95,42 @@ export class DailyGameService {
     if (session.tier === "full" && access.tier !== "full")
       throw new ForbiddenException("Full session access has expired");
     return this.sessionDto(session);
+  }
+
+  /** Explicit local test command. Production and ordinary fixture users cannot invoke it. */
+  async restartLocalTest(accountId: string, childId: string, body: unknown) {
+    this.ids(childId);
+    const { sessionId } = parse(z.strictObject({ sessionId: z.uuid() }), body);
+    if (
+      process.env.APP_ENV !== "local" ||
+      process.env.C50_LOCAL_DAILY_FIXTURE !== "1" ||
+      accountId !== "00000000-0000-4000-8000-000000000002"
+    )
+      throw new NotFoundException();
+    return this.prisma.$transaction(async (tx) => {
+      await lockDailyGameChild(tx, accountId, childId);
+      const identity = await tx.authIdentity.findFirst({
+        where: {
+          accountId,
+          provider: "supabase",
+          subject: "local-full-access-parent"
+        }
+      });
+      const entitlement = await tx.entitlement.findUnique({ where: { accountId } });
+      if (!identity || entitlement?.source !== "local_fixture") throw new NotFoundException();
+      const { playDay } = dailyGameWindow(new Date());
+      const current = await tx.dailyGameSession.findUnique({
+        where: { childId_playDay: { childId, playDay } }
+      });
+      if (!current) return { restarted: true as const };
+      if (current.id !== sessionId || !current.completedAt)
+        throw new ConflictException("Only the completed test session can be restarted");
+      // Retain every owned gift and all learning data; retire only this test run's metadata.
+      await tx.dailyRewardReceipt.deleteMany({ where: { sessionId } });
+      await tx.dailyRewardReservation.deleteMany({ where: { sessionId } });
+      await tx.dailyGameSession.delete({ where: { id: sessionId } });
+      return { restarted: true as const };
+    });
   }
 
   private sessionDto(session: Awaited<ReturnType<DailyGameRepository["startOrResume"]>>) {

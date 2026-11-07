@@ -53,6 +53,34 @@ beforeEach(() => {
   mockCoordinator.close.mockResolvedValue(undefined);
 });
 afterEach(() => jest.restoreAllMocks());
+it("keeps a committed answer durable but cancels its delayed presentation on background", async () => {
+  let listener!: (value: AppStateStatus) => void;
+  jest.spyOn(AppState, "addEventListener").mockImplementation((_event, callback) => {
+    listener = callback;
+    return { remove: jest.fn() };
+  });
+  mockCoordinator.apply.mockResolvedValue({
+    state: { ...initial, localRevision: 2 },
+    feedback: "correct",
+    requiresBoundary: false
+  });
+  const screen = await render(<Harness />);
+  jest.useFakeTimers();
+  try {
+    await fireEvent.press(screen.getByRole("button", { name: "Chọn hình" }));
+    expect(mockCoordinator.apply).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("revision").props.children).toBe(1);
+    await act(async () => {
+      listener("background");
+      jest.advanceTimersByTime(5000);
+    });
+    expect(screen.getByTestId("mode").props.children).toBe("paused");
+    expect(screen.getByTestId("revision").props.children).toBe(1);
+    await screen.unmount();
+  } finally {
+    jest.useRealTimers();
+  }
+});
 it("disables input while the checkpoint commits, then presents the acknowledged local frame", async () => {
   let resolve!: (value: unknown) => void;
   mockCoordinator.apply.mockImplementation(
@@ -75,7 +103,9 @@ it("disables input while the checkpoint commits, then presents the acknowledged 
       requiresBoundary: false
     })
   );
-  expect(button).toBeEnabled();
+  expect(button).toBeDisabled();
+  expect(screen.getByTestId("revision").props.children).toBe(1);
+  await waitFor(() => expect(button).toBeEnabled(), { timeout: 2000 });
   expect(screen.getByTestId("revision").props.children).toBe(2);
 });
 it("pauses immediately on background and discards the late committed frame", async () => {

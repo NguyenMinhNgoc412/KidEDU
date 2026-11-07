@@ -97,5 +97,17 @@ describe("daily-game HTTP/mobile contract", () => {
       expectedRevision: 1,
       checkpoint
     });
+    const restart = jest.spyOn(service, "restartLocalTest").mockResolvedValue({ restarted: true });
+    expect(await api.restartLocalDailyTest(childId, sessionId)).toEqual({ restarted: true });
+    expect(restart).toHaveBeenCalledWith(accountId, childId, { sessionId });
+    expect(
+      (
+        await fetch(`${base}/v1/children/${childId}/daily-game/local-test/restart`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId })
+        })
+      ).status
+    ).toBe(401);
   });
 });

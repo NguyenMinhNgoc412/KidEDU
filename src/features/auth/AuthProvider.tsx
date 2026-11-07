@@ -44,6 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const applySession = useCallback(
     (next: AuthSession | null) => {
       const previous = sessionRef.current;
+      if (previous?.accountId !== next?.accountId)
+        useParentGateStore.getState().configureLocalTest(next?.accountId);
       if (previous?.accountId !== next?.accountId) {
         queryClient.clear();
         useParentGateStore.getState().lock();

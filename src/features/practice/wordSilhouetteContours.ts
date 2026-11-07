@@ -1,0 +1,22 @@
+import traced from "./wordSilhouettes.generated.json";
+
+/** First-frame subject outlines in sprite-cell coordinates, shared by picture and shadow.
+ * Transparent PNG outlines are generated from alpha. Scene JPEGs use authored vector
+ * clipping paths to exclude decorative circles, branches and scenery from the puzzle.
+ */
+export const wordSilhouetteContours: Readonly<Record<string, string>> = {
+  ...traced,
+  "item-ly": "M26 38C26 32 73 32 73 38L69 82Q68 91 50 91Q30 91 29 83Z",
+  "item-meo":
+    "M27 6Q32 4 39 14Q49 12 59 17Q71 9 71 17L70 28Q78 39 72 49L71 57Q74 66 72 75Q81 76 84 82Q86 89 77 91L58 91Q52 93 44 90Q35 92 29 87Q24 85 27 80Q22 69 25 59L29 49Q21 42 23 31L26 23Z",
+  "item-cho":
+    "M26 28Q30 16 40 16Q52 8 64 16Q75 19 77 33L73 40L67 39Q66 47 64 51L68 64Q75 69 76 79Q84 78 87 83Q89 89 79 90L68 90Q62 95 52 91Q42 95 34 91Q25 93 25 86L28 79Q24 71 28 63L31 49L30 39Q24 43 23 35Z",
+  "item-ca":
+    "M15 53Q19 43 32 39Q36 28 47 25Q51 23 54 28L64 43Q72 43 79 39Q89 35 91 38Q86 49 82 55Q83 64 87 73Q84 77 78 72L67 66Q66 73 61 69L56 67Q60 74 57 80Q48 78 43 71L36 69Q34 78 30 74L28 66Q17 65 15 59L17 57Z",
+  "item-chim":
+    "M31 32Q32 18 43 16Q55 12 61 22Q66 28 64 38L67 45Q74 55 80 65L89 77Q85 81 79 77L72 73Q63 76 57 73L56 78L51 79L48 75L46 78L42 77L43 72Q29 64 28 48Q25 44 31 40Z",
+  "item-me":
+    "M14 99L15 81Q16 68 23 61Q21 51 25 36Q29 19 42 10Q55 2 67 10Q76 12 78 30Q84 43 80 58L77 65Q87 70 87 99Z",
+  "item-ba":
+    "M16 99L17 76Q19 66 32 62L34 56Q27 52 26 38Q22 33 26 29Q24 17 34 10Q48 1 62 10Q76 10 75 29Q81 33 75 39Q73 53 65 58L65 63Q80 65 84 77L86 99Z"
+};

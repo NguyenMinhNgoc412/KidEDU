@@ -447,6 +447,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/children/{childId}/daily-game/local-test/restart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Local synthetic fullaccess only. Retires the completed test run and its receipt/reservation metadata, retains owned inventory and learning history. Does not provision content or grant production access. */
+        post: operations["restartLocalDailyTest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/children/{childId}/daily-game/start": {
         parameters: {
             query?: never;
@@ -1372,6 +1389,66 @@ export interface operations {
             };
             /** @description Published content unavailable; no new turn consumed */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    restartLocalDailyTest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    sessionId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Completed local test run retired; start creates the next run */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        restarted: true;
+                    };
+                };
+            };
+            /** @description Invalid command */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not local fullaccess or child not owned */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current run differs or is not completed */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

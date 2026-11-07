@@ -2,7 +2,7 @@
 import { AccessibilityInfo, StyleSheet, View } from "react-native";
 import type { PlayPresentation } from "@/content/contracts/playPresentation";
 import { colors, gameSizes, radii, spacing } from "@/theme";
-import { WordSilhouette, WordSprite, Check, RotateCcw } from "./WordGameArt";
+import { WordMatchingArt, Check, RotateCcw } from "./WordGameArt";
 import { orderRecognitionOptions } from "./activityMedia";
 import type { WordGameInput } from "./wordGameSteps";
 import { DragPiece } from "./DragPiece";
@@ -91,7 +91,7 @@ export function WordMatchingBoard({
                     testID={filled ? `attached-${piece.id}` : undefined}
                     style={{ opacity: filled ? 1 : 0.4 }}
                   >
-                    <WordSprite
+                    <WordMatchingArt
                       piece={piece}
                       paused={paused}
                       size={tileSize - 16}
@@ -99,7 +99,7 @@ export function WordMatchingBoard({
                     />
                   </View>
                 ) : (
-                  <WordSilhouette picture={piece.picture} size={tileSize - 16} />
+                  <WordMatchingArt piece={piece} shadow size={tileSize - 16} />
                 )}
                 {filled ? (
                   <View style={styles.check}>
@@ -133,7 +133,7 @@ export function WordMatchingBoard({
                 }}
               >
                 <View style={[styles.source, { width: tileSize, height: tileSize }]}>
-                  <WordSprite
+                  <WordMatchingArt
                     piece={piece}
                     paused={paused}
                     size={tileSize - 16}

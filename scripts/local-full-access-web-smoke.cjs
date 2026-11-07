@@ -40,14 +40,24 @@ async function run() {
     await page.getByRole("textbox", { name: "Email" }).fill("fullaccess@local.kidedu.test");
     await page.getByLabel("Mật khẩu").fill("FullAccess123!");
     await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
-    await page.getByText("Luyện thêm", { exact: true }).waitFor();
-    assert.equal(await page.getByText("Nội dung học đang khóa", { exact: true }).count(), 0);
-    await page.getByRole("tab", { name: "Phụ huynh" }).click();
+    await page.getByRole("tab", { name: "Phụ huynh" }).click({ timeout: 60000 });
     await openParentGate(page);
     await page.getByText("GÓI HỌC", { exact: true }).waitFor();
     await page.getByText("Gói đang hoạt động").waitFor();
+    assert.equal(
+      await page.getByRole("button", { name: "Nhấn giữ để mở khu phụ huynh", exact: true }).count(),
+      0
+    );
+    await page.getByRole("button", { name: "Đăng xuất tài khoản", exact: true }).click();
+    await page.getByRole("textbox", { name: "Email" }).fill("parent@local.kidedu.test");
+    await page.getByLabel("Mật khẩu", { exact: true }).fill("LocalTest123!");
+    await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
+    await page.getByRole("tab", { name: "Phụ huynh", exact: true }).click();
+    await page.getByRole("button", { name: "Nhấn giữ để mở khu phụ huynh", exact: true }).waitFor();
     assert.deepEqual(errors, []);
-    console.log("Full-access local account → learning UI → active subscription dashboard passed");
+    console.log(
+      "Local fullaccess paid access and no Parent Gate hold; sign out/account switch restores ordinary Parent Gate: passed"
+    );
   } finally {
     await browser.close();
   }

@@ -3,13 +3,24 @@ import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import { DailyGameStage } from "../DailyGameStage";
 import { localPreviewPlan as plan, previewTargets } from "../localPreviewPlan";
 import { advanceDailyGame, initialDailyGameCheckpoint } from "../sessionEngine";
+jest.mock("@/data/queries", () => ({
+  useLearningSettingsQuery: () => ({ data: { reinforcementEnabled: false } })
+}));
 
 // Full interaction path includes more than forty native accessibility/press events.
 jest.setTimeout(30000);
 
 jest.mock("@/features/practice/WordGameArt", () => {
   const { View } = jest.requireActual("react-native");
-  return { WordSprite: View, WordSilhouette: View, Check: View, RotateCcw: View, Leaf: View };
+  return {
+    WordSprite: View,
+    Star: View,
+    WordMatchingArt: View,
+    WordSilhouette: View,
+    Check: View,
+    RotateCcw: View,
+    Leaf: View
+  };
 });
 
 function Harness({ paused = false }: { paused?: boolean }) {
@@ -49,6 +60,14 @@ it("plays both shadow screens, five choices and five pairs through the real C50 
     expect(
       screen.getByText(`Người lớn đọc: ${previewTargets[round.targetId]!.label}`)
     ).toBeTruthy();
+    expect(screen.getByText("Mình thử lại nhé")).toBeTruthy();
+    await waitFor(
+      () =>
+        expect(
+          screen.getByRole("button", { name: `Chọn ${previewTargets[round.targetId]!.label}` })
+        ).toBeEnabled(),
+      { timeout: 2000 }
+    );
     await fireEvent.press(
       screen.getByRole("button", { name: `Chọn ${previewTargets[round.targetId]!.label}` })
     );

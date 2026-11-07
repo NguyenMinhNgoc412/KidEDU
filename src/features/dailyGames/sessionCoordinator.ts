@@ -1,4 +1,5 @@
 import type { components } from "../../api/generated";
+import { isLocalFullAccess } from "../auth/localFullAccess";
 import type { createLocalApiClient } from "../../api/localClient";
 import type { DailyGameLocalRepository } from "./localRepository";
 import { flushDailyCheckpoint } from "./flushCheckpoint";
@@ -105,7 +106,7 @@ export class DailyGameSessionCoordinator {
       if (conflict) {
         if (!local || remote.id !== local.session.id) throw new Error("DAILY_DAY_CHANGED");
         await this.repository.reconcile(this.childId, local.localRevision, remote);
-      } else await this.repository.install(this.childId, remote);
+      } else await this.repository.install(this.childId, remote, isLocalFullAccess(this.accountId));
       assertCurrent();
       const installed = immutable(await this.repository.load(this.childId, remote.id));
       if (!installed) throw new Error("DAILY_SESSION_NOT_FOUND");

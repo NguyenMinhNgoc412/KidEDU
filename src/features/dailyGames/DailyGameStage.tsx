@@ -11,6 +11,7 @@ import { orderRecognitionOptions } from "@/features/practice/activityMedia";
 import { colors, radii } from "@/theme";
 import { dailyGamePhase, type DailyGameAction } from "./sessionEngine";
 import { memoryCardSize } from "./boardLayout";
+import { ListenChoices } from "./ListenChoices";
 
 export function DailyGameStage({
   plan,
@@ -80,7 +81,7 @@ export function DailyGameStage({
     const cardIds = opened.split("|");
     const timer = setTimeout(
       () => onActionRef.current({ type: "close_unmatched", cardIds }),
-      screenReader ? 2400 : 1200
+      screenReader ? 2400 : 600
     );
     return () => clearTimeout(timer);
   }, [opened, paused, phase, screenReader]);
@@ -154,22 +155,15 @@ export function DailyGameStage({
         ) : (
           <AppText>Người lớn đọc: {targets[round.targetId]!.label}</AppText>
         )}
-        <View style={styles.grid}>
-          {options.map((piece) => (
-            <GameControl
-              key={piece.id}
-              preserveAppearance
-              style={[styles.tile, { width: listenWidth, height: listenSize, minHeight: 56 }]}
-              disabled={paused}
-              accessibilityLabel={`Chọn ${piece.label}`}
-              onPress={() =>
-                onAction({ type: "choose_listen", roundId: round.id, targetId: piece.id })
-              }
-            >
-              <WordSprite piece={piece} size={listenSize - 20} paused />
-            </GameControl>
-          ))}
-        </View>
+        <ListenChoices
+          key={round.id}
+          options={options}
+          targetId={round.targetId}
+          width={listenWidth}
+          size={listenSize}
+          disabled={paused}
+          onChoose={(targetId) => onAction({ type: "choose_listen", roundId: round.id, targetId })}
+        />
       </View>
     );
   }

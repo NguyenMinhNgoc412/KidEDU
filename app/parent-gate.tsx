@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { AppState, Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
@@ -14,6 +14,15 @@ export default function ParentGateScreen() {
   const router = useRouter();
   const { destination } = useLocalSearchParams<{ destination?: string }>();
   const hold = useParentHold(openParentArea);
+  const bypass = useParentGateStore((state) => state.localTestBypass);
+  const target =
+    destination === "game-preview" && localFixtureEnabled()
+      ? "/parent/game-preview"
+      : destination === "practice"
+        ? "/parent/practice"
+        : destination === "profiles"
+          ? "/parent/profiles"
+          : "/parent";
 
   function openParentArea() {
     if (AppState.currentState && AppState.currentState !== "active") return;
@@ -29,6 +38,7 @@ export default function ParentGateScreen() {
     );
   }
 
+  if (bypass) return <Redirect href={target} />;
   return (
     <Screen>
       <View style={styles.backdrop}>

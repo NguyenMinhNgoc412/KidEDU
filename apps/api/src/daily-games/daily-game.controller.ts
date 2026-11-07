@@ -19,6 +19,14 @@ export class DailyGameController {
   start(@Req() req: AccountRequest, @Param("childId") childId: string, @Body() body: unknown) {
     return this.games.start(req.accountId, childId, body);
   }
+  @Post("local-test/restart")
+  restartLocalTest(
+    @Req() req: AccountRequest,
+    @Param("childId") childId: string,
+    @Body() body: unknown
+  ) {
+    return this.games.restartLocalTest(req.accountId, childId, body);
+  }
   @Put(":sessionId/checkpoint")
   checkpoint(
     @Req() req: AccountRequest,

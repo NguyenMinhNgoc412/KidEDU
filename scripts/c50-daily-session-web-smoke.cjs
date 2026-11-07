@@ -76,8 +76,9 @@ async function run() {
   assert.equal((await call(`/children/${child.id}/practice/checkpoints`)).checkpoints.length, 0);
   const width = Number(process.env.KIDEDU_PREVIEW_WIDTH ?? 390);
   const browser = await chromium.launch({ headless: true });
+  let page;
   try {
-    const page = await browser.newPage({
+    page = await browser.newPage({
       viewport: { width, height: Number(process.env.KIDEDU_PREVIEW_HEIGHT || 844) }
     });
     const errors = [];
@@ -154,6 +155,10 @@ async function run() {
     }
     const preparedMutations = mutations;
     for (let index = 0; index < remote.plan.shadowScreens.length; index++) {
+      await page.screenshot({
+        path: `artifacts/c50-shadow-round-${index + 1}-${width}.png`,
+        fullPage: true
+      });
       for (const [position, id] of remote.plan.shadowScreens[index].targetIds.entries()) {
         const source = page.getByTestId(`drag-${id}`);
         const hole = page.getByTestId(`hole-${id}`);
@@ -186,9 +191,26 @@ async function run() {
     };
     await checkBoard();
     await page.screenshot({ path: `artifacts/c50-daily-listen-${width}.png`, fullPage: true });
+    const firstChoice = remote.plan.listenRounds[0];
+    const wrongChoice = firstChoice.optionTargetIds.find((id) => id !== firstChoice.targetId);
+    await page
+      .getByRole("button", {
+        name: `Chọn ${labels[wrongChoice.replace(/^target_/, "")]}`,
+        exact: true
+      })
+      .click();
+    await page.getByText("Mình thử lại nhé", { exact: true }).filter({ visible: true }).waitFor();
+    await page.screenshot({ path: `artifacts/c50-choice-retry-${width}.png`, fullPage: true });
     for (const round of remote.plan.listenRounds) {
       const label = labels[round.targetId.replace(/^target_/, "")];
       await page.getByRole("button", { name: `Chọn ${label}`, exact: true }).click();
+      if (round.id === firstChoice.id) {
+        await page.getByText("Đúng rồi!", { exact: true }).filter({ visible: true }).waitFor();
+        await page.screenshot({
+          path: `artifacts/c50-choice-correct-${width}.png`,
+          fullPage: true
+        });
+      }
     }
     await page.getByRole("button", { name: "Trò tiếp theo", exact: true }).click();
     await page.getByText("Lật thẻ tìm đôi", { exact: true }).waitFor();
@@ -243,7 +265,7 @@ async function run() {
       .filter({ visible: true })
       .waitFor();
     assert.equal(
-      await page.getByRole("button", { name: "Vào chơi", exact: true }).isDisabled(),
+      await page.getByRole("button", { name: "Chơi phiên thử mới", exact: true }).isEnabled(),
       true
     );
     await page.getByRole("tab", { name: "Bộ sưu tập", exact: true }).click();
@@ -253,6 +275,16 @@ async function run() {
     }
     await page.screenshot({ path: `artifacts/c50-daily-collection-${width}.png`, fullPage: true });
     assert.equal((await call(`/children/${child.id}/daily-game/inventory`)).items.length, 1);
+    if (process.env.KIDEDU_RESTART_TEST === "1") {
+      await page.getByRole("tab", { name: "Trò chơi", exact: true }).click();
+      await page.getByRole("button", { name: "Chơi phiên thử mới", exact: true }).click();
+      await page.getByText("Màn 1/5", { exact: true }).filter({ visible: true }).waitFor();
+      const next = await call(`/children/${child.id}/daily-game/start`, {});
+      assert.notEqual(next.id, remote.id);
+      assert.equal(next.completedAt, null);
+      assert.equal((await call(`/children/${child.id}/daily-game/inventory`)).items.length, 1);
+      await page.getByRole("button", { name: "Quay lại Trò chơi", exact: true }).click();
+    }
     assert.deepEqual(errors, []);
     assert.equal(
       await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
@@ -261,6 +293,9 @@ async function run() {
     console.log(
       "C50 local daily integration: real server reservation, SQLite checkpoints, full quotas, three games without loop HTTP, four boxes, one receipt and album passed"
     );
+  } catch (error) {
+    await page?.screenshot({ path: "artifacts/c50-daily-failure.png", fullPage: true });
+    throw error;
   } finally {
     await browser.close();
   }

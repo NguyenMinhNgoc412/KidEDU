@@ -92,6 +92,10 @@ Không dùng uppercase cho câu hướng dẫn. Target từ đơn có thể uppe
 
 `GameControl` (C42) là control hình trong Child Zone, dùng cùng pressed/disabled tokens với `KidButton`; tên/trạng thái accessible không phụ thuộc chữ nhìn thấy. Layout game dùng `gameSizes` theo 8px trong theme và các radius chuẩn hiện có. Tile đã hoàn tất giữ hình rõ thay vì làm mờ theo trạng thái khóa thao tác.
 
+C50 bóng khuyết (owner correction 2026-11-07): nguồn và bóng dùng chung contour/crop ở frame tĩnh; silhouette tô đặc `colors.primary` trên `surfaceAlt`, không nét đứt bên trong silhouette hoặc chi tiết cảnh nền. Đích vẫn có khung tương tác và accessible label/state; không dùng bóng chung hoặc icon thay đáp án khi thiếu contour. Các trò nghe/chọn/thẻ và illustration học giữ presentation riêng.
+
+C50 nghe chọn: phản hồi overlay gọn trên tile đã chọn, không đổi chiều cao board. Đúng: border primary, check + “Đúng rồi!”, ngôi sao và scale nhẹ khi cho phép khích lệ/chuyển động. Sai: border secondary, biểu tượng thử lại + “Mình thử lại nhé”, opacity pulse nhẹ; không dấu chấm điểm, màu đỏ phạt hoặc shake. 900ms presentation window, input khóa tránh double tap; Reduce Motion/tắt khích lệ giữ cue tĩnh.
+
 - `TodayLessonCard`;
 - `GoalProgressCard`;
 - `PromptPanel`;

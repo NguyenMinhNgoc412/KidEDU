@@ -1,5 +1,15 @@
 # Documentation v2 Changelog
 
+## 2026-11-07 — Fullaccess local QA
+
+- Theo phản hồi owner, memory mismatch tự úp nhanh hơn: 1,2s → 0,6s; giữ 2,4s cho screen reader và các pause/unmount guards. Không đổi checkpoint/quota hoặc thời gian feedback trò chọn hình.
+
+- Thêm feedback đúng/sai tại tile nghe chọn, finite 900ms presentation trước chuyển lượt và cuối game. SQLite commit ngay; pause/background hủy delayed frame, không replay effect. Giữ Reduce Motion/khích lệ và accessible announcement. PRD/design và C50 mục 24 cập nhật; không đổi API/quota hoặc thêm judgement score.
+
+- Sửa bóng khuyết theo yêu cầu owner: bỏ các bóng vẽ chung/sai vật, bổ sung 12 contour và dùng chung geometry/crop tĩnh cho hình kéo và bóng. Năm PNG trace alpha, bảy hình scene có vector clipping riêng; silhouette tô đặc theo theme, giữ drag/accessibility/lifecycle. PRD-GAME-003/design và C50 mục 23 ghi acceptance/evidence; không đổi backend/quota hoặc publish corpus mới.
+
+- Theo yêu cầu owner, synthetic fullaccess có entitlement dài hạn, bỏ Parent Gate hold và mở phiên thử mới trong ngày. Guarded local-only endpoint retire metadata phiên completed nhưng giữ owned inventory/learning history; SQLite archive day index để nhận session mới, không đổi schema. Account switch và production/tài khoản thường giữ boundary. PRD/API contract/OpenAPI/generated client và C50 mục 22 cập nhật; không bật AI hoặc coi các capability còn thiếu là đã triển khai.
+
 ## 2026-11-06 — C50 local daily-game engine
 
 - Owner sửa UX: board cố định, Back rõ ràng và chặn vuốt thoát; hình/thẻ lớn responsive, cặp sai tự úp. Hoàn tất tự đồng bộ, chỉ server ACK mới mở quà; nhận xong tự về Trò chơi đã hết lượt. Cập nhật PRD-GAME-003/REWARD-001, wireframes và accessibility; mobile Node 82 suites/383 tests, native 8 suites/23 tests, browser phone/tablet/landscape đạt. Evidence/rollback và giới hạn device QA tại C50 mục 21; không đổi schema hoặc mở AI.

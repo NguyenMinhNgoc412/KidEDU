@@ -6,6 +6,10 @@ import { useParentGateStore } from "@/features/parent/parentGate";
 const mockPush = jest.fn();
 let mockLocal = true;
 const mockHub = {
+  localTestAccess: false,
+  restartingTest: false,
+  restartTestError: false,
+  restartTest: jest.fn().mockResolvedValue(true),
   loading: false,
   error: false,
   childId: "child-a",
@@ -32,11 +36,25 @@ jest.mock("expo-router", () => {
   };
 });
 beforeEach(() => {
+  mockHub.localTestAccess = false;
   mockLocal = true;
   mockHub.error = false;
   mockHub.status = { state: "available", contentReady: false, canStart: false };
   mockPush.mockReset();
   useParentGateStore.getState().lock();
+});
+
+it("only lets the local full fixture open a new completed run", async () => {
+  mockHub.status.state = "completed";
+  const screen = await render(<DailyGamesHubScreen />);
+  expect(screen.getByRole("button", { name: "Vào chơi" })).toBeDisabled();
+  expect(screen.queryByRole("button", { name: "Chơi phiên thử mới" })).toBeNull();
+  mockHub.localTestAccess = true;
+  await screen.rerender(<DailyGamesHubScreen />);
+  expect(screen.queryByRole("button", { name: "Vào chơi" })).toBeNull();
+  await fireEvent.press(screen.getByRole("button", { name: "Chơi phiên thử mới" }));
+  expect(mockHub.restartTest).toHaveBeenCalled();
+  expect(mockPush).toHaveBeenCalledWith("/daily-game");
 });
 afterEach(() => useParentGateStore.getState().lock());
 

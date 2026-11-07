@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { isLocalFullAccess } from "@/features/auth/localFullAccess";
 
 export interface ParentGateChallenge {
   left: number;
@@ -9,14 +10,21 @@ export interface ParentGateChallenge {
 
 interface ParentGateState {
   isUnlocked: boolean;
+  localTestBypass: boolean;
+  configureLocalTest(accountId?: string): void;
   unlock(): void;
   lock(): void;
 }
 
-export const useParentGateStore = create<ParentGateState>((set) => ({
+export const useParentGateStore = create<ParentGateState>((set, get) => ({
   isUnlocked: false,
+  localTestBypass: false,
+  configureLocalTest: (accountId) => {
+    const allowed = isLocalFullAccess(accountId);
+    set({ localTestBypass: allowed, isUnlocked: allowed });
+  },
   unlock: () => set({ isUnlocked: true }),
-  lock: () => set({ isUnlocked: false })
+  lock: () => set({ isUnlocked: get().localTestBypass })
 }));
 
 export const parentGateHoldDurationMs = 1500;

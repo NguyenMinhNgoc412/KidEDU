@@ -960,6 +960,37 @@ paths:
           }
       }
 
+  /children/{childId}/daily-game/local-test/restart:
+    post:
+      operationId: restartLocalDailyTest
+      description: Local synthetic fullaccess only. Retires the completed test run and its receipt/reservation metadata, retains owned inventory and learning history. Does not provision content or grant production access.
+      parameters:
+        - $ref: "#/components/parameters/ChildId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [sessionId]
+              properties:
+                sessionId: { type: string, format: uuid }
+      responses:
+        "201":
+          description: Completed local test run retired; start creates the next run
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [restarted]
+                properties:
+                  restarted: { type: boolean, enum: [true] }
+        "400": { description: Invalid command }
+        "401": { description: Authentication required }
+        "404": { description: Not local fullaccess or child not owned }
+        "409": { description: Current run differs or is not completed }
+
   /children/{childId}/daily-game/start:
     post:
       {

@@ -80,6 +80,27 @@ const place = (targetId: string) => ({
 // Explicit synthetic permission for storage-only tests; never used by app runtime.
 const syntheticPermit = () => undefined;
 
+it("archives a completed fullaccess test day index while retaining its document and rejecting ordinary replacement", async () => {
+  const db = new DB();
+  const repo = new DailyGameLocalRepository(db, "00000000-0000-4000-8000-000000000002");
+  const next = { ...session, id: "22222222-2222-4222-8222-222222222222" };
+  try {
+    await repo.initialize();
+    await repo.install("child-a", session);
+    await expect(repo.install("child-a", next, true)).rejects.toThrow(
+      "UNEXPECTED_SESSION_REPLACEMENT"
+    );
+    await repo.install("child-a", { ...session, completedAt: "2026-11-06T16:00:00.000Z" });
+    await expect(repo.install("child-a", next)).rejects.toThrow("UNEXPECTED_SESSION_REPLACEMENT");
+    await repo.install("child-a", next, true);
+    expect((await repo.load("child-a", session.id))?.session.completedAt).toBeTruthy();
+    expect((await repo.load("child-a", next.id))?.session.completedAt).toBeNull();
+    expect((await repo.load("child-a", session.id))?.session.playDay).toBe(session.playDay);
+  } finally {
+    db.close();
+  }
+});
+
 it("retries a lost ACK without losing newer progress and retains conflicts for reconciliation", async () => {
   const db = new DB();
   const repo = new DailyGameLocalRepository(db, "synthetic-account");

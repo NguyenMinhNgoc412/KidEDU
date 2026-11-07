@@ -21,7 +21,7 @@ INSERT INTO entitlements (
 )
 SELECT account_id,
        'active'::"EntitlementState",
-       now() + interval '30 days',
+       now() + interval '10 years',
        ARRAY['learning.plan.full', 'content.pack.full', 'family_media.cloud']::text[],
        false, 'local_fixture', 1, now()
 FROM auth_identities
@@ -33,6 +33,6 @@ ON CONFLICT (account_id) DO UPDATE SET
   version = entitlements.version + 1,
   updated_at = EXCLUDED.updated_at
 WHERE entitlements.source = 'local_fixture'
-  AND (entitlements.effective_until IS NULL OR entitlements.effective_until < now() + interval '7 days');
+  AND (entitlements.effective_until IS NULL OR entitlements.effective_until < now() + interval '9 years');
 
 COMMIT;

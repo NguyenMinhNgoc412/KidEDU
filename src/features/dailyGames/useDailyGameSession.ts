@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useFeedbackWindow } from "./useFeedbackWindow";
 import { AccessibilityInfo, AppState } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { createLocalApiClient } from "@/api/localClient";
@@ -72,6 +73,7 @@ export function useDailyGameSession({
   const focused = useRef(false);
   const busy = useRef(false);
   const epoch = useRef(0);
+  const { wait: waitFeedback, cancel: cancelFeedback } = useFeedbackWindow();
   const fail = (failure: unknown) => {
     const expired = failure instanceof Error && /EXPIRED|DAY_CHANGED/.test(failure.message);
     setError(
@@ -103,10 +105,11 @@ export function useDailyGameSession({
   }, [coordinator]);
   const pause = useCallback(() => {
     epoch.current++;
+    cancelFeedback();
     setCommitting(false);
     setMode("paused");
     if (coordinator) void coordinator.pauseAndSync().catch(() => undefined);
-  }, [coordinator]);
+  }, [coordinator, cancelFeedback]);
   useFocusEffect(
     useCallback(() => {
       focused.current = true;
@@ -118,10 +121,11 @@ export function useDailyGameSession({
       return () => {
         focused.current = false;
         epoch.current++;
+        cancelFeedback();
         subscription.remove();
         if (coordinator) void coordinator.pauseAndSync().catch(() => undefined);
       };
-    }, [coordinator, pause, prepare])
+    }, [coordinator, pause, prepare, cancelFeedback])
   );
   const sync = useCallback(() => {
     if (!coordinator || busy.current) return;
@@ -156,15 +160,19 @@ export function useDailyGameSession({
     setCommitting(true);
     void coordinator
       .apply(action)
-      .then((result) => {
+      .then(async (result) => {
+        if (action.type === "choose_listen" && focused.current && generation === epoch.current)
+          await waitFeedback();
         if (!focused.current || generation !== epoch.current) return;
         setState(result.state);
         const message =
-          result.feedback === "correct"
-            ? "Đúng rồi!"
-            : result.feedback === "try_again"
-              ? "Mình thử lại nhé."
-              : "";
+          action.type === "choose_listen"
+            ? ""
+            : result.feedback === "correct"
+              ? "Đúng rồi!"
+              : result.feedback === "try_again"
+                ? "Mình thử lại nhé."
+                : "";
         setFeedback(message);
         if (message) AccessibilityInfo.announceForAccessibility(message);
         if (result.requiresBoundary) {

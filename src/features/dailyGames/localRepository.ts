@@ -116,7 +116,7 @@ export class DailyGameLocalRepository {
       return choice?.box_index ?? null;
     });
   }
-  async install(childId: string, input: unknown) {
+  async install(childId: string, input: unknown, localTestReplacement = false) {
     const session = snapshot(input);
     return this.write(async (db) => {
       const existing = await db.getFirstAsync<Row>("SELECT * FROM daily_sessions WHERE id=?", [
@@ -142,6 +142,28 @@ export class DailyGameLocalRepository {
           [JSON.stringify(session), session.revision, session.id]
         );
       } else {
+        const previous = await db.getFirstAsync<Row & { id: string }>(
+          "SELECT * FROM daily_sessions WHERE child_id=? AND play_day=?",
+          [childId, session.playDay]
+        );
+        if (previous) {
+          const pending = await db.getFirstAsync(
+            "SELECT session_id FROM daily_checkpoint_outbox WHERE session_id=?",
+            [previous.id]
+          );
+          if (
+            !localTestReplacement ||
+            this.accountId !== "00000000-0000-4000-8000-000000000002" ||
+            !snapshot(JSON.parse(previous.document)).completedAt ||
+            pending
+          )
+            throw new Error("UNEXPECTED_SESSION_REPLACEMENT");
+          // Keep the old document, choices and archives readable by ID. Only retire its day index.
+          await db.runAsync("UPDATE daily_sessions SET play_day=? WHERE id=?", [
+            `local-test-archive:${previous.id}`,
+            previous.id
+          ]);
+        }
         await db.runAsync("INSERT INTO daily_sessions VALUES (?,?,?,?,?,?)", [
           session.id,
           childId,
