@@ -1,5 +1,7 @@
 # Accessibility & Child Safety Specification
 
+C50 drag correction 2026-11-09: trẻ có thể cầm ở mép hình; kiểm nhận theo tâm hình trong khung đích, không theo vị trí ngón tay. Không thu nhỏ vùng nhận vào nét silhouette hoặc tăng độ chính xác vận động bắt buộc. Giữ assistive activation, scroll lock và validation đúng vật/đúng ô; delayed measurement/release sau pause hoặc hủy không được gán hình.
+
 Owner amendment 2026-11-06, timing correction 2026-11-07 — C50 có Back 56px tại header, chặn swipe/system back để tránh kéo nhầm thoát. Board cố định và hình/thẻ thích ứng diện tích, giữ child target ≥56px. Cặp sai tự úp sau 0,6 giây (2,4 giây khi screen reader), timer hủy khi pause/background/unmount; không phạt. Receipt đã xác nhận hiện quà 2,4 giây rồi tự về Trò chơi; background hủy timer, foreground cho lại đủ thời gian xem. Không phát media khi foreground. Xem `PRD-GAME-003`, `PRD-REWARD-001`; native large-text/VoiceOver/TalkBack vẫn là release QA.
 
 > C50 target update 2026-11-05 — PRD-UX-004 cho phép ngoại lệ quà sưu tập miễn phí PRD-REWARD-001; không paid box/rarity/reroll hoặc quảng cáo lấy lượt. Gender group không hiển thị judgement; drag có assistive alternative; hết lượt có accessible disabled state và thông báo. Privacy AI theo PRD-CUSTOM-006.

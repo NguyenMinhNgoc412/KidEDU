@@ -10,6 +10,7 @@ import { colors, gameSizes, radii } from "@/theme";
 import { useArtworkReadiness } from "./useArtworkReadiness";
 import { wordGameArtwork } from "./wordGameArtwork";
 import { wordSilhouetteContours } from "./wordSilhouetteContours";
+import { wordArtworkSource } from "./prepareWordArtwork";
 
 export { Leaf, Gift, Star, Check, ArrowRight, RotateCcw };
 const noop = () => {};
@@ -48,11 +49,11 @@ function Sprite({
     >
       {!ready ? <WordSilhouette picture={animation.itemId} size={size} /> : null}
       <Image
-        source={animation.source}
+        source={wordArtworkSource(animation.itemId)}
         accessible={false}
         contentFit="fill"
         cachePolicy="memory-disk"
-
+        loading="eager"
         onLoad={onLoad}
         onError={onError}
         style={{
@@ -145,7 +146,7 @@ export function WordMatchingArt({
       </Defs>
       <G clipPath={`url(#${id})`}>
         <SvgImage
-          href={animation.source}
+          href={wordArtworkSource(piece.picture)}
           width={100 * columns}
           height={100 * rows}
           preserveAspectRatio="none"

@@ -531,6 +531,8 @@ Owner amendment 2026-11-06: màn chơi cố định, không cuộn khi kéo và 
 
 Acceptance hình bóng khuyết (`PRD-GAME-003`, owner correction 2026-11-07): mỗi bóng có đúng đường bao ngoài của hình nguồn, cùng tư thế/tỉ lệ/crop tĩnh khi ghép. Không dùng một bóng chung cho nhiều đồ vật hoặc cảnh nền làm silhouette. Cần bóng đủ tương phản, giữ assistive alternative và feedback không phạt; hình chưa hỗ trợ không được thay bằng bóng của đồ vật khác.
 
+Drag acceptance clarification 2026-11-09: nhận hình khi tâm khung hình được thả vào đúng ô, không yêu cầu ngón tay nằm trong ô hoặc cầm chính giữa hình. Đo nguồn/đích trong cùng hệ tọa độ cửa sổ; phép đo nguồn phải hoàn tất trước khi áp dụng translation để kéo nhanh không làm lệch origin. Sai ô/ngoài ô vẫn không nhận, pause/unmount/hủy không được commit thao tác muộn.
+
 Owner correction 2026-11-07 — nghe chọn có phản hồi tại hình vừa chạm: đúng có xác nhận/chúc mừng nhẹ; sai có cue thử lại trung tính, không còi/phạt/rung lắc gây áp lực. Giữ phản hồi ngắn trước chuyển lượt, kể cả lượt cuối; checkpoint ghi ngay, chỉ presentation trì hoãn. Tắt chuyển động theo Reduce Motion/reinforcement setting, giữ cue tĩnh và thông báo accessible. Background/unmount hủy hiệu ứng/handoff, foreground không replay.
 
 ### `PRD-GAME-004` — Hết lượt vẫn xem được tab

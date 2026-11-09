@@ -20,10 +20,12 @@ const input = { accountId: "account", childId: "child", session };
 let elapsed = 0;
 const api = { getDailyGameStatus: jest.fn(), getSubscription: jest.fn() };
 const getApi = () => api as unknown as ReturnType<typeof createLocalApiClient>;
+const prepareArtwork = jest.fn<Promise<void>, [readonly string[]]>();
 beforeEach(() => {
   mockLocal = true;
   elapsed = 100;
   jest.resetAllMocks();
+  prepareArtwork.mockResolvedValue(undefined);
   api.getDailyGameStatus.mockResolvedValue({
     sessionId: session.id,
     playDay: session.playDay,
@@ -34,7 +36,7 @@ beforeEach(() => {
 });
 it("uses a conservative monotonic reset boundary without API calls during inputs", async () => {
   const identity = jest.fn();
-  const boundary = localDailyPreparation(getApi, identity, () => elapsed);
+  const boundary = localDailyPreparation(getApi, identity, () => elapsed, prepareArtwork);
   const lease = await boundary.prepare(input);
   elapsed += 59999;
   lease.assertUsable();
@@ -45,7 +47,7 @@ it("uses a conservative monotonic reset boundary without API calls during inputs
 });
 it("rejects production, unknown content, identity changes and closed leases", async () => {
   const identity = jest.fn();
-  const boundary = localDailyPreparation(getApi, identity, () => elapsed);
+  const boundary = localDailyPreparation(getApi, identity, () => elapsed, prepareArtwork);
   mockLocal = false;
   await expect(boundary.prepare(input)).rejects.toThrow("UNAVAILABLE");
   mockLocal = true;
@@ -60,4 +62,28 @@ it("rejects production, unknown content, identity changes and closed leases", as
   identity.mockReset();
   lease.close();
   expect(() => lease.assertUsable()).toThrow("EXPIRED");
+});
+
+it("waits for unique artwork before authorization and fails closed when media fails", async () => {
+  const boundary = localDailyPreparation(getApi, jest.fn(), () => elapsed, prepareArtwork);
+  prepareArtwork.mockRejectedValueOnce(new Error("MEDIA_FAILED"));
+  await expect(boundary.prepare(input)).rejects.toThrow("MEDIA_FAILED");
+  expect(api.getDailyGameStatus).not.toHaveBeenCalled();
+  await boundary.prepare(input);
+  const pictures = prepareArtwork.mock.calls[1]![0];
+  expect(pictures.length).toBe(new Set(pictures).size);
+  expect(pictures.length).toBeGreaterThan(0);
+});
+
+it("rechecks account identity after asynchronous artwork preparation", async () => {
+  const identity = jest.fn();
+  prepareArtwork.mockImplementationOnce(async () => {
+    identity.mockImplementation(() => {
+      throw new Error("IDENTITY_CHANGED");
+    });
+  });
+  await expect(
+    localDailyPreparation(getApi, identity, () => elapsed, prepareArtwork).prepare(input)
+  ).rejects.toThrow("IDENTITY_CHANGED");
+  expect(api.getDailyGameStatus).not.toHaveBeenCalled();
 });

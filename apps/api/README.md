@@ -118,6 +118,13 @@ guest-network isolation and Windows Firewall access to TCP 3000/3011 on the loca
 subnet. PostgreSQL stays loopback-only; production configuration is unaffected.
 If the Wi-Fi IP changes, update both URLs and the Compose bind address.
 
+When login times out after changing networks, first check the current Wi-Fi IPv4
+against both URLs. If identity `/login` and authenticated `/v1/me` work at the new
+address but the app still requests the old one, restart the existing Expo process
+with the command above and reload/reopen the app. Editing `.env` alone may leave
+the running Metro bundle using its previous environment. This repair does not
+require changing passwords, clearing family data or recreating database volumes.
+
 To return to computer-only development, restore both URLs to localhost, remove
 `KIDEDU_LOCAL_BIND_ADDRESS` from the shell and recreate identity/API with the same
 Compose command. No database migration or volume deletion is required.

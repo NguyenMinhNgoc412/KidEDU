@@ -29,7 +29,10 @@ export const localDailyTargets: Readonly<Record<string, PlayPiece>> = Object.fro
 export function localDailyPreparation(
   getApi: () => ReturnType<typeof createLocalApiClient>,
   assertIdentity: () => void,
-  monotonic: () => number = () => performance.now()
+  monotonic: () => number = () => performance.now(),
+  prepareArtwork: (pictures: readonly string[]) => Promise<void> = async () => {
+    throw new Error("DAILY_ARTWORK_PREPARER_REQUIRED");
+  }
 ): DailyGamePreparationBoundary {
   return {
     async prepare({ childId, session }) {
@@ -41,6 +44,8 @@ export function localDailyPreparation(
         ...session.plan.memoryTargetIds
       ];
       if (ids.some((id) => !localDailyTargets[id])) throw new Error("DAILY_CONTENT_UNAVAILABLE");
+      assertIdentity();
+      await prepareArtwork([...new Set(ids)].map((id) => localDailyTargets[id]!.picture));
       assertIdentity();
       const started = monotonic();
       const [status, subscription] = await Promise.all([

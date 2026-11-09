@@ -6,6 +6,7 @@ import { createLocalApiClient } from "@/api/localClient";
 import { localFixtureEnabled } from "@/features/lessonRuntime/fixtureBoundary";
 import { useDailyGameRepository } from "./DailyGameRuntimeProvider";
 import { localDailyPreparation } from "./localPreparationBoundary";
+import { prepareWordArtwork } from "@/features/practice/prepareWordArtwork";
 import type { DailyGameLocalState, DailyGameSessionCoordinator } from "./sessionCoordinator";
 import { dailyGamePhase, type DailyGameAction } from "./sessionEngine";
 export function useDailyGameSession({
@@ -48,7 +49,7 @@ export function useDailyGameSession({
     const created = runtime.createSession(
       childId,
       getApi,
-      localDailyPreparation(getApi, assertIdentity)
+      localDailyPreparation(getApi, assertIdentity, undefined, prepareWordArtwork)
     );
     setHandle({ runtime, coordinator: created });
     return () => {

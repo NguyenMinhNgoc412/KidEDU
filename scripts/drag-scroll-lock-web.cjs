@@ -1,5 +1,15 @@
 const assert = require("node:assert/strict");
-module.exports = async function lockedDrag(page, source, from, to, { cancel = false } = {}) {
+module.exports = async function lockedDrag(
+  page,
+  source,
+  from,
+  to,
+  { cancel = false, grabX = 0.5, dropCenterX = 0.5, grabY = 0.5, dropCenterY = 0.5 } = {}
+) {
+  const startX = from.x + from.width * grabX;
+  const startY = from.y + from.height * grabY;
+  const endY = to.y + to.height * dropCenterY + from.height * (grabY - 0.5);
+  const endX = to.x + to.width * dropCenterX + from.width * (grabX - 0.5);
   const scroller = source.locator('xpath=ancestor::*[@data-testid="screen-scroll"][1]');
   const scrollElement = await scroller.elementHandle();
   assert(scrollElement, "Drag must belong to its screen scroll container");
@@ -23,9 +33,9 @@ module.exports = async function lockedDrag(page, source, from, to, { cancel = fa
         enabled: true,
         maxTouchPoints: 1
       });
-      await send("touchStart", from.x + from.width / 2, from.y + from.height / 2);
+      await send("touchStart", startX, startY);
     } else {
-      await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+      await page.mouse.move(startX, startY);
       await page.mouse.down();
     }
     await page.waitForFunction(
@@ -37,10 +47,10 @@ module.exports = async function lockedDrag(page, source, from, to, { cancel = fa
       for (let step = 1; step <= 12; step++)
         await send(
           "touchMove",
-          from.x + from.width / 2 + ((to.x + to.width / 2 - from.x - from.width / 2) * step) / 12,
-          from.y + from.height / 2 + ((to.y + to.height / 2 - from.y - from.height / 2) * step) / 12
+          startX + ((endX - startX) * step) / 12,
+          startY + ((endY - startY) * step) / 12
         );
-    } else await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 16 });
+    } else await page.mouse.move(endX, endY, { steps: 16 });
     const during = await scroller.evaluate((node) => ({
       top: node.scrollTop,
       left: node.scrollLeft

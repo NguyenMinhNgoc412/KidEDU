@@ -1,5 +1,12 @@
 # Documentation v2 Changelog
 
+## 2026-11-09 — Local testing và drag acceptance
+
+- Sửa tải ảnh C50: chuẩn bị unique session artwork trước board, concurrency tối đa ba; dùng nguồn local chung cho SVG/Expo Image, web giữ blob URL để tránh Metro tải lại. Identity được kiểm lại sau await; server authorization vẫn độc lập. Full browser flow xác nhận 12 artwork resources và 0 byte tải thêm giữa vòng; regression/giới hạn/migration tại C50 mục 26. Không đổi product/stack/schema hoặc bật production pack.
+
+- Sửa lỗi kéo đúng ô nhưng không nhận khi cầm lệch hình: dùng tâm khung hình cùng hệ tọa độ window với target, giữ translation đến khi đo xong để tránh origin bị dịch trong lúc kéo nhanh. Callback gesture cũ không tác động lần kéo mới; fallback dùng release page coordinates khi không đo được. Regression/evidence/rollback tại C50 mục 25, không đổi schema/quota/inventory.
+- Sửa cấu hình test sau đổi Wi-Fi: cập nhật hai local service origins trong `.env`, restart Metro để loại bundle còn IP cũ. Local authenticated API và browser fullaccess/account-switch smoke đạt; thêm runbook API, không đổi credential hoặc dữ liệu gia đình.
+
 ## 2026-11-07 — Fullaccess local QA
 
 - Theo phản hồi owner, memory mismatch tự úp nhanh hơn: 1,2s → 0,6s; giữ 2,4s cho screen reader và các pause/unmount guards. Không đổi checkpoint/quota hoặc thời gian feedback trò chọn hình.

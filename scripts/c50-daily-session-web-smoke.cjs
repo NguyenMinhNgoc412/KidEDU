@@ -154,6 +154,7 @@ async function run() {
       assert.equal((await call(`/children/${child.id}/daily-game/start`, {})).id, remote.id);
     }
     const preparedMutations = mutations;
+    const artworkReadyAt = await page.evaluate(() => performance.now());
     for (let index = 0; index < remote.plan.shadowScreens.length; index++) {
       await page.screenshot({
         path: `artifacts/c50-shadow-round-${index + 1}-${width}.png`,
@@ -166,8 +167,16 @@ async function run() {
         const from = await source.boundingBox(),
           to = await hole.boundingBox();
         assert.ok(from && to);
-        await lockedDrag(page, source, from, to);
-        if (position < 2) await source.waitFor({ state: "hidden" });
+        await lockedDrag(
+          page,
+          source,
+          from,
+          to,
+          process.env.KIDEDU_DRAG_OFFCENTER === "1"
+            ? { grabX: 0.92, dropCenterX: 0.82, grabY: 0.92, dropCenterY: 0.82 }
+            : {}
+        );
+        if (position < 2) await source.waitFor({ state: "hidden", timeout: 5000 });
         else if (index + 1 < remote.plan.shadowScreens.length)
           await page.getByText(`Màn ${index + 2}/5`, { exact: true }).waitFor();
         else await page.getByRole("button", { name: "Trò tiếp theo", exact: true }).waitFor();
@@ -290,6 +299,23 @@ async function run() {
       await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
       false
     );
+    const imageTransfers = await page.evaluate((readyAt) => {
+      const entries = performance
+        .getEntriesByType("resource")
+        .filter((entry) => /word-game-art|illustration-animations/.test(entry.name));
+      return {
+        resources: entries.length,
+        lateTransferBytes: entries
+          .filter((entry) => entry.startTime > readyAt)
+          .reduce((total, entry) => total + (entry.transferSize || 0), 0)
+      };
+    }, artworkReadyAt);
+    assert.equal(
+      imageTransfers.lateTransferBytes,
+      0,
+      "Game artwork must be prepared before the loop"
+    );
+    console.log("Artwork resource check:", imageTransfers);
     console.log(
       "C50 local daily integration: real server reservation, SQLite checkpoints, full quotas, three games without loop HTTP, four boxes, one receipt and album passed"
     );

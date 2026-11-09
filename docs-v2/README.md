@@ -1,5 +1,9 @@
 # KidEDU Documentation v2
 
+C50 tải sẵn hình của phiên trước khi mở board, dùng chung nguồn local cho SVG/ảnh. Web smoke kiểm tra không có dữ liệu ảnh tải thêm giữa các vòng. Xem [C50 mục 26](./delivery/tasks/C50-four-tabs-daily-games-freemium-ai.md#26-bundled-game-artwork-readiness--2026-11-09); đây là corpus test local, chưa phải production pack activation.
+
+Drag C50 đã sửa nhận ô theo tâm hình thay vì ngón tay, đo vị trí trước translation và chặn callback cũ. Native gesture regression tại `DragPiece.native.test.tsx`; browser có `KIDEDU_DRAG_OFFCENTER=1` kiểm cầm lệch hai trục. Xem [C50 mục 25](./delivery/tasks/C50-four-tabs-daily-games-freemium-ai.md#25-picture-centered-drop-acceptance--2026-11-09).
+
 Nghe chọn C50 có feedback đúng/sai ngay trên tile, giữ khoảng nhìn trước khi chuyển lượt nhưng vẫn commit ngay. `ListenChoices` và `useFeedbackWindow` sở hữu presentation/cancellation; xem [C50 mục 24](./delivery/tasks/C50-four-tabs-daily-games-freemium-ai.md#24-listen-choice-feedback--2026-11-07).
 
 Bóng khuyết C50: contour riêng cho 12 hình, dùng chung static crop cho hình kéo/bóng, bỏ generic silhouette và cảnh nền trong puzzle. `wordSilhouetteContours.ts` + `wordSilhouettes.generated.json` sở hữu geometry; `scripts/build-word-silhouettes.cjs` tái tạo năm contour PNG từ alpha mà không sửa raster. Evidence/rollback tại [C50 mục 23](./delivery/tasks/C50-four-tabs-daily-games-freemium-ai.md#23-silhouette-fidelity--2026-11-07).

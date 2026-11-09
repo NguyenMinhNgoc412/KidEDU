@@ -11,6 +11,8 @@
 
 ## 1. Stack
 
+C50 local bundled-art preparation (2026-11-09): prepare only the pinned session's unique pictures before admitting the activity, with at most three concurrent loads. Recheck identity after media preparation and obtain the server boundary afterward. `prepareWordArtwork` warms Expo Image and supplies shared local sources to SVG/image renderers; web uses page-lifetime blob URLs for the fixed public bundled catalog to avoid Metro cache revalidation. Never reuse this public-art adapter for family media or protected packs. Production signed/encrypted pack activation remains a separate gate; see C50 section 26.
+
 React Native + Expo Development Build, TypeScript strict, Expo Router, TanStack Query, Zustand, React Hook Form/Zod, SQLite, Expo FileSystem/Image/Video/Audio/Notifications, Reanimated, `react-native-svg`, `lottie-react-native`, SecureStore, native AES-GCM module, Supabase Auth client, Firebase Crashlytics, direct StoreKit 2/Google Play Billing adapter và Jest/RNTL/Maestro. Expo SDK/framework là open-source dependency. Do owner không có Mac, EAS Free chỉ dùng build/submit iOS; không dùng EAS Update/OTA hoặc paid plan trong baseline.
 
 Supabase client trên mobile chỉ được dùng cho Auth session. Route/screen/repository không gọi Supabase Data API, Realtime hoặc Storage; application data luôn qua generated KidEDU API client để giữ authorization và khả năng migrate provider.
